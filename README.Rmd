@@ -1,0 +1,61 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+# Makurhini
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of Makurhini is to provide a set of functions to estimate landscape fragmentation and connectivity metrics
+
+## Installation
+
+You can install the released version of Makurhini from [CRAN](https://CRAN.R-project.org) with:
+
+``` r
+install.packages("Makurhini")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example, echo=TRUE}
+library(sf)
+## basic example code
+```
+```{r message=FALSE, warning=FALSE}
+library(Makurhini)
+ruta <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
+cores <- read_sf(ruta)
+cores
+```
+
+```{r cores, echo=FALSE}
+plot(cores["id"])
+```
+
+
+```{r message=FALSE, warning=FALSE}
+nrow(cores)
+IIC <- dConnectivity(nodes = cores, id = "id", attribute = "Area",
+                     distance = list(type = "centroid"),
+                     metric = "IIC", distance_thresholds = 30000,
+                     LA = NULL, overall = FALSE)
+plot(IIC["dIIC"], breaks = "jenks")
+plot(IIC["dIICintra"], breaks = "jenks")
+plot(IIC["dIICflux"], breaks = "jenks")
+plot(IIC["dIICconnector"], breaks = "jenks")
+```
+

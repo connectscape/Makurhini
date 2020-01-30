@@ -1,0 +1,22 @@
+Data references:
+Human_Footprint_Mexico.tif
+Wildlife Conservation Society - WCS, and Center for International Earth Science Information Network - CIESIN - Columbia University. 
+2005. Last of the Wild Project, Version 2, 2005 (LWP-2): Global Human Footprint Dataset (Geographic). Palisades, NY: NASA Socioeconomic Data and Applications Center (SEDAC). https://doi.org/10.7927/H4M61H5F. Accessed DAY MONTH YEAR.
+
+Ecoregions2017.shp
+Dinerstein, E., Olson, D., Joshi, A., Vynne, C., Burgess, N. D., Wikramanayake, E., … Kindt, R. (2017). 
+An Ecoregion-Based Approach to Protecting Half the Terrestrial Realm. 
+BioScience, 67(6), 534–545. https://doi.org/10.1093/biosci/bix014
+https://ecoregions2017.appspot.com/
+
+Habitat_Patches.shp
+INEGI. (2013). Conjunto de datos vectoriales de uso del suelo y vegetación, serie V (capa unión), escala 1:250, 000. 
+Instituto Nacional de Estadística y Geografía, Aguascalientes
+
+WDPA_May2019_MEX-shapefile-polygons.shp
+UNEP-WCMC (2019). Protected Area Profile for Mexico from the World Database of Protected Areas, May 2019. 
+Available at: www.protectedplanet.net
+
+ECA_example.RData
+Fragmentos de vegetación para la zona de la Reserva de la Biosfera Mariposa Monarca 
+tomados del conjunto de datos vectoriales de uso del suelo y vegetación de las series II, III, IV y V.

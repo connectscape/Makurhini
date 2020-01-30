@@ -1,0 +1,25 @@
+#' Dissolve polygones sf or SpatialPolygonsDataFrame
+#' @param polygone object of class sf, sfc, sfg or SpatialPolygons
+#' @param attribute character. Column name with the dissolve attribute
+#' @export
+#' @importFrom magrittr %>%
+pol_dissolve<-function(polygone, attribute){
+  if(class(polygone)[1]!="sf"){
+    polygone <- sf::st_as_sf(polygone)
+    polygone$Atrib <- polygone[[attribute]]
+    polygone <- split(polygone, polygone$Atrib) %>%
+      lapply(st_union) %>%
+      do.call(c, .) %>%
+      sf::st_cast() %>%
+      as(.,'Spatial')
+  } else {
+    polygone <- polygone %>% split(.,paste0(attribute)) %>%
+      lapply(sf::st_union) %>%
+      do.call(base::c, .)
+  }
+  return(polygone)
+}
+
+
+
+

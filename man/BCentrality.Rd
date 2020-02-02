@@ -5,9 +5,9 @@
 \title{Betweenness Centrality metrics}
 \usage{
 BCentrality(nodes, id, attribute = NULL, distance = list(type =
-  "centroid", resistance = NULL, tolerance = NULL, ...), metric = c("BC",
-  "BCIIC", "BCPC"), distance_thresholds = NULL, probability = NULL,
-  LA = NULL, write = NULL)
+  "centroid", resistance = NULL), metric = c("BC", "BCIIC", "BCPC"),
+  distance_thresholds = NULL, probability = NULL, LA = NULL,
+  write = NULL)
 }
 \arguments{
 \item{nodes}{Object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}
@@ -16,13 +16,13 @@ BCentrality(nodes, id, attribute = NULL, distance = list(type =
 
 \item{attribute}{character. Column name with the nodes attribute. If NULL, then the patch area (ha) will be estimated and used as the attribute.}
 
-\item{distance}{list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff-edge",
+\item{distance}{list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge",
 "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
-  To See more options consult the help function of distancefile().}
+ To See more arguments consult the help function of distancefile().}
 
 \item{metric}{character. Choose a Betweenness Centrality Metric: "BC" or "BCIIC" considering topologycal distances or "BCPC" considering maximum product probabilities.}
 
-\item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections. For example, one distance: distance_threshold = 30000; two or more specific distances:
+\item{distance_thresholds}{numeric. Distance or distances thresholds (meters) to establish connections. For example, one distance: distance_threshold = 30000; two or more specific distances:
 distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).}
 
 \item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "BPC" metric.}
@@ -35,17 +35,25 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
 Use this function to calculate the BC, BCIIC and BCPC indexes under one or several distance thresholds.
 }
 \examples{
-ruta <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
-cores <- sf::read_sf(ruta)#'
+path <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
+cores <- sf::read_sf(path)#'
+
 nrow(cores) #Number of cores
+
 #One distance threshold
-BCentrality(nodes = cores, id = "id", attribute = NULL, distance = list(type = "centroid"), metric = "BCIIC", distance_thresholds = 30000)
+BCentrality(nodes = cores, id = "id",
+            distance = list(type = "centroid"),
+            metric = "BCIIC",
+            distance_thresholds = 30000) #30 km
 
 #Two or more distance thresholds
-BCentrality(nodes = cores, id = "id", attribute = NULL, distance = list(type = "centroid"), metric = "BCIIC", distance_thresholds = c(10000, 30000))
+BCentrality(nodes = cores, id = "id", attribute = NULL,
+           distance = list(type = "centroid"),
+           metric = "BCIIC",
+           distance_thresholds = c(10000, 30000)) #10 and 30 km
 }
 \references{
-Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at \url{www.conefor.org}.\cr
- Freeman L.C. 1977. Set of Measures of Centrality Based on Betweenness. Sociometry 40: 35-41.\cr
- Bodin, Ö. & Saura, S. 2010. Ranking individual habitat patches as connectivity providers: integrating network analysis and patch removal experiments. Ecological Modelling 221: 2393-2405.
+Saura, S. and Torne, J. (2012). Conefor 2.6. Universidad Politecnica de Madrid. Available at \url{www.conefor.org}.\cr
+ Freeman L.C. (1977). Set of Measures of Centrality Based on Betweenness. Sociometry 40: 35-41.\cr
+ Bodin, O. and Saura, S. (2010). Ranking individual habitat patches as connectivity providers: integrating network analysis and patch removal experiments. Ecological Modelling 221: 2393-2405.
 }

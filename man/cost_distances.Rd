@@ -5,8 +5,8 @@
 \title{Cost distances}
 \usage{
 cost_distances(x, id, type_distance = "least-cost", resistance = NULL,
-  mask = NULL, threshold = NULL, geometry_out = NULL,
-  write_table = NULL)
+  CostFun = NULL, ngh = NULL, mask = NULL, threshold = NULL,
+  geometry_out = NULL, write_table = NULL)
 }
 \arguments{
 \item{x}{object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}
@@ -17,6 +17,10 @@ cost_distances(x, id, type_distance = "least-cost", resistance = NULL,
 "commute-time" that is analogous to the resistance distance. This distance is based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).}
 
 \item{resistance}{raster. Raster object with resistance values (landscape friction).}
+
+\item{CostFun}{A function to compute the cost to move between cells.The default is the mean (isotropic cost distance):  function(x) mean(x).}
+
+\item{ngh}{numeric.  Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16. Default equal **8**.}
 
 \item{mask}{object of class sf, sfc, sfg or SpatialPolygons. For higher processing speed use this option to clip the resistance at the extent of the mask.}
 

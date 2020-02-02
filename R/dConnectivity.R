@@ -7,7 +7,7 @@
 #' @param restauration  character. Name of the column with restauration value. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node to add to the initial landscape (restored).
 #' @param distance list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff-edge",
 #' "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
-#'   To See more options consult the help function of distancefile().
+#'   To See more arguments consult the help function of distancefile().
 #' @param metric character. Choose a connectivity metric: "IIC" considering topologycal distances or "PC" considering maximum product probabilities.
 #' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.
 #' @param distance_thresholds numeric. Distance or distances thresholds to establish connections. For example, one distance: distance_threshold = 30000; two or more specific distances:
@@ -19,19 +19,29 @@
 #' @references Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at \url{www.conefor.org}.\cr
 #' Pascual-Hortal, L. & Saura, S. 2006. Comparison and development of new graph-based landscape connectivity indices: towards the priorization of habitat patches and corridors for conservation. Landscape Ecology 21 (7): 959-967.\cr
 #' Saura, S. & Pascual-Hortal, L. 2007. A new habitat availability index to integrate connectivity in landscape conservation planning: comparison with existing indices and application to a case study. Landscape and Urban Planning 83 (2-3): 91-103.
-#' @examples ruta <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
+#' @export
+#' @examples
+#' ruta <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
 #' cores <- sf::read_sf(ruta)
 #' nrow(cores)
 #' #One distance threshold
-#' IIC <- dConnectivity(nodes = cores, id = "id", attribute = NULL, distance = list(type = "centroid"), metric = "IIC", distance_thresholds = 30000)
+#' IIC <- dConnectivity(nodes = cores, id = "id", attribute = NULL,
+#'                     distance = list(type = "centroid"),
+#'                     metric = "IIC", distance_thresholds = 30000)
 #' IIC
 #' #Two or more distance thresholds
-#' PC <- dConnectivity(nodes = cores, id = "id", attribute = NULL, distance = list(type = "centroid"), metric = "PC", probability = 0.5, distance_thresholds = c(5000, 50000))
+#' PC <- dConnectivity(nodes = cores, id = "id", attribute = NULL,
+#'                     distance = list(type = "centroid"),
+#'                     metric = "PC", probability = 0.5,
+#'                     distance_thresholds = c(5000, 50000))
 #' PC
-#' @export
+#' @importFrom dplyr progress_estimated
+#' @importFrom purrr map
+#' @importFrom methods as
+#' @importFrom utils write.table
 
 dConnectivity <- function(nodes, id = NULL, attribute  = NULL, restauration = NULL,
-                        distance = list(type= "centroid", resistance = NULL, tolerance = NULL, ...),
+                        distance = list(type= "centroid", resistance = NULL),
                         metric = c("IIC", "PC"),
                         probability, distance_thresholds = NULL,
                         overall = FALSE, LA = NULL, write = NULL) {
@@ -88,7 +98,8 @@ dConnectivity <- function(nodes, id = NULL, attribute  = NULL, restauration = NU
             prefix=NULL, write = paste0(temp.1,"/nodes.txt"))
 
   distancefile(nodes,  id = "IdTemp", type = distance$type, tolerance = distance$tolerance,
-               resistance = distance$resistance, threshold = distance$threshold, mask = distance$mask,
+               resistance = distance$resistance, CostFun = distance$CostFun, ngh = distance$ngh,
+               threshold = distance$threshold, mask = distance$mask,
                distance_unit = distance$distance_unit, geometry_out = distance$geometry_out,
                write = paste0(temp.1,"/Dist.txt"))
 
@@ -104,9 +115,9 @@ dConnectivity <- function(nodes, id = NULL, attribute  = NULL, restauration = NU
   } else {
     pairs = "notall"
   }
-  pb <- dplyr::progress_estimated(length(distance_thresholds), 0)
+  pb <- progress_estimated(length(distance_thresholds), 0)
 
-  result <- tryCatch(purrr::map(as.list(distance_thresholds), function(x){
+  result <- tryCatch(map(as.list(distance_thresholds), function(x){
     if(length(distance_thresholds)>1){
       pb$tick()$print()
     }
@@ -124,7 +135,7 @@ dConnectivity <- function(nodes, id = NULL, attribute  = NULL, restauration = NU
       write <- paste0(write, "_d", x,".shp")
     }
 
-    dPC <- merge_conefor(data = dPC, pattern = NULL,
+    dPC <- merge_conefor(datat = dPC, pattern = NULL,
                          merge_shape = nodes, id = "IdTemp",
                          write = write,
                          dA = FALSE, var = FALSE)

@@ -4,15 +4,15 @@
 \alias{test_ECA_distance}
 \title{Test the ECA metric to multiple dispersal distances}
 \usage{
-test_ECA_distance(nodes, attribute, distance1, distance2 = NULL,
-  distance3 = NULL, distance4 = NULL, distance5 = NULL,
+test_ECA_distance(nodes, attribute = NULL, distance1 = NULL,
+  distance2 = NULL, distance3 = NULL, distance4 = NULL,
   metric = "IIC", probability = NULL, distance_thresholds, LA = NULL,
   groups = 3, write = NULL)
 }
 \arguments{
 \item{nodes}{Object of class sf, sfc, sfg or SpatialPolygons.}
 
-\item{attribute}{character. Column name with the nodes attribute. If NULL, then the patch area will be estimated and used as the attribute.}
+\item{attribute}{character. Column name with the nodes attribute. If NULL, then the nodes area will be estimated and used as the attribute.}
 
 \item{distance1}{list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff edge",
 "least-cost distance" or "commute distance". If the type is equal to "least-cost distance" or "commute distance", then you have to use the "resistance" argument. "tolerance" is a numeric value used for higher processing.
@@ -28,15 +28,25 @@ test_ECA_distance(nodes, attribute, distance1, distance2 = NULL,
 
 \item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "BPC" metric.}
 
+\item{distance_thresholds}{numeric. Distances thresholds (minimum 3) to establish connections. For example, one distance: distance_threshold = 30000; two or more specific distances:
+distance_thresholds = c(30000, 50000, 100000); sequence distances (recommended): distance_thresholds = seq(10000,100000, 10000).}
+
 \item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to m2).}
 
-\item{write}{character. Write output shapefile, example, "C:/ejemplo.shp".}
+\item{groups}{Selected representative threshold distances (distance just before the biggest changes in connectivity metric)}
 
-\item{distance_threshold}{numeric. Distance or distances thresholds to establish connections. For example, one distance: distance_threshold = 30000; two or more specific distances:
-distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).}
+\item{write}{character. Write output shapefile, example, "C:/ejemplo.shp".}
 }
 \description{
 Test the ECA metric to multiple dispersal distances
+}
+\examples{
+\dontrun{
+ruta <- system.file("extdata", "ECA_example.RData", package = "Makurhini")
+load(ruta)
+test_ECA_distance(nodes = nodes[[1]], distance1 =list(type= "centroid"), LA = 279165,
+                  distance_thresholds =  seq(10000,100000, 10000))
+                  }
 }
 \references{
 Correa Ayram, C. A., Mendoza, M. E., Etter, A., & Pérez Salicrup, D. R. (2017). Anthropogenic impact on habitat connectivity: A multidimensional human footprint index evaluated in a highly biodiverse landscape of Mexico. Ecological Indicators, 72, 895–909. https://doi.org/10.1016/j.ecolind.2016.09.007

@@ -16,7 +16,7 @@
 #' @param write character. Full path direction of the folder
 #' @return Four files .txt:"overall_indices", "results_all_EC(PC)", "results_all_overall_indices" y "node_importance"
 #' @examples
-#' # Not run
+#' \dontrun{
 #' setwd("~")
 #' EstConefor(nodeFile = "SV85FM_",
 #'           connectionFile = "SVdist_",
@@ -26,6 +26,7 @@
 #'           onlyoverall = FALSE,
 #'           output = "~/out",
 #'           prefix="T3")
+#'           }
 #' @references Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at \url{www.conefor.org}.
 #' @export
 #' @importFrom data.table fread
@@ -53,9 +54,9 @@ EstConefor <- function(nodeFile,
   dir.create(temp, recursive = TRUE)
   file.copy(dir(paste0(.libPaths(), "\\Makurhini"), pattern = ".exe$", full.names = T), temp, overwrite = T)
   conefor_exe <- dir(temp, pattern = ".exe$", full.names = TRUE)
-  nodefiles <- list.files(patter = paste0("^", gsub(".txt", "", nodeFile)), full.names = TRUE)
+  nodefiles <- list.files(pattern = paste0("^", gsub(".txt", "", nodeFile)), full.names = TRUE)
   file.copy(nodefiles, temp, overwrite = TRUE)
-  confiles <- list.files(patter = paste0("^", gsub(".txt", "", connectionFile)), full.names = TRUE)
+  confiles <- list.files(pattern = paste0("^", gsub(".txt", "", connectionFile)), full.names = TRUE)
   file.copy(confiles, temp, overwrite = TRUE)
   setwd(temp)
 
@@ -160,9 +161,9 @@ EstConefor <- function(nodeFile,
     removefile <- which(basename(df) != "overall_indices.txt")
     df <- df[removefile]
     result_2 <- lapply(df, fread)
-    names(result_2) <- basename(df) %>% gsub(".txt","",.)
+    names(result_2) <- basename(df) %>% gsub(".txt","")
   } else {
-    names(result_2) <- basename(df) %>% gsub(".txt","",.)
+    names(result_2) <- basename(df) %>% gsub(".txt","")
   }
 
   if (!is.null(write)){

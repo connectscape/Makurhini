@@ -6,7 +6,7 @@
 \usage{
 dConnectivity(nodes, id = NULL, attribute = NULL,
   restauration = NULL, distance = list(type = "centroid", resistance =
-  NULL, tolerance = NULL, ...), metric = c("IIC", "PC"), probability,
+  NULL), metric = c("IIC", "PC"), probability,
   distance_thresholds = NULL, overall = FALSE, LA = NULL,
   write = NULL)
 }
@@ -21,7 +21,7 @@ dConnectivity(nodes, id = NULL, attribute = NULL,
 
 \item{distance}{list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff-edge",
 "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
-  To See more options consult the help function of distancefile().}
+  To See more arguments consult the help function of distancefile().}
 
 \item{metric}{character. Choose a connectivity metric: "IIC" considering topologycal distances or "PC" considering maximum product probabilities.}
 
@@ -45,10 +45,15 @@ ruta <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
 cores <- sf::read_sf(ruta)
 nrow(cores)
 #One distance threshold
-IIC <- dConnectivity(nodes = cores, id = "id", attribute = NULL, distance = list(type = "centroid"), metric = "IIC", distance_thresholds = 30000)
+IIC <- dConnectivity(nodes = cores, id = "id", attribute = NULL,
+                    distance = list(type = "centroid"),
+                    metric = "IIC", distance_thresholds = 30000)
 IIC
 #Two or more distance thresholds
-PC <- dConnectivity(nodes = cores, id = "id", attribute = NULL, distance = list(type = "centroid"), metric = "PC", probability = 0.5, distance_thresholds = c(5000, 50000))
+PC <- dConnectivity(nodes = cores, id = "id", attribute = NULL,
+                    distance = list(type = "centroid"),
+                    metric = "PC", probability = 0.5,
+                    distance_thresholds = c(5000, 50000))
 PC
 }
 \references{

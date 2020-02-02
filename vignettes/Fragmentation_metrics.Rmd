@@ -1,0 +1,19 @@
+---
+title: "Fragmentation_metrics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Fragmentation_metrics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(Makurhini)
+```

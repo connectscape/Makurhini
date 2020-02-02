@@ -13,19 +13,19 @@ euclidean_distances(x, id, type_distance = "centroid",
 
 \item{id}{character. Column name with the core id.}
 
-\item{type_distance}{character. Choose one of the distances: "centroid" (faster, default), where euclidean distance is calculated from feature centroid; "edge", where euclidean distance is calculated from feature edges;
-"hausdorff-edge", where hausdorff distance is calculated from feature edges.}
+\item{type_distance}{character. Choose one of the distances: "centroid" (faster, default), where Euclidean distance is calculated from feature centroid; "edge", where Euclidean distance is calculated from feature edges;}
 
-\item{distance_unit}{character. If euclidean distance is selected you can set a distance unit, udunits2 package compatible unit (e.g., "km", "cm", "ft", "inch"). Default equal to meters "m".}
+\item{distance_unit}{character. Distance unit, udunits2 package compatible unit (e.g., "km", "cm", "ft", "inch"). Default equal to meters "m".}
 
-\item{tolerance}{numeric. Argument for higher processing speed. In case you have selected the "edge" or "hausdorff edge" distance, use this option to simplify the geometry and reduce the number of vertices (see, rgeos::gSimplify()).}
+\item{tolerance}{numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
+number of vertices (from rgeos::gSimplify).}
 
 \item{threshold}{numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.}
 
 \item{write_table}{character. "" indicates output to the console.}
 }
 \value{
-Pairwise euclidean distance table
+Pairwise Euclidean distance table
 }
 \description{
 Euclidian distances

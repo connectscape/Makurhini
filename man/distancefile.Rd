@@ -5,41 +5,55 @@
 \title{Get a Distance table that can be used as a connector file in Conefor}
 \usage{
 distancefile(nodes, id, type = "centroid", distance_unit = NULL,
-  tolerance = NULL, resistance = NULL, mask = NULL,
-  threshold = NULL, geometry_out = NULL, multiple = NULL,
-  prefix = NULL, write = NULL)
+  tolerance = NULL, resistance = NULL, CostFun = NULL, ngh = NULL,
+  mask = NULL, threshold = NULL, geometry_out = NULL,
+  multiple = NULL, prefix = NULL, write = NULL)
 }
 \arguments{
-\item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}
+\item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a **projected coordinate system**.}
 
-\item{id}{character. Column name with the node ID in the shapefile data table.}
+\item{id}{character. Column name with the "node ID" in the shapefile data table.}
 
-\item{type}{character. Choose one of the distances: "centroid" (faster, default), where euclidean distance is calculated from feature centroid; "edge", where euclidean distance is calculated from feature edges;
-"hausdorff-edge", where hausdorff distance is calculated from feature edges;
-"least-cost" that takes into account obstacles and local friction of the landscape (See, gdistance package);
-"commute-time" that is analogous to the resistance distance of circuitscape. The commute-time distance is based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).
-If the type is equal to "least-cost" or "commute-time", then you have to use the resistance argument.}
+\item{type}{character. Choose one of the distances: "centroid" (faster, default), where Euclidean distance is
+calculated from feature centroid; "edge", where Euclidean distance is calculated from feature edges;
+"least-cost" that takes into account obstacles and local friction of the landscape (see, "gdistance" package);
+"commute-time" that is analogous to the resistance distance of circuitscape. The commute-time distance is
+based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).
+If the type is equal to "least-cost" or "commute-time", then you have to use the **"resistance" argument**.}
 
-\item{distance_unit}{character. If euclidean distance is selected you can set a distance unit, udunits2 package compatible unit (e.g., "km", "cm", "ft", "inch"). Default equal to meters "m".}
+\item{distance_unit}{character. If euclidean distance is selected you can set a distance unit, "udunits2" package
+compatible unit (e.g., "km", "cm", "ft", "inch"). Default equal to meters "m".}
 
-\item{tolerance}{numeric. Argument for higher processing speed. In case you have selected the "edge" or "hausdorff-edge" distance, use this option to simplify the geometry and reduce the number of vertices (see, rgeos::gSimplify()).}
+\item{tolerance}{numeric. Argument for higher processing speed. In case you have selected the "edge" distance,
+use this option to simplify the geometry and reduce the number of vertices (from rgeos::gSimplify).}
 
-\item{resistance}{raster. Raster object with resistance values (landscape friction).}
+\item{resistance}{raster. Raster object with resistance values.}
 
-\item{mask}{object of class sf, sfc, sfg or SpatialPolygons. For higher processing speed of "least-cost" or "commute-time" distances.
-Use this option to clip the resistance at the extent of the mask.}
+\item{CostFun}{A function to compute the cost to move between cells. Available only if you you have selected
+the "least-cost" or "commute-time" distance. The default is the mean (isotropic cost distance):
+function(x) mean(x).}
+
+\item{ngh}{numeric.  Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood),
+8 (Moore neighbourhood) or 16. Available only if you you have selected
+the "least-cost" or "commute-time" distance.}
+
+\item{mask}{object of class sf, sfc, sfg or SpatialPolygons. For higher processing speed of "least-cost" or
+"commute-time" distances. Use this option to clip the resistance at the extent of the mask.}
 
 \item{threshold}{numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.}
 
-\item{geometry_out}{numeric. Use this argument in case you have selected the "least-cost" or "commute-time".
-If some spatial geometries are out of the resistance extent, then a buffer zone the large enough to cover these spatial geometries and with this numeric value will be added to the resistance, so that it is possibñe to calculate a cost distance value for the pairs of nodes that involve these geometries.
+\item{geometry_out}{numeric. You can use this argument if you have selected the "least-cost" or "commute-time" distance.
+If some spatial geometries are out of the resistance extent, then a buffer zone the large enough to cover
+these spatial geometries and with this numeric value will be added to the resistance, so that it is possible to
+calculate a cost distance value for the pairs of nodes that involve these geometries and and avoid an error.
 If NULL, then a Euclidean distance (centroid) will be calculated to find these distances.}
 
 \item{multiple}{character. Column name of the column with the zone to which each core area belongs.}
 
 \item{prefix}{character. Initial prefix, use in case of processing several sites at the same time in CONEFOR command line.}
 
-\item{write}{character. Choose the output folder if you use name_zona otherwise, place the output path, with the name and extension ".txt".}
+\item{write}{character. Choose the output folder if you use name_zona otherwise, place the output path, with
+the name and extension ".txt".}
 }
 \value{
 Exports a euclidean or cost distance table between pairs of nodes.

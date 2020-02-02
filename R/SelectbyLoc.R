@@ -32,7 +32,13 @@
 #' plot(selection, col="green", add=TRUE)
 #' @export
 #' @importFrom magrittr %>%
-
+#' @import sf
+#' @importFrom sp over geometry
+#' @importFrom rgeos gBuffer
+#' @importFrom RSAGA rsaga.intersect.polygons
+#' @importFrom dplyr mutate group_by summarize
+#' @importFrom tibble as_tibble
+#' @importFrom methods as
 SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
                         buffer = NULL, thintersect = NULL,
                         transboundary = NULL, write_select = NULL, plot = FALSE,
@@ -43,14 +49,14 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
   ###
   over_sf <- function(x, y) {
     if(class(x)[1] == "SpatialPolygonsDataFrame") {
-      x <- sf::st_as_sf(x)
+      x <- st_as_sf(x)
       }
 
     if(class(y)[1] == "SpatialPolygonsDataFrame") {
-      y <- sf::st_as_sf(y) %>% sf::st_cast("POLYGON")
+      y <- st_as_sf(y) %>% st_cast("POLYGON")
 
       }
-    over_result <- sapply(sf::st_intersects(x, sf::st_geometry(y)), function(z) if (length(z)==0) NA_integer_ else z[1])
+    over_result <- sapply(st_intersects(x, st_geometry(y)), function(z) if (length(z)==0) NA_integer_ else z[1])
 
     return(over_result)
     }
@@ -61,11 +67,11 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
   }
 
  if (class(target)[1] == "sf") {
-    target <- sf::st_zm(target)
+    target <- st_zm(target)
     target <- as(target, 'Spatial')
   }
   if (class(sourcelyr)[1] == "sf") {
-    sourcelyr <- sf::st_zm(sourcelyr)
+    sourcelyr <- st_zm(sourcelyr)
     sourcelyr <- as(sourcelyr, 'Spatial')
     }
 
@@ -77,13 +83,13 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
 
   #Selection method
   if (selreg == "M1") {
-  select <- tryCatch(sf::st_as_sf(target[!is.na(sp::over(target, sp::geometry(sourcelyr))),]), error = function(err)err)
+  select <- tryCatch(st_as_sf(target[!is.na(over(target, geometry(sourcelyr))),]), error = function(err)err)
 
   #######
   if (inherits(select, "error")){
-      sourcelyr <- sf::st_buffer(sf::st_as_sf(sourcelyr), dist = 0)
-      target <- sf::st_buffer(sf::st_as_sf(target), dist = 0)
-      select <- sf::st_as_sf(target[!is.na(sp::over(as(target, 'Spatial'), sp::geometry(as(sourcelyr, 'Spatial')))),])
+      sourcelyr <- st_buffer(st_as_sf(sourcelyr), dist = 0)
+      target <- st_buffer(st_as_sf(target), dist = 0)
+      select <- st_as_sf(target[!is.na(over(as(target, 'Spatial'), geometry(as(sourcelyr, 'Spatial')))),])
     }
 
     if(nrow(select) >= 1){
@@ -91,22 +97,22 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
       if(length(select$IDTemp) > 0){
         select$transboundary <- 1
         }
-      sourcelyr.2 <- sf::st_buffer(st_as_sf(sourcelyr), dist = transboundary)
-      sourcelyr.2 <- sf::st_difference(sourcelyr.2, sf::st_as_sf(sourcelyr))
-      target.2 <- subset(target, !((IDTemp %in% select$IDTemp)))
+      sourcelyr.2 <- st_buffer(st_as_sf(sourcelyr), dist = transboundary)
+      sourcelyr.2 <- st_difference(sourcelyr.2, st_as_sf(sourcelyr))
+      target.2 <- subset(target, !((.data$IDTemp %in% select$IDTemp)))
 
       if (nrow(target.2) >= 1) {
       select.2 <- tryCatch(target.2[!is.na(over_sf(target.2, sourcelyr.2)),], error = function(err)err)
 
       if (inherits(select.2, "error")){
-          sourcelyr.2 <- sf::st_buffer(sourcelyr.2, dist = 0)
-          target.2 <- sf::st_buffer(st_as_sf(target.2), dist = 0)
+          sourcelyr.2 <- st_buffer(sourcelyr.2, dist = 0)
+          target.2 <- st_buffer(st_as_sf(target.2), dist = 0)
           select.2 <- tryCatch(target.2[!is.na(over_sf(target.2, sourcelyr.2)),], error = function(err)err)
           if (inherits(select.2, "error")){
-            target.2 <- subset(target, !((IDTemp %in% select$IDTemp)))
-            target.3 <- rgeos::gBuffer(as(target.2, 'Spatial'), width = 0)
-            select.2 <- sf::st_as_sf(target.3[!is.na(sp::over(as(target.3, 'Spatial'),
-                                                          sp::geometry(as(sourcelyr.2, 'Spatial')))),])
+            target.2 <- subset(target, !((.data$IDTemp %in% select$IDTemp)))
+            target.3 <- gBuffer(as(target.2, 'Spatial'), width = 0)
+            select.2 <- st_as_sf(target.3[!is.na(over(as(target.3, 'Spatial'),
+                                                          geometry(as(sourcelyr.2, 'Spatial')))),])
             select.2$IDTemp <- select.2$rmapshaperid + 1
             select.2$rmapshaperid <- NULL
           }
@@ -120,30 +126,30 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
     }
       }
     } else if (selreg == "M2") {
-      sourcelyr <- sf::st_as_sf(sourcelyr) %>% sf::st_zm(.) %>% sf::st_cast("POLYGON")
+      sourcelyr <- st_as_sf(sourcelyr) %>% st_zm() %>% st_cast("POLYGON")
       #Option 1
       if (!is.null(buffer) & is.null(transboundary)){
-        sourcelyr <- sf::st_buffer(sourcelyr, dist = buffer)
-        select.1 <- tryCatch(sf::st_as_sf(target[!is.na(over_sf(target, sourcelyr)),]), error = function(err)err)
+        sourcelyr <- st_buffer(sourcelyr, dist = buffer)
+        select.1 <- tryCatch(st_as_sf(target[!is.na(over_sf(target, sourcelyr)),]), error = function(err)err)
         if (inherits(select.1, "error")){
-          sourcelyr <- sf::st_buffer(sourcelyr, dist = 0)
-          target <- sf::st_buffer(sf::st_as_sf(target), dist = 0)
-          select.1 <- sf::st_as_sf(target[!is.na(over_sf(target, sourcelyr)),])
+          sourcelyr <- st_buffer(sourcelyr, dist = 0)
+          target <- st_buffer(st_as_sf(target), dist = 0)
+          select.1 <- st_as_sf(target[!is.na(over_sf(target, sourcelyr)),])
         }
 
         if(nrow(select.1) >= 1){
-          select.1$A <- as.numeric(sf::st_area(select.1, by_element = TRUE)* 0.0001)
+          select.1$A <- as.numeric(st_area(select.1, by_element = TRUE)* 0.0001)
 
           if (isFALSE(SAGA)){
             #Intersections
             select.1 <- select.1
-            sourcelyr <- sourcelyr %>% sf::st_cast("POLYGON")
-            intersection_percentage <- tryCatch(sf::st_intersection(select.1, sourcelyr), error = function(err)err)
+            sourcelyr <- sourcelyr %>% st_cast("POLYGON")
+            intersection_percentage <- tryCatch(st_intersection(select.1, sourcelyr), error = function(err)err)
 
             if (inherits(intersection_percentage, "error")){
-              select.1 <- sf::st_buffer(select.1, dist = 0)
-              sourcelyr <- sf::st_buffer(sourcelyr, dist = 0) %>% sf::st_cast("POLYGON")
-              intersection_percentage <- sf::st_intersection(select.1, sourcelyr)
+              select.1 <- st_buffer(select.1, dist = 0)
+              sourcelyr <- st_buffer(sourcelyr, dist = 0) %>% st_cast("POLYGON")
+              intersection_percentage <- st_intersection(select.1, sourcelyr)
               }
 
           } else {
@@ -153,24 +159,24 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
               }
             dir.create(dir_tmp, recursive = TRUE)
             save_tmp <- paste0(dir_tmp, "/out.shp")
-            intersection_percentage <- tryCatch(RSAGA::rsaga.intersect.polygons(layer_a = as(select.1, 'Spatial'), layer_b = as(sourcelyr, 'Spatial'),
+            intersection_percentage <- tryCatch(rsaga.intersect.polygons(layer_a = as(select.1, 'Spatial'), layer_b = as(sourcelyr, 'Spatial'),
                                                                          result = save_tmp, load = TRUE), error = function(err)err)
             if (inherits(intersection_percentage, "error")){
-              select.1 <- sf::st_buffer(select.1, dist = 0)
-              sourcelyr <- sf::st_buffer(sourcelyr, dist = 0) %>% sf::st_cast("POLYGON")
-              intersection_percentage <- tryCatch(RSAGA::rsaga.intersect.polygons(layer_a = as(select.1, 'Spatial'), layer_b = as(sourcelyr, 'Spatial'),
+              select.1 <- st_buffer(select.1, dist = 0)
+              sourcelyr <- st_buffer(sourcelyr, dist = 0) %>% st_cast("POLYGON")
+              intersection_percentage <- tryCatch(rsaga.intersect.polygons(layer_a = as(select.1, 'Spatial'), layer_b = as(sourcelyr, 'Spatial'),
                                                                            result = save_tmp, load = TRUE), error = function(err)err)
             }
-            intersection_percentage <- sf::st_as_sf(intersection_percentage)
+            intersection_percentage <- st_as_sf(intersection_percentage)
             }
 
         intersection_percentage <- intersection_percentage %>%
-          dplyr::mutate(A2 = as.numeric(sf::st_area(.)* 0.0001) %>% as.numeric()) %>%
-          tibble::as_tibble() %>% dplyr::group_by(IDTemp) %>%
-          dplyr::summarize(Area1 = sum(A), Area2 = sum(A2))
+          mutate(A2 = as.numeric(st_area(.)* 0.0001) %>% as.numeric()) %>%
+          as_tibble() %>% group_by(.data$IDTemp) %>%
+          dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
         intersection_percentage$PercPi <- as.numeric((intersection_percentage$Area2 * 100) / intersection_percentage$Area1)
 
-        select.1 <- base::merge(select.1, intersection_percentage, by = "IDTemp")
+        select.1 <- merge(select.1, intersection_percentage, by = "IDTemp")
         if(!is.null(select.1$PercPi[is.na(select.1$PercPi)])){
           select.1$PercPi[is.na(select.1$PercPi)] <- 0
           }
@@ -184,27 +190,27 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
 ####
         #Option 2
         } else if (is.null(buffer) & !is.null(transboundary)){
-          select.1 <-  tryCatch(sf::st_as_sf(target[!is.na(over_sf(target, sourcelyr)),]),
+          select.1 <-  tryCatch(st_as_sf(target[!is.na(over_sf(target, sourcelyr)),]),
                             error = function(err)err)
 
           if (inherits(select.1, "error")){
-            sourcelyr <- sf::st_buffer(sourcelyr, dist = 0)
-            target <- sf::st_buffer(st_as_sf(target), dist = 0)
-            select.1 <- sf::st_as_sf(target[!is.na(over_sf(target, sourcelyr)),])
+            sourcelyr <- st_buffer(sourcelyr, dist = 0)
+            target <- st_buffer(st_as_sf(target), dist = 0)
+            select.1 <- st_as_sf(target[!is.na(over_sf(target, sourcelyr)),])
             }
 
         if(nrow(select.1) >= 1){
-          select.1$A <- as.numeric(sf::st_area(select.1, by_element = TRUE)* 0.0001)
+          select.1$A <- as.numeric(st_area(select.1, by_element = TRUE)* 0.0001)
 
           if (isFALSE(SAGA)){
-            sourcelyr <- sourcelyr %>% sf::st_cast("POLYGON")
+            sourcelyr <- sourcelyr %>% st_cast("POLYGON")
 
-            intersection_percentage <- tryCatch(sf::st_intersection(select.1, sourcelyr), error = function(err)err)
+            intersection_percentage <- tryCatch(st_intersection(select.1, sourcelyr), error = function(err)err)
 
             if (inherits(intersection_percentage, "error")){
-              select.1 <- sf::st_buffer(select.1, dist = 0)
-              sourcelyr <- sf::st_buffer(sourcelyr, dist = 0)
-              intersection_percentage <- sf::st_intersection(select.1, sourcelyr)
+              select.1 <- st_buffer(select.1, dist = 0)
+              sourcelyr <- st_buffer(sourcelyr, dist = 0)
+              intersection_percentage <- st_intersection(select.1, sourcelyr)
               }
 
             } else {
@@ -215,24 +221,24 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
 
               dir.create(dir_tmp, recursive = TRUE)
               save_tmp <- paste0(dir_tmp, "/out.shp")
-              intersection_percentage <- tryCatch(RSAGA::rsaga.intersect.polygons(layer_a = as(select.1, 'Spatial'), layer_b = as(sourcelyr, 'Spatial'),
+              intersection_percentage <- tryCatch(rsaga.intersect.polygons(layer_a = as(select.1, 'Spatial'), layer_b = as(sourcelyr, 'Spatial'),
                                                                          result = save_tmp, load = TRUE), error = function(err)err)
               if (inherits(intersection_percentage, "error")){
-                select.1 <- sf::st_buffer(select.1, dist = 0)
-                sourcelyr <- sf::st_buffer(sourcelyr, dist = 0)
-                intersection_percentage <- tryCatch(RSAGA::rsaga.intersect.polygons(layer_a = as(select.1, 'Spatial'), layer_b = as(sourcelyr, 'Spatial'),
+                select.1 <- st_buffer(select.1, dist = 0)
+                sourcelyr <- st_buffer(sourcelyr, dist = 0)
+                intersection_percentage <- tryCatch(rsaga.intersect.polygons(layer_a = as(select.1, 'Spatial'), layer_b = as(sourcelyr, 'Spatial'),
                                                                              result = save_tmp, load = TRUE), error = function(err)err)
                 }
-              intersection_percentage <- sf::st_as_sf(intersection_percentage)
+              intersection_percentage <- st_as_sf(intersection_percentage)
           }
 
           intersection_percentage <- intersection_percentage %>%
-            dplyr::mutate(A2 = as.numeric(sf::st_area(.)* 0.0001) %>% as.numeric()) %>%
-            tibble::as_tibble() %>% dplyr::group_by(IDTemp) %>%
-            dplyr::summarize(Area1 = sum(A), Area2 = sum(A2))
+            mutate(A2 = as.numeric(st_area(.)* 0.0001) %>% as.numeric()) %>%
+            as_tibble() %>% group_by(.data$IDTemp) %>%
+            dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
 
           intersection_percentage$PercPi <- as.numeric((intersection_percentage$Area2 * 100) / intersection_percentage$Area1)
-          select.1 <- base::merge(select.1, intersection_percentage, by = "IDTemp")
+          select.1 <- merge(select.1, intersection_percentage, by = "IDTemp")
 
           if(!is.null(select.1$PercPi[is.na(select.1$PercPi)])){
             select.1$PercPi[is.na(select.1$PercPi)] <- 0
@@ -245,44 +251,44 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
           }
 
           #Second selection. Transboundary
-          sourcelyr.2 <- sf::st_buffer(sourcelyr, dist = transboundary)
-          sourcelyr.2 <- sf::st_difference(sourcelyr.2, sourcelyr)
-          target.2 <- subset(target, !((IDTemp %in% select$IDTemp)))#Get PA not selected yet
+          sourcelyr.2 <- st_buffer(sourcelyr, dist = transboundary)
+          sourcelyr.2 <- st_difference(sourcelyr.2, sourcelyr)
+          target.2 <- subset(target, !((.data$IDTemp %in% select$IDTemp)))#Get PA not selected yet
 
           if (nrow(target.2) >= 1){
-            select.2 <- tryCatch(sf::st_as_sf(target.2[!is.na(over_sf(target.2, sourcelyr.2)),]), error = function(err)err)
+            select.2 <- tryCatch(st_as_sf(target.2[!is.na(over_sf(target.2, sourcelyr.2)),]), error = function(err)err)
 
             if (inherits(select.2, "error")){
-              sourcelyr.2 <- sf::st_buffer(sourcelyr.2, dist = 0)
-              target.2 <- sf::st_buffer(st_as_sf(target.2), dist = 0)
-              select.2 <- tryCatch(sf::st_as_sf(target.2[!is.na(over_sf(target.2, sourcelyr.2)),]), error = function(err)err)
+              sourcelyr.2 <- st_buffer(sourcelyr.2, dist = 0)
+              target.2 <- st_buffer(st_as_sf(target.2), dist = 0)
+              select.2 <- tryCatch(st_as_sf(target.2[!is.na(over_sf(target.2, sourcelyr.2)),]), error = function(err)err)
 
               if (inherits(select.2, "error")){
-                target.2 <- subset(target, !((IDTemp %in% select$IDTemp)))
-                target.3 <- rgeos::gBuffer(target.2, width = 0)
+                target.2 <- subset(target, !((.data$IDTemp %in% select$IDTemp)))
+                target.3 <- gBuffer(target.2, width = 0)
                 target.3$id <- 1
                 plt <- nrow(target.3)
                 target.3$id <- NULL
                 if (nrow(target.2) > 1 | plt == 1){
-                  target.3 <- sf::st_as_sf(target.3) %>% sf::st_cast("POLYGON")
+                  target.3 <- st_as_sf(target.3) %>% st_cast("POLYGON")
                 }
-                select.2 <- sf::st_as_sf(target.3[!is.na(sp::over(as(target.3, 'Spatial'),
-                                                              sp::geometry(as(sourcelyr.2, 'Spatial')))),])
+                select.2 <- st_as_sf(target.3[!is.na(over(as(target.3, 'Spatial'),
+                                                              geometry(as(sourcelyr.2, 'Spatial')))),])
                 select.2$IDTemp <- select.2$rmapshaperid + 1
                 select.2$rmapshaperid <- NULL
               }
             }
 
-            select.2$A <- as.numeric(sf::st_area(select.2, by_element = TRUE)* 0.0001)
+            select.2$A <- as.numeric(st_area(select.2, by_element = TRUE)* 0.0001)
 
             if (isFALSE(SAGA)){
               select.2 <- select.2
-              sourcelyr.2 <- sourcelyr.2 %>% sf::st_cast("POLYGON")
-              intersection_percentage <- tryCatch(sf::st_intersection(select.2, sourcelyr.2), error = function(err)err)
+              sourcelyr.2 <- sourcelyr.2 %>% st_cast("POLYGON")
+              intersection_percentage <- tryCatch(st_intersection(select.2, sourcelyr.2), error = function(err)err)
               if (inherits(intersection_percentage, "error")){
-                select.2 <- sf::st_buffer(select.2, dist = 0)
-                sourcelyr.2 <- sf::st_buffer(sourcelyr.2, dist = 0) %>% sf::st_cast("POLYGON")
-                intersection_percentage <- sf::st_intersection(select.2, sourcelyr.2)
+                select.2 <- st_buffer(select.2, dist = 0)
+                sourcelyr.2 <- st_buffer(sourcelyr.2, dist = 0) %>% st_cast("POLYGON")
+                intersection_percentage <- st_intersection(select.2, sourcelyr.2)
               }
             } else {
               dir_tmp <- paste0(tempdir(), "/out")
@@ -292,22 +298,22 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
 
               dir.create(dir_tmp, recursive = TRUE)
               save_tmp <- paste0(dir_tmp, "/out.shp")
-              intersection_percentage <- tryCatch(RSAGA::rsaga.intersect.polygons(layer_a = as(select.2, 'Spatial'), layer_b = as(sourcelyr.2, 'Spatial'),
+              intersection_percentage <- tryCatch(rsaga.intersect.polygons(layer_a = as(select.2, 'Spatial'), layer_b = as(sourcelyr.2, 'Spatial'),
                                                                            result = save_tmp, load = TRUE), error = function(err)err)
               if (inherits(intersection_percentage, "error")){
-                select.2 <- sf::st_buffer(select.2, dist = 0)
-                sourcelyr.2 <- sf::st_buffer(sourcelyr.2, dist = 0) %>% sf::st_cast("POLYGON")
-                intersection_percentage <- tryCatch(RSAGA::rsaga.intersect.polygons(layer_a = as(select.2, 'Spatial'), layer_b = as(sourcelyr.2, 'Spatial'),
+                select.2 <- st_buffer(select.2, dist = 0)
+                sourcelyr.2 <- st_buffer(sourcelyr.2, dist = 0) %>% st_cast("POLYGON")
+                intersection_percentage <- tryCatch(rsaga.intersect.polygons(layer_a = as(select.2, 'Spatial'), layer_b = as(sourcelyr.2, 'Spatial'),
                                                                              result = save_tmp, load = TRUE), error = function(err)err)
               }
-              intersection_percentage <- sf::st_as_sf(intersection_percentage)%>% sf::st_cast("POLYGON")
+              intersection_percentage <- st_as_sf(intersection_percentage)%>% st_cast("POLYGON")
             }
             intersection_percentage <- intersection_percentage %>%
-              dplyr::mutate(A2 = as.numeric(sf::st_area(.)* 0.0001) %>% as.numeric())%>%
-              tibble::as_tibble() %>% dplyr::group_by(IDTemp) %>%
-              dplyr::summarize(Area1 = sum(A), Area2 = sum(A2))
+              mutate(A2 = as.numeric(st_area(.)* 0.0001) %>% as.numeric())%>%
+              as_tibble() %>% group_by(.data$IDTemp) %>%
+              dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
             intersection_percentage$PercPi <- as.numeric((intersection_percentage$Area2*100) / intersection_percentage$Area1)
-            select.2 <- base::merge(select.2, intersection_percentage, by = "IDTemp")
+            select.2 <- merge(select.2, intersection_percentage, by = "IDTemp")
 
             select.2 <- select.2[select.2$PercPi >= thintersect,]
             select.2[,"A"] <- list(NULL)
@@ -334,7 +340,7 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
   }
 
   if (!is.null(write_select)){
-    sf::write_sf(select, write_select, delete_layer = TRUE)
+    write_sf(select, write_select, delete_layer = TRUE)
   }
   select$IDTemp <- 1:nrow(select)
   }

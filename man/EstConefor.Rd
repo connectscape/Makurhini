@@ -42,7 +42,7 @@ Four files .txt:"overall_indices", "results_all_EC(PC)", "results_all_overall_in
 Use the CONEFOR command line to estimate probabilistic and binary connectivity indexes
 }
 \examples{
-# Not run
+\dontrun{
 setwd("~")
 EstConefor(nodeFile = "SV85FM_",
           connectionFile = "SVdist_",
@@ -52,6 +52,7 @@ EstConefor(nodeFile = "SV85FM_",
           onlyoverall = FALSE,
           output = "~/out",
           prefix="T3")
+          }
 }
 \references{
 Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at \url{www.conefor.org}.

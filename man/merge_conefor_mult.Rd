@@ -5,7 +5,7 @@
 \title{Multiple join connectivity index (dIIC o dPC, and the "intra",  "dflux", "connector") to core areas}
 \usage{
 merge_conefor_mult(filename, merge_shape, patterns, id, foldname, write,
-  prefix)
+  merge_coneforlist, prefix)
 }
 \arguments{
 \item{filename}{character. Direction of node_importances.txt files}
@@ -20,9 +20,9 @@ merge_conefor_mult(filename, merge_shape, patterns, id, foldname, write,
 
 \item{write}{character. Output direction}
 
-\item{prefix}{character. An initial prefix used to write the shapefile, e.g., "AREA"}
+\item{merge_coneforlist}{list. A list of four arguments used in merge_conefor() function: list(colnames, dA, var)}
 
-\item{merge_conefor}{list. A list of four arguments used in merge_conefor() function: list(colnames, dA, var)}
+\item{prefix}{character. An initial prefix used to write the shapefile, e.g., "AREA"}
 }
 \description{
 Multiple join connectivity index (dIIC o dPC, and the "intra",  "dflux", "connector") to core areas

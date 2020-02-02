@@ -1,7 +1,7 @@
 #'Test the ECA metric to multiple dispersal distances
 #'
 #' @param nodes Object of class sf, sfc, sfg or SpatialPolygons.
-#' @param attribute character. Column name with the nodes attribute. If NULL, then the patch area will be estimated and used as the attribute.
+#' @param attribute character. Column name with the nodes attribute. If NULL, then the nodes area will be estimated and used as the attribute.
 #' @param distance1 list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff edge",
 #' "least-cost distance" or "commute distance". If the type is equal to "least-cost distance" or "commute distance", then you have to use the "resistance" argument. "tolerance" is a numeric value used for higher processing.
 #'   To See more options consult the help function of distancefile().
@@ -10,21 +10,35 @@
 #' @param distance4 list. see distance1 argument
 #' @param metric character. "IIC" considering topologycal distances or "PC" considering maximum product probabilities.
 #' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "BPC" metric.
-#' @param distance_threshold numeric. Distance or distances thresholds to establish connections. For example, one distance: distance_threshold = 30000; two or more specific distances:
-#'  distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).
+#' @param distance_thresholds numeric. Distances thresholds (minimum 3) to establish connections. For example, one distance: distance_threshold = 30000; two or more specific distances:
+#'  distance_thresholds = c(30000, 50000, 100000); sequence distances (recommended): distance_thresholds = seq(10000,100000, 10000).
+#' @param groups Selected representative threshold distances (distance just before the biggest changes in connectivity metric)
 #' @param LA numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to m2).
 #' @param write character. Write output shapefile, example, "C:/ejemplo.shp".
 #' @references Correa Ayram, C. A., Mendoza, M. E., Etter, A., & Pérez Salicrup, D. R. (2017). Anthropogenic impact on habitat connectivity: A multidimensional human footprint index evaluated in a highly biodiverse landscape of Mexico. Ecological Indicators, 72, 895–909. https://doi.org/10.1016/j.ecolind.2016.09.007
 #' @export
+#' @examples
+#' \dontrun{
+#' ruta <- system.file("extdata", "ECA_example.RData", package = "Makurhini")
+#' load(ruta)
+#' test_ECA_distance(nodes = nodes[[1]], distance1 =list(type= "centroid"), LA = 279165,
+#'                   distance_thresholds =  seq(10000,100000, 10000))
+#'                   }
 #' @importFrom magrittr %>%
-test_ECA_distance <- function(nodes, attribute,
-                          distance1, distance2 = NULL,
-                          distance3 = NULL,
-                          distance4 = NULL,
-                          distance5 = NULL,
-                          metric = "IIC",probability = NULL,
-                          distance_thresholds, LA = NULL,
-                          groups = 3, write = NULL){
+#' @import ggplot2
+#' @importFrom  purrr compact
+#' @importFrom methods as
+#' @importFrom colorspace qualitative_hcl
+#' @importFrom utils tail
+test_ECA_distance <- function(nodes,
+                              attribute = NULL,
+                              distance1 = NULL,
+                              distance2 = NULL,
+                              distance3 = NULL,
+                              distance4 = NULL,
+                              metric = "IIC", probability = NULL,
+                              distance_thresholds, LA = NULL,
+                              groups = 3, write = NULL){
   if(class(nodes)[1] == "sf") {
     nodes <- as(nodes, 'Spatial')
     }
@@ -47,11 +61,13 @@ test_ECA_distance <- function(nodes, attribute,
   setwd(temp.1)
 
   distances_test <- list(distance1, distance2, distance3, distance4)
-  distances_test <- purrr::compact(distances_test)
+  distances_test <- compact(distances_test)
 
   conn_metric <- lapply(distances_test, function(x){
+
     distancefile(nodes,  id = "IdTemp", type = x$type, tolerance = x$tolerance,
-                 resistance = x$resistance, threshold = x$threshold,
+                 resistance = x$resistance, CostFun = x$CostFun, ngh = x$ngh,
+                 threshold = x$threshold,
                  distance_unit = x$distance_unit, x$geometry_out,
                  write = paste0(temp.1,"/Dist.txt"))
 
@@ -60,6 +76,7 @@ test_ECA_distance <- function(nodes, attribute,
     } else {
       pairs = "notall"
     }
+
     conn_metric2 <-  lapply(as.list(distance_thresholds), function(y){
       tab1 <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
                          typeconnection = "dist", typepairs = pairs,
@@ -68,7 +85,7 @@ test_ECA_distance <- function(nodes, attribute,
                          onlyoverall = TRUE, LA = LA,
                          nrestauration = FALSE,
                          prefix = NULL, write = NULL)
-      tab1 <- tab1[["overall_indices"]]
+      tab1 <- tab1[[2]]
       tab1 <- tab1[[2,2]]
       return(tab1)})
 
@@ -79,6 +96,7 @@ test_ECA_distance <- function(nodes, attribute,
     conn_metric2$Group <- x$type
     return(conn_metric2)
     })
+
   setwd(ttt.2)
   #Join ECA tables
   conn_metric <-  do.call(rbind, conn_metric)
@@ -89,7 +107,7 @@ test_ECA_distance <- function(nodes, attribute,
   unique_groups <- unique(conn_metric$Group)
 
   ###Groups return
-    for (i in 1:length(unique_groups)){
+  for (i in 1:length(unique_groups)){
       table1 <- conn_metric[conn_metric$Group == unique_groups[i],]
       dif1 <- table1$ECA[2:length(table1$ECA)]
       dif2 <- ((dif1 * 100)/table1$ECA) - 100
@@ -103,10 +121,10 @@ test_ECA_distance <- function(nodes, attribute,
       group_i$ECA <- c(peak$ECA, table1[which(table1$Distance == max(table1$Distance)), 1])
       peaks_groups[[i]] <- group_i
     }
-    names(peaks_groups) <- unique_groups
+  names(peaks_groups) <- unique_groups
 
     ###Groups plot
-    peak_plot <- list()
+  peak_plot <- list()
     for(i in 1:length(unique_groups)){
       peaks_p <- cbind(peaks_groups[[i]], unique_groups[[i]])
       names(peaks_p)[c(3, 5)] <- c("To", "plot_group")
@@ -121,38 +139,39 @@ test_ECA_distance <- function(nodes, attribute,
         ytitle = "ECA"
       }
 
-    colour <- colorspace::qualitative_hcl(length(unique_groups), palette = "Dark 3")
+    colour <- qualitative_hcl(length(unique_groups), palette = "Dark 3")
 
-      p1 <- ggplot2::ggplot() +
-        ggplot2::geom_line(ggplot2::aes(y = ECA, x = Distance, colour = Group), size = 1.5, data = conn_metric,
+    p1 <- ggplot() +
+        geom_line(aes(y = conn_metric$ECA, x = conn_metric$Distance, colour = conn_metric$Group),
+                  size = 1.5, data = conn_metric,
                   stat="identity") +
-        ggplot2::theme(legend.position="bottom", legend.direction="horizontal",
-              legend.title = ggplot2::element_blank()) +
-        ggplot2::scale_x_continuous(breaks = c(seq(min(conn_metric$Distance), max(conn_metric$Distance),
+        theme(legend.position="bottom", legend.direction="horizontal",
+              legend.title = element_blank()) +
+        scale_x_continuous(breaks = c(seq(min(conn_metric$Distance), max(conn_metric$Distance),
                                           max(conn_metric$Distance)/10)[2:10] -min(conn_metric$Distance),
                                       max(conn_metric$Distance))) +
-        ggplot2::scale_y_continuous(breaks = c(seq(min(conn_metric$ECA), max(conn_metric$ECA),
+        scale_y_continuous(breaks = c(seq(min(conn_metric$ECA), max(conn_metric$ECA),
                                           (max(conn_metric$ECA)-min(conn_metric$ECA))/4)))+
-        ggplot2::labs(x = "Dispersal distance", y = ytitle) +
-        ggplot2::scale_colour_manual(values = colour) +
-        ggplot2::theme(axis.line = element_line(size = 1, colour = "black"),
-              panel.grid.major = element_line(colour = "#d3d3d3"), panel.grid.minor = ggplot2::element_blank(),
-              panel.border = ggplot2::element_blank(), panel.background = ggplot2::element_blank()) +
-        ggplot2::theme(plot.title = ggplot2::element_text(size = 14, family = "Tahoma", face = "bold"),
-              text = ggplot2::element_text(family = "Tahoma", size = 12),
-              axis.text.x= ggplot2::element_text(colour = "black", size = 10, angle = 90),
-              axis.text.y= ggplot2::element_text(colour = "black", size = 10),
-              legend.key= ggplot2::element_rect(fill = "white", colour = "white"))+
-        ggplot2::geom_point(data = peak_plot,
-                   mapping = ggplot2::aes(x = To, y = ECA), size = 4)+
-        ggplot2::geom_text(ggplot2::aes(x = To, y = ECA, label = To), data = peak_plot, hjust = -0.3, vjust = -0.5)+
-        ggplot2::theme(legend.text = ggplot2::element_text(size = 11))
+        labs(x = "Dispersal distance", y = ytitle) +
+        scale_colour_manual(values = colour) +
+        theme(axis.line = element_line(size = 1, colour = "black"),
+              panel.grid.major = element_line(colour = "#d3d3d3"), panel.grid.minor = element_blank(),
+              panel.border = element_blank(), panel.background = element_blank()) +
+        theme(plot.title = element_text(size = 14, family = "Tahoma", face = "bold"),
+              text = element_text(family = "Tahoma", size = 12),
+              axis.text.x= element_text(colour = "black", size = 10, angle = 90),
+              axis.text.y= element_text(colour = "black", size = 10),
+              legend.key= element_rect(fill = "white", colour = "white"))+
+        geom_point(data = peak_plot,
+                   mapping = aes(x = peak_plot$To, y = peak_plot$ECA), size = 4)+
+        geom_text(aes(x = peak_plot$To, y = peak_plot$ECA, label = peak_plot$To), data = peak_plot, hjust = -0.3, vjust = -0.5)+
+        theme(legend.text = element_text(size = 11))
 
     result <- list(peaks_groups, p1)
     names(result) <- c("Table_ECA_test", "plot_ECA_test")
 
     if(!is.null(write)){
-      ggplot2::ggsave(paste0(write, '_ECATest.tif'), plot = p1, device = "tiff", width = 12,
+      ggsave(paste0(write, '_ECATest.tif'), plot = p1, device = "tiff", width = 12,
              height = 8, compression = "lzw")
       names(peak_plot)[3] <- "To(dispersal distance)"
       write.table(peak_plot, paste0(write, '_ECATest.txt'),
@@ -167,14 +186,19 @@ test_ECA_distance <- function(nodes, attribute,
 #' @param probability numeric. Probability of dispersal at max_distance
 #' @param max_distance numeric. Up to five maximum dispersal distance (meters)
 #' @param eval_distance numeric. Calculate the probability of dispersal at a specific distance
-#' @param minx.prob numeric. Value between 0-1, maximum x axe value
-#' @examples plot_prob_disp(probability= 0.5, max_distance = c(1000, 10000, 30000, 100000), min.prob = 0.2)
+#' @param min.prob numeric. Value between 0-1, maximum x axe value
+#' @examples
+#' \dontrun{
+#' plot_prob_disp(probability= 0.5, max_distance = c(1000, 10000, 30000, 100000), min.prob = 0.2)
 #' plot_prob_disp(probability= 0.5, max_distance = 30000, eval_distance = 10000)
+#' }
 #' @export
+#' @importFrom purrr map
+#' @importFrom graphics par plot axis box lines legend
 
 plot_prob_disp <- function(probability, max_distance, eval_distance = NULL, min.prob = 0.2){
-  x<-1
-  repeat {
+  x <-1
+  repeat{
     x = x+1
     m <- exp(x * log(probability)/max(max_distance))
     if (m < min.prob){
@@ -196,7 +220,8 @@ plot_prob_disp <- function(probability, max_distance, eval_distance = NULL, min.
       t <- c(rep(result_1, eval_distance - 1), result_1, 0)
 
       par(xaxs="i")
-      plot(data, type = "l", xlab= "Distance (dij)", ylab = "Probability of dispersal (pij)", lwd = 2, xlim=c(0,m), axes = F)
+      plot(data1, type = "l", xlab= "Distance (dij)", ylab = "Probability of dispersal (pij)",
+           lwd = 2, xlim=c(0,m), axes = F)
       axis(side = 1, at= round(seq(0,m, m/10)))
       axis(side = 2, at= seq(0, 1, 1/10))
       box()
@@ -204,7 +229,7 @@ plot_prob_disp <- function(probability, max_distance, eval_distance = NULL, min.
       legend("topright", c(paste0("d ", max_distance), "eval_distance"), lwd=c(2,2), lty = c(1,2), col=c("black",Rcolors[1]), y.intersp=1.5)
       return(result_1)
     } else {
-      data_list <- purrr::map(as.list(max_distance), function(x){
+      data_list <- map(as.list(max_distance), function(x){
         data1 <- exp(1:m * log(probability)/x)
         result_1 <- exp(eval_distance * log(probability)/x)
         t <- c(rep(result_1, eval_distance - 1), result_1, 0)
@@ -224,7 +249,7 @@ plot_prob_disp <- function(probability, max_distance, eval_distance = NULL, min.
       legend("topright", c(paste0("d ", max_distance), "eval_distance"), lwd=2, lty = c(rep(1,length(max_distance)), 2),
              col= c("black", Rcolors[2:length(max_distance)], Rcolors[1]), y.intersp=1.5)
 
-      result_1 <- purrr::map(data_list, function(x){x[[2]]})
+      result_1 <- map(data_list, function(x){x[[2]]})
       names(result_1) <- paste0("d_", max_distance)
       return(result_1)
     }
@@ -239,7 +264,7 @@ plot_prob_disp <- function(probability, max_distance, eval_distance = NULL, min.
       lines(data_list[[1]][[3]], type = "l", col = Rcolors[1], lty = 2, lwd = 2)
       legend("topright", paste0("d ", max_distance), lwd=c(2,2), lty = c(1,2), col=c("black",Rcolors[1]), y.intersp=1.5)
       } else {
-        data_list <- purrr::map(as.list(max_distance), function(x){
+        data_list <- map(as.list(max_distance), function(x){
           data1 <- exp(1:m * log(probability)/x)
           return(data1)})
         par(xaxs="i")

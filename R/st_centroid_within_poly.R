@@ -2,16 +2,19 @@
 #'
 #'Polygon centroid
 #' @param poly object of class sf, sfc, sfg or SpatialPolygons
-#' @references \url{https://stackoverflow.com/questions/52522872/r-sf-package-centroid-within-polygon
-#' https://stackoverflow.com/users/3609772/mitch}.
-#' @export
+#' @references
+#' \url{https://stackoverflow.com/questions/52522872/r-sf-package-centroid-within-polygon}
+#' \url{https://stackoverflow.com/users/3609772/mitch}.
 #' @importFrom magrittr %>%
+#' @importFrom sf st_centroid
+#' @importFrom sf st_within
+#' @importFrom sf st_point_on_surface
 
 st_centroid_within_poly <- function(poly){
-  centroid <- poly %>% sf::st_centroid()
-  in_poly <- sf::st_within(centroid, poly, sparse = F)[[1]]
+  centroid <- poly %>% st_centroid()
+  in_poly <- st_within(centroid, poly, sparse = F)[[1]]
   if (in_poly) return(centroid)
-  centroid_in_poly <- sf::st_point_on_surface(poly)
+  centroid_in_poly <- st_point_on_surface(poly)
   return(centroid_in_poly)
   }
 

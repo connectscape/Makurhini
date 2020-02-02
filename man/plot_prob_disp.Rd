@@ -14,12 +14,14 @@ plot_prob_disp(probability, max_distance, eval_distance = NULL,
 
 \item{eval_distance}{numeric. Calculate the probability of dispersal at a specific distance}
 
-\item{minx.prob}{numeric. Value between 0-1, maximum x axe value}
+\item{min.prob}{numeric. Value between 0-1, maximum x axe value}
 }
 \description{
 Negative exponential dispersal kernel to calculate the probability of dispersal between two nodes. Used in probabilistic indexes (e.g., PC, BCPC, ProtConn etc.)
 }
 \examples{
+\dontrun{
 plot_prob_disp(probability= 0.5, max_distance = c(1000, 10000, 30000, 100000), min.prob = 0.2)
 plot_prob_disp(probability= 0.5, max_distance = 30000, eval_distance = 10000)
+}
 }

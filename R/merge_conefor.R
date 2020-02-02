@@ -1,6 +1,6 @@
 #' Join a connectivity index (dIIC o dPC, and the "intra",  "dflux", "connector") to core areas
 #'
-#' @param filename Data table, data frame or direction of node_importances.txt files (character).
+#' @param datat Data table, data frame or direction of node_importances.txt files (character).
 #' @param pattern character. Prefix (e.g."*AREA.txt" )
 #' @param merge_shape object of class sf, sfc, sfg or SpatialPolygons. It has to have the same "id" used to estimate the node importance.txt
 #' @param id character. Column name with the core id
@@ -8,7 +8,10 @@
 #' @param var logical. If TRUE the metric and fractions variance is reteined.
 #' @param write character. Write the shapefile, example, "C:/ejemplo/sahapefile.shp".
 #' @export
-merge_conefor <- function(data = NULL,
+#' @importFrom data.table rbindlist
+#' @importFrom sf st_as_sf
+#' @importFrom sf st_write
+merge_conefor <- function(datat = NULL,
                       pattern = NULL, merge_shape = NULL,
                       id = NULL, dA = FALSE, var = FALSE,
                       write = NULL
@@ -19,12 +22,12 @@ merge_conefor <- function(data = NULL,
     }
   }
 
-  if (is.character(data) | !is.null(pattern)){
-      filenames <-list.files(data, pattern=paste0(pattern), full.names=TRUE)
-      data <- data.table::rbindlist(lapply(filenames,fread), fill=T)
+  if (is.character(datat) | !is.null(pattern)){
+      filenames <-list.files(datat, pattern = paste0(pattern), full.names = TRUE)
+      data <- rbindlist(lapply(filenames,fread), fill=T)
       data <- as.data.frame(data)
       } else {
-        data <- as.data.frame(data)
+        data <- as.data.frame(datat)
         }
 
   #
@@ -40,13 +43,12 @@ merge_conefor <- function(data = NULL,
     data <- data[which(grepl("var",names(data), fixed = TRUE) == FALSE)]
     }
 
-
-  merge_shape <- sf::st_as_sf(merge_shape)
+  merge_shape <- st_as_sf(merge_shape)
 
   merge_shape <- merge(x = merge_shape, y = data, by.x = paste0(id), by.y = "Node")
 
     if (!is.null(write)){
-      sf::st_write(merge_shape, write, delete_layer = TRUE)
+      st_write(merge_shape, write, delete_layer = TRUE)
   }
   return(merge_shape)
 }
@@ -59,14 +61,13 @@ merge_conefor <- function(data = NULL,
 #' @param foldname character. Folders names, these folders will be created inside the outputdir
 #' @param write character. Output direction
 #' @param prefix character. An initial prefix used to write the shapefile, e.g., "AREA"
-#' @param merge_conefor list. A list of four arguments used in merge_conefor() function: list(colnames, dA, var)
-#' @export
+#' @param merge_coneforlist list. A list of four arguments used in merge_conefor() function: list(colnames, dA, var)
 merge_conefor_mult<-function(filename,
                        merge_shape,
                        patterns,
                        id,
                        foldname,
-                       write,
+                       write, merge_coneforlist,
                        prefix){
   if (!is.null(write)) {
     if (!dir.exists(dirname(write))) {
@@ -77,12 +78,12 @@ for (i in 1:length(patterns)){
   dir.create(paste(write,foldname[i],"/", sep = ""))
   Saveshapes = paste(paste(write, foldname[i],"/", sep = ""), prefix, foldname[i],".shp", sep = "")
   if (!is.null(merge_conefor)){
-    merge_conefor(data = filename,
+    merge_conefor(datat = filename,
                   pattern = patterns[i], merge_shape = merge_shape,
-                  id = id, dA = merge_conefor$dA,
-                  var = merge_conefor$var, write = Saveshapes)
+                  id = id, dA = merge_coneforlist$dA,
+                  var = merge_coneforlist$var, write = Saveshapes)
   } else {
-    merge_conefor(data = filename,
+    merge_conefor(datat = filename,
                   pattern = patterns[i], merge_shape = merge_shape,
                   id = id, var = FALSE, dA = FALSE,
                   write = Saveshapes)

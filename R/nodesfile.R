@@ -11,6 +11,12 @@
 #' @param write character. Output folder path if you use the name option, otherwise, place the output path, with the name and extension ".txt"
 #' @return nodo file in .txt format
 #' @export
+#' @importFrom sf st_zm
+#' @importFrom sf st_as_sf
+#' @importFrom rgeos gArea
+#' @importFrom udunits2 ud.convert
+#' @importFrom methods as
+#' @importFrom utils write.table
 nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauration = NULL, multiple = NULL,
                          prefix = NULL, write = NULL) {
   if (missing(nodes)) {
@@ -30,19 +36,19 @@ nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauratio
   }
 
   if(class(nodes)[1] == "sf") {
-    nodes <- sf::st_zm(nodes)
+    nodes <- st_zm(nodes)
     nodes <- as(nodes, 'Spatial')
   } else {
-    nodes <- sf::st_as_sf(nodes)
-    nodes <- sf::st_zm(nodes)
+    nodes <- st_as_sf(nodes)
+    nodes <- st_zm(nodes)
     nodes <- as(nodes, 'Spatial')
     }
 
   if (is.null(attribute)) {
-    nodes$Area <- rgeos::gArea(nodes, byid = TRUE)
+    nodes$Area <- gArea(nodes, byid = TRUE)
     attribute <- "Area"
     if (area_unit != "m2"){
-      nodes$Area <- udunits2::ud.convert(nodes$Area, "m2", area_unit)
+      nodes$Area <- ud.convert(nodes$Area, "m2", area_unit)
     }
   }
 

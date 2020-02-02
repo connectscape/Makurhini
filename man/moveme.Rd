@@ -7,18 +7,19 @@
 moveme(invec, movecommand)
 }
 \arguments{
-\item{movecommand}{character. Instructions to move the column, four options:first, last, before and after. e.g.}
+\item{invec}{A matrix of values with at least two dimensions e.g. data frame, attributes of a shapefile}
 
-\item{invect}{A matrix of values with at least two dimensions e.g. data frame, attributes of a shapefile}
+\item{movecommand}{character. Instructions to move the column, four options:first, last, before and after. e.g.}
 }
 \description{
 Move columns
 }
 \examples{
-moveme(names(df), "g first")
+\dontrun{ moveme(names(df), "g first")
  moveme(names(df), "g first; a last; e before c")
  df[moveme(names(df), "g first")]
+ }
 }
 \references{
-Solution proposed by the user "A5C1D2H2I1M1N2O1R2T1" \url{https://stackoverflow.com/users/1270695/a5c1d2h2i1m1n2o1r2t1}.
+The solution was proposed by the user "A5C1D2H2I1M1N2O1R2T1" \url{https://stackoverflow.com/users/1270695/a5c1d2h2i1m1n2o1r2t1}.
 }

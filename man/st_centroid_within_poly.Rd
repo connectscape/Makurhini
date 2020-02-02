@@ -13,6 +13,6 @@ st_centroid_within_poly(poly)
 Polygon centroid
 }
 \references{
-\url{https://stackoverflow.com/questions/52522872/r-sf-package-centroid-within-polygon
-https://stackoverflow.com/users/3609772/mitch}.
+\url{https://stackoverflow.com/questions/52522872/r-sf-package-centroid-within-polygon}
+\url{https://stackoverflow.com/users/3609772/mitch}.
 }

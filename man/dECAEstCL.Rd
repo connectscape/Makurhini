@@ -5,33 +5,40 @@
 \title{ECA, dA and dECA estimation using the Conefor command line.}
 \usage{
 dECAEstCL(nodes, attribute = NULL, area_unit = "ha",
-  distance = list(type = "centroid", resistance = NULL, tolerance = NULL,
-  ...), metric = "IIC", probability = NULL,
-  distance_thresholds = NULL, LA = NULL, plot = NULL, write = NULL)
+  distance = list(type = "centroid", resistance = NULL),
+  metric = "IIC", probability = NULL, distance_thresholds = NULL,
+  LA = NULL, plot = NULL, write = NULL)
 }
 \arguments{
 \item{nodes}{list of objects of class sf, sfc, sfg or SpatialPolygons. Nodes of each period of time to analyze.}
 
-\item{attribute}{character. Column name with the attribute in the data table selected for the nodes. If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.}
+\item{attribute}{character. Column name with the attribute in the data table selected for the nodes.
+If NULL the node area will be used as node attribute, the unit area can be selected using the "area_unit" argument.}
 
-\item{area_unit}{character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to square meters "ha".}
+\item{area_unit}{character. If attribute is NULL you can set an area unit, udunits2 package compatible
+unit (e.g., "km2", "cm2", "ha"). Default equal to hectares "ha".}
 
-\item{distance}{list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff-edge",
-"least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
-  To See more options consult the help function of distancefile().}
+\item{distance}{list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the
+distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost"
+or "commute-time", then you have to use the "resistance" argument. To See more arguments consult
+the help function of distancefile().}
 
-\item{metric}{character. Choose a connectivity metric: "IIC" considering topologycal distances or "PC" considering maximum product probabilities.}
+\item{metric}{character. Choose a connectivity metric: "IIC" considering topologycal distances or "PC"
+considering maximum product probabilities.}
 
-\item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.}
+\item{probability}{numeric. Connection probability to the selected distance threshold, e.g.,
+0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.}
 
-\item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).}
+\item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections.
+For example, distance_threshold = 30000; two or more specific distances:
+distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).}
 
-\item{plot}{character. If it is not NULL, You have to provide the corresponding year for each period of time analyzed, e.g., c("2011", "2014", "2017")}
+\item{LA}{numeric. Maximum landscape attribute ("units" equal to "area_unit", default equal to "ha").}
+
+\item{plot}{character. If it is not NULL, You have to provide the corresponding year for each period of
+time analyzed, e.g., c("2011", "2014", "2017")}
 
 \item{write}{character. Path and name of the output ".csv" file}
-
-\item{distance_threshold}{numeric. Distance or distances thresholds to establish connections. For example, one distance: distance_threshold = 30000; two or more specific distances:
-distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).}
 }
 \value{
 Table with:\cr
@@ -43,17 +50,21 @@ dECA: Delta ECA between times (percentage)\cr
 Type_change: Type of change using the dECAfun() and the difference between dA and dECA.\cr
 }
 \description{
-Equivalent Connected Area (ECA; if the area is used as attribute) or Equivalent Connectivity index
+Equivalent Connected Area (ECA; if the area is used as attribute) or Equivalent Connectivity index (EC)
 }
 \examples{
+\dontrun{
 ruta <- system.file("extdata", "ECA_example.RData", package = "Makurhini")
 load(ruta)
-LA_area <- raster::area(LA)* 0.0001 # lo convierto a ha
-plot(nodes$T1, col="purple")
-dECA <- dECAEstCL(nodes= nodes, attribute = NULL, area_unit = "ha", distance = list(type= "centroid"), metric = "IIC", probability = NULL,
-            distance_thresholds = 30000,LA = LA_area, plot= c("1T", "2T", "3T", "4T"), write = NULL)
+LA_area <- raster::area(LA)* 0.0001
+dECA <- dECAEstCL(nodes= nodes, attribute = NULL, area_unit = "ha",
+                  distance = list(type= "centroid"), metric = "IIC",
+                  probability = NULL, distance_thresholds = 30000,
+                  LA = LA_area, plot= c("1T", "2T", "3T", "4T"),
+                  write = NULL)
 dECA[[1]]
 dECA[[2]]
+}
 }
 \references{
 \url{www.conefor.org}\cr

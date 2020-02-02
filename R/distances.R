@@ -2,15 +2,23 @@
 #'
 #' @param x object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.
 #' @param id character. Column name with the core id.
-#' @param type_distance character. Choose one of the distances: "centroid" (faster, default), where euclidean distance is calculated from feature centroid; "edge", where euclidean distance is calculated from feature edges;
-#' "hausdorff-edge", where hausdorff distance is calculated from feature edges.
-#' @param distance_unit character. If euclidean distance is selected you can set a distance unit, udunits2 package compatible unit (e.g., "km", "cm", "ft", "inch"). Default equal to meters "m".
-#' @param tolerance numeric. Argument for higher processing speed. In case you have selected the "edge" or "hausdorff edge" distance, use this option to simplify the geometry and reduce the number of vertices (see, rgeos::gSimplify()).
+#' @param type_distance character. Choose one of the distances: "centroid" (faster, default), where Euclidean distance is calculated from feature centroid; "edge", where Euclidean distance is calculated from feature edges;
+#' @param distance_unit character. Distance unit, udunits2 package compatible unit (e.g., "km", "cm", "ft", "inch"). Default equal to meters "m".
+#' @param tolerance numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
+#' number of vertices (from rgeos::gSimplify).
 #' @param threshold numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
 #' @param write_table character. "" indicates output to the console.
-#' @return Pairwise euclidean distance table
+#' @return Pairwise Euclidean distance table
 #' @references Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitised Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
 #' @export
+#' @importFrom rgeos gSimplify
+#' @importFrom rgeos gCentroid
+#' @importFrom rgeos gDistance
+#' @importFrom udunits2 ud.convert
+#' @importFrom methods as
+#' @importFrom utils combn
+#' @importFrom utils write.table
+
 euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit = "m",
                                tolerance = NULL, threshold = NULL , write_table = NULL){
   if(missing(id)){
@@ -31,32 +39,32 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 
   if (!is.null(tolerance)){
     x_id <- x@data[,which(colnames(x@data) == id)]
-    x <- rgeos::gSimplify(x, tol = tolerance)
+    x <- gSimplify(x, tol = tolerance)
     x$id <- x_id
     names(x) <- id
   }
 
   if (type_distance ==  "centroid"){
-    centroid_1 <- rgeos::gCentroid(x, byid = TRUE)
-    distance <- rgeos::gDistance(centroid_1, byid = TRUE)
+    centroid_1 <- gCentroid(x, byid = TRUE)
+    distance <- gDistance(centroid_1, byid = TRUE)
     } else if (type_distance == "edge"){
-      distance <- rgeos::gDistance(x, byid = TRUE)
+      distance <- gDistance(x, byid = TRUE)
       } else if (type_distance == "hausdorff-edge"){
-        distance <- rgeos::gDistance(x, byid = TRUE, hausdorff = TRUE)
+        distance <- gDistance(x, byid = TRUE, hausdorff = TRUE)
       } else {
         stop("Error, you have to choose a type_distance option")
       }
 
   #unit convertion
   if (distance_unit != "m"){
-    distance <- udunits2::ud.convert(distance, "m", distance_unit)
+    distance <- ud.convert(distance, "m", distance_unit)
   }
 
   name <- c(unique(x@data[,which(colnames(x@data) == id)]), "income")
   name <- name[1:(length(name)-1)]
   colnames(distance) <- name
   rownames(distance) <- name
-  xy <- base::t(combn(colnames(distance), 2))
+  xy <- t(combn(colnames(distance), 2))
   distance_2 <- data.frame(xy, distance_2 = distance[xy])
   distance_2[,1] <- as.character(distance_2[,1])
   distance_2[,2] <- as.character(distance_2[,2])
@@ -74,6 +82,7 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 
   return(distance_2)
 }
+
 #' Cost distances
 #'
 #' @param x object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.
@@ -81,6 +90,8 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 #' @param type_distance character. Choose one of the distances: "least-cost" (default) that takes into account obstacles and local friction of the landscape (See, gdistance package);
 #'  "commute-time" that is analogous to the resistance distance. This distance is based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).
 #' @param resistance raster. Raster object with resistance values (landscape friction).
+#' @param CostFun A function to compute the cost to move between cells.The default is the mean (isotropic cost distance):  function(x) mean(x).
+#' @param ngh numeric.  Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16. Default equal **8**.
 #' @param mask object of class sf, sfc, sfg or SpatialPolygons. For higher processing speed use this option to clip the resistance at the extent of the mask.
 #' @param threshold numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
 #' @param geometry_out numeric. If some spatial geometries are out of the resistance extent, then a buffer zone the large enough to cover these spatial geometries and with this numeric value will be added to the resistance, so that it is possibñe to calculate a cost distance value for the pairs of nodes that involve these geometries.
@@ -90,8 +101,26 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 #' @references https://cran.r-project.org/web/packages/gdistance/gdistance.pdf
 #' @export
 #' @importFrom magrittr %>%
-cost_distances <- function(x, id, type_distance = "least-cost", resistance = NULL, mask = NULL,
-                           threshold = NULL, geometry_out = NULL, write_table = NULL){
+#' @importFrom sf st_as_sf
+#' @importFrom sf st_geometry
+#' @importFrom sf st_geometry<-
+#' @importFrom dplyr mutate
+#' @importFrom purrr map_dbl
+#' @importFrom raster crop
+#' @importFrom raster buffer
+#' @importFrom raster maxValue
+#' @importFrom raster mosaic
+#' @importFrom gdistance transition
+#' @importFrom gdistance geoCorrection
+#' @importFrom gdistance costDistance
+#' @importFrom gdistance commuteDistance
+#' @importFrom methods as
+#' @importFrom stats na.omit
+#' @importFrom utils combn
+#' @importFrom utils write.table
+
+cost_distances <- function(x, id, type_distance = "least-cost", resistance = NULL, CostFun = NULL, ngh = NULL,
+                           mask = NULL, threshold = NULL, geometry_out = NULL, write_table = NULL){
 
   if(missing(id)){
     stop("missing id")
@@ -106,17 +135,16 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
   }
 
   if(class(x)[1] == "SpatialPolygonsDataFrame") {
-    x <- sf::st_as_sf(x)
+    x <- st_as_sf(x)
   }
   if (is.null(resistance)){
     stop("Error, you need a resistance raster")
   }
 
-  coordenates_1 <- x  %>%
-    dplyr::mutate(lon = purrr::map_dbl(geometry, ~ st_centroid_within_poly(.x)[[1]]),
-                  lat = purrr::map_dbl(geometry, ~ st_centroid_within_poly(.x)[[2]]))
+  coordenates_1 <- x  %>% mutate(lon = map_dbl(geometry, ~ st_centroid_within_poly(.x)[[1]]),
+                  lat = map_dbl(geometry, ~ st_centroid_within_poly(.x)[[2]]))
 
-  sf::st_geometry(coordenates_1) <- NULL
+  st_geometry(coordenates_1)<- NULL
   coordenates_1 <- cbind(coordenates_1$lon, coordenates_1$lat)
   rownames(coordenates_1) <- NULL
 
@@ -124,18 +152,27 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
     if(class(mask)[1] == "sf"){
       mask <- as(mask, 'Spatial')
     }
-    resistance_1 <- raster::crop(resistance, mask)
+    resistance_1 <- crop(resistance, mask)
   } else {
     resistance_1 <- resistance
   }
 
-  conductance <- gdistance::transition(resistance_1, function(x) 1/mean(x), directions = 8)
-  Iso_conductance <- gdistance::geoCorrection(conductance)
+  if(is.null(ngh)){
+    ngh = 8
+  }
+
+  if(is.null(CostFun)){
+    conductance <- transition(resistance_1, function(x) mean(x), directions = ngh)
+  }else {
+    conductance <- transition(resistance_1, CostFun, directions = ngh)
+  }
+
+  Iso_conductance <- geoCorrection(conductance)
 
 
   if(type_distance == "least-cost"){
-    distance_result <- gdistance::costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
-    distance_result <- base::as.matrix(distance_result)
+    distance_result <- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
+    distance_result <- as.matrix(distance_result)
     rownames(distance_result)<- x[[id]]
     colnames(distance_result)<- x[[id]]
     distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
@@ -146,8 +183,8 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
     names(distance_result)<-c("From", "To", "CostDistance")
 
   } else if (type_distance == "commute-time") {
-    distance_result <- gdistance::commuteDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
-    distance_result <- base::as.matrix(distance_result)
+    distance_result <- commuteDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
+    distance_result <- as.matrix(distance_result)
     rownames(distance_result)<- x[[id]]
     colnames(distance_result)<- x[[id]]
     distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
@@ -187,31 +224,35 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
         minimum$idn <- NULL
         minimum <- max(minimum)
         #Buffer
-       rbuffer <- raster::buffer(resistance_1, width = minimum, doEdge = TRUE)
+       rbuffer <- buffer(resistance_1, width = minimum, doEdge = TRUE)
        resistance_2 <- resistance_1
-       resistance_2[resistance_2 > 0] <- raster::maxValue(resistance_1) + 10
-       resistance_2 <- raster::mosaic(resistance_2, rbuffer, fun = max)
-       resistance_2[resistance_2 == 1] <- raster::maxValue(resistance_1) + 20
+       resistance_2[resistance_2 > 0] <- maxValue(resistance_1) + 10
+       resistance_2 <- mosaic(resistance_2, rbuffer, fun = max)
+       resistance_2[resistance_2 == 1] <- maxValue(resistance_1) + 20
        #Mosaic
-       resistance_2 <- raster::mosaic(resistance_2, resistance_1, fun = min)
-       resistance_2[resistance_2 ==  raster::maxValue(resistance_1) + 20] <- geometry_out
+       resistance_2 <- mosaic(resistance_2, resistance_1, fun = min)
+       resistance_2[resistance_2 ==  maxValue(resistance_1) + 20] <- geometry_out
 
        #Conductancia
-       conductance <- gdistance::transition(resistance_2, function(x) 1/mean(x), directions = 8)
-       Iso_conductance <- gdistance::geoCorrection(conductance)
+       if(is.null(CostFun)){
+         conductance <- transition(resistance_2, function(x) mean(x), directions = ngh)
+       }else {
+         conductance <- transition(resistance_2, CostFun, directions = ngh)
+       }
+       Iso_conductance <- geoCorrection(conductance)
 
-       coordenates_2 <- x3  %>%
-         dplyr::mutate(lon = purrr::map_dbl(geometry, ~st_centroid_within_poly(.x)[[1]]),
-                       lat = purrr::map_dbl(geometry, ~st_centroid_within_poly(.x)[[2]]))
-       sf::st_geometry(coordenates_2) <- NULL
+       coordenates_2 <- x4  %>%
+         mutate(lon = map_dbl(geometry, ~st_centroid_within_poly(.x)[[1]]),
+                       lat = map_dbl(geometry, ~st_centroid_within_poly(.x)[[2]]))
+       st_geometry(coordenates_2)<- NULL
        coordenates_2 <- cbind(coordenates_2$lon, coordenates_2$lat)
        rownames(coordenates_2) <- NULL
        coordenates_2 <- rbind(coordenates_2, coordenates_1)
 
        #Get new distances
        if(type_distance == "least-cost"){
-         distance2 <- gdistance::costDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
-         distance2 <- base::as.matrix(distance2)
+         distance2 <- costDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
+         distance2 <- as.matrix(distance2)
          rownames(distance2)<- x4[[id]]
          colnames(distance2)<- x4[[id]]
          distance2[lower.tri(distance2, diag = TRUE)] <- NA
@@ -221,8 +262,8 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
          distance2[,2]<-as.numeric(as.character(distance2[,2]))
          names(distance2)<-c("From", "To", "CostDistance")
        } else if (type_distance == "commute-time") {
-         distance2 <- gdistance::commuteDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
-         distance2 <- base::as.matrix(distance2)
+         distance2 <- commuteDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
+         distance2 <- as.matrix(distance2)
          rownames(distance2)<- x4[[id]]
          colnames(distance2)<- x4[[id]]
          distance2[lower.tri(distance2, diag = TRUE)] <- NA

@@ -45,8 +45,19 @@ Imports:
     ggplot2,
     plyr,
     reshape2,
-    RSAGA,
     colorspace,
-    tibble
+    tibble,
+    viridis,
+    ggpubr,
+    velox,
+    spex,
+    stringr,
+    RSAGA,
+    foreach,
+    iterators,
+    fasterize,
+    htmltools,
+    webshot,
+    boot
 Depends: 
     R (>= 3.5)

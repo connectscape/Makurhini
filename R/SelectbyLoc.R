@@ -10,10 +10,11 @@
 #' if a value of 90 then if the intersection area is equal or greater than 90 percent, the geometry will be selected.
 #' @param transboundary numeric. Transboundary buffer to select polygones in a second round. See, Saura et al. 2017.
 #' Transboundary field is added where 0 = Transboundary.
+#' @param area_unit  character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to hectares "ha".
 #' @param plot logical. Default = FALSE. 1 = Not transboundary PA, 0 = Transboundary PA
 #' @param write_select character. Write shapefile, provide folder direction, and name plus extension of the output shapefile
 #' @param SAGA Logical. Optimize the large process using SAGA GIS and RSAGA package (see, \url{https://github.com/r-spatial/RSAGA}).
-#' @return shapefile of selected geometries and intersected areas are in hectares
+#' @return shapefile of selected geometries and intersected areas (default equal to hectares)
 #' @examples
 #' library(Makurhini)
 #' library(raster)
@@ -39,14 +40,17 @@
 #' @importFrom dplyr mutate group_by summarize
 #' @importFrom tibble as_tibble
 #' @importFrom methods as
+#' @importFrom udunits2 ud.convert
 SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
                         buffer = NULL, thintersect = NULL,
-                        transboundary = NULL, write_select = NULL, plot = FALSE,
+                        transboundary = NULL,  area_unit = "ha",
+                        write_select = NULL, plot = FALSE,
                         SAGA = FALSE){
   options(warn = -1)
   err <- tryCatch(detach("package:plyr", unload=TRUE), error = function(err)err)
 
   ###
+  '%!in%' <- function(x,y)!('%in%'(x,y))
   over_sf <- function(x, y) {
     if(class(x)[1] == "SpatialPolygonsDataFrame") {
       x <- st_as_sf(x)
@@ -99,7 +103,7 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
         }
       sourcelyr.2 <- st_buffer(st_as_sf(sourcelyr), dist = transboundary)
       sourcelyr.2 <- st_difference(sourcelyr.2, st_as_sf(sourcelyr))
-      target.2 <- subset(target, !((.data$IDTemp %in% select$IDTemp)))
+      target.2 <- target[which(target$IDTemp %!in% select$IDTemp),]
 
       if (nrow(target.2) >= 1) {
       select.2 <- tryCatch(target.2[!is.na(over_sf(target.2, sourcelyr.2)),], error = function(err)err)
@@ -109,7 +113,7 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
           target.2 <- st_buffer(st_as_sf(target.2), dist = 0)
           select.2 <- tryCatch(target.2[!is.na(over_sf(target.2, sourcelyr.2)),], error = function(err)err)
           if (inherits(select.2, "error")){
-            target.2 <- subset(target, !((.data$IDTemp %in% select$IDTemp)))
+            target.2 <- target[which(target$IDTemp %!in% select$IDTemp),]
             target.3 <- gBuffer(as(target.2, 'Spatial'), width = 0)
             select.2 <- st_as_sf(target.3[!is.na(over(as(target.3, 'Spatial'),
                                                           geometry(as(sourcelyr.2, 'Spatial')))),])
@@ -138,7 +142,7 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
         }
 
         if(nrow(select.1) >= 1){
-          select.1$A <- as.numeric(st_area(select.1, by_element = TRUE)* 0.0001)
+          select.1$A <- ud.convert(as.numeric(st_area(select.1, by_element = TRUE)), "m2", area_unit)
 
           if (isFALSE(SAGA)){
             #Intersections
@@ -171,7 +175,7 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
             }
 
         intersection_percentage <- intersection_percentage %>%
-          mutate(A2 = as.numeric(st_area(.)* 0.0001) %>% as.numeric()) %>%
+          mutate(A2 = ud.convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric()) %>%
           as_tibble() %>% group_by(.data$IDTemp) %>%
           dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
         intersection_percentage$PercPi <- as.numeric((intersection_percentage$Area2 * 100) / intersection_percentage$Area1)
@@ -200,7 +204,7 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
             }
 
         if(nrow(select.1) >= 1){
-          select.1$A <- as.numeric(st_area(select.1, by_element = TRUE)* 0.0001)
+          select.1$A <- ud.convert(as.numeric(st_area(select.1, by_element = TRUE)), "m2", area_unit)
 
           if (isFALSE(SAGA)){
             sourcelyr <- sourcelyr %>% st_cast("POLYGON")
@@ -233,7 +237,7 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
           }
 
           intersection_percentage <- intersection_percentage %>%
-            mutate(A2 = as.numeric(st_area(.)* 0.0001) %>% as.numeric()) %>%
+            mutate(A2 = ud.convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric()) %>%
             as_tibble() %>% group_by(.data$IDTemp) %>%
             dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
 
@@ -253,7 +257,7 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
           #Second selection. Transboundary
           sourcelyr.2 <- st_buffer(sourcelyr, dist = transboundary)
           sourcelyr.2 <- st_difference(sourcelyr.2, sourcelyr)
-          target.2 <- subset(target, !((.data$IDTemp %in% select$IDTemp)))#Get PA not selected yet
+          target.2  <- target[which(target$IDTemp %!in% select$IDTemp),]#Get PA not selected yet
 
           if (nrow(target.2) >= 1){
             select.2 <- tryCatch(st_as_sf(target.2[!is.na(over_sf(target.2, sourcelyr.2)),]), error = function(err)err)
@@ -264,7 +268,7 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
               select.2 <- tryCatch(st_as_sf(target.2[!is.na(over_sf(target.2, sourcelyr.2)),]), error = function(err)err)
 
               if (inherits(select.2, "error")){
-                target.2 <- subset(target, !((.data$IDTemp %in% select$IDTemp)))
+                target.2  <- target[which(target$IDTemp %!in% select$IDTemp),]
                 target.3 <- gBuffer(target.2, width = 0)
                 target.3$id <- 1
                 plt <- nrow(target.3)
@@ -279,7 +283,7 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
               }
             }
 
-            select.2$A <- as.numeric(st_area(select.2, by_element = TRUE)* 0.0001)
+            select.2$A <- ud.convert(as.numeric(st_area(select.2, by_element = TRUE)), "m2", area_unit)
 
             if (isFALSE(SAGA)){
               select.2 <- select.2
@@ -308,10 +312,12 @@ SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
               }
               intersection_percentage <- st_as_sf(intersection_percentage)%>% st_cast("POLYGON")
             }
+
             intersection_percentage <- intersection_percentage %>%
-              mutate(A2 = as.numeric(st_area(.)* 0.0001) %>% as.numeric())%>%
+              mutate(A2 = ud.convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric())%>%
               as_tibble() %>% group_by(.data$IDTemp) %>%
               dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
+
             intersection_percentage$PercPi <- as.numeric((intersection_percentage$Area2*100) / intersection_percentage$Area1)
             select.2 <- merge(select.2, intersection_percentage, by = "IDTemp")
 

@@ -7,7 +7,7 @@
 BCentrality(nodes, id, attribute = NULL, distance = list(type =
   "centroid", resistance = NULL), metric = c("BC", "BCIIC", "BCPC"),
   distance_thresholds = NULL, probability = NULL, LA = NULL,
-  write = NULL)
+  dA = FALSE, dvars = FALSE, write = NULL)
 }
 \arguments{
 \item{nodes}{Object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}
@@ -29,6 +29,10 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
 
 \item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).}
 
+\item{dA}{logical. If TRUE, then the delta attribute will be added to the node's importance result.}
+
+\item{dvars}{logical. If TRUE, then the absolute variation will be added to the node's importance result.}
+
 \item{write}{character. Write output shapefile, example, "C:/ejemplo.shp".}
 }
 \description{
@@ -43,13 +47,13 @@ nrow(cores) #Number of cores
 #One distance threshold
 BCentrality(nodes = cores, id = "id",
             distance = list(type = "centroid"),
-            metric = "BCIIC",
+            metric = "BCIIC", LA = NULL,
             distance_thresholds = 30000) #30 km
 
 #Two or more distance thresholds
 BCentrality(nodes = cores, id = "id", attribute = NULL,
            distance = list(type = "centroid"),
-           metric = "BCIIC",
+           metric = "BCIIC", LA = NULL,
            distance_thresholds = c(10000, 30000)) #10 and 30 km
 }
 \references{

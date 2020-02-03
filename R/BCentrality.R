@@ -13,8 +13,9 @@
 #'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).
 #' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "BPC" metric.
 #' @param LA numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).
+#' @param dA logical. If TRUE, then the delta attribute will be added to the node's importance result.
+#' @param dvars logical. If TRUE, then the absolute variation will be added to the node's importance result.
 #' @param write character. Write output shapefile, example, "C:/ejemplo.shp".
-#'
 #' @references Saura, S. and Torne, J. (2012). Conefor 2.6. Universidad Politecnica de Madrid. Available at \url{www.conefor.org}.\cr
 #'  Freeman L.C. (1977). Set of Measures of Centrality Based on Betweenness. Sociometry 40: 35-41.\cr
 #'  Bodin, O. and Saura, S. (2010). Ranking individual habitat patches as connectivity providers: integrating network analysis and patch removal experiments. Ecological Modelling 221: 2393-2405.
@@ -28,21 +29,25 @@
 #' #One distance threshold
 #' BCentrality(nodes = cores, id = "id",
 #'             distance = list(type = "centroid"),
-#'             metric = "BCIIC",
+#'             metric = "BCIIC", LA = NULL,
 #'             distance_thresholds = 30000) #30 km
 #'
 #' #Two or more distance thresholds
 #' BCentrality(nodes = cores, id = "id", attribute = NULL,
 #'            distance = list(type = "centroid"),
-#'            metric = "BCIIC",
+#'            metric = "BCIIC", LA = NULL,
 #'            distance_thresholds = c(10000, 30000)) #10 and 30 km
 #' @importFrom sf st_as_sf
 #' @importFrom dplyr progress_estimated
 #' @importFrom purrr map
+#' @importFrom iterators iter
+#' @importFrom foreach foreach %dopar%
+#' @importFrom utils write.table warnErrList
+#'
 BCentrality <- function(nodes, id, attribute  = NULL,
                         distance = list(type= "centroid", resistance = NULL),
                         metric = c("BC", "BCIIC", "BCPC"), distance_thresholds = NULL,
-                        probability = NULL, LA = NULL, write = NULL) {
+                        probability = NULL, LA = NULL, dA = FALSE, dvars = FALSE, write = NULL) {
   if (missing(nodes)) {
     stop("error missing shapefile file of nodes")
   } else {
@@ -90,6 +95,8 @@ BCentrality <- function(nodes, id, attribute  = NULL,
     nodes$IdTemp <- nodes[[id]]
   }
 
+  x = NULL
+
   nodesfile(nodes, id = "IdTemp", attribute = attribute, area_unit = "ha",
             write = paste0(temp.1, "/nodes.txt"))
   distancefile(nodes, id = "IdTemp", type = distance$type,
@@ -107,7 +114,8 @@ BCentrality <- function(nodes, id, attribute  = NULL,
   }
 
   pb <- progress_estimated(length(distance_thresholds), 0)
-  BC_metric <- tryCatch(map(as.list(distance_thresholds), function(x) {
+  BC_metric <- foreach(x = iter(distance_thresholds), .errorhandling = 'pass') %dopar%
+    {
     if (length(distance_thresholds) > 1) {
       pb$tick()$print()
     }
@@ -116,17 +124,17 @@ BCentrality <- function(nodes, id, attribute  = NULL,
                        thdist = x, multdist = NULL, conprob = probability,
                        onlyoverall = FALSE, LA = LA, nrestauration = FALSE,
                        prefix = NULL, write = NULL)
-    tab1 <- tab1[["node_importances"]]
+    tab1 <- tab1[[2]]
     if (!is.null(write)) {
       write <- paste0(write, "_d", x, ".shp")
     }
 
     tab1 <- merge_conefor(datat = tab1, pattern = NULL, merge_shape = nodes,
-                          id = "IdTemp", write = write, dA = FALSE, var = FALSE)
+                          id = "IdTemp", write = write, dA = dA, var = dvars)
     tab1$IdTemp <- NULL
-    return(tab1) }), error = function(err) err)
+    return(tab1) }
 
-  if (inherits(BC_metric, "error")) {
+ if (!is.null(attr(warnErrList(BC_metric), "warningMsg")[[1]])) {
     setwd(ttt.2)
   } else {
     if (length(distance_thresholds) == 1) {

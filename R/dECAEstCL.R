@@ -59,6 +59,8 @@
 #' @importFrom reshape2 melt
 #' @import ggplot2
 #' @importFrom utils write.csv
+#' @importFrom iterators iter
+#' @importFrom foreach foreach %dopar%
 dECAEstCL <- function(nodes,
                       attribute = NULL,
                       area_unit = "ha",
@@ -87,45 +89,50 @@ dECAEstCL <- function(nodes,
   temp.1 <- paste0(tempdir(), "/TempInputs", sample(1:1000, 1, replace = T))
   dir.create(temp.1, recursive = T)
   setwd(temp.1)
-  #############################
+
+  x = NULL
+  y = NULL
   pb <- progress_estimated(length(listT), 0)
+  ECA <- foreach(x = iter(listT), .errorhandling = 'pass') %dopar%
+    {
+      pb$tick()$print()
+      x@data$IdTemp <- 1:nrow(x)
+      nodesfile(x, id = "IdTemp", attribute, area_unit, write = paste0(temp.1,"/nodes.txt"))
 
-  ECA <- tryCatch(map(listT, function(x){
-    pb$tick()$print()
-    x@data$IdTemp <- 1:nrow(x)
-    nodesfile(x, id = "IdTemp", attribute, area_unit, write = paste0(temp.1,"/nodes.txt"))
+      distancefile(x,  id = "IdTemp", type = distance$type, tolerance = distance$tolerance,
+                   resistance = distance$resistance, CostFun = distance$CostFun, ngh = distance$ngh,
+                   threshold = distance$threshold, mask = distance$mask,
+                   distance_unit = distance$distance_unit, distance$geometry_out,
+                   write = paste0(temp.1,"/Dist.txt"))
 
-    distancefile(x,  id = "IdTemp", type = distance$type, tolerance = distance$tolerance,
-               resistance = distance$resistance, CostFun = distance$CostFun, ngh = distance$ngh,
-               threshold = distance$threshold, mask = distance$mask,
-               distance_unit = distance$distance_unit, distance$geometry_out,
-               write = paste0(temp.1,"/Dist.txt"))
-
-    if (is.null(distance$threshold)) {
-      pairs = "all"
+      if (is.null(distance$threshold)) {
+        pairs = "all"
       } else {
         pairs = "notall"
+      }
+
+      ECA_metric <-  foreach(y = iter(distance_thresholds)) %dopar%
+        {
+          tab1 <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
+                             typeconnection = "dist", typepairs = pairs,
+                             index = metric, thdist = y,
+                             multdist = NULL, conprob = probability,
+                             onlyoverall = TRUE, LA = LA,
+                             nrestauration = FALSE,
+                             prefix = NULL, write = NULL)
+          tab1 <- tab1[[2]]
+          tab1 <- tab1[[2,2]]
+          return(tab1)
         }
 
-    ECA_metric <-  map(as.list(distance_thresholds), function(y){
-      tab1 <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
-                         typeconnection = "dist", typepairs = pairs,
-                         index = metric, thdist = y,
-                         multdist = NULL, conprob = probability,
-                         onlyoverall = TRUE, LA = LA,
-                         nrestauration = FALSE,
-                         prefix = NULL, write = NULL)
-      tab1 <- tab1[[2]]
-      tab1 <- tab1[[2,2]]
-      return(tab1)})
+      ECA_metric2 <- do.call(rbind,  ECA_metric)
+      ECA_metric2 <- cbind(ECA_metric2, distance_thresholds)
+      ECA_metric2 <- as.data.frame(ECA_metric2)
+      names(ECA_metric2) <- c("ECA", "Distance")
+      return(ECA_metric2)
+    }
 
-    ECA_metric2 <- do.call(rbind,  ECA_metric)
-    ECA_metric2 <- cbind(ECA_metric2, distance_thresholds)
-    ECA_metric2 <- as.data.frame(ECA_metric2)
-    names(ECA_metric2) <- c("ECA", "Distance")
-    return(ECA_metric2)}), error = function(err)err)
-
-  if(inherits(ECA, "error")){
+  if(!is.null(attr(warnErrList(ECA), "warningMsg")[[1]])){
     setwd(ttt.2)
     stop("review ECA parameters: nodes, distance file or LA")
   } else {
@@ -134,9 +141,8 @@ dECAEstCL <- function(nodes,
       Tab_ECA <- do.call(rbind, Tab_ECA)
       Tab_ECA <- cbind(DECA, Tab_ECA)
       return(Tab_ECA)})
-  #
 
-  ECA3 <- map(ECA2, function(x){
+    ECA3 <- map(ECA2, function(x){
       DECA.2 <- x
       AO <- LA
       DECA.2$Normalized_ECA <- (DECA.2$ECA*100)/DECA.2$Area

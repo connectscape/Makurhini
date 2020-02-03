@@ -9,8 +9,7 @@
 #' @param write character. Write the shapefile, example, "C:/ejemplo/sahapefile.shp".
 #' @export
 #' @importFrom data.table rbindlist
-#' @importFrom sf st_as_sf
-#' @importFrom sf st_write
+#' @import sf
 merge_conefor <- function(datat = NULL,
                       pattern = NULL, merge_shape = NULL,
                       id = NULL, dA = FALSE, var = FALSE,

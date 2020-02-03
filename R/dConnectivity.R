@@ -1,3 +1,4 @@
+
 #' Estimate the integral index of connectivity (IIC) or the probability of connectivity (PC)
 #'
 #' Use this function to calculate the PC and IIC indexes under one or several distance thresholds.
@@ -14,6 +15,8 @@
 #'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).
 #' @param overall logical. If TRUE, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE
 #' @param LA numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).
+#' @param dA logical. If TRUE, then the delta attribute will be added to the node's importance result.
+#' @param dvars logical. If TRUE, then the absolute variation will be added to the node's importance result.
 #' @param write character. Write output shapefile and overall table (if TRUE overall argument).
 #'   It is necessary to specify the "Folder direction" + "Initial prefix",  for example, "C:/ejemplo".
 #' @references Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at \url{www.conefor.org}.\cr
@@ -26,25 +29,26 @@
 #' nrow(cores)
 #' #One distance threshold
 #' IIC <- dConnectivity(nodes = cores, id = "id", attribute = NULL,
-#'                     distance = list(type = "centroid"),
+#'                     distance = list(type = "centroid"), LA = NULL,
 #'                     metric = "IIC", distance_thresholds = 30000)
 #' IIC
 #' #Two or more distance thresholds
 #' PC <- dConnectivity(nodes = cores, id = "id", attribute = NULL,
 #'                     distance = list(type = "centroid"),
-#'                     metric = "PC", probability = 0.5,
+#'                     metric = "PC", probability = 0.5, LA = NULL,
 #'                     distance_thresholds = c(5000, 50000))
 #' PC
 #' @importFrom dplyr progress_estimated
-#' @importFrom purrr map
 #' @importFrom methods as
-#' @importFrom utils write.table
-
+#' @importFrom utils write.table warnErrList
+#' @importFrom iterators iter
+#' @importFrom foreach foreach %dopar%
 dConnectivity <- function(nodes, id = NULL, attribute  = NULL, restauration = NULL,
-                        distance = list(type= "centroid", resistance = NULL),
-                        metric = c("IIC", "PC"),
-                        probability, distance_thresholds = NULL,
-                        overall = FALSE, LA = NULL, write = NULL) {
+                          distance = list(type= "centroid", resistance = NULL),
+                          metric = c("IIC", "PC"),
+                          probability, distance_thresholds = NULL,
+                          overall = FALSE, dA = FALSE, dvars =FALSE,
+                          LA = NULL, write = NULL) {
   if (missing(nodes)) {
     stop("error missing shapefile file of nodes")
   } else {
@@ -115,71 +119,58 @@ dConnectivity <- function(nodes, id = NULL, attribute  = NULL, restauration = NU
   } else {
     pairs = "notall"
   }
+  x = NULL
   pb <- progress_estimated(length(distance_thresholds), 0)
+  result <- foreach(x=iter(distance_thresholds), .errorhandling = 'pass') %dopar%
+    {
+      if(length(distance_thresholds)>1){
+        pb$tick()$print()
+      }
+      d <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
+                      typeconnection = "dist", typepairs = pairs,
+                      index = metric, thdist = x,
+                      multdist = NULL, conprob = probability,
+                      onlyoverall = FALSE, LA = LA,
+                      nrestauration = rest,
+                      prefix = NULL, write = NULL)
 
-  result <- tryCatch(map(as.list(distance_thresholds), function(x){
-    if(length(distance_thresholds)>1){
-      pb$tick()$print()
-    }
-    tab1 <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
-                         typeconnection = "dist", typepairs = pairs,
-                         index = metric, thdist = x,
-                         multdist = NULL, conprob = probability,
-                         onlyoverall = FALSE, LA = LA,
-                         nrestauration = rest,
-                         prefix = NULL, write = NULL)
-    dPC <- tab1[["node_importances"]]
-
-    #
-    if (!is.null(write)){
-      write <- paste0(write, "_d", x,".shp")
-    }
-
-    dPC <- merge_conefor(datat = dPC, pattern = NULL,
+      m <- merge_conefor(datat = d[[2]], pattern = NULL,
                          merge_shape = nodes, id = "IdTemp",
-                         write = write,
-                         dA = FALSE, var = FALSE)
-    if (is.null(id)) {
-      names(dPC)[which(colnames(dPC) == "IdTemp")] <- "id"
-      dPC[moveme(names(dPC), "id first")]
-    } else {
-      dPC$"IdTemp" <- NULL
-    }
+                         write = if (!is.null(write)) paste0(write, "_d", x,".shp"),
+                         dA = dA, var = dvars)
+      if (is.null(id)) {
+        names(m)[which(colnames(m) == "IdTemp")] <- "id"
+        m[moveme(names(m), "id first")]
+      } else {
+        m$"IdTemp" <- NULL
+      }
 
-
-    if(isTRUE(overall)){
-        roverall <- tab1[["overall_indices"]]
+      if(isTRUE(overall)){
+        roverall <- d[[4]]
         names(roverall) <- c("Index", "Value")
         result_interm <- list()
-        result_interm[[1]] <- dPC
+        result_interm[[1]] <- m
         result_interm[[2]] <- roverall
         names(result_interm) <- c(paste0("_node_importances_d",x), paste0("_overall_d", x))
         if (!is.null(write)){
           write.table(roverall, paste0(write, "_overall_d", x), sep="\t",
                       row.names = FALSE, col.names = TRUE)
         }
-        remove(dPC, roverall)
       } else {
-        result_interm <- dPC
-        remove(dPC)
-        }
-      return(result_interm)}), error = function(err)err)
-
-  if(inherits(result, "error")){
-    setwd(ttt.2)
-    } else {
-      if (isFALSE(overall) && length(distance_thresholds) == 1){
-        toDo <- TRUE
-        } else {
-          toDo <- FALSE
-          }
-
-      if (isTRUE(toDo)){
-        result <- result[[1]]
-        } else {
-          names(result) <- paste0("d", distance_thresholds)
-          }
-      setwd(ttt.2)
+        result_interm <- m
       }
+      return(result_interm)
+    }
+
+  if(!is.null(attr(warnErrList(result), "warningMsg")[[1]])) {
+    setwd(ttt.2)
+  } else {
+    if (isTRUE(isFALSE(overall) && length(distance_thresholds) == 1)){
+      result <- result[[1]]
+    } else {
+      names(result) <- paste0("d", distance_thresholds)
+    }
+    setwd(ttt.2)
+  }
   return(result)
 }

@@ -6,7 +6,8 @@
 \usage{
 SelectbyLoc(target, sourcelyr, id = NULL, selreg = "M1",
   buffer = NULL, thintersect = NULL, transboundary = NULL,
-  write_select = NULL, plot = FALSE, SAGA = FALSE)
+  area_unit = "ha", write_select = NULL, plot = FALSE,
+  SAGA = FALSE)
 }
 \arguments{
 \item{target}{object of class sf, sfc, sfg or SpatialPolygons.The selection will be applied to this layer.}
@@ -26,6 +27,8 @@ if a value of 90 then if the intersection area is equal or greater than 90 perce
 \item{transboundary}{numeric. Transboundary buffer to select polygones in a second round. See, Saura et al. 2017.
 Transboundary field is added where 0 = Transboundary.}
 
+\item{area_unit}{character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to hectares "ha".}
+
 \item{write_select}{character. Write shapefile, provide folder direction, and name plus extension of the output shapefile}
 
 \item{plot}{logical. Default = FALSE. 1 = Not transboundary PA, 0 = Transboundary PA}
@@ -33,7 +36,7 @@ Transboundary field is added where 0 = Transboundary.}
 \item{SAGA}{Logical. Optimize the large process using SAGA GIS and RSAGA package (see, \url{https://github.com/r-spatial/RSAGA}).}
 }
 \value{
-shapefile of selected geometries and intersected areas are in hectares
+shapefile of selected geometries and intersected areas (default equal to hectares)
 }
 \description{
 Select layer by location

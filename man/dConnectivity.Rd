@@ -7,8 +7,8 @@
 dConnectivity(nodes, id = NULL, attribute = NULL,
   restauration = NULL, distance = list(type = "centroid", resistance =
   NULL), metric = c("IIC", "PC"), probability,
-  distance_thresholds = NULL, overall = FALSE, LA = NULL,
-  write = NULL)
+  distance_thresholds = NULL, overall = FALSE, dA = FALSE,
+  dvars = FALSE, LA = NULL, write = NULL)
 }
 \arguments{
 \item{nodes}{Object of class sf, sfc, sfg or SpatialPolygons.The shapefile must be in a projected coordinate system.}
@@ -32,6 +32,10 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
 
 \item{overall}{logical. If TRUE, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE}
 
+\item{dA}{logical. If TRUE, then the delta attribute will be added to the node's importance result.}
+
+\item{dvars}{logical. If TRUE, then the absolute variation will be added to the node's importance result.}
+
 \item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).}
 
 \item{write}{character. Write output shapefile and overall table (if TRUE overall argument).
@@ -46,13 +50,13 @@ cores <- sf::read_sf(ruta)
 nrow(cores)
 #One distance threshold
 IIC <- dConnectivity(nodes = cores, id = "id", attribute = NULL,
-                    distance = list(type = "centroid"),
+                    distance = list(type = "centroid"), LA = NULL,
                     metric = "IIC", distance_thresholds = 30000)
 IIC
 #Two or more distance thresholds
 PC <- dConnectivity(nodes = cores, id = "id", attribute = NULL,
                     distance = list(type = "centroid"),
-                    metric = "PC", probability = 0.5,
+                    metric = "PC", probability = 0.5, LA = NULL,
                     distance_thresholds = c(5000, 50000))
 PC
 }

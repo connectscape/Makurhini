@@ -5,19 +5,16 @@
 #' @param type_distance character. Choose one of the distances: "centroid" (faster, default), where Euclidean distance is calculated from feature centroid; "edge", where Euclidean distance is calculated from feature edges;
 #' @param distance_unit character. Distance unit, udunits2 package compatible unit (e.g., "km", "cm", "ft", "inch"). Default equal to meters "m".
 #' @param tolerance numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
-#' number of vertices (from rgeos::gSimplify).
+#'  number of vertices (from rgeos::gSimplify).
 #' @param threshold numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
 #' @param write_table character. "" indicates output to the console.
 #' @return Pairwise Euclidean distance table
 #' @references Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitised Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
 #' @export
-#' @importFrom rgeos gSimplify
-#' @importFrom rgeos gCentroid
-#' @importFrom rgeos gDistance
+#' @importFrom rgeos gSimplify gCentroid gDistance
 #' @importFrom udunits2 ud.convert
 #' @importFrom methods as
-#' @importFrom utils combn
-#' @importFrom utils write.table
+#' @importFrom utils combn write.table
 
 euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit = "m",
                                tolerance = NULL, threshold = NULL , write_table = NULL){
@@ -101,23 +98,14 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 #' @references https://cran.r-project.org/web/packages/gdistance/gdistance.pdf
 #' @export
 #' @importFrom magrittr %>%
-#' @importFrom sf st_as_sf
-#' @importFrom sf st_geometry
-#' @importFrom sf st_geometry<-
+#' @import sf
 #' @importFrom dplyr mutate
 #' @importFrom purrr map_dbl
-#' @importFrom raster crop
-#' @importFrom raster buffer
-#' @importFrom raster maxValue
-#' @importFrom raster mosaic
-#' @importFrom gdistance transition
-#' @importFrom gdistance geoCorrection
-#' @importFrom gdistance costDistance
-#' @importFrom gdistance commuteDistance
+#' @importFrom raster crop buffer maxValue mosaic
+#' @importFrom gdistance transition geoCorrection costDistance commuteDistance
 #' @importFrom methods as
 #' @importFrom stats na.omit
-#' @importFrom utils combn
-#' @importFrom utils write.table
+#' @importFrom utils combn write.table
 
 cost_distances <- function(x, id, type_distance = "least-cost", resistance = NULL, CostFun = NULL, ngh = NULL,
                            mask = NULL, threshold = NULL, geometry_out = NULL, write_table = NULL){

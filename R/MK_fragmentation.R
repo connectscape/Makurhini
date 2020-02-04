@@ -31,7 +31,7 @@
 #' @examples
 #' ruta <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
 #' cores <- sf::read_sf(ruta)
-#' fragmentation <- FragmentationST(patches = cores, edge_distance = 500, plot = TRUE)
+#' fragmentation <- MK_fragmentation(patches = cores, edge_distance = 500, plot = TRUE)
 #' names(fragmentation)
 #'
 #' #Table
@@ -50,7 +50,7 @@
 #' @importFrom viridis viridis
 #' @importFrom formattable formattable formatter style
 #' @importFrom ggpubr ggarrange
-FragmentationST <- function(patches, edge_distance = 500, min_patch_area = 100, landscape_area = NULL,
+MK_fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100, landscape_area = NULL,
                             plot = FALSE, write = NULL){
   if (missing(patches)) {
     stop("error missing shapefile file of patches")

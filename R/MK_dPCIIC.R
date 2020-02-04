@@ -28,12 +28,12 @@
 #' cores <- sf::read_sf(ruta)
 #' nrow(cores)
 #' #One distance threshold
-#' IIC <- dConnectivity(nodes = cores, id = "id", attribute = NULL,
+#' IIC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
 #'                     distance = list(type = "centroid"), LA = NULL,
 #'                     metric = "IIC", distance_thresholds = 30000)
 #' IIC
 #' #Two or more distance thresholds
-#' PC <- dConnectivity(nodes = cores, id = "id", attribute = NULL,
+#' PC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
 #'                     distance = list(type = "centroid"),
 #'                     metric = "PC", probability = 0.5, LA = NULL,
 #'                     distance_thresholds = c(5000, 50000))
@@ -43,7 +43,7 @@
 #' @importFrom utils write.table warnErrList
 #' @importFrom iterators iter
 #' @importFrom foreach foreach %dopar%
-dConnectivity <- function(nodes, id = NULL, attribute  = NULL, restauration = NULL,
+MK_dPCIIC <- function(nodes, id = NULL, attribute  = NULL, restauration = NULL,
                           distance = list(type= "centroid", resistance = NULL),
                           metric = c("IIC", "PC"),
                           probability, distance_thresholds = NULL,

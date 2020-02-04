@@ -38,13 +38,13 @@
 #' ruta <- system.file("extdata", "ECA_example.RData", package = "Makurhini")
 #' load(ruta)
 #' LA_area <- raster::area(LA)* 0.0001
-#' dECA <- dECAEstCL(nodes= nodes, attribute = NULL, area_unit = "ha",
+#' dECA_test <- MK_dECA(nodes= nodes, attribute = NULL, area_unit = "ha",
 #'                   distance = list(type= "centroid"), metric = "IIC",
 #'                   probability = NULL, distance_thresholds = 30000,
 #'                   LA = LA_area, plot= c("1T", "2T", "3T", "4T"),
 #'                   write = NULL)
-#' dECA[[1]]
-#' dECA[[2]]
+#' dECA_test[[1]]
+#' dECA_test[[2]]
 #' }
 #' @export
 #' @importFrom magrittr %>%
@@ -61,7 +61,7 @@
 #' @importFrom utils write.csv
 #' @importFrom iterators iter
 #' @importFrom foreach foreach %dopar%
-dECAEstCL <- function(nodes,
+MK_dECA <- function(nodes,
                       attribute = NULL,
                       area_unit = "ha",
                       distance = list(type = "centroid", resistance = NULL),

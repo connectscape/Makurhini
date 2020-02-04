@@ -18,7 +18,7 @@
 #'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).
 #' @param transboundary numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017. You can set one transboundary value or one per each threshold distance.
 #' @param LA numeric. Maximum Landscape Attribute.
-#' @param keep numeric. Simplification of the region's geometry to speed the select by location ("Makurhini::SelectbyLoc").
+#' @param keep numeric. Simplification of the region's geometry to speed the select by location ("Makurhini::MK_selectbyloc").
 #'  The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
 #'   the higher the speed but the greater uncertainty.
 #' @param plot logical. Plot the main ProtConn indicators and fractions, default = FALSE.
@@ -77,7 +77,7 @@
 #' @importFrom udunits2 ud.convert
 #' @importFrom iterators iter
 #' @importFrom foreach foreach %dopar%
-ProtConnCLa <- function(nodes, region, thintersect = NULL,
+MK_ProtConn<- function(nodes, region, thintersect = NULL,
                         attribute = "Intersected area",
                         area_unit = "ha",
                         res_attribute = 150,
@@ -162,7 +162,7 @@ ProtConnCLa <- function(nodes, region, thintersect = NULL,
         region_2 <- region
       }
 
-      nodes.2 <- SelectbyLoc(target = nodes.1, sourcelyr = region_2,
+      nodes.2 <- MK_selectbyloc(target = nodes.1, sourcelyr = region_2,
                              selreg = "M2", thintersect = thintersect,
                              area_unit = area_unit,
                              transboundary = transboundary, SAGA = SAGA)
@@ -170,7 +170,7 @@ ProtConnCLa <- function(nodes, region, thintersect = NULL,
       if(nrow(nodes.2) > 0){
         nodes.2 <- ms_dissolve(nodes.2, field = "dis") %>% st_buffer(., dist = 0) %>%
           st_cast("POLYGON")
-        nodes.2 <- SelectbyLoc(target = nodes.2, sourcelyr = region_2,
+        nodes.2 <- MK_selectbyloc(target = nodes.2, sourcelyr = region_2,
                                selreg = "M2", thintersect = thintersect,
                                transboundary = transboundary, SAGA = SAGA)
       }
@@ -999,7 +999,7 @@ ProtConnCLa <- function(nodes, region, thintersect = NULL,
           region_2 <- region
         }
 
-        nodes.2 <- SelectbyLoc(target = nodes.1, sourcelyr = region_2,
+        nodes.2 <- MK_selectbyloc(target = nodes.1, sourcelyr = region_2,
                                selreg = "M2", thintersect = thintersect,
                                area_unit = area_unit,
                                transboundary = x.2, SAGA = SAGA)
@@ -1007,7 +1007,7 @@ ProtConnCLa <- function(nodes, region, thintersect = NULL,
         if(nrow(nodes.2) > 0){
           nodes.2 <- ms_dissolve(nodes.2, field = "dis") %>% st_buffer(., dist = 0) %>%
             st_cast("POLYGON")
-          nodes.2 <- SelectbyLoc(target = nodes.2, sourcelyr = region_2,
+          nodes.2 <- MK_selectbyloc(target = nodes.2, sourcelyr = region_2,
                                  selreg = "M2", thintersect = thintersect,
                                  transboundary = x.2, SAGA = SAGA)
         }

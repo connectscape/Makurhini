@@ -27,24 +27,24 @@
 #' nrow(cores) #Number of cores
 #'
 #' #One distance threshold
-#' BCentrality(nodes = cores, id = "id",
+#' MK_BCentrality(nodes = cores, id = "id",
 #'             distance = list(type = "centroid"),
 #'             metric = "BCIIC", LA = NULL,
 #'             distance_thresholds = 30000) #30 km
 #'
 #' #Two or more distance thresholds
-#' BCentrality(nodes = cores, id = "id", attribute = NULL,
+#' MK_BCentrality(nodes = cores, id = "id", attribute = NULL,
 #'            distance = list(type = "centroid"),
 #'            metric = "BCIIC", LA = NULL,
 #'            distance_thresholds = c(10000, 30000)) #10 and 30 km
-#' @importFrom sf st_as_sf
+#' @import sf
 #' @importFrom dplyr progress_estimated
 #' @importFrom purrr map
 #' @importFrom iterators iter
 #' @importFrom foreach foreach %dopar%
 #' @importFrom utils write.table warnErrList
 #'
-BCentrality <- function(nodes, id, attribute  = NULL,
+MK_BCentrality <- function(nodes, id, attribute  = NULL,
                         distance = list(type= "centroid", resistance = NULL),
                         metric = c("BC", "BCIIC", "BCPC"), distance_thresholds = NULL,
                         probability = NULL, LA = NULL, dA = FALSE, dvars = FALSE, write = NULL) {
@@ -135,7 +135,8 @@ BCentrality <- function(nodes, id, attribute  = NULL,
     return(tab1) }
 
  if (!is.null(attr(warnErrList(BC_metric), "warningMsg")[[1]])) {
-    setwd(ttt.2)
+   setwd(ttt.2)
+   stop(warnErrList(BC_metric))
   } else {
     if (length(distance_thresholds) == 1) {
       BC_metric <- BC_metric[[1]]

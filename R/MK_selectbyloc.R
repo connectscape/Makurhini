@@ -16,6 +16,7 @@
 #' @param SAGA Logical. Optimize the large process using SAGA GIS and RSAGA package (see, \url{https://github.com/r-spatial/RSAGA}).
 #' @return shapefile of selected geometries and intersected areas (default equal to hectares)
 #' @examples
+#' \dontrun{
 #' library(Makurhini)
 #' library(raster)
 #' ruta <- system.file("extdata", "WDPA_May2019_MEX-shapefile-polygons.shp", package = "Makurhini")
@@ -29,8 +30,9 @@
 #' plot(y_1, col="blue")
 #'
 #' #Select polygones x inside y
-#' selection <- SelectbyLoc(target = x, sourcelyr = y, selreg = "M1")
+#' selection <- MK_selectbyloc(target = x, sourcelyr = y, selreg = "M1")
 #' plot(selection, col="green", add=TRUE)
+#' }
 #' @export
 #' @importFrom magrittr %>%
 #' @import sf
@@ -41,7 +43,7 @@
 #' @importFrom tibble as_tibble
 #' @importFrom methods as
 #' @importFrom udunits2 ud.convert
-SelectbyLoc <- function(target, sourcelyr, id = NULL, selreg = "M1",
+MK_selectbyloc <- function(target, sourcelyr, id = NULL, selreg = "M1",
                         buffer = NULL, thintersect = NULL,
                         transboundary = NULL,  area_unit = "ha",
                         write_select = NULL, plot = FALSE,

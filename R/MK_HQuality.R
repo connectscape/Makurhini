@@ -24,7 +24,7 @@
 #' @importFrom rmapshaper ms_dissolve
 #' @importFrom iterators iter
 #' @importFrom foreach foreach %dopar%
-HQuality <- function(x, y, id = NULL, area_unit = NULL,
+MK_HQuality <- function(x, y, id = NULL, area_unit = NULL,
                   by_zone = NULL, write = NULL, SAGA = TRUE){
   #
   y0 <- y

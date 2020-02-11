@@ -1,13 +1,10 @@
 
+[![Travis build
+status](https://travis-ci.org/OscarGOGO/Makurhini.svg?branch=master)](https://travis-ci.org/OscarGOGO/Makurhini)
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # Makurhini
-
-<!-- badges: start -->
-
-[![Travis build
-status](https://travis-ci.com/OscarGOGO/Makurhini.svg?branch=master)](https://travis-ci.org/OscarGOGO/Makurhini)
-<!-- badges: end -->
 
 The goal of Makurhini is to provide a set of functions to estimate
 landscape fragmentation and connectivity metrics

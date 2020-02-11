@@ -4,11 +4,11 @@
 \alias{MK_dPCIIC}
 \title{Estimate the integral index of connectivity (IIC) or the probability of connectivity (PC)}
 \usage{
-MK_dPCIIC(nodes, id = NULL, attribute = NULL, restauration = NULL,
-  distance = list(type = "centroid", resistance = NULL),
-  metric = c("IIC", "PC"), probability, distance_thresholds = NULL,
-  overall = FALSE, dA = FALSE, dvars = FALSE, LA = NULL,
-  write = NULL)
+MK_dPCIIC(nodes, id = NULL, attribute = NULL, area_unit = "ha",
+  restauration = NULL, distance = list(type = "centroid", resistance =
+  NULL), metric = c("IIC", "PC"), probability,
+  distance_thresholds = NULL, overall = FALSE, dA = FALSE,
+  dvars = FALSE, LA = NULL, write = NULL)
 }
 \arguments{
 \item{nodes}{Object of class sf, sfc, sfg or SpatialPolygons.The shapefile must be in a projected coordinate system.}
@@ -16,6 +16,8 @@ MK_dPCIIC(nodes, id = NULL, attribute = NULL, restauration = NULL,
 \item{id}{character. Column name with the nodes id.If NULL, then a new temporal id will be generated.}
 
 \item{attribute}{character. Column name with the nodes attribute. If NULL, then the patch area (ha) will be estimated and used as the attribute.}
+
+\item{area_unit}{character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to square meters "ha".}
 
 \item{restauration}{character. Name of the column with restauration value. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node to add to the initial landscape (restored).}
 
@@ -45,19 +47,19 @@ It is necessary to specify the "Folder direction" + "Initial prefix",  for examp
 Use this function to calculate the PC and IIC indexes under one or several distance thresholds.
 }
 \examples{
-ruta <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
-cores <- sf::read_sf(ruta)
+ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
+load(ruta)
 nrow(cores)
-#One distance threshold
+#One distance threshold IIC
 IIC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
-                    distance = list(type = "centroid"), LA = NULL,
+                    distance = list(type = "centroid"),
                     metric = "IIC", distance_thresholds = 30000)
 IIC
-#Two or more distance thresholds
+#Two or more distance thresholds PC
 PC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
                     distance = list(type = "centroid"),
-                    metric = "PC", probability = 0.5, LA = NULL,
-                    distance_thresholds = c(5000, 50000))
+                    metric = "PC", probability = 0.5,
+                    distance_thresholds = c(5000, 10000))
 PC
 }
 \references{

@@ -65,7 +65,7 @@
 #' @importFrom dplyr progress_estimated mutate group_by summarize
 #' @importFrom raster raster
 #' @importFrom fasterize fasterize
-#' @importFrom utils combn  write.table
+#' @importFrom utils combn  write.table read.table
 #' @importFrom tibble as_tibble
 #' @import ggplot2
 #' @importFrom purrr compact
@@ -172,6 +172,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
           st_cast("POLYGON")
         nodes.2 <- MK_selectbyloc(target = nodes.2, sourcelyr = region_2,
                                selreg = "M2", thintersect = thintersect,
+                               area_unit = area_unit,
                                transboundary = transboundary, SAGA = SAGA)
       }
         nodes.2$dis <- NULL
@@ -179,16 +180,24 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
       if(is.null(transboundary)){
         nodes.2 <- nodes.2[nodes.2$transboundary == 1,]
       }
+        plot(as(region_2, 'Spatial'), add=T)
+        if(nrow(nodes.2) > 0){
+          if (!is.null(transboundary) & attribute == "Intersected area"){
+            nodes.2t1 <- st_intersection(nodes.2[nodes.2$transboundary==1,], region_2) %>% st_cast("POLYGON")
+            nodes.2t1$rmapshaperid <- NULL
+            nodes.2t1$TempID <- NULL
+            nodes.2t1$Area2 <- ud.convert(as.numeric(st_area(nodes.2t1)), "m2", area_unit)
 
-      if (!is.null(transboundary) & attribute == "Intersected area"){
-        nodes.2t1 <- st_intersection(nodes.2[nodes.2$transboundary==1,], region_2)
-        nodes.2t1$rmapshaperid <- NULL
-        nodes.2t2 <- st_difference(nodes.2[nodes.2$transboundary==1,], region_2)
-        nodes.2t2$rmapshaperid <- NULL
-        nodes.2t2$transboundary <- 0
-        nodes.2t2 <- rbind(nodes.2[nodes.2$transboundary==0,], nodes.2t2)
-        nodes.2 <- rbind(nodes.2t1, nodes.2t2)
-      }
+            nodes.2t2 <- st_difference(nodes.2[nodes.2$transboundary==1,], region_2) %>% st_cast("POLYGON")
+            if(nrow(nodes.2t2) > 0){
+              nodes.2t2$rmapshaperid <- NULL
+              nodes.2t2$TempID <- NULL
+              nodes.2t2$transboundary <- 0
+              nodes.2t2 <- rbind(nodes.2[nodes.2$transboundary==0,], nodes.2t2)
+              nodes.2 <- rbind(nodes.2t1, nodes.2t2)
+             }
+          }
+        }
 
         area2_sort <- sort(x = nodes.2[nodes.2$transboundary == 1,]$Area2, decreasing = T)
     } else {
@@ -261,6 +270,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
     #progress
     i = NULL
     pb <- progress_estimated(length(distance_thresholds), 0)
+
     result_protconn <- foreach(i = iter(distance_thresholds), .errorhandling = 'pass') %dopar%
       {
         nodes.2 <- nodes_base
@@ -272,7 +282,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
               nodes.2$AreaTemp <- nodes.2$Area2 * nodes.2$transboundary
             } else if (attribute == "Area"){
               nodes.2$AreaTemp <- nodes.2$Area1 * nodes.2$transboundary
-            } else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+            } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
               r.raster <- raster(nodes.1, res= res_attribute)
               r.raster <- fasterize(nodes.1, r.raster, field = attribute, background = 0)
               r.raster <- velox(r.raster)
@@ -354,18 +364,19 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
 
             #dPC merge
             if(isTRUE(dPC)){
-              if(length(unique(result.1[[2]][[4]])) > 1){
-                dPC.2 <- merge_conefor(datat = result.1[[2]],
+              rdpc <- result.1[[which(map(result.1, function(x) ncol(x)) >= 11)]]
+              if(length(unique(rdpc[,4])) > 1){
+                dPC.2 <- merge_conefor(datat = rdpc,
                                        pattern = NULL, merge_shape = nodes.2,
                                        id = "IDTemp", write = NULL,
                                        dA = FALSE, var = FALSE)
                 dPC.2$"IDTemp" <- NULL
                 dPC.2$OBJECTID <- 1:nrow(dPC.2)
                 dPC.2 <- dPC.2[c("OBJECTID", "PercPi", "transboundary", "AreaTemp", "dPC", "dPCintra", "dPCflux", "dPCconnector")]
-              } else if (unique(result.1[[2]][[4]]) == 0 ){
+              } else if (unique(rdpc[,4]) == 0 ){
                 dPC.2 <- "dPC index equal 0. Possible explanation: Only transboundary protected areas where selected, please, check the thintersect parameter."
-              } else if (unique(result.1[[2]][[4]]) != 0 ){
-                dPC.2 <- merge_conefor(datat = result.1[[2]],
+              } else if (unique(rdpc[,4]) != 0 ){
+                dPC.2 <- merge_conefor(datat = rdpc,
                                        pattern = NULL, merge_shape = nodes.2,
                                        id = "IDTemp", write = NULL,
                                        dA = FALSE, var = FALSE)
@@ -378,18 +389,15 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
             }
             #Initial ProtConn table
             #Landscape attribute for protected land
-            if(isTRUE(dPC)){
-              data <- as.data.frame(result.1[[4]])
-            } else {
-              data <- as.data.frame(result.1[[2]])
-            }
+            data <- result.1[[which(map(result.1, function(x) paste0(nrow(x), ncol(x))) == "32")]]
+
             DataProtconn <- as.data.frame(cbind(ECA = data[2,2], PC = data[3,2], LA))
             #
             if (attribute == "Intersected area"){
               DataProtconn$a <- sum(nodes.2$Area2 * nodes.2$transboundary)
             } else if (attribute == "Area"){
               DataProtconn$a <- sum(nodes.2$Area1 * nodes.2$transboundary)
-            } else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+            } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
               DataProtconn$a <- sum(nodes.2$Area2 * nodes.2$transboundary)
             }
 
@@ -450,7 +458,8 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                   setwd(ttt.2)
                   stop(result.2)
                 }
-                result.2 <- as.data.frame(result.2[[2]])
+
+                result.2 <-  result.2[[which(map(result.2, function(x) paste0(nrow(x), ncol(x))) == "32")]]
                 ECA2 <- as.data.frame(cbind(ECA = result.2[2,2], PC = result.2[3,2]))
 
                 #############AREAS
@@ -501,7 +510,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                     AreaTemp2 <- nodes.3$Area2
                   } else if (attribute =="Area"){
                     AreaTemp2 <- nodes.3$A
-                  }else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+                  }else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                     majority <- r.raster$extract(sp=nodes.3, fun = Mode)
                     majority[is.na(majority)] <- 0
                     AreaTemp2 <- majority
@@ -560,7 +569,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                     AreaTemp2 <- nodes.3$Area2
                   } else if (attribute =="Area"){
                     AreaTemp2 <- nodes.3$A
-                  } else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+                  } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                     majority <- r.raster$extract(sp=nodes.3, fun = Mode)
                     majority[is.na(majority)] <- 0
                     AreaTemp2 <- majority
@@ -594,7 +603,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                 bound_nodes$AreaTemp <- bound_nodes$Area2 * bound_nodes$transboundary
               } else if (attribute == "Area"){
                 bound_nodes$AreaTemp <- bound_nodes$Area1 * bound_nodes$transboundary
-              }else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+              }else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                 majority <- r.raster$extract(sp=bound_nodes, fun = Mode)
                 majority[is.na(majority)] <- 0
                 bound_nodes$AreaTemp <- majority * bound_nodes$transboundary
@@ -620,7 +629,8 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                 setwd(ttt.2)
                 stop(result.3)
               }
-              result.3 <- as.data.frame(result.3[[2]])
+
+              result.3 <-  result.3[[which(map(result.3, function(x) paste0(nrow(x), ncol(x))) == "32")]]
               ECA3 <- as.data.frame(cbind(ECA = result.3[2,2], PC = result.3[3,2]))
 
               DataProtconn$ProConn_design <- (100*(ECA3$ECA/DataProtconn$LA)) - (100 * (DataProtconn$ECA / DataProtconn$LA))
@@ -635,9 +645,14 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
             DataProtconn$ProtConn_Trans <- 100 * ((100 * ((DataProtconn$ECA - ECA2$ECA) / LA)) / ProtConn)
             DataProtconn[is.na(DataProtconn)] <- 0
 
-            if ((100 * ((DataProtconn$ECA - ECA2$ECA) / LA)) == ProtConn | DataProtconn$ProtConn_Trans == 100){
+            if ((100 * ((DataProtconn$ECA - ECA2$ECA) / LA)) == ProtConn){
               DataProtconn$ProtConn_Trans <- 0
             }
+
+            if (DataProtconn$ProtConn_Trans == 100){
+              DataProtconn$ProtConn_Trans <- 0
+            }
+
             DataProtconn$ProtConn_Unprot <- 100 - DataProtconn$ProtConn_Prot - DataProtconn$ProtConn_Trans
 
             ########ProtConn[Prot] fractions
@@ -672,7 +687,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
               Area <- nodes.2$Area2 * nodes.2$transboundary
             } else if (attribute == "Area"){
               Area <- nodes.2$Area1 * nodes.2$transboundary
-            } else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+            } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
               r.raster <- raster(nodes.1, res= res_attribute)
               r.raster <- fasterize(nodes.1, r.raster, field = attribute, background = 0)
               r.raster <- velox(r.raster)
@@ -737,7 +752,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
             Area <- nodes.2$Area2 * nodes.2$transboundary
           } else if (attribute == "Area"){
             Area <- nodes.2$Area1 * nodes.2$transboundary
-          } else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+          } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
             r.raster <- raster(nodes.1, res= res_attribute)
             r.raster <- fasterize(nodes.1, r.raster, field = attribute, background = 0)
             r.raster <- velox(r.raster)
@@ -1105,7 +1120,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                 nodes.2$AreaTemp <- nodes.2$Area2 * nodes.2$transboundary
               } else if (attribute == "Area"){
                 nodes.2$AreaTemp <- nodes.2$Area1 * nodes.2$transboundary
-              } else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+              } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                 r.raster <- raster(nodes.1, res= res_attribute)
                 r.raster <- fasterize(nodes.1, r.raster, field = attribute, background = 0)
                 r.raster <- velox(r.raster)
@@ -1187,18 +1202,19 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
 
               #dPC merge
               if(isTRUE(dPC)){
-                if(length(unique(result.1[[2]][[4]])) > 1){
-                  dPC.2 <- merge_conefor(datat = result.1[[2]],
+                rdpc <-  result.1[[which(map(result.1, function(x) ncol(x)) >= 11)]]
+                if(length(unique(rdpc[,4])) > 1){
+                  dPC.2 <- merge_conefor(datat = rdpc,
                                          pattern = NULL, merge_shape = nodes.2,
                                          id = "IDTemp", write = NULL,
                                          dA = FALSE, var = FALSE)
                   dPC.2$"IDTemp" <- NULL
                   dPC.2$OBJECTID <- 1:nrow(dPC.2)
                   dPC.2 <- dPC.2[c("OBJECTID", "PercPi", "transboundary", "AreaTemp", "dPC", "dPCintra", "dPCflux", "dPCconnector")]
-                } else if (unique(result.1[[2]][[4]]) == 0 ){
+                } else if (unique(rdpc[,4]) == 0 ){
                   dPC.2 <- "dPC index equal 0. Possible explanation: Only transboundary protected areas where selected, please, check the thintersect parameter."
-                } else if (unique(result.1[[2]][[4]]) != 0 ){
-                  dPC.2 <- merge_conefor(datat = result.1[[2]],
+                } else if (unique(rdpc[,4]) != 0 ){
+                  dPC.2 <- merge_conefor(datat = rdpc,
                                          pattern = NULL, merge_shape = nodes.2,
                                          id = "IDTemp", write = NULL,
                                          dA = FALSE, var = FALSE)
@@ -1211,18 +1227,14 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
               }
               #Initial ProtConn table
               #Landscape attribute for protected land
-              if(isTRUE(dPC)){
-                data <- as.data.frame(result.1[[4]])
-              } else {
-                data <- as.data.frame(result.1[[2]])
-              }
+              data <- result.1[[which(map(result.1, function(x) paste0(nrow(x), ncol(x))) == "32")]]
               DataProtconn <- as.data.frame(cbind(ECA = data[2,2], PC = data[3,2], LA))
               #
               if (attribute == "Intersected area"){
                 DataProtconn$a <- sum(nodes.2$Area2 * nodes.2$transboundary)
               } else if (attribute == "Area"){
                 DataProtconn$a <- sum(nodes.2$Area1 * nodes.2$transboundary)
-              } else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+              } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                 DataProtconn$a <- sum(nodes.2$Area2 * nodes.2$transboundary)
               }
 
@@ -1283,7 +1295,10 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                     setwd(ttt.2)
                     stop(result.2)
                   }
-                  result.2 <- as.data.frame(result.2[[2]])
+
+
+
+                  result.2 <- result.2[[which(map(result.2, function(x) paste0(nrow(x), ncol(x))) == "32")]]
                   ECA2 <- as.data.frame(cbind(ECA = result.2[2,2], PC = result.2[3,2]))
 
                   #############AREAS
@@ -1334,7 +1349,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                       AreaTemp2 <- nodes.3$Area2
                     } else if (attribute =="Area"){
                       AreaTemp2 <- nodes.3$A
-                    }else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+                    }else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                       majority <- r.raster$extract(sp=nodes.3, fun = Mode)
                       majority[is.na(majority)] <- 0
                       AreaTemp2 <- majority
@@ -1393,7 +1408,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                       AreaTemp2 <- nodes.3$Area2
                     } else if (attribute =="Area"){
                       AreaTemp2 <- nodes.3$A
-                    } else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+                    } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                       majority <- r.raster$extract(sp=nodes.3, fun = Mode)
                       majority[is.na(majority)] <- 0
                       AreaTemp2 <- majority
@@ -1427,7 +1442,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                   bound_nodes$AreaTemp <- bound_nodes$Area2 * bound_nodes$transboundary
                 } else if (attribute == "Area"){
                   bound_nodes$AreaTemp <- bound_nodes$Area1 * bound_nodes$transboundary
-                }else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+                }else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                   majority <- r.raster$extract(sp=bound_nodes, fun = Mode)
                   majority[is.na(majority)] <- 0
                   bound_nodes$AreaTemp <- majority * bound_nodes$transboundary
@@ -1453,7 +1468,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                   setwd(ttt.2)
                   stop(result.3)
                 }
-                result.3 <- as.data.frame(result.3[[2]])
+                result.3 <- result.3[[which(map(result.3, function(x) paste0(nrow(x), ncol(x))) == "32")]]
                 ECA3 <- as.data.frame(cbind(ECA = result.3[2,2], PC = result.3[3,2]))
 
                 DataProtconn$ProConn_design <- (100*(ECA3$ECA/DataProtconn$LA)) - (100 * (DataProtconn$ECA / DataProtconn$LA))
@@ -1468,9 +1483,14 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
               DataProtconn$ProtConn_Trans <- 100 * ((100 * ((DataProtconn$ECA - ECA2$ECA) / LA)) / ProtConn)
               DataProtconn[is.na(DataProtconn)] <- 0
 
-              if ((100 * ((DataProtconn$ECA - ECA2$ECA) / LA)) == ProtConn | DataProtconn$ProtConn_Trans == 100){
+              if ((100 * ((DataProtconn$ECA - ECA2$ECA) / LA)) == ProtConn){
                 DataProtconn$ProtConn_Trans <- 0
               }
+
+              if (DataProtconn$ProtConn_Trans == 100){
+                DataProtconn$ProtConn_Trans <- 0
+              }
+
               DataProtconn$ProtConn_Unprot <- 100 - DataProtconn$ProtConn_Prot - DataProtconn$ProtConn_Trans
 
               ########ProtConn[Prot] fractions
@@ -1505,7 +1525,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                 Area <- nodes.2$Area2 * nodes.2$transboundary
               } else if (attribute == "Area"){
                 Area <- nodes.2$Area1 * nodes.2$transboundary
-              } else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+              } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                 r.raster <- raster(nodes.1, res= res_attribute)
                 r.raster <- fasterize(nodes.1, r.raster, field = attribute, background = 0)
                 r.raster <- velox(r.raster)
@@ -1570,7 +1590,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
               Area <- nodes.2$Area2 * nodes.2$transboundary
             } else if (attribute == "Area"){
               Area <- nodes.2$Area1 * nodes.2$transboundary
-            } else if (is.character(attribute) | isFALSE(attribute %in% c("Area", "Intersected area"))){
+            } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
               r.raster <- raster(nodes.1, res= res_attribute)
               r.raster <- fasterize(nodes.1, r.raster, field = attribute, background = 0)
               r.raster <- velox(r.raster)

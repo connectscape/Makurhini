@@ -29,17 +29,16 @@
 #'  \url{www.umass.edu/landeco/research/fragstats/fragstats.html}.\cr
 #' Haddad et al. (2015). Science Advances 1(2):e1500052. \url{DOI: 10.1126/sciadv.1500052}.
 #' @examples
-#' ruta <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
-#' cores <- sf::read_sf(ruta)
+#' ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
+#' load(ruta)
+#' nrow(cores)
 #' fragmentation <- MK_fragmentation(patches = cores, edge_distance = 500, plot = TRUE)
-#' names(fragmentation)
 #'
 #' #Table
 #' fragmentation$`Summary landscape metrics (Viewer Panel)`
 #' #Shapefile
 #' fragmentation$`Patch statistics shapefile`
-#' #Plot
-#' fragmentation$`Frequency landscape metric plot`
+#'
 #' @export
 #' @importFrom magrittr %>%
 #' @import sf
@@ -54,7 +53,7 @@ MK_fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
                             plot = FALSE, write = NULL){
   if (missing(patches)) {
     stop("error missing shapefile file of patches")
-  } else {
+    } else {
     if (is.numeric(patches) | is.character(patches)) {
       stop("error missing shapefile file of nodes")
     }
@@ -223,9 +222,9 @@ MK_fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
                            style = ~ style(color = "grey", font.weight = "bold"))))
 
   if (isTRUE(plot)){
+    print(p5)
     return(list("Summary landscape metrics (Viewer Panel)" = LM,
-                "Patch statistics shapefile" = patches,
-                "Frequency landscape metric plot" = p5))
+                "Patch statistics shapefile" = patches))
   } else {
     return(list("Summary landscape metrics (Viewer Panel)" = LM,
                 "Patch statistics shapefile" = patches))

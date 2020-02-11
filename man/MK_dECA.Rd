@@ -7,7 +7,7 @@
 MK_dECA(nodes, attribute = NULL, area_unit = "ha",
   distance = list(type = "centroid", resistance = NULL),
   metric = "IIC", probability = NULL, distance_thresholds = NULL,
-  LA = NULL, plot = NULL, write = NULL)
+  LA = NULL, plot = FALSE, write = NULL)
 }
 \arguments{
 \item{nodes}{list of objects of class sf, sfc, sfg or SpatialPolygons. Nodes of each period of time to analyze.}
@@ -35,7 +35,7 @@ distance_threshold = c(30000, 50000); sequence distances: distance_threshold = s
 
 \item{LA}{numeric. Maximum landscape attribute ("units" equal to "area_unit", default equal to "ha").}
 
-\item{plot}{character. If it is not NULL, You have to provide the corresponding year for each period of
+\item{plot}{logical. Also, you can provide the corresponding year for each period of
 time analyzed, e.g., c("2011", "2014", "2017")}
 
 \item{write}{character. Path and name of the output ".csv" file}
@@ -54,16 +54,15 @@ Equivalent Connected Area (ECA; if the area is used as attribute) or Equivalent 
 }
 \examples{
 \dontrun{
-ruta <- system.file("extdata", "ECA_example.RData", package = "Makurhini")
-load(ruta)
-LA_area <- raster::area(LA)* 0.0001
-dECA_test <- MK_dECA(nodes= nodes, attribute = NULL, area_unit = "ha",
-                  distance = list(type= "centroid"), metric = "IIC",
-                  probability = NULL, distance_thresholds = 30000,
-                  LA = LA_area, plot= c("1T", "2T", "3T", "4T"),
-                  write = NULL)
-dECA_test[[1]]
-dECA_test[[2]]
+library(rgeos)
+ruta <- system.file("extdata", "dECA_example.RData", package = "Makurhini")
+load(ruta))
+Max_attribute <- gArea(study_area) * 0.0001 #hectares
+dECA_test <- MK_dECA(nodes= forest_patches, attribute = NULL, area_unit = "ha",
+                  distance = list(type= "centroid"), metric = "PC",
+                  probability = 0.05, distance_thresholds = 5000,
+                  LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))
+dECA_test
 }
 }
 \references{

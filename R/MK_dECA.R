@@ -18,7 +18,7 @@
 #' For example, distance_threshold = 30000; two or more specific distances:
 #' distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).
 #' @param LA numeric. Maximum landscape attribute ("units" equal to "area_unit", default equal to "ha").
-#' @param plot character. If it is not NULL, You have to provide the corresponding year for each period of
+#' @param plot logical. Also, you can provide the corresponding year for each period of
 #' time analyzed, e.g., c("2011", "2014", "2017")
 #' @param write character. Path and name of the output ".csv" file
 #' @return Table with:\cr
@@ -35,16 +35,15 @@
 #' https://doi.org/10.1007/s10531-017-1416-7
 #' @examples
 #' \dontrun{
-#' ruta <- system.file("extdata", "ECA_example.RData", package = "Makurhini")
-#' load(ruta)
-#' LA_area <- raster::area(LA)* 0.0001
-#' dECA_test <- MK_dECA(nodes= nodes, attribute = NULL, area_unit = "ha",
-#'                   distance = list(type= "centroid"), metric = "IIC",
-#'                   probability = NULL, distance_thresholds = 30000,
-#'                   LA = LA_area, plot= c("1T", "2T", "3T", "4T"),
-#'                   write = NULL)
-#' dECA_test[[1]]
-#' dECA_test[[2]]
+#' library(rgeos)
+#' ruta <- system.file("extdata", "dECA_example.RData", package = "Makurhini")
+#' load(ruta))
+#' Max_attribute <- gArea(study_area) * 0.0001 #hectares
+#' dECA_test <- MK_dECA(nodes= forest_patches, attribute = NULL, area_unit = "ha",
+#'                   distance = list(type= "centroid"), metric = "PC",
+#'                   probability = 0.05, distance_thresholds = 5000,
+#'                   LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))
+#' dECA_test
 #' }
 #' @export
 #' @importFrom magrittr %>%
@@ -69,8 +68,44 @@ MK_dECA <- function(nodes,
                       probability = NULL,
                       distance_thresholds = NULL,
                       LA = NULL,
-                      plot = NULL,
+                      plot = FALSE,
                       write = NULL){
+  if (missing(nodes)) {
+    stop("error missing shapefile file of nodes")
+  } else {
+    if (is.numeric(nodes) | is.character(nodes)) {
+      stop("error missing shapefile file of nodes")
+    }
+  }
+
+  if (!metric %in% c("IIC", "PC")) {
+    stop("Type must be either 'IIC', or 'PC'")
+  }
+
+  if (isTRUE(unique(metric == c("IIC", "PC")))) {
+    metric = "IIC"
+  }
+
+  if (metric == "PC") {
+    if (is.null(probability) | !is.numeric(probability)) {
+      stop("error missing probability")
+    }
+  }
+
+  if (is.null(distance_thresholds)) {
+    stop("error missing numeric distance threshold(s)")
+  }
+
+  if (!is.null(write)) {
+    if (!dir.exists(dirname(write))) {
+      stop("error, output folder does not exist")
+    }
+  }
+
+  if(!is.character(write)){
+    write = NULL
+  }
+
   options(warn = -1)
   listT <- compact(nodes)
   listT <- map(listT, function(x) { if(class(x)[1] == "sf") {
@@ -120,7 +155,7 @@ MK_dECA <- function(nodes,
                              onlyoverall = TRUE, LA = LA,
                              nrestauration = FALSE,
                              prefix = NULL, write = NULL)
-          tab1 <- tab1[[2]]
+          tab1 <- tab1[[which(map(tab1, function(x) paste0(nrow(x), ncol(x))) == "32")]]
           tab1 <- tab1[[2,2]]
           return(tab1)
         }
@@ -176,8 +211,10 @@ MK_dECA <- function(nodes,
       }
     setwd(ttt.2)
     ###plot
-
-    if(!is.null(plot)){
+    if(isTRUE(plot) | is.character(plot)){
+      if(isTRUE(plot)){
+        plot = paste0("Time", 1:length(nodes))
+      }
       ECAplot <- map(ECA3, function(x){
         ECA4 <- (x[2] * 100)/ LA #Porcentaje de Area
         names(ECA4) <- "Habitat"
@@ -203,18 +240,18 @@ MK_dECA <- function(nodes,
         ECA5$pos[which(ECA5$variable == "Habitat")] <- (ECA5$percentage[which(ECA5$variable == "Habitat")]/2) + ECA5$percentage[which(ECA5$variable == "Connected")]
         ECA5$pos[which(ECA5$variable == "Loss")] <- (ECA5$percentage[which(ECA5$variable == "Loss")]/2) + ECA5$Text[which(ECA5$variable == "Habitat")]
 
-    #Plot
-   fill <- c("#443A82", "#30678D", "#26AE7F")
+        #Plot
+        fill <- c("#443A82", "#30678D", "#26AE7F")
 
-    if (distance$type  %in% c("centroid", "edge", "hausdorff edge")){
-      if(is.null(distance$distance_unit)){
-        dp_text <-  paste0(unique(x$Distance), " m")
-      } else {
-        dp_text <-  paste0(unique(x$Distance)," " ,distance$distance_unit)
-      }
-    } else {
-      dp_text <-  paste0(unique(x$Distance), " cost-weighted distance")
-    }
+        if (distance$type  %in% c("centroid", "edge", "hausdorff edge")){
+          if(is.null(distance$distance_unit)){
+            dp_text <-  paste0(unique(x$Distance), " m")
+            } else {
+              dp_text <-  paste0(unique(x$Distance)," " ,distance$distance_unit)
+              }
+          } else {
+            dp_text <-  paste0(unique(x$Distance), " cost-weighted distance")
+            }
 
     p4 <- ggplot() +
       geom_bar(aes(y = ECA5$percentage, x = ECA5$Year, fill = ECA5$variable), data = ECA5, stat="identity") +
@@ -240,19 +277,23 @@ MK_dECA <- function(nodes,
       ggsave(paste0(write, "_", unique(x$Distance), '_ECA.tif'), plot = p4, device = "tiff", width = 14,
              height = 10, compression = "lzw", dpi = "retina", scale = 0.7)}
     return(p4)})
-  ECA_result <- list()
-  for (i in 1:length(ECA3)){
-    ECA_result[[i]] <- list(ECA3[[i]], ECAplot[[i]])
-    }
-  names(ECA_result) <- paste(distance_thresholds)
-  ECA3 <- ECA_result
-  }
+      ECA_result <- list()
+      for (i in 1:length(ECA3)){
+        ECA_result[[i]] <- list(ECA3[[i]], ECAplot[[i]])
+        }
+
+      names(ECA_result) <- paste(distance_thresholds)
+      ECA3 <- ECA_result
+      }
   #
   if(length(distance_thresholds) == 1){
-    if(is.null(plot)){
-      ECA3 <- list(dECA_table = ECA3[[1]][[1]])
+    if((isTRUE(plot) | is.character(plot))){
+      ECA4 <- ECA3[[1]][[2]]
+      ECA3 <- ECA3[[1]][[1]]
+      print(ECA4)
+
     } else {
-      ECA3 <- list(dECA_table = ECA3[[1]][[1]], dECA_Plot = ECA3[[1]][[2]])
+      ECA3 <- ECA3[[1]]
     }
   }
     }

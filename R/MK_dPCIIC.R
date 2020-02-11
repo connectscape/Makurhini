@@ -5,6 +5,7 @@
 #' @param nodes Object of class sf, sfc, sfg or SpatialPolygons.The shapefile must be in a projected coordinate system.
 #' @param id character. Column name with the nodes id.If NULL, then a new temporal id will be generated.
 #' @param attribute character. Column name with the nodes attribute. If NULL, then the patch area (ha) will be estimated and used as the attribute.
+#' @param area_unit character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to square meters "ha".
 #' @param restauration  character. Name of the column with restauration value. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node to add to the initial landscape (restored).
 #' @param distance list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff-edge",
 #' "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
@@ -24,31 +25,33 @@
 #' Saura, S. & Pascual-Hortal, L. 2007. A new habitat availability index to integrate connectivity in landscape conservation planning: comparison with existing indices and application to a case study. Landscape and Urban Planning 83 (2-3): 91-103.
 #' @export
 #' @examples
-#' ruta <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
-#' cores <- sf::read_sf(ruta)
+#' ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
+#' load(ruta)
 #' nrow(cores)
-#' #One distance threshold
+#' #One distance threshold IIC
 #' IIC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
-#'                     distance = list(type = "centroid"), LA = NULL,
+#'                     distance = list(type = "centroid"),
 #'                     metric = "IIC", distance_thresholds = 30000)
 #' IIC
-#' #Two or more distance thresholds
+#' #Two or more distance thresholds PC
 #' PC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
 #'                     distance = list(type = "centroid"),
-#'                     metric = "PC", probability = 0.5, LA = NULL,
-#'                     distance_thresholds = c(5000, 50000))
+#'                     metric = "PC", probability = 0.5,
+#'                     distance_thresholds = c(5000, 10000))
 #' PC
 #' @importFrom dplyr progress_estimated
 #' @importFrom methods as
 #' @importFrom utils write.table warnErrList
 #' @importFrom iterators iter
 #' @importFrom foreach foreach %dopar%
-MK_dPCIIC <- function(nodes, id = NULL, attribute  = NULL, restauration = NULL,
-                          distance = list(type= "centroid", resistance = NULL),
-                          metric = c("IIC", "PC"),
-                          probability, distance_thresholds = NULL,
-                          overall = FALSE, dA = FALSE, dvars =FALSE,
-                          LA = NULL, write = NULL) {
+#' @importFrom purrr map
+MK_dPCIIC <- function(nodes, id = NULL, attribute  = NULL,
+                      area_unit = "ha", restauration = NULL,
+                      distance = list(type= "centroid", resistance = NULL),
+                      metric = c("IIC", "PC"),
+                      probability, distance_thresholds = NULL,
+                      overall = FALSE, dA = FALSE, dvars =FALSE,
+                      LA = NULL, write = NULL) {
   if (missing(nodes)) {
     stop("error missing shapefile file of nodes")
   } else {
@@ -97,7 +100,7 @@ MK_dPCIIC <- function(nodes, id = NULL, attribute  = NULL, restauration = NULL,
   }
 
   #
-  nodesfile(nodes, id = "IdTemp", attribute = attribute, area_unit = "ha",
+  nodesfile(nodes, id = "IdTemp", attribute = attribute, area_unit = area_unit,
             multiple = NULL, restauration = restauration,
             prefix=NULL, write = paste0(temp.1,"/nodes.txt"))
 
@@ -134,7 +137,7 @@ MK_dPCIIC <- function(nodes, id = NULL, attribute  = NULL, restauration = NULL,
                       nrestauration = rest,
                       prefix = NULL, write = NULL)
 
-      m <- merge_conefor(datat = d[[2]], pattern = NULL,
+      m <- merge_conefor(datat = d[[which(map(d, function(x) ncol(x)) >= 11)]], pattern = NULL,
                          merge_shape = nodes, id = "IdTemp",
                          write = if (!is.null(write)) paste0(write, "_d", x,".shp"),
                          dA = dA, var = dvars)
@@ -146,7 +149,7 @@ MK_dPCIIC <- function(nodes, id = NULL, attribute  = NULL, restauration = NULL,
       }
 
       if(isTRUE(overall)){
-        roverall <- d[[4]]
+        roverall <- d[[which(map(d, function(x) paste0(nrow(x), ncol(x))) == "32")]]
         names(roverall) <- c("Index", "Value")
         result_interm <- list()
         result_interm[[1]] <- m

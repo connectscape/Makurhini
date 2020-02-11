@@ -55,5 +55,6 @@ EstConefor(nodeFile = "SV85FM_",
           }
 }
 \references{
-Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at \url{www.conefor.org}.
+Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid.
+Available at \url{www.conefor.org}.
 }

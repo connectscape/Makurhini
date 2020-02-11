@@ -27,7 +27,9 @@
 #'           output = "~/out",
 #'           prefix="T3")
 #'           }
-#' @references Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at \url{www.conefor.org}.
+#' @references
+#' Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid.
+#' Available at \url{www.conefor.org}.
 #' @export
 #' @importFrom data.table fread
 EstConefor <- function(nodeFile,

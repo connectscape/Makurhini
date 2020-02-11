@@ -5,6 +5,7 @@
 #' @param nodes Object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.
 #' @param id character. Column name with the nodes id. If NULL, then a new temporal id will be generated.
 #' @param attribute character. Column name with the nodes attribute. If NULL, then the patch area (ha) will be estimated and used as the attribute.
+#' @param area_unit character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to square meters "ha".
 #' @param distance list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge",
 #' "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
 #'  To See more arguments consult the help function of distancefile().
@@ -21,8 +22,8 @@
 #'  Bodin, O. and Saura, S. (2010). Ranking individual habitat patches as connectivity providers: integrating network analysis and patch removal experiments. Ecological Modelling 221: 2393-2405.
 #' @export
 #' @examples
-#' path <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
-#' cores <- sf::read_sf(path)#'
+#' ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
+#' load(ruta)
 #'
 #' nrow(cores) #Number of cores
 #'
@@ -44,7 +45,7 @@
 #' @importFrom foreach foreach %dopar%
 #' @importFrom utils write.table warnErrList
 #'
-MK_BCentrality <- function(nodes, id, attribute  = NULL,
+MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
                         distance = list(type= "centroid", resistance = NULL),
                         metric = c("BC", "BCIIC", "BCPC"), distance_thresholds = NULL,
                         probability = NULL, LA = NULL, dA = FALSE, dvars = FALSE, write = NULL) {
@@ -124,7 +125,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL,
                        thdist = x, multdist = NULL, conprob = probability,
                        onlyoverall = FALSE, LA = LA, nrestauration = FALSE,
                        prefix = NULL, write = NULL)
-    tab1 <- tab1[[2]]
+    tab1 <- tab1[[which(map(tab1, function(x) ncol(x)) >= 11)]]
     if (!is.null(write)) {
       write <- paste0(write, "_d", x, ".shp")
     }

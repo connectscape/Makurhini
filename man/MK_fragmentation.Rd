@@ -42,17 +42,16 @@ Patch and landscape statistics:\cr
 Calculate patch and landscape statistics
 }
 \examples{
-ruta <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
-cores <- sf::read_sf(ruta)
+ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
+load(ruta)
+nrow(cores)
 fragmentation <- MK_fragmentation(patches = cores, edge_distance = 500, plot = TRUE)
-names(fragmentation)
 
 #Table
 fragmentation$`Summary landscape metrics (Viewer Panel)`
 #Shapefile
 fragmentation$`Patch statistics shapefile`
-#Plot
-fragmentation$`Frequency landscape metric plot`
+
 }
 \references{
 McGarigal, K., S. A. Cushman, M. C. Neel, and E. Ene. 2002. FRAGSTATS: Spatial Pattern Analysis Program for Categorical Maps. Computer software program produced by the authors at the University of Massachusetts, Amherst. Available at the following web site:

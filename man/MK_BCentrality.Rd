@@ -4,10 +4,11 @@
 \alias{MK_BCentrality}
 \title{Betweenness Centrality metrics}
 \usage{
-MK_BCentrality(nodes, id, attribute = NULL, distance = list(type =
-  "centroid", resistance = NULL), metric = c("BC", "BCIIC", "BCPC"),
-  distance_thresholds = NULL, probability = NULL, LA = NULL,
-  dA = FALSE, dvars = FALSE, write = NULL)
+MK_BCentrality(nodes, id, attribute = NULL, area_unit = "ha",
+  distance = list(type = "centroid", resistance = NULL),
+  metric = c("BC", "BCIIC", "BCPC"), distance_thresholds = NULL,
+  probability = NULL, LA = NULL, dA = FALSE, dvars = FALSE,
+  write = NULL)
 }
 \arguments{
 \item{nodes}{Object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}
@@ -15,6 +16,8 @@ MK_BCentrality(nodes, id, attribute = NULL, distance = list(type =
 \item{id}{character. Column name with the nodes id. If NULL, then a new temporal id will be generated.}
 
 \item{attribute}{character. Column name with the nodes attribute. If NULL, then the patch area (ha) will be estimated and used as the attribute.}
+
+\item{area_unit}{character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to square meters "ha".}
 
 \item{distance}{list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge",
 "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
@@ -39,8 +42,8 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
 Use this function to calculate the BC, BCIIC and BCPC indexes under one or several distance thresholds.
 }
 \examples{
-path <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
-cores <- sf::read_sf(path)#'
+ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
+load(ruta)
 
 nrow(cores) #Number of cores
 

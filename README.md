@@ -6,7 +6,7 @@
 <!-- badges: start -->
 
 [![Travis build
-status](https://travis-ci.org/OscarGOGO/Makurhini.svg?branch=master)](https://travis-ci.org/OscarGOGO/Makurhini)
+status](https://travis-ci.com/OscarGOGO/Makurhini.svg?branch=master)](https://travis-ci.org/OscarGOGO/Makurhini)
 <!-- badges: end -->
 
 The goal of Makurhini is to provide a set of functions to estimate

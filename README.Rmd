@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 # Makurhini
 
 <!-- badges: start -->
+[![Travis build status](https://travis-ci.org/OscarGOGO/Makurhini.svg?branch=master)](https://travis-ci.org/OscarGOGO/Makurhini)
 <!-- badges: end -->
 
 The goal of Makurhini is to provide a set of functions to estimate landscape fragmentation and connectivity metrics
@@ -37,8 +38,8 @@ library(sf)
 ```
 ```{r message=FALSE, warning=FALSE}
 library(Makurhini)
-ruta <- system.file("extdata", "Habitat_Patches.shp", package = "Makurhini")
-cores <- read_sf(ruta)
+ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
+load(ruta)
 cores
 ```
 
@@ -49,10 +50,10 @@ plot(cores["id"])
 
 ```{r message=FALSE, warning=FALSE}
 nrow(cores)
-IIC <- dConnectivity(nodes = cores, id = "id", attribute = "Area",
-                     distance = list(type = "centroid"),
-                     metric = "IIC", distance_thresholds = 30000,
-                     LA = NULL, overall = FALSE)
+IIC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
+                 distance = list(type = "centroid"),
+                 metric = "IIC", distance_thresholds = 30000,
+                 LA = NULL, overall = FALSE)
 plot(IIC["dIIC"], breaks = "jenks")
 plot(IIC["dIICintra"], breaks = "jenks")
 plot(IIC["dIICflux"], breaks = "jenks")

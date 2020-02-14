@@ -86,7 +86,6 @@
 #' @importFrom furrr future_map
 #' @importFrom dplyr progress_estimated
 #' @importFrom purrr map
-#' @importFrom udunits2 ud.convert
 
 MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NULL,
                          grid_type = c("hexagonal", "square"),
@@ -348,7 +347,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
       nodes1 <- st_cast(nodes1, "POLYGON")
       plan(strategy = multiprocess)
       resultado_1 <- tryCatch(future_map(x_grid, function(x) {
-        area_x <- ud.convert(as.numeric(st_area(x)), "m2", area_unit)
+        area_x <- unit_convert(as.numeric(st_area(x)), "m2", area_unit)
         if (is.null(PC_IIC$attribute)) {
           nodes2 <- MK_selectbyloc(nodes1, x, id = NULL, area_unit = area_unit,
                                 selreg = "M2", transboundary = 10)
@@ -359,7 +358,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
             nodes2_r <- nodes2
             nodes2 <- st_cast(nodes3, "POLYGON") %>%
               st_buffer(., dist = 0)
-            nodes2$attrib <- ud.convert(as.numeric(st_area(nodes2)), "m2", area_unit)
+            nodes2$attrib <- unit_convert(as.numeric(st_area(nodes2)), "m2", area_unit)
             if (nrow(nodes2) == 1) {
               nodes2 <- (nodes2$attrib * 100)/area_x
             } else if (nrow(nodes2) == 0) {
@@ -391,7 +390,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
 
               if (unique(d$Distance) == 0) {
                 nodes2_r <- nodes2
-                nodes2 <- ud.convert(as.numeric(st_area(nodes3)), "m2", area_unit)
+                nodes2 <- unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
                 if (isTRUE(PC_IIC$attribute_weighted_area)) {
                   nodes2 <- nodes3[ PC_IIC$attribute][[1]] * nodes2
                 }
@@ -399,13 +398,13 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
               } else {
                 nodes3$attrib <- nodes3[PC_IIC$attribute][[1]]
                 if (isTRUE(PC_IIC$attribute_weighted_area)) {
-                  nodes3$attrib <- nodes3$attrib * ud.convert(as.numeric(st_area(nodes3)), "m2", area_unit)
+                  nodes3$attrib <- nodes3$attrib * unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
                 }
                 nodes2 <- nodes3
               }
             } else {
               nodes2_r <- nodes2
-              nodes2 <-ud.convert(as.numeric(st_area(nodes3)), "m2", area_unit)
+              nodes2 <-unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
               if (isTRUE(PC_IIC$attribute_weighted_area)) {
                 nodes2 <- nodes3[ PC_IIC$attribute][[1]] * nodes2
               }
@@ -434,7 +433,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
             x3 <- x3[, c(4, 1:3, 5)]
           } else {
 
-            x3 <- c(NA, sum(ud.convert(as.numeric(st_area(nodes2_r)), "m2", area_unit)), 100) %>% as.data.frame()
+            x3 <- c(NA, sum(unit_convert(as.numeric(st_area(nodes2_r)), "m2", area_unit)), 100) %>% as.data.frame()
             x3 <- as.data.frame(t(x3))
             names(x3) <- c(PC_IIC$metric, "EC", "Normalized_EC")
 
@@ -480,7 +479,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
         if (isTRUE(intern)) {
           pb$tick()$print()
         }
-        area_x <- ud.convert(as.numeric(st_area(x)), "m2", area_unit)
+        area_x <- unit_convert(as.numeric(st_area(x)), "m2", area_unit)
         if (is.null(PC_IIC$attribute)) {
           nodes2 <- MK_selectbyloc(nodes1, x, id = NULL, area_unit = area_unit,
                                 selreg = "M2", transboundary = 10)
@@ -491,7 +490,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
             nodes2_r <- nodes2
             nodes2 <- st_cast(nodes3, "POLYGON") %>%
               st_buffer(., dist = 0)
-            nodes2$attrib <- ud.convert(as.numeric(st_area(nodes2)), "m2", area_unit)
+            nodes2$attrib <- unit_convert(as.numeric(st_area(nodes2)), "m2", area_unit)
 
             if (nrow(nodes2) == 1) {
               nodes2 <- (nodes2$attrib * 100)/area_x
@@ -524,7 +523,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
 
               if (unique(d$Distance) == 0) {
                 nodes2_r <- nodes2
-                nodes2 <-ud.convert(as.numeric(st_area(nodes3)), "m2", area_unit)
+                nodes2 <-unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
                 if (isTRUE(PC_IIC$attribute_weighted_area)) {
                   nodes2 <- nodes3[ PC_IIC$attribute][[1]] * nodes2
                 }
@@ -532,13 +531,13 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
               } else {
                 nodes3$attrib <- nodes3[PC_IIC$attribute][[1]]
                 if (isTRUE(PC_IIC$attribute_weighted_area)) {
-                  nodes3$attrib <- nodes3$attrib * ud.convert(as.numeric(st_area(nodes3)), "m2", area_unit)
+                  nodes3$attrib <- nodes3$attrib * unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
                 }
                 nodes2 <- nodes3
               }
             } else {
               nodes2_r <- nodes2
-              nodes2 <- ud.convert(as.numeric(st_area(nodes3)), "m2", area_unit)
+              nodes2 <- unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
               if (isTRUE(PC_IIC$attribute_weighted_area)) {
                 nodes2 <- nodes3[PC_IIC$attribute][[1]] * nodes2
               }
@@ -567,7 +566,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
             x3 <- x3[, c(4, 1:3, 5)]
           } else {
 
-            x3 <- c(NA, sum(ud.convert(as.numeric(st_area(nodes2_r)), "m2", area_unit)), 100) %>% as.data.frame()
+            x3 <- c(NA, sum(unit_convert(as.numeric(st_area(nodes2_r)), "m2", area_unit)), 100) %>% as.data.frame()
             x3 <- as.data.frame(t(x3))
             names(x3) <- c(PC_IIC$metric, "EC", "Normalized_EC")
             x3$PArea <- if(((sum(nodes2_r$Area2 * 100))/area_x) > 100){

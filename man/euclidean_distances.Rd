@@ -15,7 +15,7 @@ euclidean_distances(x, id, type_distance = "centroid",
 
 \item{type_distance}{character. Choose one of the distances: "centroid" (faster, default), where Euclidean distance is calculated from feature centroid; "edge", where Euclidean distance is calculated from feature edges;}
 
-\item{distance_unit}{character. Distance unit, udunits2 package compatible unit (e.g., "km", "cm", "ft", "inch"). Default equal to meters "m".}
+\item{distance_unit}{character. Set a distance unit, "Makurhini::unit_covert()" compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".}
 
 \item{tolerance}{numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
 number of vertices (from rgeos::gSimplify).}

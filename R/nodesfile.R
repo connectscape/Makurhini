@@ -4,7 +4,7 @@
 #' @param nodes sp or sf object. Nodes shapefile (lines, points or polygons).If area_unit is used then the shapefile must be in a projected coordinate system.
 #' @param id character. Column name with the node ID in the shapefile data table.
 #' @param attribute character. Column name with the attribute in the data table selected for the nodes. If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
-#' @param area_unit character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to square meters "m2".
+#' @param area_unit character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to "m2".
 #' @param restauration character. Name of the column with restauration value. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node to add to the initial landscape (restored).
 #' @param multiple character. Name of the column with the regions names. Use in case of processing nodes of several independent sites at the same time.
 #' @param prefix character. Initial prefix, use in case of processing several sites at the same time in CONEFOR command line.
@@ -14,7 +14,6 @@
 #' @importFrom sf st_zm
 #' @importFrom sf st_as_sf
 #' @importFrom rgeos gArea
-#' @importFrom udunits2 ud.convert
 #' @importFrom methods as
 #' @importFrom utils write.table
 nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauration = NULL, multiple = NULL,
@@ -48,7 +47,7 @@ nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauratio
     nodes$Area <- gArea(nodes, byid = TRUE)
     attribute <- "Area"
     if (area_unit != "m2"){
-      nodes$Area <- ud.convert(nodes$Area, "m2", area_unit)
+      nodes$Area <- unit_convert(nodes$Area, "m2", area_unit)
     }
   }
 

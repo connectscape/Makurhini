@@ -3,7 +3,7 @@
 #' @param x object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.
 #' @param id character. Column name with the core id.
 #' @param type_distance character. Choose one of the distances: "centroid" (faster, default), where Euclidean distance is calculated from feature centroid; "edge", where Euclidean distance is calculated from feature edges;
-#' @param distance_unit character. Distance unit, udunits2 package compatible unit (e.g., "km", "cm", "ft", "inch"). Default equal to meters "m".
+#' @param distance_unit character. Set a distance unit, "Makurhini::unit_covert()" compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".
 #' @param tolerance numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
 #'  number of vertices (from rgeos::gSimplify).
 #' @param threshold numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
@@ -12,7 +12,6 @@
 #' @references Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitised Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
 #' @export
 #' @importFrom rgeos gSimplify gCentroid gDistance
-#' @importFrom udunits2 ud.convert
 #' @importFrom methods as
 #' @importFrom utils combn write.table
 
@@ -28,6 +27,7 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
   if(class(x)[1] == "sf") {
     x <- as(x, 'Spatial')
   }
+
   if (!is.null(write_table)) {
     if (!dir.exists(dirname(write_table))) {
       stop("error, output folder does not exist")
@@ -52,11 +52,6 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
         stop("Error, you have to choose a type_distance option")
       }
 
-  #unit convertion
-  if (distance_unit != "m"){
-    distance <- ud.convert(distance, "m", distance_unit)
-  }
-
   name <- c(unique(x@data[,which(colnames(x@data) == id)]), "income")
   name <- name[1:(length(name)-1)]
   colnames(distance) <- name
@@ -68,6 +63,10 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
   distance_2[,1] <- as.numeric(distance_2[,1])
   distance_2[,2] <- as.numeric(distance_2[,2])
   names(distance_2) <- c("From", "To", "Distance")
+
+  if (distance_unit != "m"){
+    distance_2$Distance <- unit_convert(data_unit = distance_2[,3], unit_1 = "m", unit_2 = distance_unit)
+  }
 
   if (!is.null(threshold)){
     distance_2 <-  distance_2[which(distance_2$Distance <= threshold),]

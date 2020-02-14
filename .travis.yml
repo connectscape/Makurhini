@@ -7,7 +7,6 @@ warnings_are_errors: true
 os:
   - linux
   - osx
-  - windows
 
 r:
   - 3.4

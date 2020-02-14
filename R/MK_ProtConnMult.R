@@ -5,8 +5,7 @@
 #' @param regions object of class sf, sfc, sfg or SpatialPolygons. Ecoregions shapefile.
 #' @param thintersect numeric.Threshold of intersection in percentage allowed to select or not a target geometry. Default = 90, if intersection >=90 percentage, the geometry will be selected.
 #' @param attribute character. Select the nodes attribute: "Area" = Complete Protected areas; "Intersected area" = Intersected Protected areas; or another specific column name with the nodes attribute, ideally this attribute mus be an area-weighted index, otherwise the interpretation of the protconn index may change.
-#' @param area_unit character. Attribute area units. You can set an area unit, udunits2 package compatible unit
-#'  (e.g., "km2", "cm2", "ha"). Default equal to hectares "ha".
+#' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".
 #' @param res_attribute numeric. If the attribute is no equal to "Area" or "Intersected area" then nodes will be converted to raster to extract values in one  process step, you can set the raster resolution, default = 150.
 #' @param distance list.See distancefile(). E.g.: list(type = "centroid", resistance = NULL, geometry_out = NULL).
 #' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.
@@ -53,10 +52,17 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
                             write = NULL, intern = TRUE,
                             parallel = FALSE){
   #Remove error zm
-  regions <- st_as_sf(regions) %>% st_zm(.)
-  #Nuevo ID a regiones
+  if(class(regions)[1] == "SpatialPolygonsDataFrame") {
+    regions <- st_as_sf(regions)
+  }
+  regions <- st_zm(regions)
   regions$ID_Temp <- 1:nrow(regions)
+
+  if(class(nodes)[1] == "SpatialPolygonsDataFrame") {
+    nodes <- st_as_sf(nodes)
+  }
   nodes <- st_zm(nodes)
+
   ttt.2 <- getwd()
 
   #
@@ -212,13 +218,17 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
     names(DataProtconn_2)[1:2] <- c("ProtConn indicator", "Values(%)")
     DataProtconn_2[c(2:ncol(DataProtconn_2))] <- round(DataProtconn_2[c(2:ncol(DataProtconn_2))], 3)
 
+    if(!is.null(write)){
+      write.csv(DataProtconn, paste0(write, "SummaryStats_", distance_thresholds[i], ".csv"))
+      }
+
     if(ncol(DataProtconn_2) > 2){
-      DataProtconn <- formattable(DataProtconn_2, align = c("l", rep("r", NCOL(DataProtconn_2) - 1)),
+      DataProtconn <- formattable(DataProtconn_2[3:nrow(DataProtconn_2),], align = c("l", rep("r", NCOL(DataProtconn_2) - 1)),
                                   list(`ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
                                        `Values(%)` = color_tile("white", "#F88B13"),
                                        area(col = 3:4) ~ color_tile("white", "#CE5D9B")))
     } else {
-      DataProtconn <- formattable(DataProtconn_2, align = c("l", rep("r", NCOL(DataProtconn_2) - 1)),
+      DataProtconn <- formattable(DataProtconn_2[3:nrow(DataProtconn_2),], align = c("l", rep("r", NCOL(DataProtconn_2) - 1)),
                                   list(`ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
                                        `Values(%)` = color_tile("white", "#F88B13")))
     }
@@ -306,8 +316,11 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
 
     if(!is.null(write)){
         regions.2[is.na(regions.2)] <- 0
+        nn <- c("EC", "PC", "Unprot", "Prot", "ProtConn", "ProtUnconn", "RelConn", "Design", "Bound", "P_Prot",
+                "P_Trans", "P_Unprot", "P_Within", "P_Contig", "P_WithinL", "P_ContigL", "P_UnprotL", "P_TransL")
+        names(regions.2)[which(names(regions.2)=="EC(PC)"):(ncol(regions.2)-1)] <- nn
+
         write_sf(regions.2, paste0(write, "ProtConn_", distance_thresholds[i], ".shp"), delete_layer = T)
-        write.csv(DataProtconn, paste0(write, "SummaryStats_", distance_thresholds[i], ".csv"))
         if(isTRUE(plot)){
           if(!is.character(figure)){
             tiff(paste0(write, "ProtConn_plot_d", distance_thresholds[i], ".tif"), width = 806, height = 641)

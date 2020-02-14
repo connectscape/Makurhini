@@ -24,8 +24,7 @@ Example, if thintersect is equal to 90 then a node will be selected only if the 
 another specific column name with the nodes attribute, ideally this attribute mus be an area-weighted index,
  otherwise the interpretation of the protconn index may change.}
 
-\item{area_unit}{character. Attribute area units. You can set an area unit, udunits2 package compatible unit
-(e.g., "km2", "cm2", "ha"). Default equal to hectares "ha".}
+\item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".}
 
 \item{res_attribute}{numeric. If the attribute is no equal to "Area" or "Intersected area" then nodes will be converted to raster to extract values in one  process step, you can set the raster resolution, default = 150.}
 
@@ -74,7 +73,7 @@ ruta <- system.file("extdata", "Ecoregions2017.shp", package = "Makurhini")
 region <- shapefile(ruta)
 region <- region[1,]
 plot(region, col="blue")
-test <- ProtConnCLa(nodes = cores, region = region,
+test <- MK_ProtConn(nodes = cores, region = region,
                     attribute = "Intersected area", area_unit = "ha",
                     distance = list(type= "centroid"),
                     distance_thresholds = c(50000, 10000, 1000),

@@ -15,7 +15,7 @@ nodesfile(nodes, id, attribute = NULL, area_unit = "m2",
 
 \item{attribute}{character. Column name with the attribute in the data table selected for the nodes. If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.}
 
-\item{area_unit}{character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to square meters "m2".}
+\item{area_unit}{character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to "m2".}
 
 \item{restauration}{character. Name of the column with restauration value. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node to add to the initial landscape (restored).}
 

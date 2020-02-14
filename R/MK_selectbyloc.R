@@ -10,7 +10,7 @@
 #' if a value of 90 then if the intersection area is equal or greater than 90 percent, the geometry will be selected.
 #' @param transboundary numeric. Transboundary buffer to select polygones in a second round. See, Saura et al. 2017.
 #' Transboundary field is added where 0 = Transboundary.
-#' @param area_unit  character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to hectares "ha".
+#' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".
 #' @param plot logical. Default = FALSE. 1 = Not transboundary PA, 0 = Transboundary PA
 #' @param write_select character. Write shapefile, provide folder direction, and name plus extension of the output shapefile
 #' @param SAGA Logical. Optimize the large process using SAGA GIS and RSAGA package (see, \url{https://github.com/r-spatial/RSAGA}).
@@ -42,7 +42,6 @@
 #' @importFrom dplyr mutate group_by summarize
 #' @importFrom tibble as_tibble
 #' @importFrom methods as
-#' @importFrom udunits2 ud.convert
 MK_selectbyloc <- function(target, sourcelyr, id = NULL, selreg = "M1",
                         buffer = NULL, thintersect = NULL,
                         transboundary = NULL,  area_unit = "ha",
@@ -144,7 +143,7 @@ MK_selectbyloc <- function(target, sourcelyr, id = NULL, selreg = "M1",
         }
 
         if(nrow(select.1) >= 1){
-          select.1$A <- ud.convert(as.numeric(st_area(select.1, by_element = TRUE)), "m2", area_unit)
+          select.1$A <- unit_convert(as.numeric(st_area(select.1, by_element = TRUE)), "m2", area_unit)
 
           if (isFALSE(SAGA)){
             #Intersections
@@ -177,7 +176,7 @@ MK_selectbyloc <- function(target, sourcelyr, id = NULL, selreg = "M1",
             }
 
         intersection_percentage <- intersection_percentage %>%
-          mutate(A2 = ud.convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric()) %>%
+          mutate(A2 = unit_convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric()) %>%
           as_tibble() %>% group_by(.data$IDTemp) %>%
           dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
         intersection_percentage$PercPi <- as.numeric((intersection_percentage$Area2 * 100) / intersection_percentage$Area1)
@@ -206,7 +205,7 @@ MK_selectbyloc <- function(target, sourcelyr, id = NULL, selreg = "M1",
             }
 
         if(nrow(select.1) >= 1){
-          select.1$A <- ud.convert(as.numeric(st_area(select.1, by_element = TRUE)), "m2", area_unit)
+          select.1$A <- unit_convert(as.numeric(st_area(select.1, by_element = TRUE)), "m2", area_unit)
 
           if (isFALSE(SAGA)){
             sourcelyr <- sourcelyr %>% st_cast("POLYGON")
@@ -239,7 +238,7 @@ MK_selectbyloc <- function(target, sourcelyr, id = NULL, selreg = "M1",
           }
 
           intersection_percentage <- intersection_percentage %>%
-            mutate(A2 = ud.convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric()) %>%
+            mutate(A2 = unit_convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric()) %>%
             as_tibble() %>% group_by(.data$IDTemp) %>%
             dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
 
@@ -285,7 +284,7 @@ MK_selectbyloc <- function(target, sourcelyr, id = NULL, selreg = "M1",
               }
             }
 
-            select.2$A <- ud.convert(as.numeric(st_area(select.2, by_element = TRUE)), "m2", area_unit)
+            select.2$A <- unit_convert(as.numeric(st_area(select.2, by_element = TRUE)), "m2", area_unit)
 
             if (isFALSE(SAGA)){
               select.2 <- select.2
@@ -316,7 +315,7 @@ MK_selectbyloc <- function(target, sourcelyr, id = NULL, selreg = "M1",
             }
 
             intersection_percentage <- intersection_percentage %>%
-              mutate(A2 = ud.convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric())%>%
+              mutate(A2 = unit_convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric())%>%
               as_tibble() %>% group_by(.data$IDTemp) %>%
               dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
 

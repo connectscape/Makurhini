@@ -4,8 +4,8 @@
 #' @param nodes list of objects of class sf, sfc, sfg or SpatialPolygons. Nodes of each period of time to analyze.
 #' @param attribute character. Column name with the attribute in the data table selected for the nodes.
 #'  If NULL the node area will be used as node attribute, the unit area can be selected using the "area_unit" argument.
-#' @param area_unit character. If attribute is NULL you can set an area unit, udunits2 package compatible
-#' unit (e.g., "km2", "cm2", "ha"). Default equal to hectares "ha".
+#' @param area_unit character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
+#' compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".
 #' @param distance list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the
 #'  distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost"
 #'  or "commute-time", then you have to use the "resistance" argument. To See more arguments consult
@@ -49,7 +49,6 @@
 #' @importFrom magrittr %>%
 #' @importFrom purrr compact map
 #' @importFrom methods as
-#' @importFrom udunits2 ud.convert
 #' @importFrom rgeos gArea
 #' @importFrom dplyr progress_estimated
 #' @importFrom plyr ddply .
@@ -113,7 +112,7 @@ MK_dECA <- function(nodes,
 
   #
   scenary <- as.vector(1:length(listT)) %>% as.character()
-  DECA <- map(listT, function(x){ud.convert(sum(gArea(x, byid = T)), "m2", area_unit)})
+  DECA <- map(listT, function(x){unit_convert(sum(gArea(x, byid = T)), "m2", area_unit)})
   DECA <- do.call(rbind, DECA) %>% as.data.frame(as.numeric(.))
   DECA <- cbind(scenary, DECA)
   rownames(DECA) <- NULL
@@ -216,9 +215,9 @@ MK_dECA <- function(nodes,
         plot = paste0("Time", 1:length(nodes))
       }
       ECAplot <- map(ECA3, function(x){
-        ECA4 <- (x[2] * 100)/ LA #Porcentaje de Area
+        ECA4 <- (x[2] * 100)/ LA
         names(ECA4) <- "Habitat"
-        ECA4$Loss <- 100 - ECA4$Habitat # Perdido
+        ECA4$Loss <- 100 - ECA4$Habitat
         ECA4$Connected <- x[[5]]
         ECA4$Year <- plot
 

@@ -9,8 +9,7 @@
 #' @param attribute character. Select the nodes attribute: "Intersected area" = Intersected Protected areas; or
 #' another specific column name with the nodes attribute, ideally this attribute mus be an area-weighted index,
 #'  otherwise the interpretation of the protconn index may change.
-#' @param area_unit character. Attribute area units. You can set an area unit, udunits2 package compatible unit
-#'  (e.g., "km2", "cm2", "ha"). Default equal to hectares "ha".
+#' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".
 #' @param res_attribute numeric. If the attribute is no equal to "Area" or "Intersected area" then nodes will be converted to raster to extract values in one  process step, you can set the raster resolution, default = 150.
 #' @param distance list. See distancefile(). E.g.: list(type= "centroid", resistance = NULL).
 #' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.
@@ -46,7 +45,7 @@
 #' region <- shapefile(ruta)
 #' region <- region[1,]
 #' plot(region, col="blue")
-#' test <- ProtConnCLa(nodes = cores, region = region,
+#' test <- MK_ProtConn(nodes = cores, region = region,
 #'                     attribute = "Intersected area", area_unit = "ha",
 #'                     distance = list(type= "centroid"),
 #'                     distance_thresholds = c(50000, 10000, 1000),
@@ -74,7 +73,6 @@
 #' @importFrom htmltools html_print
 #' @importFrom webshot webshot
 #' @importFrom methods as
-#' @importFrom udunits2 ud.convert
 #' @importFrom iterators iter
 #' @importFrom foreach foreach %dopar%
 MK_ProtConn<- function(nodes, region, thintersect = NULL,
@@ -180,13 +178,12 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
       if(is.null(transboundary)){
         nodes.2 <- nodes.2[nodes.2$transboundary == 1,]
       }
-        plot(as(region_2, 'Spatial'), add=T)
         if(nrow(nodes.2) > 0){
           if (!is.null(transboundary) & attribute == "Intersected area"){
             nodes.2t1 <- st_intersection(nodes.2[nodes.2$transboundary==1,], region_2) %>% st_cast("POLYGON")
             nodes.2t1$rmapshaperid <- NULL
             nodes.2t1$TempID <- NULL
-            nodes.2t1$Area2 <- ud.convert(as.numeric(st_area(nodes.2t1)), "m2", area_unit)
+            nodes.2t1$Area2 <- unit_convert(as.numeric(st_area(nodes.2t1)), "m2", area_unit)
 
             nodes.2t2 <- st_difference(nodes.2[nodes.2$transboundary==1,], region_2) %>% st_cast("POLYGON")
             if(nrow(nodes.2t2) > 0){
@@ -204,7 +201,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
       nodes.2 <- nodes.1
       if(nrow(nodes.2) == 1){
         nodes.2$transboundary <- 1
-        nodes.2$Area2 <- ud.convert(as.numeric(st_area(nodes.2)), "m2", area_unit)
+        nodes.2$Area2 <- unit_convert(as.numeric(st_area(nodes.2)), "m2", area_unit)
         area2_sort <- nodes.2$Area2
       }
     }
@@ -276,7 +273,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
         nodes.2 <- nodes_base
         #If there are protected areas
         if (nrow(nodes.2) > 1 ){
-          if (area2_sort[[1]] < sum(ud.convert(as.numeric(st_area(region)), "m2", area_unit))){
+          if (area2_sort[[1]] < sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit))){
 
             if (attribute == "Intersected area"){
               nodes.2$AreaTemp <- nodes.2$Area2 * nodes.2$transboundary
@@ -326,7 +323,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
 
             #Landscape attribute for ECA
             if (is.null(LA) & isTRUE(attribute %in% c("Intersected area"))){
-              LA <- sum(ud.convert(as.numeric(st_area(region)), "m2", area_unit))
+              LA <- sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit))
             } else {
               if(is.null(LA) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                 stop("misssing LA, LA is necessary when you choose attribute a different to Area and Intersected area")
@@ -402,7 +399,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
             }
 
             #ProtConn Indicators
-            DataProtconn$Prot <- 100 * (DataProtconn$a / sum(ud.convert(as.numeric(st_area(region)), "m2", area_unit)))#Percentage of the study region covered by PAs
+            DataProtconn$Prot <- 100 * (DataProtconn$a / sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit)))#Percentage of the study region covered by PAs
             DataProtconn$ProtConn <- 100 * (DataProtconn$ECA / DataProtconn$LA) #porcentaje protegido y conectado
             DataProtconn$ProtUnconn <- DataProtconn$Prot - DataProtconn$ProtConn #Protegido pero no conectado
             DataProtconn$RelConn <- 100 * (DataProtconn$ProtConn / DataProtconn$Prot)
@@ -479,7 +476,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                 nodes.3$IDTemp <- 1:nrow(nodes.3)
 
                 if(nrow(nodes.3) >= 1){
-                  nodes.3$A <- ud.convert(as.numeric(st_area(nodes.3, by_element = TRUE)), "m2", area_unit)
+                  nodes.3$A <- unit_convert(as.numeric(st_area(nodes.3, by_element = TRUE)), "m2", area_unit)
                   pi2 <- tryCatch(st_intersection(nodes.3, region_2), error = function(err)err)
 
                   if (inherits(pi2, "error")){
@@ -489,7 +486,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                   }
 
                   attArea2 <- pi2 %>%
-                    mutate(A2 = ud.convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric())%>%
+                    mutate(A2 = unit_convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric())%>%
                     as_tibble() %>% group_by(.data$IDTemp) %>%
                     dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
 
@@ -538,7 +535,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                 nodes.3 <- nodes.3[,"IDTemp"]
                 nodes.3$IDTemp <- 1:nrow(nodes.3)
                 if(nrow(nodes.3) >= 1){
-                  nodes.3$A <- ud.convert(as.numeric(st_area(nodes.3, by_element = TRUE)), "m2", area_unit)
+                  nodes.3$A <- unit_convert(as.numeric(st_area(nodes.3, by_element = TRUE)), "m2", area_unit)
                   pi2 <- tryCatch(st_intersection(nodes.3, region_2), error = function(err)err)
 
                   if (inherits(pi2, "error")){
@@ -548,7 +545,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                   }
 
                   attArea2 <- pi2 %>%
-                    mutate(A2 = ud.convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric())%>%
+                    mutate(A2 = unit_convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric())%>%
                     as_tibble() %>% group_by(.data$IDTemp) %>%
                     dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
 
@@ -674,7 +671,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
           } else {
             #PA equal region area
             if (is.null(LA) & isTRUE(attribute %in% c("Area", "Intersected area"))){
-              LA <- sum(ud.convert(as.numeric(st_area(region))), "m2", area_unit)
+              LA <- sum(unit_convert(as.numeric(st_area(region))), "m2", area_unit)
             } else {
               if(is.null(LA) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                 stop("misssing LA, LA is necessary when you choose attribute a different to Area and Intersected area")
@@ -740,7 +737,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
         } else if (nrow(nodes.2) == 1){
 
           if (is.null(LA) & isTRUE(attribute %in% c("Area", "Intersected area"))){
-            LA <- sum(ud.convert(as.numeric(st_area(region)), "m2", area_unit))
+            LA <- sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit))
           } else {
             if(is.null(LA) & isFALSE(attribute %in% c("Area", "Intersected area"))){
               stop("misssing LA, LA is necessary when you choose attribute a different to Area and Intersected area")
@@ -800,7 +797,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
           #If no PA was selected
         } else if (nrow(nodes.2) == 0){
           if (is.null(LA) & isTRUE(attribute %in% c("Area", "Intersected area"))){
-            LA <- sum(ud.convert(as.numeric(st_area(region)), "m2", area_unit))
+            LA <- sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit))
           } else {
             if(is.null(LA) & isFALSE(attribute %in% c("Area", "Intersected area"))){
               stop("misssing LA, LA is necessary when you choose attribute a different to Area and Intersected area")
@@ -830,6 +827,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
             dPC.2 <- "dPC index equal 0. Possible explanation: No protected area was selected."
           }
         }
+        names(DataProtconn)[1:2] <-c("ECA", "PC")
 
         DataProtconn$LA <- DataProtconn$Unprotected
         DataProtconn[c(4,9)] <- NULL
@@ -931,7 +929,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                      formatC(as.numeric(Value[2]), format="e"))
         }
         DataProtconn_2$Value <- Value
-        DataProtconn_2$V1 <- round(DataProtconn_2$V1, 3)
+        DataProtconn_2[,1] <- round(DataProtconn_2[,1], 3)
         rownames(DataProtconn_2) <- NULL
         #
         DataProtconn_3 <- DataProtconn_2[3:18,c(3:4, 2, 1)]
@@ -1047,7 +1045,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
           nodes.2 <- nodes.1
           if(nrow(nodes.2) == 1){
             nodes.2$transboundary <- 1
-            nodes.2$Area2 <- ud.convert(as.numeric(st_area(nodes.2)), "m2", area_unit)
+            nodes.2$Area2 <- unit_convert(as.numeric(st_area(nodes.2)), "m2", area_unit)
             area2_sort <- nodes.2$Area2
           }
       }
@@ -1114,7 +1112,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
           nodes.2 <- nodes_base
           #If there are protected areas
           if (nrow(nodes.2) > 1 ){
-            if (area2_sort[[1]] < sum(ud.convert(as.numeric(st_area(region)), "m2", area_unit))){
+            if (area2_sort[[1]] < sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit))){
 
               if (attribute == "Intersected area"){
                 nodes.2$AreaTemp <- nodes.2$Area2 * nodes.2$transboundary
@@ -1164,7 +1162,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
 
               #Landscape attribute for ECA
               if (is.null(LA) & isTRUE(attribute %in% c("Intersected area"))){
-                LA <- sum(ud.convert(as.numeric(st_area(region)), "m2", area_unit))
+                LA <- sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit))
               } else {
                 if(is.null(LA) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                   stop("misssing LA, LA is necessary when you choose attribute a different to Area and Intersected area")
@@ -1239,7 +1237,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
               }
 
               #ProtConn Indicators
-              DataProtconn$Prot <- 100 * (DataProtconn$a / sum(ud.convert(as.numeric(st_area(region)), "m2", area_unit)))#Percentage of the study region covered by PAs
+              DataProtconn$Prot <- 100 * (DataProtconn$a / sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit)))#Percentage of the study region covered by PAs
               DataProtconn$ProtConn <- 100 * (DataProtconn$ECA / DataProtconn$LA) #porcentaje protegido y conectado
               DataProtconn$ProtUnconn <- DataProtconn$Prot - DataProtconn$ProtConn #Protegido pero no conectado
               DataProtconn$RelConn <- 100 * (DataProtconn$ProtConn / DataProtconn$Prot)
@@ -1318,7 +1316,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                   nodes.3$IDTemp <- 1:nrow(nodes.3)
 
                   if(nrow(nodes.3) >= 1){
-                    nodes.3$A <- ud.convert(as.numeric(st_area(nodes.3, by_element = TRUE)), "m2", area_unit)
+                    nodes.3$A <- unit_convert(as.numeric(st_area(nodes.3, by_element = TRUE)), "m2", area_unit)
                     pi2 <- tryCatch(st_intersection(nodes.3, region_2), error = function(err)err)
 
                     if (inherits(pi2, "error")){
@@ -1328,7 +1326,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                     }
 
                     attArea2 <- pi2 %>%
-                      mutate(A2 = ud.convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric())%>%
+                      mutate(A2 = unit_convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric())%>%
                       as_tibble() %>% group_by(.data$IDTemp) %>%
                       dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
 
@@ -1377,7 +1375,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                   nodes.3 <- nodes.3[,"IDTemp"]
                   nodes.3$IDTemp <- 1:nrow(nodes.3)
                   if(nrow(nodes.3) >= 1){
-                    nodes.3$A <- ud.convert(as.numeric(st_area(nodes.3, by_element = TRUE)), "m2", area_unit)
+                    nodes.3$A <- unit_convert(as.numeric(st_area(nodes.3, by_element = TRUE)), "m2", area_unit)
                     pi2 <- tryCatch(st_intersection(nodes.3, region_2), error = function(err)err)
 
                     if (inherits(pi2, "error")){
@@ -1387,7 +1385,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
                     }
 
                     attArea2 <- pi2 %>%
-                      mutate(A2 = ud.convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric())%>%
+                      mutate(A2 = unit_convert(as.numeric(st_area(.)), "m2", area_unit) %>% as.numeric())%>%
                       as_tibble() %>% group_by(.data$IDTemp) %>%
                       dplyr::summarize(Area1 = sum(.data$A), Area2 = sum(.data$A2))
 
@@ -1512,7 +1510,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
             } else {
               #PA equal region area
               if (is.null(LA) & isTRUE(attribute %in% c("Area", "Intersected area"))){
-                LA <- sum(ud.convert(as.numeric(st_area(region))), "m2", area_unit)
+                LA <- sum(unit_convert(as.numeric(st_area(region))), "m2", area_unit)
               } else {
                 if(is.null(LA) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                   stop("misssing LA, LA is necessary when you choose attribute a different to Area and Intersected area")
@@ -1578,7 +1576,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
           } else if (nrow(nodes.2) == 1){
 
             if (is.null(LA) & isTRUE(attribute %in% c("Area", "Intersected area"))){
-              LA <- sum(ud.convert(as.numeric(st_area(region)), "m2", area_unit))
+              LA <- sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit))
             } else {
               if(is.null(LA) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                 stop("misssing LA, LA is necessary when you choose attribute a different to Area and Intersected area")
@@ -1638,7 +1636,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
             #If no PA was selected
           } else if (nrow(nodes.2) == 0){
             if (is.null(LA) & isTRUE(attribute %in% c("Area", "Intersected area"))){
-              LA <- sum(ud.convert(as.numeric(st_area(region)), "m2", area_unit))
+              LA <- sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit))
             } else {
               if(is.null(LA) & isFALSE(attribute %in% c("Area", "Intersected area"))){
                 stop("misssing LA, LA is necessary when you choose attribute a different to Area and Intersected area")

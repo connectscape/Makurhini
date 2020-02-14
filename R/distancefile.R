@@ -1,16 +1,16 @@
 #' Get a Distance table that can be used as a connector file in Conefor
 #'
 #' Generates a distance table between nodes.
-#' @param nodes object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a **projected coordinate system**.
+#' @param nodes object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.
 #' @param id character. Column name with the "node ID" in the shapefile data table.
 #' @param type character. Choose one of the distances: "centroid" (faster, default), where Euclidean distance is
 #' calculated from feature centroid; "edge", where Euclidean distance is calculated from feature edges;
 #' "least-cost" that takes into account obstacles and local friction of the landscape (see, "gdistance" package);
 #' "commute-time" that is analogous to the resistance distance of circuitscape. The commute-time distance is
 #' based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).
-#' If the type is equal to "least-cost" or "commute-time", then you have to use the **"resistance" argument**.
-#' @param distance_unit character. If euclidean distance is selected you can set a distance unit, "udunits2" package
-#' compatible unit (e.g., "km", "cm", "ft", "inch"). Default equal to meters "m".
+#' If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
+#' @param distance_unit character. If euclidean distance is selected you can set a distance unit, "Makurhini::unit_covert()"
+#' compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".
 #' @param tolerance numeric. Argument for higher processing speed. In case you have selected the "edge" distance,
 #' use this option to simplify the geometry and reduce the number of vertices (from rgeos::gSimplify).
 #' @param resistance raster. Raster object with resistance values.

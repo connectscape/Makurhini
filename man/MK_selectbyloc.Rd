@@ -27,7 +27,7 @@ if a value of 90 then if the intersection area is equal or greater than 90 perce
 \item{transboundary}{numeric. Transboundary buffer to select polygones in a second round. See, Saura et al. 2017.
 Transboundary field is added where 0 = Transboundary.}
 
-\item{area_unit}{character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to hectares "ha".}
+\item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".}
 
 \item{write_select}{character. Write shapefile, provide folder direction, and name plus extension of the output shapefile}
 

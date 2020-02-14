@@ -15,7 +15,6 @@
 #' @importFrom raster crs projectRaster shapefile
 #' @importFrom spex qm_rasterToPolygons_sp
 #' @importFrom rgeos gArea gBuffer
-#' @importFrom udunits2 ud.convert
 #' @import sf
 #' @importFrom purrr map
 #' @importFrom plyr ddply .
@@ -53,7 +52,7 @@ MK_HQuality <- function(x, y, id = NULL, area_unit = NULL,
   y2 <- qm_rasterToPolygons_sp(x)
   y@data$area <- gArea(y, byid = T)
   if (!is.null(area_unit)){
-    y@data$area <- ud.convert(y@data$area, "m2", area_unit) #area
+    y@data$area <- unit_convert(y@data$area, "m2", area_unit) #area
   }
   y <- gBuffer(y, byid = TRUE, width = 0)
   #
@@ -97,7 +96,7 @@ MK_HQuality <- function(x, y, id = NULL, area_unit = NULL,
   #
   habitat@data$area2 <- gArea(habitat, byid=T) #SELECT_CORES
   if (!is.null(area_unit)){
-    habitat@data$area2 <- ud.convert(habitat@data$area2, "m2", area_unit)
+    habitat@data$area2 <- unit_convert(habitat@data$area2, "m2", area_unit)
   }
   #
   habitat <- habitat@data #SELECT_ZC

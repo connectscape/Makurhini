@@ -20,8 +20,7 @@ MK_ProtConnMult(nodes, regions, thintersect = NULL,
 
 \item{attribute}{character. Select the nodes attribute: "Area" = Complete Protected areas; "Intersected area" = Intersected Protected areas; or another specific column name with the nodes attribute, ideally this attribute mus be an area-weighted index, otherwise the interpretation of the protconn index may change.}
 
-\item{area_unit}{character. Attribute area units. You can set an area unit, udunits2 package compatible unit
-(e.g., "km2", "cm2", "ha"). Default equal to hectares "ha".}
+\item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".}
 
 \item{res_attribute}{numeric. If the attribute is no equal to "Area" or "Intersected area" then nodes will be converted to raster to extract values in one  process step, you can set the raster resolution, default = 150.}
 

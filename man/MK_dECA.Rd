@@ -15,8 +15,8 @@ MK_dECA(nodes, attribute = NULL, area_unit = "ha",
 \item{attribute}{character. Column name with the attribute in the data table selected for the nodes.
 If NULL the node area will be used as node attribute, the unit area can be selected using the "area_unit" argument.}
 
-\item{area_unit}{character. If attribute is NULL you can set an area unit, udunits2 package compatible
-unit (e.g., "km2", "cm2", "ha"). Default equal to hectares "ha".}
+\item{area_unit}{character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
+compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".}
 
 \item{distance}{list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the
 distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost"

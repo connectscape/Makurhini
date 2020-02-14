@@ -8,17 +8,15 @@
 #' @importFrom boot boot boot.ci
 #' @importFrom purrr map
 #' @importFrom stats sd
-
 ProtConnStat <- function(ProtConn, ci= "all", nr=500){
   if(!is.null(ci)){
     if(ci == "all"){
       ci= c("normal", "basic", "percent", "bca")
     } }
 
-  ProtConn <- ProtConn[c("Unprotected", "Prot", "ProtConn", "ProtUnconn",
-                     "RelConn", "ProtConn_Prot", "ProtConn_Trans", "ProtConn_Unprot",
-                     "ProtConn_Within", "ProtConn_Contig", "ProtConn_Within_land", "ProtConn_Contig_land",
-                     "ProtConn_Unprot_land", "ProtConn_Trans_land")]
+  ProtConn <- ProtConn[c(which(names(ProtConn) == "EC(PC)"):ncol(ProtConn))]
+  ProtConn[,1] <- as.character(ProtConn[,1]) %>% as.numeric()
+  ProtConn[,2] <- as.character(ProtConn[,2]) %>% as.numeric()
 
   ProtConn[is.na(ProtConn)] = 0
   ProtConn2 <- cbind(colMeans(ProtConn))

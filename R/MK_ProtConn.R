@@ -59,7 +59,6 @@
 #' @importFrom velox velox
 #' @import sf
 #' @importFrom magrittr %>%
-#' @importFrom mapview npts
 #' @importFrom rmapshaper ms_dissolve ms_simplify
 #' @importFrom dplyr progress_estimated mutate group_by summarize
 #' @importFrom raster raster
@@ -100,6 +99,16 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
     return(over_result)
   }
 
+  num_vert <- function(x){
+    if (class(x)[1] != "sf") {
+      y <- sf::st_as_sf(x)
+    }
+    y <- st_cast(y$geometry, "MULTIPOINT")
+    y <- sapply(y, length)
+    y <- sum(y)/2
+    return(y)
+  }
+
   #setwd previous
   ttt.2 <- getwd()
 
@@ -119,7 +128,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
   select_distance <- max(c(transboundary, distance_thresholds)) * 2
 
   #Simplify region
-  if(npts(x = region) > 100){
+  if(num_vert(x = region) > 100){
     region_1 <- tryCatch(st_simplify(x = region, dTolerance = 10000, preserveTopology = TRUE),
                         error = function(err)err)  #First selection to reduce the extent of work and dissolve polygones
 
@@ -154,7 +163,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
       nodes.1$IDTemp <- 1:nrow(nodes.1)
       nodes.1$dis <- 1
 
-      if(npts(region) > 100){
+      if(num_vert(region) > 100){
         region_2 <- ms_simplify(input = region, keep = keep, keep_shapes = TRUE, explode = TRUE) %>% ms_dissolve()
       } else {
         region_2 <- region
@@ -1006,7 +1015,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
         nodes.1$IDTemp <- 1:nrow(nodes.1)
         nodes.1$dis <- 1
 
-        if(npts(region) > 100){
+        if(num_vert(region) > 100){
           region_2 <- ms_simplify(input = region, keep = keep, keep_shapes = TRUE, explode = TRUE) %>% ms_dissolve()
         } else {
           region_2 <- region

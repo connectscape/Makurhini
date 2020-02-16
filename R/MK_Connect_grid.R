@@ -80,7 +80,6 @@
 #' @importFrom rmapshaper ms_dissolve
 #' @importFrom sp spsample
 #' @importFrom sp HexPoints2SpatialPolygons
-#' @importFrom mapview npts
 #' @importFrom future plan
 #' @importFrom future multiprocess
 #' @importFrom furrr future_map
@@ -152,6 +151,18 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
 
   options(warn = -1)
   ttt.2 <- getwd()
+
+  #number of vertices
+  num_vert <- function(x){
+    if (class(x)[1] != "sf") {
+      y <- sf::st_as_sf(x)
+    }
+    y <- st_cast(y$geometry, "MULTIPOINT")
+    y <- sapply(y, length)
+    y <- sum(y)/2
+    return(y)
+  }
+
   make_grid <- function(x, type, cell_width, cell_area,
                         clip = FALSE, tolerance = tolerance, grid_boundary = grid_boundary) {
     if (class(x)[1] == "sf") {
@@ -192,7 +203,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
 
     x2 <- st_as_sf(x) %>% st_cast("POLYGON")
 
-    if (npts(x2) > 100) {
+    if (num_vert(x2) > 100) {
       region_1 <- tryCatch(st_simplify(x2, dTolerance = ((extent(x)[4]-extent(x)[3])*2)/100,
                                        preserveTopology = TRUE), error = function(err) err)
 
@@ -214,7 +225,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
 
     if (isTRUE(clip)) {
       if(is.null(tolerance)){
-        if (npts(x2) > 100) {
+        if (num_vert(x2) > 100) {
           region_1 <- tryCatch(st_simplify(x2, dTolerance = ((extent(x)[4]-extent(x)[3])*0.1)/100,
                                            preserveTopology = TRUE), error = function(err) err)
 
@@ -251,7 +262,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
       g2 <- MK_selectbyloc(g, x2)
 
       if(isTRUE(grid_boundary)){
-        if (npts(x2) > 100) {
+        if (num_vert(x2) > 100) {
           region_1 <- tryCatch(st_simplify(x2, dTolerance = ((extent(x)[4]-extent(x)[3])*2)/100,
                                            preserveTopology = TRUE), error = function(err) err)
           if (inherits(region_1, "error")) {

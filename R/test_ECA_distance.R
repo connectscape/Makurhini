@@ -28,7 +28,6 @@
 #' @import ggplot2
 #' @importFrom  purrr compact
 #' @importFrom methods as
-#' @importFrom colorspace qualitative_hcl
 #' @importFrom utils tail
 test_ECA_distance <- function(nodes,
                               attribute = NULL,
@@ -139,7 +138,9 @@ test_ECA_distance <- function(nodes,
         ytitle = "ECA"
       }
 
-    colour <- qualitative_hcl(length(unique_groups), palette = "Dark 3")
+
+    ccolour <- c("#E16A86", "#909800", "#00AD9A", "#9183E6")
+    ccolour <- ccolour[1:length(unique_groups)]
 
     p1 <- ggplot() +
         geom_line(aes(y = conn_metric$ECA, x = conn_metric$Distance, colour = conn_metric$Group),
@@ -153,7 +154,7 @@ test_ECA_distance <- function(nodes,
         scale_y_continuous(breaks = c(seq(min(conn_metric$ECA), max(conn_metric$ECA),
                                           (max(conn_metric$ECA)-min(conn_metric$ECA))/4)))+
         labs(x = "Dispersal distance", y = ytitle) +
-        scale_colour_manual(values = colour) +
+        scale_colour_manual(values = ccolour) +
         theme(axis.line = element_line(size = 1, colour = "black"),
               panel.grid.major = element_line(colour = "#d3d3d3"), panel.grid.minor = element_blank(),
               panel.border = element_blank(), panel.background = element_blank()) +
@@ -164,7 +165,8 @@ test_ECA_distance <- function(nodes,
               legend.key= element_rect(fill = "white", colour = "white"))+
         geom_point(data = peak_plot,
                    mapping = aes(x = peak_plot$To, y = peak_plot$ECA), size = 4)+
-        geom_text(aes(x = peak_plot$To, y = peak_plot$ECA, label = peak_plot$To), data = peak_plot, hjust = -0.3, vjust = -0.5)+
+        geom_text(aes(x = peak_plot$To, y = peak_plot$ECA, label = peak_plot$To),
+                  data = peak_plot, hjust = -0.3, vjust = -0.5)+
         theme(legend.text = element_text(size = 11))
 
     result <- list(peaks_groups, p1)

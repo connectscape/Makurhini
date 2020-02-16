@@ -67,21 +67,11 @@
 #' hexagons_priority_2
 #' }
 #' @importFrom magrittr %>%
-#' @importFrom raster extent
-#' @importFrom raster projection projection<-
-#' @importFrom raster raster
-#' @importFrom sf st_zm
-#' @importFrom sf st_as_sf
-#' @importFrom sf st_cast
-#' @importFrom sf st_simplify
-#' @importFrom sf st_buffer
-#' @importFrom sf st_intersection
-#' @importFrom sf st_area
+#' @importFrom raster extent projection projection<- raster
+#' @import sf
 #' @importFrom rmapshaper ms_dissolve
-#' @importFrom sp spsample
-#' @importFrom sp HexPoints2SpatialPolygons
-#' @importFrom future plan
-#' @importFrom future multiprocess
+#' @importFrom sp spsample HexPoints2SpatialPolygons
+#' @importFrom future plan multiprocess
 #' @importFrom furrr future_map
 #' @importFrom dplyr progress_estimated
 #' @importFrom purrr map

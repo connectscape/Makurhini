@@ -42,10 +42,9 @@ Patch and landscape statistics:\cr
 Calculate patch and landscape statistics
 }
 \examples{
-ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
-load(ruta)
-nrow(cores)
-fragmentation <- MK_fragmentation(patches = cores, edge_distance = 500, plot = TRUE)
+data("vegetation_patches", package = "Makurhini")
+nrow(vegetation_patches) # Number of patches
+fragmentation <- MK_fragmentation(patches = vegetation_patches, edge_distance = 500, plot = TRUE)
 
 #Table
 fragmentation$`Summary landscape metrics (Viewer Panel)`

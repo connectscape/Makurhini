@@ -27,7 +27,7 @@ shapefile must be in a projected coordinate system.}
 
 \item{grid_type}{character. If grid is null you can make a regular grid of "hexagonal" or "square".}
 
-\item{cellsize}{numeric. Grid area (square meter).}
+\item{cellsize}{numeric. Grid area (square kilometers).}
 
 \item{grid_boundary}{logical.If TRUE, the Incomplete "hexagons" or "squares" in the boundaries of
 the region will be discarded}
@@ -62,24 +62,26 @@ Use the function to compute the Protected Connected (ProtConn)or EC, PC, IIC ind
 }
 \examples{
 \dontrun{
-ruta <- system.file("extdata", "WDPA_May2019_MEX-shapefile-polygons.shp", package = "Makurhini")
-Protected_areas <- sf::read_sf(ruta)
+data("Protected_areas", package = "Makurhini")
+#plot(Protected_areas, col="green")
 
-ruta <- system.file("extdata",  "Region_test.shp", package = "Makurhini")
-region <- sf::read_sf(ruta)
+data("regions", package = "Makurhini")
+region <- regions[2,]
+plot(region, col="blue")
 
-hexagons_priority <- Connect_grid(nodes = Protected_areas, region = region,
-                                  grid_type = "hexagonal", cellsize = 100000,
+hexagons_priority <- MK_Connect_grid(nodes = Protected_areas, region = region,
+                                  grid_type = "hexagonal", cellsize = 3000,
                                   distance = list(type = "centroid"),
-                                  distance_thresholds = 10000, clip = TRUE,
+                                  distance_thresholds = 10000, clip = FALSE,
                                   PC_IIC = list(metric = "PC"),
                                   intern = TRUE, parallel = TRUE)
 hexagons_priority
 
-hexagons_priority_2 <- Connect_grid(nodes = Protected_areas, region = region,
-                                   grid_type = "hexagonal", cellsize = 300000000,
+
+hexagons_priority_2 <- MK_Connect_grid(nodes = Protected_areas, region = region,
+                                   grid_type = "hexagonal", cellsize = 3000,
                                    distance = list(type = "centroid"),
-                                   distance_thresholds = 5000, clip = TRUE,
+                                   distance_thresholds = 5000, clip = FALSE,
                                    ProtConn = list(attribute ="Intersected area",
                                                    transboundary = 10000),
                                    intern = TRUE, parallel = TRUE)

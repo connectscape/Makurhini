@@ -11,8 +11,9 @@
 #' If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
 #' @param distance_unit character. If euclidean distance is selected you can set a distance unit, "Makurhini::unit_covert()"
 #' compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".
-#' @param tolerance numeric. Argument for higher processing speed. In case you have selected the "edge" distance,
-#' use this option to simplify the geometry and reduce the number of vertices (from rgeos::gSimplify).
+#' @param keep numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
+#'  number of vertices (from rmapshaper::ms_simplif). The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
+#'   the higher the speed but the greater uncertainty.
 #' @param resistance raster. Raster object with resistance values.
 #' @param CostFun A function to compute the cost to move between cells. Available only if you you have selected
 #' the "least-cost" or "commute-time" distance. The default is the mean (isotropic cost distance):
@@ -42,7 +43,7 @@
 distancefile <- function(nodes, id,
                          type =  "centroid",
                          distance_unit = NULL,
-                         tolerance = NULL,
+                         keep = NULL,
                          resistance = NULL,
                          CostFun = NULL,
                          ngh = NULL,

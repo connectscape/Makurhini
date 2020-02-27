@@ -47,16 +47,15 @@ It is necessary to specify the "Folder direction" + "Initial prefix",  for examp
 Use this function to calculate the PC and IIC indexes under one or several distance thresholds.
 }
 \examples{
-ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
-load(ruta)
-nrow(cores)
+data("vegetation_patches", package = "Makurhini")
+nrow(vegetation_patches) # Number of patches
 #One distance threshold IIC
-IIC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
+IIC <- MK_dPCIIC(nodes = vegetation_patches, id = "id", attribute = NULL,
                     distance = list(type = "centroid"),
                     metric = "IIC", distance_thresholds = 30000)
 IIC
 #Two or more distance thresholds PC
-PC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
+PC <- MK_dPCIIC(nodes = vegetation_patches, id = "id", attribute = NULL,
                     distance = list(type = "centroid"),
                     metric = "PC", probability = 0.5,
                     distance_thresholds = c(5000, 10000))

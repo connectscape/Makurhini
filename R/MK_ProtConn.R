@@ -37,24 +37,22 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' ruta <- system.file("extdata", "WDPA_May2019_MEX-shapefile-polygons.shp", package = "Makurhini")
-#' cores <- shapefile(ruta)
-#' plot(cores, col="green")
+#' data("Protected_areas", package = "Makurhini")
+#' #plot(Protected_areas, col="green")
 #'
-#' ruta <- system.file("extdata", "Ecoregions2017.shp", package = "Makurhini")
-#' region <- shapefile(ruta)
-#' region <- region[1,]
+#' data("regions", package = "Makurhini")
+#' region <- regions[1,]
 #' plot(region, col="blue")
-#' test <- MK_ProtConn(nodes = cores, region = region,
+#'
+#' test <- MK_ProtConn(nodes = Protected_areas, region = region,
 #'                     attribute = "Intersected area", area_unit = "ha",
 #'                     distance = list(type= "centroid"),
-#'                     distance_thresholds = c(50000, 10000, 1000),
+#'                     distance_thresholds = c(50000, 10000),
 #'                     probability = 0.5, transboundary = 50000,
 #'                     LA = NULL, plot = TRUE, dPC = FALSE,
 #'                     write = NULL, SAGA = FALSE, intern = TRUE)
 #' test$d50000
 #' test$d10000
-#' test$d1000
 #' }
 #' @importFrom velox velox
 #' @import sf
@@ -99,9 +97,9 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
     return(over_result)
   }
 
-  num_vert <- function(x){
-    if (class(x)[1] != "sf") {
-      y <- sf::st_as_sf(x)
+  num_vert <- function(y){
+    if(class(y)[1] == "SpatialPolygonsDataFrame") {
+    y <- st_as_sf(y)
     }
     y <- st_cast(y$geometry, "MULTIPOINT")
     y <- sapply(y, length)
@@ -128,7 +126,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
   select_distance <- max(c(transboundary, distance_thresholds)) * 2
 
   #Simplify region
-  if(num_vert(x = region) > 100){
+  if(num_vert(region) > 100){
     region_1 <- tryCatch(st_simplify(x = region, dTolerance = 10000, preserveTopology = TRUE),
                         error = function(err)err)  #First selection to reduce the extent of work and dissolve polygones
 

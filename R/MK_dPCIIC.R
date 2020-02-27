@@ -25,16 +25,15 @@
 #' Saura, S. & Pascual-Hortal, L. 2007. A new habitat availability index to integrate connectivity in landscape conservation planning: comparison with existing indices and application to a case study. Landscape and Urban Planning 83 (2-3): 91-103.
 #' @export
 #' @examples
-#' ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
-#' load(ruta)
-#' nrow(cores)
+#' data("vegetation_patches", package = "Makurhini")
+#' nrow(vegetation_patches) # Number of patches
 #' #One distance threshold IIC
-#' IIC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
+#' IIC <- MK_dPCIIC(nodes = vegetation_patches, id = "id", attribute = NULL,
 #'                     distance = list(type = "centroid"),
 #'                     metric = "IIC", distance_thresholds = 30000)
 #' IIC
 #' #Two or more distance thresholds PC
-#' PC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
+#' PC <- MK_dPCIIC(nodes = vegetation_patches, id = "id", attribute = NULL,
 #'                     distance = list(type = "centroid"),
 #'                     metric = "PC", probability = 0.5,
 #'                     distance_thresholds = c(5000, 10000))

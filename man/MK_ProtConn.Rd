@@ -65,24 +65,22 @@ Use the CONEFOR command line to estimate Protected Connected (ProtConn) indexes.
 }
 \examples{
 \dontrun{
-ruta <- system.file("extdata", "WDPA_May2019_MEX-shapefile-polygons.shp", package = "Makurhini")
-cores <- shapefile(ruta)
-plot(cores, col="green")
+data("Protected_areas", package = "Makurhini")
+#plot(Protected_areas, col="green")
 
-ruta <- system.file("extdata", "Ecoregions2017.shp", package = "Makurhini")
-region <- shapefile(ruta)
-region <- region[1,]
+data("regions", package = "Makurhini")
+region <- regions[1,]
 plot(region, col="blue")
-test <- MK_ProtConn(nodes = cores, region = region,
+
+test <- MK_ProtConn(nodes = Protected_areas, region = region,
                     attribute = "Intersected area", area_unit = "ha",
                     distance = list(type= "centroid"),
-                    distance_thresholds = c(50000, 10000, 1000),
+                    distance_thresholds = c(50000, 10000),
                     probability = 0.5, transboundary = 50000,
                     LA = NULL, plot = TRUE, dPC = FALSE,
                     write = NULL, SAGA = FALSE, intern = TRUE)
 test$d50000
 test$d10000
-test$d1000
 }
 }
 \references{

@@ -19,18 +19,15 @@
 #' \dontrun{
 #' library(Makurhini)
 #' library(raster)
-#' ruta <- system.file("extdata", "WDPA_May2019_MEX-shapefile-polygons.shp", package = "Makurhini")
-#' x <- shapefile(ruta)
-#' plot(x, col="green")
+#' data("Protected_areas", package = "Makurhini")
+#' plot(cores, col="green")
 #'
-#' ruta <- system.file("extdata", "Ecoregions2017.shp", package = "Makurhini")
-#' y <- shapefile(ruta)
-#' #Select one region
-#' y_1 <- y[1,]
-#' plot(y_1, col="blue")
+#' data("regions", package = "Makurhini")
+#' region <- regions[1,]
+#' plot(region, col="blue")
 #'
-#' #Select polygones x inside y
-#' selection <- MK_selectbyloc(target = x, sourcelyr = y, selreg = "M1")
+#' #Select protected areas
+#' selection <- MK_selectbyloc(target = Protected_areas, sourcelyr = region, selreg = "M1")
 #' plot(selection, col="green", add=TRUE)
 #' }
 #' @export

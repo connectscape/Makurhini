@@ -9,7 +9,7 @@
 #' shapefile must be in a projected coordinate system.
 #' @param grid_id character. Column name of the grid ID.
 #' @param grid_type character. If grid is null you can make a regular grid of "hexagonal" or "square".
-#' @param cellsize numeric. Grid area (square meter).
+#' @param cellsize numeric. Grid area (square kilometers).
 #' @param grid_boundary logical.If TRUE, the Incomplete "hexagons" or "squares" in the boundaries of
 #' the region will be discarded
 #' @param clip logical. If TRUE, the new grid will be clipped to the region area. The operation time
@@ -43,24 +43,26 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' ruta <- system.file("extdata", "WDPA_May2019_MEX-shapefile-polygons.shp", package = "Makurhini")
-#' Protected_areas <- sf::read_sf(ruta)
+#' data("Protected_areas", package = "Makurhini")
+#' #plot(Protected_areas, col="green")
 #'
-#' ruta <- system.file("extdata",  "Region_test.shp", package = "Makurhini")
-#' region <- sf::read_sf(ruta)
+#' data("regions", package = "Makurhini")
+#' region <- regions[2,]
+#' plot(region, col="blue")
 #'
-#' hexagons_priority <- Connect_grid(nodes = Protected_areas, region = region,
-#'                                   grid_type = "hexagonal", cellsize = 100000,
+#' hexagons_priority <- MK_Connect_grid(nodes = Protected_areas, region = region,
+#'                                   grid_type = "hexagonal", cellsize = 3000,
 #'                                   distance = list(type = "centroid"),
-#'                                   distance_thresholds = 10000, clip = TRUE,
+#'                                   distance_thresholds = 10000, clip = FALSE,
 #'                                   PC_IIC = list(metric = "PC"),
 #'                                   intern = TRUE, parallel = TRUE)
 #' hexagons_priority
 #'
-#' hexagons_priority_2 <- Connect_grid(nodes = Protected_areas, region = region,
-#'                                    grid_type = "hexagonal", cellsize = 300000000,
+#'
+#' hexagons_priority_2 <- MK_Connect_grid(nodes = Protected_areas, region = region,
+#'                                    grid_type = "hexagonal", cellsize = 3000,
 #'                                    distance = list(type = "centroid"),
-#'                                    distance_thresholds = 5000, clip = TRUE,
+#'                                    distance_thresholds = 5000, clip = FALSE,
 #'                                    ProtConn = list(attribute ="Intersected area",
 #'                                                    transboundary = 10000),
 #'                                    intern = TRUE, parallel = TRUE)
@@ -109,7 +111,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
 
     if (is.null(grid_pol)) {
       if (is.null(cellsize)) {
-        stop("error missing cellsize(m2)")
+        stop("error missing cellsize(km2)")
       }
       if (!grid_type %in% c("hexagonal", "square")) {
         stop("Type must be either 'hexagonal' or 'square'")
@@ -138,14 +140,18 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
     }
   }
 
+  if(is.null(area_unit)){
+    area_unit = "ha"
+  }
+
 
   options(warn = -1)
   ttt.2 <- getwd()
 
   #number of vertices
-  num_vert <- function(x){
-    if (class(x)[1] != "sf") {
-      y <- sf::st_as_sf(x)
+  num_vert <- function(y){
+    if(class(y)[1] == "SpatialPolygonsDataFrame") {
+      y <- st_as_sf(y)
     }
     y <- st_cast(y$geometry, "MULTIPOINT")
     y <- sapply(y, length)
@@ -204,6 +210,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
         x2 <- region_1
       }
     }
+
 
     x2 <- tryCatch(x2 %>% st_cast("POLYGON") %>% ms_dissolve() %>%
                      st_buffer(dist = 0), error = function(err) err)
@@ -284,14 +291,22 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
   }
 
   ###
+  if (class(nodes)[1] == "SpatialPolygonsDataFrame") {
+    nodes <- st_as_sf(x = nodes) %>% st_zm()
+  } else {
+    nodes <- st_zm(nodes)
+  }
+
+
 
   if (is.null(grid_pol) & !is.null(region)) {
+    cellsize <- cellsize*1000000
     x_grid <- make_grid(x = region, type = grid_type, cell_area = cellsize, clip = clip, tolerance = tolerance, grid_boundary = grid_boundary)
   } else {
     if (class(grid_pol)[1] == "SpatialPolygonsDataFrame") {
-      x_grid <- st_as_sf(grid_pol) %>% st_cast("POLYGON")
+      x_grid <- st_as_sf(grid_pol) %>% st_zm() %>% st_cast("POLYGON")
     } else {
-      x_grid <- grid_pol %>% st_cast("POLYGON")
+      x_grid <- grid_pol %>% st_zm() %>% st_cast("POLYGON")
     }
   }
 
@@ -344,9 +359,9 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
     }
   } else if (!missing(PC_IIC) & missing(ProtConn)) {
     if (isTRUE(parallel)) {
-      nodes1 <- nodes
-      nodes1 <- st_cast(nodes1, "POLYGON")
-      plan(strategy = multiprocess)
+     nodes1 <- nodes
+     nodes1 <- st_cast(nodes1, "POLYGON")
+     plan(strategy = multiprocess)
       resultado_1 <- tryCatch(future_map(x_grid, function(x) {
         area_x <- unit_convert(as.numeric(st_area(x)), "m2", area_unit)
         if (is.null(PC_IIC$attribute)) {

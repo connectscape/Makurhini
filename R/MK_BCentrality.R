@@ -22,19 +22,17 @@
 #'  Bodin, O. and Saura, S. (2010). Ranking individual habitat patches as connectivity providers: integrating network analysis and patch removal experiments. Ecological Modelling 221: 2393-2405.
 #' @export
 #' @examples
-#' ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
-#' load(ruta)
-#'
-#' nrow(cores) #Number of cores
+#' data("vegetation_patches", package = "Makurhini")
+#' nrow(vegetation_patches) #Number of patches
 #'
 #' #One distance threshold
-#' MK_BCentrality(nodes = cores, id = "id",
+#' MK_BCentrality(nodes = vegetation_patches, id = "id",
 #'             distance = list(type = "centroid"),
 #'             metric = "BCIIC", LA = NULL,
 #'             distance_thresholds = 30000) #30 km
 #'
 #' #Two or more distance thresholds
-#' MK_BCentrality(nodes = cores, id = "id", attribute = NULL,
+#' MK_BCentrality(nodes = vegetation_patches, id = "id", attribute = NULL,
 #'            distance = list(type = "centroid"),
 #'            metric = "BCIIC", LA = NULL,
 #'            distance_thresholds = c(10000, 30000)) #10 and 30 km

@@ -5,7 +5,7 @@
 \title{Euclidian distances}
 \usage{
 euclidean_distances(x, id, type_distance = "centroid",
-  distance_unit = "m", tolerance = NULL, threshold = NULL,
+  distance_unit = "m", keep = NULL, threshold = NULL,
   write_table = NULL)
 }
 \arguments{
@@ -17,8 +17,9 @@ euclidean_distances(x, id, type_distance = "centroid",
 
 \item{distance_unit}{character. Set a distance unit, "Makurhini::unit_covert()" compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".}
 
-\item{tolerance}{numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
-number of vertices (from rgeos::gSimplify).}
+\item{keep}{numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
+number of vertices (from rmapshaper::ms_simplif). The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
+ the higher the speed but the greater uncertainty.}
 
 \item{threshold}{numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.}
 

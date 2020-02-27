@@ -14,8 +14,8 @@ test_ECA_distance(nodes, attribute = NULL, distance1 = NULL,
 
 \item{attribute}{character. Column name with the nodes attribute. If NULL, then the nodes area will be estimated and used as the attribute.}
 
-\item{distance1}{list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff edge",
-"least-cost distance" or "commute distance". If the type is equal to "least-cost distance" or "commute distance", then you have to use the "resistance" argument. "tolerance" is a numeric value used for higher processing.
+\item{distance1}{list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the distances: "centroid" (faster), "edge",
+"least-cost distance" or "commute distance". If the type is equal to "least-cost distance" or "commute distance", then you have to use the "resistance" argument. "keep" is a numeric value used for higher processing.
   To See more options consult the help function of distancefile().}
 
 \item{distance2}{list. see distance1 argument}

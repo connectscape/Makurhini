@@ -89,7 +89,7 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 #'  "commute-time" that is analogous to the resistance distance. This distance is based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).
 #' @param resistance raster. Raster object with resistance values (landscape friction).
 #' @param CostFun A function to compute the cost to move between cells.The default is the mean (isotropic cost distance):  function(x) mean(x).
-#' @param ngh numeric.  Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16. Default equal **8**.
+#' @param ngh numeric.  Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16 (king’s and knight’s moves). Default equal 16.
 #' @param mask object of class sf, sfc, sfg or SpatialPolygons. For higher processing speed use this option to clip the resistance at the extent of the mask.
 #' @param threshold numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
 #' @param geometry_out numeric. If some spatial geometries are out of the resistance extent, then a buffer zone the large enough to cover these spatial geometries and with this numeric value will be added to the resistance, so that it is possibñe to calculate a cost distance value for the pairs of nodes that involve these geometries.

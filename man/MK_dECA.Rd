@@ -18,7 +18,7 @@ If NULL the node area will be used as node attribute, the unit area can be selec
 \item{area_unit}{character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
 compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".}
 
-\item{distance}{list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the
+\item{distance}{list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the
 distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost"
 or "commute-time", then you have to use the "resistance" argument. To See more arguments consult
 the help function of distancefile().}

@@ -20,7 +20,7 @@ cost_distances(x, id, type_distance = "least-cost", resistance = NULL,
 
 \item{CostFun}{A function to compute the cost to move between cells.The default is the mean (isotropic cost distance):  function(x) mean(x).}
 
-\item{ngh}{numeric.  Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16. Default equal **8**.}
+\item{ngh}{numeric.  Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16 (king’s and knight’s moves). Default equal 16.}
 
 \item{mask}{object of class sf, sfc, sfg or SpatialPolygons. For higher processing speed use this option to clip the resistance at the extent of the mask.}
 

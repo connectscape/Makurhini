@@ -7,7 +7,7 @@
 #' @param attribute character. Column name with the nodes attribute. If NULL, then the patch area (ha) will be estimated and used as the attribute.
 #' @param area_unit character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to square meters "ha".
 #' @param restauration  character. Name of the column with restauration value. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node to add to the initial landscape (restored).
-#' @param distance list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff-edge",
+#' @param distance list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff-edge",
 #' "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
 #'   To See more arguments consult the help function of distancefile().
 #' @param metric character. Choose a connectivity metric: "IIC" considering topologycal distances or "PC" considering maximum product probabilities.
@@ -103,7 +103,7 @@ MK_dPCIIC <- function(nodes, id = NULL, attribute  = NULL,
             multiple = NULL, restauration = restauration,
             prefix=NULL, write = paste0(temp.1,"/nodes.txt"))
 
-  distancefile(nodes,  id = "IdTemp", type = distance$type, tolerance = distance$tolerance,
+  distancefile(nodes,  id = "IdTemp", type = distance$type, keep = distance$keep,
                resistance = distance$resistance, CostFun = distance$CostFun, ngh = distance$ngh,
                threshold = distance$threshold, mask = distance$mask,
                distance_unit = distance$distance_unit, geometry_out = distance$geometry_out,

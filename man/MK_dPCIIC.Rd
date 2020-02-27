@@ -21,7 +21,7 @@ MK_dPCIIC(nodes, id = NULL, attribute = NULL, area_unit = "ha",
 
 \item{restauration}{character. Name of the column with restauration value. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node to add to the initial landscape (restored).}
 
-\item{distance}{list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff-edge",
+\item{distance}{list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff-edge",
 "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
   To See more arguments consult the help function of distancefile().}
 

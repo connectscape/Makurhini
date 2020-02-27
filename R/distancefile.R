@@ -79,7 +79,7 @@ distancefile <- function(nodes, id,
     if (is.null(multiple)) {
       if (type %in%  c("centroid", "edge")){
         distance <- euclidean_distances(x = nodes, id = id, type_distance = type, distance_unit =distance_unit,
-                                        tolerance = tolerance, threshold = threshold,  write_table = write)
+                                        keep = keep, threshold = threshold,  write_table = write)
         return(distance)
 
         } else if (type %in%  c("least-cost", "commute-time")){
@@ -100,7 +100,7 @@ distancefile <- function(nodes, id,
           save <- paste(write, x, ".txt") } else { save <- NULL }
           nodes.1 <- nodes[nodes@data[,which(colnames(nodes@data) == multiple)] == x,]
           distance <- euclidean_distances(x = nodes.1, id = id, type_distance = type, distance_unit = distance_unit,
-                                          tolerance = tolerance, threshold = threshold, write_table = save)
+                                          keep = keep, threshold = threshold, write_table = save)
           return(distance) })
         names(distance) <- multiple_1
         return(distance)

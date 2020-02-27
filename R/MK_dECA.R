@@ -6,7 +6,7 @@
 #'  If NULL the node area will be used as node attribute, the unit area can be selected using the "area_unit" argument.
 #' @param area_unit character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
 #' compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".
-#' @param distance list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the
+#' @param distance list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the
 #'  distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost"
 #'  or "commute-time", then you have to use the "resistance" argument. To See more arguments consult
 #'  the help function of distancefile().
@@ -134,7 +134,7 @@ MK_dECA <- function(nodes,
       x@data$IdTemp <- 1:nrow(x)
       nodesfile(x, id = "IdTemp", attribute, area_unit, write = paste0(temp.1,"/nodes.txt"))
 
-      distancefile(x,  id = "IdTemp", type = distance$type, tolerance = distance$tolerance,
+      distancefile(x,  id = "IdTemp", type = distance$type, keep = distance$keep,
                    resistance = distance$resistance, CostFun = distance$CostFun, ngh = distance$ngh,
                    threshold = distance$threshold, mask = distance$mask,
                    distance_unit = distance$distance_unit, distance$geometry_out,

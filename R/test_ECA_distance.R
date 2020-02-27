@@ -2,8 +2,8 @@
 #'
 #' @param nodes Object of class sf, sfc, sfg or SpatialPolygons.
 #' @param attribute character. Column name with the nodes attribute. If NULL, then the nodes area will be estimated and used as the attribute.
-#' @param distance1 list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff edge",
-#' "least-cost distance" or "commute distance". If the type is equal to "least-cost distance" or "commute distance", then you have to use the "resistance" argument. "tolerance" is a numeric value used for higher processing.
+#' @param distance1 list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the distances: "centroid" (faster), "edge",
+#' "least-cost distance" or "commute distance". If the type is equal to "least-cost distance" or "commute distance", then you have to use the "resistance" argument. "keep" is a numeric value used for higher processing.
 #'   To See more options consult the help function of distancefile().
 #' @param distance2 list. see distance1 argument
 #' @param distance3 list. see distance1 argument
@@ -64,7 +64,7 @@ test_ECA_distance <- function(nodes,
 
   conn_metric <- lapply(distances_test, function(x){
 
-    distancefile(nodes,  id = "IdTemp", type = x$type, tolerance = x$tolerance,
+    distancefile(nodes,  id = "IdTemp", type = x$type, keep = x$keep,
                  resistance = x$resistance, CostFun = x$CostFun, ngh = x$ngh,
                  threshold = x$threshold,
                  distance_unit = x$distance_unit, x$geometry_out,

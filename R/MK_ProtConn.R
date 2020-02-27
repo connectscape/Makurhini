@@ -246,7 +246,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
         }
 
         distance_base <-  tryCatch(distancefile(nodes = bound_nodes,  id = "IDTemp", type = distance$type,
-                                                tolerance = distance$tolerance, resistance = resistance_protconn,
+                                                keep = distance$keep, resistance = resistance_protconn,
                                                 CostFun = distance$CostFun, ngh = distance$ngh,
                                                 threshold = distance$threshold, geometry_out = distance$geometry_out,
                                                 distance_unit = distance$distance_unit,
@@ -255,7 +255,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
         if (inherits(distance_base, "error")){
           bound_nodes <- st_buffer(bound_nodes, dist = 0)
           distance_base <-  tryCatch(distancefile(nodes = bound_nodes,  id = "IDTemp", type = distance$type,
-                                                  tolerance = distance$tolerance, resistance = resistance_protconn,
+                                                  keep = distance$keep, resistance = resistance_protconn,
                                                   CostFun = distance$CostFun, ngh = distance$ngh,
                                                   threshold = distance$threshold, geometry_out = distance$geometry_out,
                                                   distance_unit = distance$distance_unit,
@@ -1088,7 +1088,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
           }
 
           distance_base <-  tryCatch(distancefile(nodes = bound_nodes,  id = "IDTemp", type = distance$type,
-                                                  tolerance = distance$tolerance, resistance = resistance_protconn,
+                                                  keep = distance$keep, resistance = resistance_protconn,
                                                   CostFun = distance$CostFun, ngh = distance$ngh,
                                                   threshold = distance$threshold, geometry_out = distance$geometry_out,
                                                   distance_unit = distance$distance_unit,
@@ -1097,7 +1097,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
           if (inherits(distance_base, "error")){
             bound_nodes <- st_buffer(bound_nodes, dist = 0)
             distance_base <-  tryCatch(distancefile(nodes = bound_nodes,  id = "IDTemp", type = distance$type,
-                                                    tolerance = distance$tolerance, resistance = resistance_protconn,
+                                                    keep = distance$keep, resistance = resistance_protconn,
                                                     CostFun = distance$CostFun, ngh = distance$ngh,
                                                     threshold = distance$threshold, geometry_out = distance$geometry_out,
                                                     distance_unit = distance$distance_unit,

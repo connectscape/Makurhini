@@ -19,7 +19,7 @@ MK_BCentrality(nodes, id, attribute = NULL, area_unit = "ha",
 
 \item{area_unit}{character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to square meters "ha".}
 
-\item{distance}{list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge",
+\item{distance}{list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the distances: "centroid" (faster), "edge",
 "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
  To See more arguments consult the help function of distancefile().}
 

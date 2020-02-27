@@ -6,7 +6,7 @@
 #' @param id character. Column name with the nodes id. If NULL, then a new temporal id will be generated.
 #' @param attribute character. Column name with the nodes attribute. If NULL, then the patch area (ha) will be estimated and used as the attribute.
 #' @param area_unit character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to square meters "ha".
-#' @param distance list. Distance parameters. For example: type, resistance,or tolerance. For "type" choose one of the distances: "centroid" (faster), "edge",
+#' @param distance list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the distances: "centroid" (faster), "edge",
 #' "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
 #'  To See more arguments consult the help function of distancefile().
 #' @param metric character. Choose a Betweenness Centrality Metric: "BC" or "BCIIC" considering topologycal distances or "BCPC" considering maximum product probabilities.
@@ -99,7 +99,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
   nodesfile(nodes, id = "IdTemp", attribute = attribute, area_unit = "ha",
             write = paste0(temp.1, "/nodes.txt"))
   distancefile(nodes, id = "IdTemp", type = distance$type,
-               tolerance = distance$tolerance, resistance = distance$resistance,
+               keep = distance$keep, resistance = distance$resistance,
                CostFun = distance$CostFun, ngh = distance$ngh,
                threshold = distance$threshold, mask = distance$mask,
                distance_unit = distance$distance_unit, distance$geometry_out,

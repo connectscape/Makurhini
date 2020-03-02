@@ -14,3 +14,5 @@ ruta <- system.file("extdata", "Ecoregions2017.shp", package = "Makurhini")
 regions <- shapefile(ruta)
 regions <- regions[,1]
 use_data(Protected_areas, regions, compress = "xz", overwrite = T)
+
+use_data(vegetation_patches, raster_vegetation_patches, compress = "xz", overwrite = T)

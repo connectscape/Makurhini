@@ -44,15 +44,17 @@ Use the CONEFOR command line to estimate probabilistic and binary connectivity i
 \examples{
 \dontrun{
 setwd("~")
-EstConefor(nodeFile = "SV85FM_",
-          connectionFile = "SVdist_",
+EstConefor(nodeFile = "nodes.txt",
+          connectionFile = "dist.txt",
           typeconnection = "dist",
-          typepairs = "notall", index = "PC",
-          thdist = 20000,conprob = 0.5,
-          onlyoverall = FALSE,
-          output = "~/out",
-          prefix="T3")
-          }
+          typepairs = "notall",
+          index = "PC",
+          thdist = 30000, multdist = NULL,
+          conprob = 0.5,
+          onlyoverall = FALSE, LA = NULL,
+          nrestauration = FALSE,
+          prefix= NULL, write = NULL)
+}
 }
 \references{
 Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid.

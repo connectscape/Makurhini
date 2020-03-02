@@ -7,12 +7,13 @@
 distancefile(nodes, id, type = "centroid", distance_unit = NULL,
   keep = NULL, resistance = NULL, CostFun = NULL, ngh = NULL,
   mask = NULL, threshold = NULL, geometry_out = NULL,
-  multiple = NULL, prefix = NULL, write = NULL)
+  multiple = NULL, prefix = NULL, parallel = FALSE, write = NULL)
 }
 \arguments{
-\item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}
+\item{nodes}{object of class sf, SpatialPolygons, RasterLaryer or SpatRaster (terra package). It must be in a projected coordinate system.
+If nodes is a raster layer then raster values (Integer) will be taken as "id".}
 
-\item{id}{character. Column name with the "node ID" in the shapefile data table.}
+\item{id}{character. If nodes is a shapefile then you must specify the column name with the node ID in the shapefile data table.}
 
 \item{type}{character. Choose one of the distances: "centroid" (faster, default), where Euclidean distance is
 calculated from feature centroid; "edge", where Euclidean distance is calculated from feature edges;
@@ -21,21 +22,21 @@ calculated from feature centroid; "edge", where Euclidean distance is calculated
 based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).
 If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.}
 
-\item{distance_unit}{character. If euclidean distance is selected you can set a distance unit, "Makurhini::unit_covert()"
+\item{distance_unit}{character. If Euclidean distance is selected you can set a distance unit, "Makurhini::unit_covert()"
 compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".}
 
 \item{keep}{numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
-number of vertices (from rmapshaper::ms_simplif). The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
- the higher the speed but the greater uncertainty.}
+number of vertices (from rmapshaper::ms_simplify). The value can range from 0 to 1 and is the proportion of points to retain (default equal to NULL). The higher the value,
+ the higher the speed but less precision.}
 
 \item{resistance}{raster. Raster object with resistance values.}
 
 \item{CostFun}{A function to compute the cost to move between cells. Available only if you you have selected
 the "least-cost" or "commute-time" distance. The default is the mean (isotropic cost distance):
-function(x) mean(x).}
+function(x) mean(x). If resistance is a conductance raster then you can use: function(x) 1/mean(x)}
 
-\item{ngh}{numeric.  Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood),
-8 (Moore neighbourhood) or 16. Available only if you you have selected
+\item{ngh}{numeric.  Neighbor graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood),
+8 (Moore neighborhood) or 16. Available only if you have selected
 the "least-cost" or "commute-time" distance.}
 
 \item{mask}{object of class sf, sfc, sfg or SpatialPolygons. For higher processing speed of "least-cost" or
@@ -46,14 +47,16 @@ the "least-cost" or "commute-time" distance.}
 \item{geometry_out}{numeric. You can use this argument if you have selected the "least-cost" or "commute-time" distance.
 If some spatial geometries are out of the resistance extent, then a buffer zone the large enough to cover
 these spatial geometries and with this numeric value will be added to the resistance, so that it is possible to
-calculate a cost distance value for the pairs of nodes that involve these geometries and and avoid an error.
+calculate a cost distance value for the pairs of nodes that involve these geometries and avoid an error.
 If NULL, then a Euclidean distance (centroid) will be calculated to find these distances.}
 
-\item{multiple}{character. Column name of the column with the zone to which each core area belongs.}
+\item{multiple}{character. If nodes is a shapefile then you can use this argument. Name of the column with the zone to which each core area belongs.}
 
 \item{prefix}{character. Initial prefix, use in case of processing several sites at the same time in CONEFOR command line.}
 
-\item{write}{character. Choose the output folder if you use name_zona otherwise, place the output path, with
+\item{parallel}{logical. If If nodes is a raster then you can use this argument for larges RasterLayer.}
+
+\item{write}{character. Choose the output folder if you use multiple argument otherwise, place the output path, with
 the name and extension ".txt".}
 }
 \value{

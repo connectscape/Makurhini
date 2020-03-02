@@ -9,15 +9,23 @@ nodesfile(nodes, id, attribute = NULL, area_unit = "m2",
   write = NULL)
 }
 \arguments{
-\item{nodes}{sp or sf object. Nodes shapefile (lines, points or polygons).If area_unit is used then the shapefile must be in a projected coordinate system.}
+\item{nodes}{sp, sf object, RasterLaryer or SpatRaster (terra package). It must be in a projected coordinate system.
+If nodes is a raster layer then raster values (Integer) will be taken as "id".}
 
-\item{id}{character. Column name with the node ID in the shapefile data table.}
+\item{id}{character. If nodes is a shappefile then you must specify the column name with the node ID in the shapefile data table.}
 
-\item{attribute}{character. Column name with the attribute in the data table selected for the nodes. If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.}
+\item{attribute}{character or vector. If nodes is a shappefile then you must specify the column name with the attribute in the data table
+selected for the nodes.  If nodes is a raster layer then must be a numeric vector with the nodes attribute. The length of the vector must be equal to the
+ number of nodes. The numeric vector is multiplied by the area of each node to obtain a weighted habitat index in each node.
+ If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.}
 
-\item{area_unit}{character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to "m2".}
+\item{area_unit}{character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
+compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to "m2".}
 
-\item{restauration}{character. Name of the column with restauration value. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node to add to the initial landscape (restored).}
+\item{restauration}{character or vector. If nodes is a shappefile then you must specify the name of the column
+with restauration value. If nodes is a raster layer then must be a numeric vector with restauration values
+to each node in the raster. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node
+ to add to the initial landscape (restored).}
 
 \item{multiple}{character. Name of the column with the regions names. Use in case of processing nodes of several independent sites at the same time.}
 

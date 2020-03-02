@@ -1,16 +1,25 @@
 #' Creation of nodefile to CONEFOR command line
 #'
 #' Generates a table with the Core ID and the their attribute value (e.g. area in km²), using a shapefile with these values. The table is the nodefile input for CONEFOR.
-#' @param nodes sp or sf object. Nodes shapefile (lines, points or polygons).If area_unit is used then the shapefile must be in a projected coordinate system.
-#' @param id character. Column name with the node ID in the shapefile data table.
-#' @param attribute character. Column name with the attribute in the data table selected for the nodes. If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
-#' @param area_unit character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to "m2".
-#' @param restauration character. Name of the column with restauration value. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node to add to the initial landscape (restored).
+#' @param nodes sp, sf object, RasterLaryer or SpatRaster (terra package). It must be in a projected coordinate system.
+#' If nodes is a raster layer then raster values (Integer) will be taken as "id".
+#' @param id character. If nodes is a shappefile then you must specify the column name with the node ID in the shapefile data table.
+#' @param attribute character or vector. If nodes is a shappefile then you must specify the column name with the attribute in the data table
+#' selected for the nodes.  If nodes is a raster layer then must be a numeric vector with the nodes attribute. The length of the vector must be equal to the
+#'  number of nodes. The numeric vector is multiplied by the area of each node to obtain a weighted habitat index in each node.
+#'  If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
+#' @param area_unit character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
+#' compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to "m2".
+#' @param restauration character or vector. If nodes is a shappefile then you must specify the name of the column
+#' with restauration value. If nodes is a raster layer then must be a numeric vector with restauration values
+#' to each node in the raster. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node
+#'  to add to the initial landscape (restored).
 #' @param multiple character. Name of the column with the regions names. Use in case of processing nodes of several independent sites at the same time.
 #' @param prefix character. Initial prefix, use in case of processing several sites at the same time in CONEFOR command line.
 #' @param write character. Output folder path if you use the name option, otherwise, place the output path, with the name and extension ".txt"
 #' @return nodo file in .txt format
 #' @export
+#' @importFrom raster res
 #' @importFrom sf st_zm
 #' @importFrom sf st_as_sf
 #' @importFrom rgeos gArea
@@ -19,14 +28,11 @@
 nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauration = NULL, multiple = NULL,
                          prefix = NULL, write = NULL) {
   if (missing(nodes)) {
-    stop("error missing shapefile file of nodes")
+    stop("error missing file of nodes")
   } else {
     if (is.numeric(nodes) | is.character(nodes)) {
-      stop("error missing shapefile file of nodes")
+      stop("error missing file of nodes")
     }
-  }
-  if(missing(id)){
-    stop("Error, missing id argument")
   }
   if (!is.null(write)) {
     if (!dir.exists(dirname(write))) {
@@ -34,38 +40,80 @@ nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauratio
     }
   }
 
-  if(class(nodes)[1] == "sf") {
-    nodes <- st_zm(nodes)
-    nodes <- as(nodes, 'Spatial')
-  } else {
-    nodes <- st_as_sf(nodes)
-    nodes <- st_zm(nodes)
-    nodes <- as(nodes, 'Spatial')
+  if(class(nodes)[1] == "sf" | class(nodes)[1] == "SpatialPolygonsDataFrame"){
+    if(missing(id)){
+      stop("Error, missing id argument")
+      }
+
+    if(class(nodes)[1] == "sf") {
+      nodes <- st_zm(nodes)
+      nodes <- as(nodes, 'Spatial')
+      } else {
+        nodes <- st_as_sf(nodes)
+        nodes <- st_zm(nodes)
+        nodes <- as(nodes, 'Spatial')
+      }
+
+    if (is.null(attribute)) {
+      nodes$Area <- gArea(nodes, byid = TRUE)
+      attribute <- "Area"
+      if (area_unit != "m2"){
+        nodes$Area <- unit_convert(nodes$Area, "m2", area_unit)
+      }
     }
 
-  if (is.null(attribute)) {
-    nodes$Area <- gArea(nodes, byid = TRUE)
-    attribute <- "Area"
-    if (area_unit != "m2"){
-      nodes$Area <- unit_convert(nodes$Area, "m2", area_unit)
-    }
-  }
-
-  if (is.null(restauration)) {
+    if (is.null(restauration)) {
       colvalues <- c(which(names(nodes) == id),
                      which(names(nodes) == attribute))
     } else {
       colvalues <- c(which(names(nodes) == id),
                      which(names(nodes) == attribute),
                      which(names(nodes) == restauration))
-      }
-
-  if (!is.null(multiple)) {
-    colvalues <- c(colvalues[1], which(colnames(nodes) == multiple),
-                   colvalues[2:length(colvalues)])
     }
 
-  nodes <- nodes@data[ ,colvalues]
+    if (!is.null(multiple)) {
+      colvalues <- c(colvalues[1], which(colnames(nodes) == multiple),
+                     colvalues[2:length(colvalues)])
+    }
+
+    nodes <- nodes@data[ ,colvalues]
+
+  } else if (class(nodes)[1] == "RasterLayer" | class(nodes)[1] == "SpatRaster"){
+    nres <- unit_convert(res(nodes)[1]^2, "m2", area_unit)
+    nodes <- as.data.frame(table(nodes[]))
+    nodes$Freq <- nodes$Freq * nres
+
+    if(!is.null(attribute)){
+      nodes$Freq <- nodes$Freq * attribute
+    }
+
+    if(is.null(restauration)){
+      names(nodes) <- c("Id", "attribute")
+      colvalues <- 1:2
+      if (!is.null(multiple)) {
+        nodes$mult <- multiple
+        colvalues <- c(1, 3, 2)
+      } else{
+        colvalues <- 1:2
+      }
+    } else {
+      nodes$restauration <- restauration
+      names(nodes) <- c("Id", "attribute", "restauration")
+      if (!is.null(multiple)) {
+        nodes$mult <- multiple
+        colvalues <- c(1, 4, 2:3)
+      } else{
+        colvalues <- 1:3
+      }
+
+    }
+
+    nodes <- nodes[ ,colvalues]
+
+  } else {
+    stop("error missing file of nodes. Check the nodes class")
+  }
+
   nodes[,1] <- as.integer(nodes[,1])
 
   if(is.null(multiple)){

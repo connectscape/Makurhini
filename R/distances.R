@@ -10,7 +10,7 @@
 #' @param threshold numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
 #' @param write_table character. "" indicates output to the console.
 #' @return Pairwise Euclidean distance table
-#' @references Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitised Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
+#' @references Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitized Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
 #' @export
 #' @importFrom rgeos gCentroid gDistance
 #' @importFrom rmapshaper ms_simplify
@@ -38,7 +38,7 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 
   if (!is.null(keep)){
     x_id <- x@data[,which(colnames(x@data) == id)]
-    x <- ms_simplify(input = x, keep = keep, keep_shapes = TRUE, explode = TRUE)
+    x <- ms_simplify(input = x, keep = keep, keep_shapes = TRUE, explode = FALSE)
     x$id <- x_id
     names(x) <- id
   }

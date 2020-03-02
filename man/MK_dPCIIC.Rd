@@ -8,7 +8,7 @@ MK_dPCIIC(nodes, id = NULL, attribute = NULL, area_unit = "ha",
   restauration = NULL, distance = list(type = "centroid", resistance =
   NULL), metric = c("IIC", "PC"), probability,
   distance_thresholds = NULL, overall = FALSE, dA = FALSE,
-  dvars = FALSE, LA = NULL, write = NULL)
+  dvars = FALSE, LA = NULL, parallel = FALSE, write = NULL)
 }
 \arguments{
 \item{nodes}{Object of class sf, sfc, sfg or SpatialPolygons.The shapefile must be in a projected coordinate system.}
@@ -17,7 +17,7 @@ MK_dPCIIC(nodes, id = NULL, attribute = NULL, area_unit = "ha",
 
 \item{attribute}{character. Column name with the nodes attribute. If NULL, then the patch area (ha) will be estimated and used as the attribute.}
 
-\item{area_unit}{character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to square meters "ha".}
+\item{area_unit}{character. If attribute is NULL you can set an area unit (e.g., "km2", "cm2", "ha"; see Makurhini::unit_convert). Default equal to hectares "ha".}
 
 \item{restauration}{character. Name of the column with restauration value. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node to add to the initial landscape (restored).}
 
@@ -40,6 +40,8 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
 
 \item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).}
 
+\item{parallel}{logical. If If nodes is a raster then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.}
+
 \item{write}{character. Write output shapefile and overall table (if TRUE overall argument).
 It is necessary to specify the "Folder direction" + "Initial prefix",  for example, "C:/ejemplo".}
 }
@@ -52,13 +54,14 @@ nrow(vegetation_patches) # Number of patches
 #One distance threshold IIC
 IIC <- MK_dPCIIC(nodes = vegetation_patches, id = "id", attribute = NULL,
                     distance = list(type = "centroid"),
-                    metric = "IIC", distance_thresholds = 30000)
+                    metric = "IIC", distance_thresholds = c(5000, 10000))
 IIC
 #Two or more distance thresholds PC
-PC <- MK_dPCIIC(nodes = vegetation_patches, id = "id", attribute = NULL,
+data("raster_vegetation_patches", package = "Makurhini")
+PC <- MK_dPCIIC(nodes = raster_vegetation_patches, id = NULL, attribute = NULL,
                     distance = list(type = "centroid"),
                     metric = "PC", probability = 0.5,
-                    distance_thresholds = c(5000, 10000))
+                    distance_thresholds = 30000)
 PC
 }
 \references{

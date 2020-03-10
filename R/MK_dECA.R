@@ -1,7 +1,7 @@
 #' ECA, dA and dECA estimation using the Conefor command line.
 #'
 #' Equivalent Connected Area (ECA; if the area is used as attribute) or Equivalent Connectivity index (EC)
-#' @param nodes list of objects of class sf, sfc, sfg or SpatialPolygons. Nodes of each period of time to analyze.
+#' @param nodes list of objects of class sf, SpatialPolygonsDataFrame or raster. Nodes of each period of time to analyze.
 #' @param attribute character. Column name with the attribute in the data table selected for the nodes.
 #'  If NULL the node area will be used as node attribute, the unit area can be selected using the "area_unit" argument.
 #' @param area_unit character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
@@ -20,6 +20,7 @@
 #' @param LA numeric. Maximum landscape attribute ("units" equal to "area_unit", default equal to "ha").
 #' @param plot logical. Also, you can provide the corresponding year for each period of
 #' time analyzed, e.g., c("2011", "2014", "2017")
+#' @param parallel logical. Parallelize the function using furrr package and multiprocess plan, default = FALSE.
 #' @param write character. Path and name of the output ".csv" file
 #' @return Table with:\cr
 #' A: Area in km2\cr
@@ -60,6 +61,9 @@
 #' @importFrom utils write.csv
 #' @importFrom iterators iter
 #' @importFrom foreach foreach %dopar%
+#' @importFrom future multiprocess plan
+#' @importFrom furrr future_map
+
 MK_dECA <- function(nodes,
                       attribute = NULL,
                       area_unit = "ha",
@@ -68,13 +72,13 @@ MK_dECA <- function(nodes,
                       probability = NULL,
                       distance_thresholds = NULL,
                       LA = NULL,
-                      plot = FALSE,
+                      plot = FALSE, parallel = FALSE,
                       write = NULL){
   if (missing(nodes)) {
-    stop("error missing shapefile file of nodes")
+    stop("error missing file of nodes")
   } else {
     if (is.numeric(nodes) | is.character(nodes)) {
-      stop("error missing shapefile file of nodes")
+      stop("error missing file of nodes")
     }
   }
 
@@ -100,20 +104,40 @@ MK_dECA <- function(nodes,
     if (!dir.exists(dirname(write))) {
       stop("error, output folder does not exist")
     }
-  }
 
-  if(!is.character(write)){
-    write = NULL
+    if(!is.character(write)){
+      write = NULL
+    }
   }
 
   options(warn = -1)
   listT <- compact(nodes)
-  listT <- map(listT, function(x) { if(class(x)[1] == "sf") {
-    x <- as(x, 'Spatial') } else { x }})
+
+  if(class(listT[[1]]) != "RasterLayer"){
+    listT <- map(listT, function(x) { if(class(x)[1] == "sf") {
+      x <- as(x, 'Spatial')
+      x@data$IdTemp <- 1:nrow(x)
+      } else {
+        x@data$IdTemp <- 1:nrow(x)
+      }
+      return(x)
+      })
+  }
 
   #
   scenary <- as.vector(1:length(listT)) %>% as.character()
-  DECA <- map(listT, function(x){unit_convert(sum(gArea(x, byid = T)), "m2", area_unit)})
+  #
+  if(class(nodes[[1]])[1] == "SpatialPolygonsDataFrame"){
+    DECA <- map(listT, function(x){unit_convert(sum(gArea(x, byid = T)), "m2", area_unit)})
+    id = "IdTemp"
+  } else {
+    nres <- unit_convert(res(listT[[1]])[1]^2, "m2", area_unit)
+    DECA <- map(listT, function(x){
+      x1 <- as.data.frame(table(x[]))
+      sum(x1$Freq * nres)})
+    id = NULL
+  }
+
   DECA <- do.call(rbind, DECA) %>% as.data.frame(as.numeric(.))
   DECA <- cbind(scenary, DECA)
   rownames(DECA) <- NULL
@@ -127,44 +151,88 @@ MK_dECA <- function(nodes,
 
   x = NULL
   y = NULL
-  pb <- progress_estimated(length(listT), 0)
-  ECA <- foreach(x = iter(listT), .errorhandling = 'pass') %dopar%
-    {
-      pb$tick()$print()
-      x@data$IdTemp <- 1:nrow(x)
-      nodesfile(x, id = "IdTemp", attribute, area_unit, write = paste0(temp.1,"/nodes.txt"))
 
-      distancefile(x,  id = "IdTemp", type = distance$type, keep = distance$keep,
-                   resistance = distance$resistance, CostFun = distance$CostFun, ngh = distance$ngh,
-                   threshold = distance$threshold, mask = distance$mask,
-                   distance_unit = distance$distance_unit, distance$geometry_out,
-                   write = paste0(temp.1,"/Dist.txt"))
+  if(isFALSE(parallel)){
+    pb <- progress_estimated(length(listT), 0)
+    ECA <- foreach(x = iter(listT), .errorhandling = 'pass') %dopar%
+      {
+        pb$tick()$print()
 
-      if (is.null(distance$threshold)) {
-        pairs = "all"
-      } else {
-        pairs = "notall"
-      }
+        nodesfile(nodes = x, id = id, attribute = attribute, area_unit, write = paste0(temp.1,"/nodes.txt"))
 
-      ECA_metric <-  foreach(y = iter(distance_thresholds)) %dopar%
-        {
-          tab1 <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
-                             typeconnection = "dist", typepairs = pairs,
-                             index = metric, thdist = y,
-                             multdist = NULL, conprob = probability,
-                             onlyoverall = TRUE, LA = LA,
-                             nrestauration = FALSE,
-                             prefix = NULL, write = NULL)
-          tab1 <- tab1[[which(map(tab1, function(x) paste0(nrow(x), ncol(x))) == "32")]]
-          tab1 <- tab1[[2,2]]
-          return(tab1)
+        distancefile(x,  id = id, type = distance$type, keep = distance$keep,
+                     resistance = distance$resistance, CostFun = distance$CostFun, ngh = distance$ngh,
+                     threshold = distance$threshold, mask = distance$mask,
+                     distance_unit = distance$distance_unit, distance$geometry_out,
+                     write = paste0(temp.1,"/Dist.txt"))
+
+        if (is.null(distance$threshold)) {
+          pairs = "all"
+        } else {
+          pairs = "notall"
         }
 
-      ECA_metric2 <- do.call(rbind,  ECA_metric)
-      ECA_metric2 <- cbind(ECA_metric2, distance_thresholds)
-      ECA_metric2 <- as.data.frame(ECA_metric2)
-      names(ECA_metric2) <- c("ECA", "Distance")
-      return(ECA_metric2)
+
+        ECA_metric <-  foreach(y = iter(distance_thresholds)) %dopar%
+          {
+            tab1 <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
+                               typeconnection = "dist", typepairs = pairs,
+                               index = metric, thdist = y,
+                               multdist = NULL, conprob = probability,
+                               onlyoverall = TRUE, LA = LA,
+                               nrestauration = FALSE,
+                               prefix = NULL, write = NULL)
+            tab1 <- tab1[[which(map(tab1, function(x) paste0(nrow(x), ncol(x))) == "32")]]
+            tab1 <- tab1[[2,2]]
+            return(tab1)
+          }
+
+        ECA_metric2 <- do.call(rbind,  ECA_metric)
+        ECA_metric2 <- cbind(ECA_metric2, distance_thresholds)
+        ECA_metric2 <- as.data.frame(ECA_metric2)
+        names(ECA_metric2) <- c("ECA", "Distance")
+        return(ECA_metric2)
+      }
+  } else {
+    plan(strategy = multiprocess, gc = TRUE)
+    ECA <- future_map(listT, function(x) {
+
+        nodesfile(nodes = x, id = id, attribute = attribute, area_unit, write = paste0(temp.1,"/nodes.txt"))
+
+        distancefile(x,  id = id, type = distance$type, keep = distance$keep,
+                     resistance = distance$resistance, CostFun = distance$CostFun, ngh = distance$ngh,
+                     threshold = distance$threshold, mask = distance$mask,
+                     distance_unit = distance$distance_unit, distance$geometry_out,
+                     write = paste0(temp.1,"/Dist.txt"))
+
+        if (is.null(distance$threshold)) {
+          pairs = "all"
+        } else {
+          pairs = "notall"
+        }
+
+
+        ECA_metric <-  foreach(y = iter(distance_thresholds)) %dopar%
+          {
+            tab1 <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
+                               typeconnection = "dist", typepairs = pairs,
+                               index = metric, thdist = y,
+                               multdist = NULL, conprob = probability,
+                               onlyoverall = TRUE, LA = LA,
+                               nrestauration = FALSE,
+                               prefix = NULL, write = NULL)
+            tab1 <- tab1[[which(map(tab1, function(x) paste0(nrow(x), ncol(x))) == "32")]]
+            tab1 <- tab1[[2,2]]
+            return(tab1)
+          }
+
+        ECA_metric2 <- do.call(rbind,  ECA_metric)
+        ECA_metric2 <- cbind(ECA_metric2, distance_thresholds)
+        ECA_metric2 <- as.data.frame(ECA_metric2)
+        names(ECA_metric2) <- c("ECA", "Distance")
+        return(ECA_metric2)
+      }, .progress = TRUE)
+    future:::ClusterRegistry("stop")
     }
 
   if(!is.null(attr(warnErrList(ECA), "warningMsg")[[1]])){

@@ -125,7 +125,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
   #Select PAs
   select_distance <- max(c(transboundary, distance_thresholds)) * 2
 
-  #Simplify region
+  #Simplify  buffer region
   if(num_vert(region) > 100){
     region_1 <- tryCatch(st_simplify(x = region, dTolerance = 10000, preserveTopology = TRUE),
                         error = function(err)err)  #First selection to reduce the extent of work and dissolve polygones
@@ -140,6 +140,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
     region_1 <- st_buffer(x = region, dist = select_distance)
   }
 
+  ##
   select_PA <- tryCatch(over_sf(x = nodes, y = region_1), error = function(err)err)
 
   if (inherits(select_PA, "error")){
@@ -150,6 +151,7 @@ MK_ProtConn<- function(nodes, region, thintersect = NULL,
     nodes.1 <- nodes[!is.na(select_PA),]
   }
 
+  ################2222
   #Step 1 nodes and distances
   if (is.null(transboundary) | length(transboundary) == 1){
     if(is.null(transboundary)){

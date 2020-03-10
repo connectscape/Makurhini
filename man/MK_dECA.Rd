@@ -7,10 +7,10 @@
 MK_dECA(nodes, attribute = NULL, area_unit = "ha",
   distance = list(type = "centroid", resistance = NULL),
   metric = "IIC", probability = NULL, distance_thresholds = NULL,
-  LA = NULL, plot = FALSE, write = NULL)
+  LA = NULL, plot = FALSE, parallel = FALSE, write = NULL)
 }
 \arguments{
-\item{nodes}{list of objects of class sf, sfc, sfg or SpatialPolygons. Nodes of each period of time to analyze.}
+\item{nodes}{list of objects of class sf, SpatialPolygonsDataFrame or raster. Nodes of each period of time to analyze.}
 
 \item{attribute}{character. Column name with the attribute in the data table selected for the nodes.
 If NULL the node area will be used as node attribute, the unit area can be selected using the "area_unit" argument.}
@@ -37,6 +37,8 @@ distance_threshold = c(30000, 50000); sequence distances: distance_threshold = s
 
 \item{plot}{logical. Also, you can provide the corresponding year for each period of
 time analyzed, e.g., c("2011", "2014", "2017")}
+
+\item{parallel}{logical. Parallelize the function using furrr package and multiprocess plan, default = FALSE.}
 
 \item{write}{character. Path and name of the output ".csv" file}
 }

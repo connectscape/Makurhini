@@ -2,13 +2,14 @@
 #'
 #' Generates a table with the Core ID and the their attribute value (e.g. area in km²), using a shapefile with these values. The table is the nodefile input for CONEFOR.
 #' @param nodes sp, sf object, RasterLaryer or SpatRaster (terra package). It must be in a projected coordinate system.
-#' If nodes is a raster layer then raster values (Integer) will be taken as "id".
-#' @param id character. If nodes is a shappefile then you must specify the column name with the node ID in the shapefile data table.
-#' @param attribute character or vector. If nodes is a shappefile then you must specify the column name with the attribute in the data table
-#' selected for the nodes.  If nodes is a raster layer then must be a numeric vector with the nodes attribute. The length of the vector must be equal to the
-#'  number of nodes. The numeric vector is multiplied by the area of each node to obtain a weighted habitat index in each node.
-#'  If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
-#' @param area_unit character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
+#' @param id character. If nodes is a shappefile then you must specify the column name with the node ID
+#'  in the shapefile data table. If nodes is a raster layer then raster values (Integer) will be taken as "id".
+#' @param attribute character or vector. If nodes is a shappefile then you must specify the column name
+#'  with the attribute in the data table selected for the nodes. If nodes is a raster layer then it must be
+#'  a numeric vector with the node's attribute. The length of the vector must be equal to the number of nodes.
+#'   The numeric vector is multiplied by the area of each node to obtain a weighted habitat index.
+#'   If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
+#' @param area_unit character. If attribute is NULL you can set an area unit, ?unit_covert
 #' compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to "m2".
 #' @param restauration character or vector. If nodes is a shappefile then you must specify the name of the column
 #' with restauration value. If nodes is a raster layer then must be a numeric vector with restauration values
@@ -89,7 +90,6 @@ nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauratio
 
     if(is.null(restauration)){
       names(nodes) <- c("Id", "attribute")
-      colvalues <- 1:2
       if (!is.null(multiple)) {
         nodes$mult <- multiple
         colvalues <- c(1, 3, 2)
@@ -114,7 +114,11 @@ nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauratio
     stop("error missing file of nodes. Check the nodes class")
   }
 
-  nodes[,1] <- as.integer(nodes[,1])
+  if(!is.null(levels(nodes$Id))){
+    nodes[,1] <- as.numeric(as.character(nodes$Id))
+  }
+
+
 
   if(is.null(multiple)){
     if(is.null(write)){

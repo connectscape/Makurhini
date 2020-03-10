@@ -23,9 +23,9 @@ dECAfun<-function(dECA, dA) {
 
 dECAfun2<-function(dECA, dA) {
   if (dECA < dA & dA < 0){
-    TC <- "Connectivity loss"
+    TC <- "+ Connectivity loss"
 } else if (dA < dECA & dECA < 0){
-    TC <- "Habitat loss"
+    TC <- "+ Habitat loss"
   } else if (dECA == dA & dA < 0) {
     TC <- "Equal loss"
   } else {

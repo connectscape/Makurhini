@@ -8,22 +8,34 @@ MK_dPCIIC(nodes, id = NULL, attribute = NULL, area_unit = "ha",
   restauration = NULL, distance = list(type = "centroid", resistance =
   NULL), metric = c("IIC", "PC"), probability,
   distance_thresholds = NULL, overall = FALSE, dA = FALSE,
-  dvars = FALSE, LA = NULL, parallel = FALSE, write = NULL)
+  dvars = FALSE, LA = NULL, parallel = FALSE,
+  rasterparallel = FALSE, write = NULL)
 }
 \arguments{
-\item{nodes}{Object of class sf, sfc, sfg or SpatialPolygons.The shapefile must be in a projected coordinate system.}
+\item{nodes}{Object of class sf, SpatialPolygonsDataFrame or raster.
+It must be in a projected coordinate system.}
 
-\item{id}{character. Column name with the nodes id.If NULL, then a new temporal id will be generated.}
+\item{id}{character. If nodes is a shapefile then you can specify the column name with the node ID.
+If NULL, then a new id will be generated. If nodes is a raster layer then raster values (Integer) will be taken as "id".}
 
-\item{attribute}{character. Column name with the nodes attribute. If NULL, then the patch area (ha) will be estimated and used as the attribute.}
+\item{attribute}{character or vector. If nodes is a shappefile then you must specify the column name
+with the attribute in the data table selected for the nodes. If nodes is a raster layer then it must be
+a numeric vector with the node's attribute. The length of the vector must be equal to the number of nodes.
+ The numeric vector is multiplied by the area of each node to obtain a weighted habitat index.
+ If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.}
 
-\item{area_unit}{character. If attribute is NULL you can set an area unit (e.g., "km2", "cm2", "ha"; see Makurhini::unit_convert). Default equal to hectares "ha".}
+\item{area_unit}{character. If attribute is NULL you can set an area unit (e.g., "km2", "cm2", "ha";
+see Makurhini::unit_convert). Default equal to hectares "ha".}
 
-\item{restauration}{character. Name of the column with restauration value. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node to add to the initial landscape (restored).}
+\item{restauration}{character or vector. If nodes is a shappefile then you must specify the name of the column
+with restauration value. If nodes is a raster layer then must be a numeric vector with restauration values
+to each node in the raster. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node
+ to add to the initial landscape (restored).}
 
-\item{distance}{list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the distances: "centroid" (faster), "edge", "hausdorff-edge",
-"least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
-  To See more arguments consult the help function of distancefile().}
+\item{distance}{list. Distance parameters. For example: type, resistance,or keep. For "type" choose one
+of the distances: "centroid" (faster), "edge", "hausdorff-edge",
+"least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have
+to use the "resistance" argument. To see more arguments see the ?distancefile.}
 
 \item{metric}{character. Choose a connectivity metric: "IIC" considering topologycal distances or "PC" considering maximum product probabilities.}
 
@@ -40,7 +52,9 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
 
 \item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).}
 
-\item{parallel}{logical. If If nodes is a raster then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.}
+\item{parallel}{logical. Parallelize the function using furrr package and multiprocess plan, default = FALSE.}
+
+\item{rasterparallel}{logical. If parallel is FALSE and nodes is a raster then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.}
 
 \item{write}{character. Write output shapefile and overall table (if TRUE overall argument).
 It is necessary to specify the "Folder direction" + "Initial prefix",  for example, "C:/ejemplo".}
@@ -49,20 +63,27 @@ It is necessary to specify the "Folder direction" + "Initial prefix",  for examp
 Use this function to calculate the PC and IIC indexes under one or several distance thresholds.
 }
 \examples{
+library(Makurhini)
 data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) # Number of patches
-#One distance threshold IIC
+#Two distance threshold,
 IIC <- MK_dPCIIC(nodes = vegetation_patches, id = "id", attribute = NULL,
                     distance = list(type = "centroid"),
-                    metric = "IIC", distance_thresholds = c(5000, 10000))
+                    metric = "IIC", distance_thresholds = c(5000, 10000)) # 5 and 10 km
 IIC
-#Two or more distance thresholds PC
+#Using raster
 data("raster_vegetation_patches", package = "Makurhini")
 PC <- MK_dPCIIC(nodes = raster_vegetation_patches, id = NULL, attribute = NULL,
                     distance = list(type = "centroid"),
                     metric = "PC", probability = 0.5,
-                    distance_thresholds = 30000)
+                    distance_thresholds = 40000) # 40 km
 PC
+
+PC_parallel <- MK_dPCIIC(nodes = raster_vegetation_patches, id = NULL, attribute = NULL,
+                    distance = list(type = "centroid"),
+                    metric = "PC", probability = 0.5,
+                    distance_thresholds = c(40000, 60000), parallel=TRUE) #40 and 60 km
+PC_parallel
 }
 \references{
 Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at \url{www.conefor.org}.\cr

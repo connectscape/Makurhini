@@ -8,20 +8,28 @@ MK_BCentrality(nodes, id, attribute = NULL, area_unit = "ha",
   distance = list(type = "centroid", resistance = NULL),
   metric = c("BC", "BCIIC", "BCPC"), distance_thresholds = NULL,
   probability = NULL, LA = NULL, dA = FALSE, dvars = FALSE,
-  write = NULL)
+  parallel = FALSE, rasterparallel = FALSE, write = NULL)
 }
 \arguments{
-\item{nodes}{Object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}
+\item{nodes}{Object of class sf, SpatialPolygonsDataFrame or raster.
+The shapefile must be in a projected coordinate system.}
 
-\item{id}{character. Column name with the nodes id. If NULL, then a new temporal id will be generated.}
+\item{id}{character. If nodes is a shapefile then you can specify the column name with the node ID.
+If NULL, then a new id will be generated.}
 
-\item{attribute}{character. Column name with the nodes attribute. If NULL, then the patch area (ha) will be estimated and used as the attribute.}
+\item{attribute}{character or vector. If nodes is a shappefile then you must specify the column name
+with the attribute in the data table selected for the nodes. If nodes is a raster layer then it must be
+a numeric vector with the node's attribute. The length of the vector must be equal to the number of nodes.
+ The numeric vector is multiplied by the area of each node to obtain a weighted habitat index.
+ If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.}
 
-\item{area_unit}{character. If attribute is NULL you can set an area unit, udunits2 package compatible unit (e.g., "km2", "cm2", "ha"). Default equal to square meters "ha".}
+\item{area_unit}{character. If attribute is NULL you can set an area unit, ?unit_covert
+compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to "m2".}
 
-\item{distance}{list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the distances: "centroid" (faster), "edge",
-"least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
- To See more arguments consult the help function of distancefile().}
+\item{distance}{list. Distance parameters. For example: type, resistance,or keep. For "type" choose one
+of the distances: "centroid" (faster), "edge", "hausdorff-edge",
+"least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have
+to use the "resistance" argument. To see more arguments see the ?distancefile.}
 
 \item{metric}{character. Choose a Betweenness Centrality Metric: "BC" or "BCIIC" considering topologycal distances or "BCPC" considering maximum product probabilities.}
 
@@ -36,26 +44,40 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
 
 \item{dvars}{logical. If TRUE, then the absolute variation will be added to the node's importance result.}
 
+\item{parallel}{lofical. Parallelize the function using furrr package and multiprocess plan, default = FALSE.}
+
+\item{rasterparallel}{logical. If parallel is FALSE and nodes is a raster then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.}
+
 \item{write}{character. Write output shapefile, example, "C:/ejemplo.shp".}
 }
 \description{
 Use this function to calculate the BC, BCIIC and BCPC indexes under one or several distance thresholds.
 }
 \examples{
+library(Makurhini)
 data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) #Number of patches
 
-#One distance threshold
-MK_BCentrality(nodes = vegetation_patches, id = "id",
+#Two distance thresholds
+BCIIC <- MK_BCentrality(nodes = vegetation_patches, id = "id",
             distance = list(type = "centroid"),
             metric = "BCIIC", LA = NULL,
-            distance_thresholds = 30000) #30 km
+            distance_thresholds = c(10000, 30000)) #10 and 30 km
 
-#Two or more distance thresholds
-MK_BCentrality(nodes = vegetation_patches, id = "id", attribute = NULL,
+#Using raster
+data("raster_vegetation_patches", package = "Makurhini")
+BCPC <- MK_BCentrality(nodes = raster_vegetation_patches, id = "id",
+           attribute = NULL,
            distance = list(type = "centroid"),
-           metric = "BCIIC", LA = NULL,
-           distance_thresholds = c(10000, 30000)) #10 and 30 km
+           metric = "BCPC", LA = NULL,
+           distance_thresholds = 40000) #40 km
+
+BCPC_parallel <- MK_BCentrality(nodes = raster_vegetation_patches, id = "id",
+                      attribute = NULL,
+                      distance = list(type = "centroid"),
+                      metric = "BCPC", LA = NULL,
+                      distance_thresholds = c(40000, 60000), parallel = TRUE) #40 and 60 km
+
 }
 \references{
 Saura, S. and Torne, J. (2012). Conefor 2.6. Universidad Politecnica de Madrid. Available at \url{www.conefor.org}.\cr

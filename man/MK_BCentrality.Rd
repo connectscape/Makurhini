@@ -69,14 +69,16 @@ data("raster_vegetation_patches", package = "Makurhini")
 BCPC <- MK_BCentrality(nodes = raster_vegetation_patches, id = "id",
            attribute = NULL,
            distance = list(type = "centroid"),
-           metric = "BCPC", LA = NULL,
+           metric = "BCPC", probability = 0.5,
+           LA = NULL,
            distance_thresholds = 40000) #40 km
 
-BCPC_parallel <- MK_BCentrality(nodes = raster_vegetation_patches, id = "id",
-                      attribute = NULL,
-                      distance = list(type = "centroid"),
-                      metric = "BCPC", LA = NULL,
-                      distance_thresholds = c(40000, 60000), parallel = TRUE) #40 and 60 km
+BCPC_parallel <- MK_BCentrality(nodes = raster_vegetation_patches,
+                    id = "id", attribute = NULL,
+                    distance = list(type = "centroid"),
+                    metric = "BCPC", LA = NULL, probability = 0.5,
+                    distance_thresholds = c(40000, 60000),
+                    parallel = TRUE) #40 and 60 km
 
 }
 \references{

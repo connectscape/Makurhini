@@ -32,7 +32,11 @@
 #' If NULL, then a Euclidean distance (centroid) will be calculated to find these distances.
 #' @param multiple character. If nodes is a shapefile then you can use this argument. Name of the column with the zone to which each core area belongs.
 #' @param prefix character. Initial prefix, use in case of processing several sites at the same time in CONEFOR command line.
-#' @param parallel logical. If If nodes is a raster then you can use this argument for larges RasterLayer.
+#' @param parallel logical. If nodes is a raster then you can use this argument for larges RasterLayer.
+#' @param bounding_circles numeric. If a value is entered, this will create bounding circles around pairs of core areas
+#'  (recommended for speed, large resistance rasters or pixel resolution < 150 m).
+#'  Buffer distances are entered in map units. Also, the function is parallelized using
+#'   and furrr package and multiprocess plan, default = NULL.
 #' @param write character. Choose the output folder if you use multiple argument otherwise, place the output path, with
 #' the name and extension ".txt".
 #' @return Exports a euclidean or cost distance table between pairs of nodes.
@@ -61,8 +65,9 @@ distancefile <- function(nodes, id,
                          mask = NULL,
                          threshold = NULL,
                          geometry_out = NULL,
+                         bounding_circles = NULL,
                          multiple = NULL, prefix = NULL,
-                         parallel = FALSE,
+                         parallel = FALSE, edgeParallel = FALSE,
                          write = NULL){
 
   if (missing(nodes)) {
@@ -98,7 +103,7 @@ distancefile <- function(nodes, id,
 
         } else if (type %in%  c("least-cost", "commute-time")){
           distance <- cost_distances(x = nodes, id = id, type_distance = type, resistance = resistance,
-                                     CostFun = CostFun, ngh = ngh,
+                                     CostFun = CostFun, ngh = ngh, bounding_circles = bounding_circles ,
                                      threshold = threshold, mask = mask, geometry_out = geometry_out,
                                      write_table = write)
           return(distance)
@@ -123,7 +128,7 @@ distancefile <- function(nodes, id,
             save <- paste(write, x, ".txt") } else { save <- NULL }
             nodes.1 <- nodes[nodes@data[,which(colnames(nodes@data) == multiple)] == x,]
             distance <- cost_distances(x = nodes.1, id = id, type_distance = type, resistance = resistance,
-                                       CostFun = CostFun, ngh = ngh,
+                                       CostFun = CostFun, ngh = ngh, bounding_circles = bounding_circles,
                                        threshold = threshold, mask = mask, geometry_out = geometry_out,
                                        write_table = save)
             return(distance) })
@@ -191,7 +196,6 @@ distancefile <- function(nodes, id,
                                             keep = keep, threshold = threshold,  write_table = write)
 
           } else {
-
             if(isTRUE(parallel)){
               rp <- unique(values(nodes))
               rp <- as.vector(rp)
@@ -222,7 +226,7 @@ distancefile <- function(nodes, id,
 
             }
             distance <- euclidean_distances(x = pol_nodes, id = "Id", type_distance = "edge",
-                                            distance_unit = distance_unit,
+                                            distance_unit = distance_unit, edgeParallel = parallel,
                                             keep = keep, threshold = threshold,  write_table = write)
 
           }
@@ -272,7 +276,7 @@ distancefile <- function(nodes, id,
           }
 
           distance <- cost_distances(x = coords, id = "Id", type_distance = type, resistance = resistance,
-                                     CostFun = CostFun, ngh = ngh,
+                                     CostFun = CostFun, ngh = ngh, bounding_circles = bounding_circles ,
                                      threshold = threshold, mask = mask, geometry_out = geometry_out,
                                      write_table = write)
           return(distance)

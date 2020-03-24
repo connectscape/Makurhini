@@ -66,7 +66,7 @@ BCIIC <- MK_BCentrality(nodes = vegetation_patches, id = "id",
 
 #Using raster
 data("raster_vegetation_patches", package = "Makurhini")
-BCPC <- MK_BCentrality(nodes = raster_vegetation_patches, id = "id",
+BCPC <- MK_BCentrality(nodes = raster_vegetation_patches,
            attribute = NULL,
            distance = list(type = "centroid"),
            metric = "BCPC", probability = 0.5,

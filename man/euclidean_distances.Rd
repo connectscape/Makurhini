@@ -5,8 +5,8 @@
 \title{Euclidian distances}
 \usage{
 euclidean_distances(x, id, type_distance = "centroid",
-  distance_unit = "m", keep = NULL, threshold = NULL,
-  write_table = NULL)
+  distance_unit = "m", keep = 0.05, threshold = NULL,
+  edgeParallel = FALSE, write_table = NULL)
 }
 \arguments{
 \item{x}{object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}
@@ -22,6 +22,8 @@ number of vertices (from rmapshaper::ms_simplif). The value can range from 0 to 
  the higher the speed but the greater uncertainty.}
 
 \item{threshold}{numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.}
+
+\item{edgeParallel}{lofical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.}
 
 \item{write_table}{character. "" indicates output to the console.}
 }

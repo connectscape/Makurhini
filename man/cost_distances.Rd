@@ -6,7 +6,7 @@
 \usage{
 cost_distances(x, id, type_distance = "least-cost", resistance = NULL,
   CostFun = NULL, ngh = NULL, mask = NULL, threshold = NULL,
-  geometry_out = NULL, write_table = NULL)
+  geometry_out = NULL, bounding_circles = NULL, write_table = NULL)
 }
 \arguments{
 \item{x}{object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}
@@ -18,18 +18,26 @@ cost_distances(x, id, type_distance = "least-cost", resistance = NULL,
 
 \item{resistance}{raster. Raster object with resistance values (landscape friction).}
 
-\item{CostFun}{A function to compute the cost to move between cells.The default is the mean (isotropic cost distance):  function(x) mean(x).}
+\item{CostFun}{A function to compute the cost to move between cells.The default is the conductance
+(isotropic cost distance):  function(x) 1/mean(x).}
 
-\item{ngh}{numeric.  Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16 (king’s and knight’s moves). Default equal 16.}
+\item{ngh}{numeric. Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16 (king’s and knight’s moves). Default equal 16.}
 
 \item{mask}{object of class sf, sfc, sfg or SpatialPolygons. For higher processing speed use this option to clip the resistance at the extent of the mask.}
 
 \item{threshold}{numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.}
 
-\item{geometry_out}{numeric. If some spatial geometries are out of the resistance extent, then a buffer zone the large enough to cover these spatial geometries and with this numeric value will be added to the resistance, so that it is possibñe to calculate a cost distance value for the pairs of nodes that involve these geometries.
-If NULL, then a Euclidean distance will be calculated to find these distances.}
+\item{geometry_out}{numeric. Avoids the "Inf" error and corrects the "Inf" distance values when some spatial geometries are out
+of the resistance extent. The raster NA values will be replaced by a CONDUCTANCE value that must be provided by the user
+using this argument, so that it is possible to calculate cost distances for all the pairs of nodes.
+ If NULL, then a Euclidean distance will be calculated to find these distances.}
 
-\item{write_table}{character.  "" indicates output to the console.}
+\item{bounding_circles}{numeric. If a value is entered, this will create bounding circles around pairs of core areas
+(recommended for speed, large resistance rasters or pixel resolution < 150 m).
+Buffer distances are entered in map units. Also, the function is parallelized using
+ and furrr package and multiprocess plan, default = NULL.}
+
+\item{write_table}{character. "" indicates output to the console.}
 }
 \value{
 cost distance matrix

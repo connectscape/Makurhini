@@ -23,7 +23,8 @@ Suggests:
     knitr,
     rmarkdown,
     stats,
-    utils
+    utils,
+    deldir
 VignetteBuilder: knitr
 Imports: 
     sf,
@@ -54,6 +55,7 @@ Imports:
     fasterize,
     htmltools,
     webshot,
-    boot
+    boot,
+    dismo
 Depends: 
     R (>= 3.5)

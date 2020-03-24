@@ -133,10 +133,16 @@ MK_dPCIIC <- function(nodes, id = NULL, attribute  = NULL,
             multiple = NULL, restauration = restauration,
             prefix=NULL, write = paste0(temp.1,"/nodes.txt"))
 
-  distancefile(nodes,  id = id, type = distance$type, keep = distance$keep,
-               resistance = distance$resistance, CostFun = distance$CostFun, ngh = distance$ngh,
-               threshold = distance$threshold, mask = distance$mask,
-               distance_unit = distance$distance_unit, geometry_out = distance$geometry_out,
+  distancefile(nodes = nodes,  id = id, type = distance$type,
+               distance_unit = distance$distance_unit, keep = distance$keep,
+               resistance = distance$resistance,
+               CostFun = distance$CostFun, ngh = distance$ngh,
+               mask = distance$mask,
+               threshold = distance$threshold,
+               geometry_out = distance$geometry_out,
+               bounding_circles = distance$bounding_circles,
+               parallel = distance$parallel,
+               edgeParallel = distance$edgeParallel,
                write = paste0(temp.1,"/Dist.txt"))
 
   setwd(temp.1)

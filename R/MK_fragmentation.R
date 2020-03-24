@@ -2,9 +2,11 @@
 #'
 #' Calculate patch and landscape statistics
 #' @param patches Object of class sf, sfc, sfg or SpatialPolygons with individual patches. The shapefile must be in a projected coordinate system.
-#' @param edge_distance Numeric. Distance to edge. Default equal 500 m (Haddad et al. 2015)
-#' @param min_patch_area Numeric. Minimum patch area in km^2. Default equal 100 km^2(Haddad et al. 2015)
-#' @param landscape_area Numeric. Total landscape area in km^2 (optional).If NULL the total patch area will be used.
+#' @param edge_distance Numeric. Distance to edge in meters. Default equal 500 m (Haddad et al. 2015)
+#' @param min_patch_area Numeric. Minimum patch area. Default equal 100 km2(Haddad et al. 2015)
+#' @param landscape_area Numeric. Total landscape area in km2 (optional). If NULL the total patch area will be used.
+#' @param area_unit character. You can set an area unit (e.g., "km2", "cm2", "m2", "ha"; see Makurhini::unit_convert). Default equal to square kilometers "km2".
+#' @param perimeter_unit character. You can set a perimeter unit (e.g., "km", "cm", "m", "ha"; see Makurhini::unit_convert). Default equal to kilometers "km".
 #' @param plot Logical. Basic histograms and core area - edge map.
 #' @param write Character. Write the following outputs: Fragmentation.csv, Fragmentation.shp and plots. It's necessary to specify the path and prefix, for example: "C:/Folder/Fragmentation".
 #' @return
@@ -37,7 +39,6 @@
 #' fragmentation$`Summary landscape metrics (Viewer Panel)`
 #' #Shapefile
 #' fragmentation$`Patch statistics shapefile`
-#'
 #' @export
 #' @importFrom magrittr %>%
 #' @import sf
@@ -48,12 +49,13 @@
 #' @importFrom formattable formattable formatter style
 #' @importFrom ggpubr ggarrange
 MK_fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100, landscape_area = NULL,
-                            plot = FALSE, write = NULL){
+                             area_unit = "km2", perimeter_unit = "km",
+                             plot = FALSE, write = NULL){
   if (missing(patches)) {
     stop("error missing shapefile file of patches")
     } else {
     if (is.numeric(patches) | is.character(patches)) {
-      stop("error missing shapefile file of nodes")
+      stop("error missing shapefile file of patches")
     }
   }
 
@@ -76,10 +78,10 @@ MK_fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
 
   ###Patch metrics
   CoreA <- st_buffer(patches, dist = -(edge_distance))
-  data <- cbind(data, data.frame(Area = cbind(round((st_area(patches, byid = T) * 1e-6), 3)),
-              CA = cbind(round(as.numeric(st_area(CoreA) * 1e-6), 3))))
+  data <- cbind(data, data.frame(Area = cbind(round(unit_convert(st_area(patches, byid = T), "m2", area_unit), 3)),
+              CA = cbind(round(unit_convert(st_area(CoreA), "m2", area_unit), 3))))
   data$CAPercent <- round((data$CA * 100) / data$Area, 3)
-  data$Perimeter <- cbind(round((st_length(st_boundary(patches)) * 0.001), 3))
+  data$Perimeter <- cbind(round(unit_convert(st_length(st_boundary(patches)), "m", perimeter_unit), 3))
   data$EdgePercent <- round((100 - data$CAPercent), 3)
   data$PARA <- round(data$Area / data$Perimeter, 3)
   data$ShapeIndex <- round((data$Perimeter / (2 * pi * sqrt(data$Area/pi))), 3)
@@ -122,11 +124,11 @@ MK_fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
   LM[1] <- NULL
 
   #Plot
-  if(isTRUE(plot) & !is.null(write)) {
+  if(!is.null(write)) {
     par(mfrow = c(1,1))
     tiff(paste0(write, '_fragmentacion.tif'), width = 1178, height = 882)
     plot(as(patches, "Spatial"), col = "red")
-    plot(CoreA, col = "#1a9641", add = T)
+    plot(as(CoreA, "Spatial"), col = "#1a9641", add = T)
     axis(1)
     axis(2)
     box()
@@ -174,7 +176,9 @@ MK_fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
     ggsave(paste0(write, '_fragStats.tif'), device = "tiff", width = 15,
            height = 11, compression = "lzw")
 
-    } else if (isTRUE(plot) & is.null(write)) {
+    }
+
+  if (isTRUE(plot)) {
       p1 <- ggplot(data, aes(x = log10(.data$Area))) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T) +
@@ -212,7 +216,11 @@ MK_fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
   if (!is.null(write)) {
     write.csv(LM, paste0(write, '_LandscapeMetrics.csv'))
     write.csv(data, paste0(write, '_PatchMetrics.csv'))
-    write_sf(patches, paste0(write, '_PatchMetrics.shp'), delete_layer = TRUE)
+    n <- which(names(patches) %in% c("Area", "CA", "CAPercent", "Perimeter", "EdgePercent", "PARA",
+                          "ShapeIndex", "FRAC"))
+    patches_2 <- patches
+    names(patches_2)[n] <- c("Area", "CA", "CA%", "P", "Edge%", "PARA", "ShapeI", "FRAC")
+    write_sf(patches_2, paste0(write, '_PatchMetrics.shp'), delete_layer = TRUE)
   }
 
   ###Return

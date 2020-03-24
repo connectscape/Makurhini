@@ -43,7 +43,7 @@
 #'
 #' #Using raster
 #' data("raster_vegetation_patches", package = "Makurhini")
-#' BCPC <- MK_BCentrality(nodes = raster_vegetation_patches, id = "id",
+#' BCPC <- MK_BCentrality(nodes = raster_vegetation_patches,
 #'            attribute = NULL,
 #'            distance = list(type = "centroid"),
 #'            metric = "BCPC", probability = 0.5,
@@ -128,10 +128,17 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
   nodesfile(nodes, id = id, attribute = attribute, area_unit = area_unit,
             write = paste0(temp.1, "/nodes.txt"))
 
-  distancefile(nodes,  id = id, type = distance$type, keep = distance$keep,
-               resistance = distance$resistance, CostFun = distance$CostFun, ngh = distance$ngh,
-               threshold = distance$threshold, mask = distance$mask,
-               distance_unit = distance$distance_unit, geometry_out = distance$geometry_out,
+
+  distancefile(nodes = nodes,  id = id, type = distance$type,
+               distance_unit = distance$distance_unit, keep = distance$keep,
+               resistance = distance$resistance,
+               CostFun = distance$CostFun, ngh = distance$ngh,
+               mask = distance$mask,
+               threshold = distance$threshold,
+               geometry_out = distance$geometry_out,
+               bounding_circles = distance$bounding_circles,
+               parallel = distance$parallel,
+               edgeParallel = distance$edgeParallel,
                write = paste0(temp.1,"/Dist.txt"))
 
   setwd(temp.1)

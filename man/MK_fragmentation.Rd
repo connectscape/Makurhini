@@ -5,16 +5,21 @@
 \title{Fragmentation Statistics}
 \usage{
 MK_fragmentation(patches, edge_distance = 500, min_patch_area = 100,
-  landscape_area = NULL, plot = FALSE, write = NULL)
+  landscape_area = NULL, area_unit = "km2", perimeter_unit = "km",
+  plot = FALSE, write = NULL)
 }
 \arguments{
 \item{patches}{Object of class sf, sfc, sfg or SpatialPolygons with individual patches. The shapefile must be in a projected coordinate system.}
 
-\item{edge_distance}{Numeric. Distance to edge. Default equal 500 m (Haddad et al. 2015)}
+\item{edge_distance}{Numeric. Distance to edge in meters. Default equal 500 m (Haddad et al. 2015)}
 
-\item{min_patch_area}{Numeric. Minimum patch area in km^2. Default equal 100 km^2(Haddad et al. 2015)}
+\item{min_patch_area}{Numeric. Minimum patch area. Default equal 100 km2(Haddad et al. 2015)}
 
-\item{landscape_area}{Numeric. Total landscape area in km^2 (optional).If NULL the total patch area will be used.}
+\item{landscape_area}{Numeric. Total landscape area in km2 (optional). If NULL the total patch area will be used.}
+
+\item{area_unit}{character. You can set an area unit (e.g., "km2", "cm2", "m2", "ha"; see Makurhini::unit_convert). Default equal to square kilometers "km2".}
+
+\item{perimeter_unit}{character. You can set a perimeter unit (e.g., "km", "cm", "m", "ha"; see Makurhini::unit_convert). Default equal to kilometers "km".}
 
 \item{plot}{Logical. Basic histograms and core area - edge map.}
 
@@ -50,7 +55,6 @@ fragmentation <- MK_fragmentation(patches = vegetation_patches, edge_distance = 
 fragmentation$`Summary landscape metrics (Viewer Panel)`
 #Shapefile
 fragmentation$`Patch statistics shapefile`
-
 }
 \references{
 McGarigal, K., S. A. Cushman, M. C. Neel, and E. Ene. 2002. FRAGSTATS: Spatial Pattern Analysis Program for Categorical Maps. Computer software program produced by the authors at the University of Massachusetts, Amherst. Available at the following web site:

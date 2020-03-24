@@ -7,7 +7,8 @@
 distancefile(nodes, id, type = "centroid", distance_unit = NULL,
   keep = NULL, resistance = NULL, CostFun = NULL, ngh = NULL,
   mask = NULL, threshold = NULL, geometry_out = NULL,
-  multiple = NULL, prefix = NULL, parallel = FALSE, write = NULL)
+  bounding_circles = NULL, multiple = NULL, prefix = NULL,
+  parallel = FALSE, edgeParallel = FALSE, write = NULL)
 }
 \arguments{
 \item{nodes}{object of class sf, SpatialPolygons, RasterLaryer or SpatRaster (terra package). It must be in a projected coordinate system.
@@ -50,11 +51,16 @@ these spatial geometries and with this numeric value will be added to the resist
 calculate a cost distance value for the pairs of nodes that involve these geometries and avoid an error.
 If NULL, then a Euclidean distance (centroid) will be calculated to find these distances.}
 
+\item{bounding_circles}{numeric. If a value is entered, this will create bounding circles around pairs of core areas
+(recommended for speed, large resistance rasters or pixel resolution < 150 m).
+Buffer distances are entered in map units. Also, the function is parallelized using
+ and furrr package and multiprocess plan, default = NULL.}
+
 \item{multiple}{character. If nodes is a shapefile then you can use this argument. Name of the column with the zone to which each core area belongs.}
 
 \item{prefix}{character. Initial prefix, use in case of processing several sites at the same time in CONEFOR command line.}
 
-\item{parallel}{logical. If If nodes is a raster then you can use this argument for larges RasterLayer.}
+\item{parallel}{logical. If nodes is a raster then you can use this argument for larges RasterLayer.}
 
 \item{write}{character. Choose the output folder if you use multiple argument otherwise, place the output path, with
 the name and extension ".txt".}

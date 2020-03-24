@@ -8,17 +8,17 @@
 #'  number of vertices (from rmapshaper::ms_simplif). The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
 #'   the higher the speed but the greater uncertainty.
 #' @param threshold numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
+#' @param edgeParallel lofical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.
 #' @param write_table character. "" indicates output to the console.
 #' @return Pairwise Euclidean distance table
 #' @references Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitized Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
-#' @export
 #' @importFrom rgeos gCentroid gDistance
 #' @importFrom rmapshaper ms_simplify
 #' @importFrom methods as
 #' @importFrom utils combn write.table
 
 euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit = "m",
-                               keep = NULL, threshold = NULL , write_table = NULL){
+                               keep = 0.05, threshold = NULL, edgeParallel = FALSE, write_table = NULL){
   if(missing(id)){
     stop("missing id")
   }
@@ -30,24 +30,58 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
     x <- as(x, 'Spatial')
   }
 
-  if (!is.null(write_table)) {
-    if (!dir.exists(dirname(write_table))) {
+  if(!is.null(write_table)) {
+    if(!dir.exists(dirname(write_table))) {
       stop("error, output folder does not exist")
     }
-  }
-
-  if (!is.null(keep)){
-    x_id <- x@data[,which(colnames(x@data) == id)]
-    x <- ms_simplify(input = x, keep = keep, keep_shapes = TRUE, explode = FALSE)
-    x$id <- x_id
-    names(x) <- id
   }
 
   if (type_distance ==  "centroid"){
     centroid_1 <- gCentroid(x, byid = TRUE)
     distance <- gDistance(centroid_1, byid = TRUE)
+
     } else if (type_distance == "edge"){
-      distance <- gDistance(x, byid = TRUE)
+      if(isFALSE(edgeParallel)){
+        if(!is.null(keep)){
+          x_id <- x@data[,which(colnames(x@data) == id)]
+          x <- ms_simplify(input = x, keep = keep, keep_shapes = TRUE, explode = FALSE)
+          x$id <- x_id
+          names(x) <- id
+        }
+        distance <- gDistance(x, byid = TRUE)
+      } else {
+        i = 0
+        j = 0
+        ng = round(nrow(x)/8)
+        x2 <- list()
+
+        repeat {
+          i <- i + round(ng)
+          ii <- i-(ng-1)
+          if(i > nrow(x)){
+            i <- nrow(x)
+          }
+          r <- x[ii:i,]
+          j <- j+1
+          x2[[j]] <- r
+
+          if (i == nrow(x)){
+            break
+          }
+        }
+        rm(r,i,ii,j)
+
+        plan(strategy = multiprocess, gc = TRUE)
+        distance <- future_map(x2, function(d){
+          if(!is.null(keep)){
+          d <- ms_simplify(input = d, keep = keep, keep_shapes = TRUE, explode = FALSE)
+          }
+          distance2 <- gDistance(d, x, byid = TRUE)
+          return(distance2)
+        })
+        distance <- do.call(cbind, distance)
+        future:::ClusterRegistry("stop")
+      }
       } else if (type_distance == "hausdorff-edge"){
         distance <- gDistance(x, byid = TRUE, hausdorff = TRUE)
       } else {
@@ -88,34 +122,49 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 #' @param type_distance character. Choose one of the distances: "least-cost" (default) that takes into account obstacles and local friction of the landscape (See, gdistance package);
 #'  "commute-time" that is analogous to the resistance distance. This distance is based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).
 #' @param resistance raster. Raster object with resistance values (landscape friction).
-#' @param CostFun A function to compute the cost to move between cells.The default is the mean (isotropic cost distance):  function(x) mean(x).
-#' @param ngh numeric.  Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16 (king’s and knight’s moves). Default equal 16.
+#' @param CostFun A function to compute the cost to move between cells.The default is the conductance
+#'  (isotropic cost distance):  function(x) 1/mean(x).
+#' @param ngh numeric. Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16 (king’s and knight’s moves). Default equal 16.
 #' @param mask object of class sf, sfc, sfg or SpatialPolygons. For higher processing speed use this option to clip the resistance at the extent of the mask.
 #' @param threshold numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
-#' @param geometry_out numeric. If some spatial geometries are out of the resistance extent, then a buffer zone the large enough to cover these spatial geometries and with this numeric value will be added to the resistance, so that it is possibñe to calculate a cost distance value for the pairs of nodes that involve these geometries.
+#' @param geometry_out numeric. Avoids the "Inf" error and corrects the "Inf" distance values when some spatial geometries are out
+#' of the resistance extent. The raster NA values will be replaced by a CONDUCTANCE value that must be provided by the user
+#' using this argument, so that it is possible to calculate cost distances for all the pairs of nodes.
 #'  If NULL, then a Euclidean distance will be calculated to find these distances.
-#' @param write_table character.  "" indicates output to the console.
+#' @param bounding_circles numeric. If a value is entered, this will create bounding circles around pairs of core areas
+#'  (recommended for speed, large resistance rasters or pixel resolution < 150 m).
+#'  Buffer distances are entered in map units. Also, the function is parallelized using
+#'   and furrr package and multiprocess plan, default = NULL.
+#' @param write_table character. "" indicates output to the console.
 #' @return cost distance matrix
 #' @references https://cran.r-project.org/web/packages/gdistance/gdistance.pdf
-#' @export
 #' @importFrom magrittr %>%
 #' @import sf
 #' @importFrom purrr map_dbl
-#' @importFrom raster crop buffer maxValue mosaic
+#' @importFrom rgeos gTouches gCentroid
+#' @importFrom dismo voronoi
+#' @importFrom raster crop mask extend buffer raster
 #' @importFrom gdistance transition geoCorrection costDistance commuteDistance
-#' @importFrom methods as
+#' @importFrom methods as new
 #' @importFrom stats na.omit
 #' @importFrom utils combn write.table
+#' @importFrom future multiprocess plan
+#' @importFrom furrr future_map
 
-cost_distances <- function(x, id, type_distance = "least-cost", resistance = NULL, CostFun = NULL, ngh = NULL,
-                           mask = NULL, threshold = NULL, geometry_out = NULL, write_table = NULL){
+cost_distances <- function(x, id, type_distance = "least-cost", resistance = NULL, CostFun = NULL,
+                           ngh = NULL, mask = NULL, threshold = NULL,
+                           geometry_out = NULL,
+                           bounding_circles = NULL,
+                           write_table = NULL){
 
   if(missing(id)){
     stop("missing id")
   }
+
   if(missing(x)){
     stop("missing x object")
   }
+
   if (!is.null(write_table)) {
     if (!dir.exists(dirname(write_table))) {
       stop("error, output folder does not exist")
@@ -134,10 +183,6 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
   coordenates_1$lon <- map_dbl(x$geometry, ~ st_centroid_within_poly(.x)[[1]])
   coordenates_1$lat <- map_dbl(x$geometry, ~ st_centroid_within_poly(.x)[[2]])
 
-  st_geometry(coordenates_1)<- NULL
-  coordenates_1 <- cbind(coordenates_1$lon, coordenates_1$lat)
-  rownames(coordenates_1) <- NULL
-
   if (!is.null(mask)){
     if(class(mask)[1] == "sf"){
       mask <- as(mask, 'Spatial')
@@ -155,129 +200,182 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
     CostFun <-  function(x) 1/mean(x)
   }
 
+  if(is.null(bounding_circles)){
+    st_geometry(coordenates_1) <- NULL
+    coordenates_1 <- cbind(coordenates_1$lon, coordenates_1$lat)
+    rownames(coordenates_1) <- NULL
 
-  conductance <- transition(resistance_1, CostFun, directions = ngh)
-  Iso_conductance <- geoCorrection(conductance, scl = FALSE)
+   if(type_distance == "least-cost"){
+     Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
+       geoCorrection(., scl = FALSE)
+      distance_result <- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
+      } else if (type_distance == "commute-time") {
+        Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
+          geoCorrection(., type = "r")
+        distance_result <- commuteDistance(Iso_conductance, coordenates_1)
+      } else {
+        stop("Error, you have to choose a type_distance option")
+      }
 
-  if(type_distance == "least-cost"){
-    distance_result <- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
-    distance_result <- as.matrix(distance_result)
-    rownames(distance_result)<- x[[id]]
-    colnames(distance_result)<- x[[id]]
-    distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
-    distance_result <- as.data.frame(as.table(distance_result))
-    distance_result <- na.omit(distance_result)
-    distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
-    distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
-    names(distance_result)<-c("From", "To", "CostDistance")
+      distance_result <- as.matrix(distance_result)
+      rownames(distance_result)<- x[[id]]
+      colnames(distance_result)<- x[[id]]
+      distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
+      distance_result <- as.data.frame(as.table(distance_result))
+      distance_result <- na.omit(distance_result)
+      distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
+      distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
+      names(distance_result)<-c("From", "To", "Distance")
 
-  } else if (type_distance == "commute-time") {
-    Iso_conductance <- geoCorrection(conductance, type = "r")
-    distance_result <- commuteDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
-    distance_result <- as.matrix(distance_result)
-    rownames(distance_result)<- x[[id]]
-    colnames(distance_result)<- x[[id]]
-    distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
-    distance_result <- as.data.frame(as.table(distance_result))
-    distance_result <- na.omit(distance_result)
-    distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
-    distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
-    names(distance_result)<-c("From", "To", "CommuteDistance")
-    } else {
-      stop("Error, you have to choose a type_distance option")
+    #Inf
+    x2 <- distance_result[which(is.infinite(distance_result[,3])),]
+
+    if(nrow(x2) >= 1){
+      Infinitos <- paste0(x2$From, "_", x2$To)
+      distance_result2 <- distance_result[which(!is.infinite(distance_result[,3])),]
+
+      error <- unique(x2$To)
+      min_dist <- euclidean_distances(x, id, type_distance = "centroid", distance_unit = "m")
+      #
+      if (is.null(geometry_out)){
+        distance2 <- min_dist
+        distance2$idn <- paste0(distance2$From, "_", distance2$To)
+        #Filter distances
+        distance2 <- distance2[which(distance2$idn %in% Infinitos),]
+        distance2$idn <- NULL
+        names(distance_result2)[3] <- "Distance"
+        distance_result <- rbind(distance_result2, distance2)
+      } else {
+        Iso_conductance <- raster(Iso_conductance)
+        Iso_conductance <- extend(Iso_conductance, as(x, 'Spatial'))
+
+        Iso_conductance[is.na(Iso_conductance[])] <- geometry_out
+        Iso_conductance <- new("TransitionLayer", Iso_conductance)
+
+        #Get new distances
+        if(type_distance == "least-cost"){
+          distance_result<- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
+        } else if (type_distance == "commute-time") {
+          distance_result <- commuteDistance(Iso_conductance, coordenates_1)
+        }
+
+        distance_result <- as.matrix(distance_result)
+        rownames(distance_result)<- x[[id]]
+        colnames(distance_result)<- x[[id]]
+        distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
+        distance_result <- as.data.frame(as.table(distance_result))
+        distance_result <- na.omit(distance_result)
+        distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
+        distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
+        names(distance_result)<-c("From", "To", "Distance")
+      }
     }
 
-  x2 <- distance_result[which(is.infinite(distance_result[,3])),]#infinitos
-  Infinitos <- paste0(x2$From, "_", x2$To)
-  distance_result2 <- distance_result[which(!is.infinite(distance_result[,3])),]
+  } else {
+    ####voronoi vecinos
+    voronoi_adj <- voronoi(gCentroid(as(x, 'Spatial'), byid = T)) %>%
+      gTouches(., byid = T)
+    colnames(voronoi_adj) <- x$id
+    rownames(voronoi_adj) <- x$id
 
-  if(nrow(x2) >= 1){
-    error <- unique(x2$To)
-    unique(x2$From)
-    x2 <- x[error,]
-    x4 <- x
-    min_dist <- euclidean_distances(x4, id, type_distance = "centroid", distance_unit = "m")
-    #
-    if (is.null(geometry_out)){
-      distance2 <- min_dist
-      distance2$idn <- paste0(distance2$From, "_", distance2$To)
-      #Filter distances
-      distance2 <- distance2[which(distance2$idn %in% Infinitos),]
-      distance2$idn <- NULL
-      names(distance_result2)[3] <- "Distance"
-      distance_result <- rbind(distance_result2, distance2)
-      } else {
-       #Encontrar distancia buffer
-        minimum <- min_dist
-        minimum$idn <- paste0(minimum$From, "_", minimum$To)
-        minimum <- minimum[which(minimum$idn %in% Infinitos),]
-        minimum$idn <- NULL
-        minimum <- max(minimum)
-        #Buffer
-       rbuffer <- buffer(resistance_1, width = minimum, doEdge = TRUE)
-       resistance_2 <- resistance_1
-       resistance_2[resistance_2 > 0] <- maxValue(resistance_1) + 10
-       resistance_2 <- mosaic(resistance_2, rbuffer, fun = max)
-       resistance_2[resistance_2 == 1] <- maxValue(resistance_1) + 20
-       #Mosaic
-       resistance_2 <- mosaic(resistance_2, resistance_1, fun = min)
-       resistance_2[resistance_2 ==  maxValue(resistance_1) + 20] <- geometry_out
+    plan(strategy = multiprocess, gc = TRUE)
+    distance <- future_map(as.list(colnames(voronoi_adj)), function(i){
+      ##
+      foc_adj <- rbind(x[which(x$id == i),],
+                       x[as.vector(which(voronoi_adj[, which(x$id == i)])),]) %>%
+        as(., 'Spatial')
 
-       #Conductancia
-       conductance <- transition(resistance_2, CostFun, directions = ngh)
-       Iso_conductance <- geoCorrection(conductance)
+      dist <- euclidean_distances(foc_adj, "id", threshold = bounding_circles)
+      foc_adj <- foc_adj[which(foc_adj$id %in% c(unique(dist$From), unique(dist$To))),]
 
-       coordenates_2 <- x4  %>%
-         mutate(lon = map_dbl(geometry, ~st_centroid_within_poly(.x)[[1]]),
-                       lat = map_dbl(geometry, ~st_centroid_within_poly(.x)[[2]]))
-       st_geometry(coordenates_2)<- NULL
-       coordenates_2 <- cbind(coordenates_2$lon, coordenates_2$lat)
-       rownames(coordenates_2) <- NULL
-       coordenates_2 <- rbind(coordenates_2, coordenates_1)
+      if(nrow(foc_adj) > 1){
+        r2 <- gCentroid(foc_adj, byid = TRUE) %>% buffer(., width = bounding_circles)
+        r2 <- crop(resistance_1, r2) %>% raster::mask(., r2)
 
-       #Get new distances
-       if(type_distance == "least-cost"){
-         distance2 <- costDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
-         distance2 <- as.matrix(distance2)
-         rownames(distance2)<- x4[[id]]
-         colnames(distance2)<- x4[[id]]
-         distance2[lower.tri(distance2, diag = TRUE)] <- NA
-         distance2 <- as.data.frame(as.table(distance2))
-         distance2 <- na.omit(distance2)
-         distance2[,1] <- as.numeric(as.character(distance2[,1]))
-         distance2[,2]<-as.numeric(as.character(distance2[,2]))
-         names(distance2)<-c("From", "To", "CostDistance")
-       } else if (type_distance == "commute-time") {
-         Iso_conductance <- geoCorrection(conductance, type = "r")
-         distance2 <- commuteDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
-         distance2 <- as.matrix(distance2)
-         rownames(distance2)<- x4[[id]]
-         colnames(distance2)<- x4[[id]]
-         distance2[lower.tri(distance2, diag = TRUE)] <- NA
-         distance2 <- as.data.frame(as.table(distance2))
-         distance2 <- na.omit(distance2)
-         distance2[,1] <- as.numeric(as.character(distance2[,1]))
-         distance2[,2]<-as.numeric(as.character(distance2[,2]))
-         names(distance2)<-c("From", "To", "CommuteDistance")
-       }
-       #Filter distances
-       distance2$idn <- paste0(distance2$From, "_", distance2$To)
-       #Filter distances
-       distance2 <- distance2[which(distance2$idn %in% Infinitos),]
-       distance2$idn <- NULL
+        ##
+        coordenates_2 <- coordenates_1[which(coordenates_1$id %in% foc_adj$id),]
+        st_geometry(coordenates_2) <- NULL
+        coordenates_2 <- cbind(coordenates_2$lon, coordenates_2$lat)
+        rownames(coordenates_2) <- NULL
+        ##
 
-       a <- paste0(distance2$From, "_", distance2$To)
-       distance2 <- distance2[which(!duplicated(a)),]
+        if(type_distance == "least-cost"){
+          Iso_conductance <- transition(r2, CostFun, directions = ngh)%>%
+            geoCorrection(., scl = FALSE)
+          distance_result <- costDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
+        } else if (type_distance == "commute-time") {
+          Iso_conductance <- transition(r2, CostFun, directions = ngh)%>%
+            geoCorrection(., type = "r")
+          distance_result <- commuteDistance(Iso_conductance, coordenates_2)
+        } else {
+          stop("Error, you have to choose a type_distance option")
+        }
 
-       #Union
-       distance_result <- rbind(distance_result2, distance2)
-      }
+        distance_result <- as.matrix(distance_result)
+        rownames(distance_result)<- foc_adj[[id]]
+        colnames(distance_result)<- foc_adj[[id]]
+        distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
+        distance_result <- as.data.frame(as.table(distance_result))
+        distance_result <- na.omit(distance_result)
+        distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
+        distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
+        names(distance_result)<-c("From", "To", "Distance")
+
+        #Inf
+        x2 <- distance_result[which(is.infinite(distance_result[,3])),]
+
+        if(nrow(x2) >= 1){
+          Infinitos <- paste0(x2$From, "_", x2$To)
+          distance_result2 <- distance_result[which(!is.infinite(distance_result[,3])),]
+
+          error <- unique(x2$To)
+          min_dist <- euclidean_distances(foc_adj, id, type_distance = "centroid", distance_unit = "m")
+
+          if (is.null(geometry_out)){
+            distance2 <- min_dist
+            distance2$idn <- paste0(distance2$From, "_", distance2$To)
+            #Filter distances
+            distance2 <- distance2[which(distance2$idn %in% Infinitos),]
+            distance2$idn <- NULL
+            names(distance_result2)[3] <- "Distance"
+            distance_result <- rbind(distance_result2, distance2)
+          } else {
+            Iso_conductance <- raster(Iso_conductance)
+            Iso_conductance <- extend(Iso_conductance, as(x, 'Spatial'))
+
+            Iso_conductance[is.na(Iso_conductance[])] <- geometry_out
+            Iso_conductance <- new("TransitionLayer", Iso_conductance)
+
+            #Get new distances
+            if(type_distance == "least-cost"){
+              distance_result<- costDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
+            } else if (type_distance == "commut|e-time") {
+              distance_result <- commuteDistance(Iso_conductance, coordenates_2)
+            }
+            rm(Iso_conductance)
+
+            distance_result <- as.matrix(distance_result)
+            rownames(distance_result)<- foc_adj[[id]]
+            colnames(distance_result)<- foc_adj[[id]]
+            distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
+            distance_result <- as.data.frame(as.table(distance_result))
+            distance_result <- na.omit(distance_result)
+            distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
+            distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
+            names(distance_result)<-c("From", "To", "Distance")
+          }
+        }
+
+        return(distance_result)
+      } }, .progress = TRUE)
+    future:::ClusterRegistry("stop")
+    distance_result <- do.call(rbind, distance)
   }
-
 
   if (!is.null(threshold)){
     distance_result <-  distance_result[which(distance_result[,3] <= threshold),]
   }
+  rownames(distance_result) <- NULL
 
   if(!is.null(write_table)){
     write.table(distance_result, write_table, sep = "\t", row.names = FALSE, col.names = FALSE)

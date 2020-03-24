@@ -21,7 +21,7 @@
 #' \dontrun{
 #' ruta <- system.file("extdata", "ECA_example.RData", package = "Makurhini")
 #' load(ruta)
-#' test_ECA_distance(nodes = nodes[[1]], distance1 =list(type= "centroid"), LA = 279165,
+#' test_ECA_distance(nodes = forest_patches[[1]], distance1 =list(type= "centroid"), LA = 279165,
 #'                   distance_thresholds =  seq(10000,100000, 10000))
 #'                   }
 #' @importFrom magrittr %>%
@@ -76,7 +76,7 @@ test_ECA_distance <- function(nodes,
       pairs = "notall"
     }
 
-    conn_metric2 <-  lapply(as.list(distance_thresholds), function(y){
+    conn_metric2 <- lapply(as.list(distance_thresholds), function(y){
       tab1 <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
                          typeconnection = "dist", typepairs = pairs,
                          index = metric, thdist = y,
@@ -84,7 +84,7 @@ test_ECA_distance <- function(nodes,
                          onlyoverall = TRUE, LA = LA,
                          nrestauration = FALSE,
                          prefix = NULL, write = NULL)
-      tab1 <- tab1[[2]]
+      tab1 <- tab1[[which(lapply(tab1, function(x) paste0(nrow(x), ncol(x))) == "32" | lapply(tab1, function(x) paste0(nrow(x), ncol(x))) == "22")]]
       tab1 <- tab1[[2,2]]
       return(tab1)})
 

@@ -44,7 +44,7 @@ Test the ECA metric to multiple dispersal distances
 \dontrun{
 ruta <- system.file("extdata", "ECA_example.RData", package = "Makurhini")
 load(ruta)
-test_ECA_distance(nodes = nodes[[1]], distance1 =list(type= "centroid"), LA = 279165,
+test_ECA_distance(nodes = forest_patches[[1]], distance1 =list(type= "centroid"), LA = 279165,
                   distance_thresholds =  seq(10000,100000, 10000))
                   }
 }

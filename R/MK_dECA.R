@@ -113,7 +113,7 @@ MK_dECA <- function(nodes,
   options(warn = -1)
   listT <- compact(nodes)
 
-  if(class(listT[[1]]) != "RasterLayer"){
+  if(class(listT[[1]])[1] != "RasterLayer"){
     listT <- map(listT, function(x) { if(class(x)[1] == "sf") {
       x <- as(x, 'Spatial')
       x@data$IdTemp <- 1:nrow(x)
@@ -127,7 +127,7 @@ MK_dECA <- function(nodes,
   #
   scenary <- as.vector(1:length(listT)) %>% as.character()
   #
-  if(class(nodes[[1]])[1] == "SpatialPolygonsDataFrame"){
+  if(class(listT[[1]])[1] == "SpatialPolygonsDataFrame"){
     DECA <- map(listT, function(x){unit_convert(sum(gArea(x, byid = T)), "m2", area_unit)})
     id = "IdTemp"
   } else {
@@ -245,17 +245,21 @@ MK_dECA <- function(nodes,
       Tab_ECA <- cbind(DECA, Tab_ECA)
       return(Tab_ECA)})
 
+
     ECA3 <- map(ECA2, function(x){
       DECA.2 <- x
       AO <- LA
       DECA.2$Normalized_ECA <- (DECA.2$ECA*100)/DECA.2$Area
-      AO.2 <- rbind(DECA.2[1:3, 2])
-      ECA.2 <- cbind(DECA.2[1:3, 3])
+      AO.2 <- rbind(DECA.2[1:nrow(DECA.2), 2])
+      ECA.2 <- cbind(DECA.2[1:nrow(DECA.2), 3])
       DECA.2$dA[1] <- (((DECA.2$Area[1] - AO)/AO) * 100)
-      DECA.2$dA[2:4] <- ((DECA.2$Area[2:4] - AO.2)/AO.2) *100
+      DECA.2$dA[2:nrow(DECA.2)] <- ((DECA.2$Area[2:nrow(DECA.2)] - AO.2)/AO.2) *100
+
       DECA.2$dECA[1] <- (((DECA.2$ECA[1] - AO)/AO) * 100)
-      DECA.2$dECA[2:4] <- ((DECA.2$ECA[2:4] - ECA.2)/ECA.2) * 100
-      DECA.2[,c(2:3,5:7)] <- round(DECA.2[,c(2:3,5:7)], 3)
+      DECA.2$dECA[2:nrow(DECA.2)] <- ((DECA.2$ECA[2:nrow(DECA.2)] - ECA.2)/ECA.2) * 100
+
+      DECA.2[,c(2:nrow(DECA.2),5:7)] <- round(DECA.2[,c(2:nrow(DECA.2),5:7)], 3)
+
       DECA.3 <- ddply(DECA.2, .(scenary), dplyr::summarize,
                       Type_Change = dECAfun(.data$dECA, .data$dA))
       DECA.3$Type <- ddply(DECA.2, .(scenary), dplyr::summarize,
@@ -283,6 +287,7 @@ MK_dECA <- function(nodes,
       if(isTRUE(plot)){
         plot = paste0("Time", 1:length(nodes))
       }
+
       ECAplot <- map(ECA3, function(x){
         ECA4 <- (x[2] * 100)/ LA
         names(ECA4) <- "Habitat"

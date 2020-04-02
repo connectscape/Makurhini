@@ -6,7 +6,8 @@
 \usage{
 cost_distances(x, id, type_distance = "least-cost", resistance = NULL,
   CostFun = NULL, ngh = NULL, mask = NULL, threshold = NULL,
-  geometry_out = NULL, bounding_circles = NULL, write_table = NULL)
+  geometry_out = NULL, bounding_circles = NULL, pairwise = TRUE,
+  write_table = NULL)
 }
 \arguments{
 \item{x}{object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}
@@ -36,6 +37,8 @@ using this argument, so that it is possible to calculate cost distances for all 
 (recommended for speed, large resistance rasters or pixel resolution < 150 m).
 Buffer distances are entered in map units. Also, the function is parallelized using
  and furrr package and multiprocess plan, default = NULL.}
+
+\item{pairwise}{logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.}
 
 \item{write_table}{character. "" indicates output to the console.}
 }

@@ -6,7 +6,7 @@
 \usage{
 euclidean_distances(x, id, type_distance = "centroid",
   distance_unit = "m", keep = 0.05, threshold = NULL,
-  edgeParallel = FALSE, write_table = NULL)
+  edgeParallel = FALSE, pairwise = TRUE, write_table = NULL)
 }
 \arguments{
 \item{x}{object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}
@@ -23,7 +23,9 @@ number of vertices (from rmapshaper::ms_simplif). The value can range from 0 to 
 
 \item{threshold}{numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.}
 
-\item{edgeParallel}{lofical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.}
+\item{edgeParallel}{logical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.}
+
+\item{pairwise}{logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.}
 
 \item{write_table}{character. "" indicates output to the console.}
 }

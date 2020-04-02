@@ -37,6 +37,7 @@
 #'  (recommended for speed, large resistance rasters or pixel resolution < 150 m).
 #'  Buffer distances are entered in map units. Also, the function is parallelized using
 #'   and furrr package and multiprocess plan, default = NULL.
+#' @param pairwise logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.
 #' @param write character. Choose the output folder if you use multiple argument otherwise, place the output path, with
 #' the name and extension ".txt".
 #' @return Exports a euclidean or cost distance table between pairs of nodes.
@@ -68,6 +69,7 @@ distancefile <- function(nodes, id,
                          bounding_circles = NULL,
                          multiple = NULL, prefix = NULL,
                          parallel = FALSE, edgeParallel = FALSE,
+                         pairwise = TRUE,
                          write = NULL){
 
   if (missing(nodes)) {
@@ -98,13 +100,15 @@ distancefile <- function(nodes, id,
     if (is.null(multiple)) {
       if (type %in%  c("centroid", "edge")){
         distance <- euclidean_distances(x = nodes, id = id, type_distance = type, distance_unit =distance_unit,
-                                        keep = keep, threshold = threshold,  write_table = write)
+                                        keep = keep, threshold = threshold,  pairwise = pairwise,
+                                        write_table = write)
         return(distance)
 
         } else if (type %in%  c("least-cost", "commute-time")){
           distance <- cost_distances(x = nodes, id = id, type_distance = type, resistance = resistance,
                                      CostFun = CostFun, ngh = ngh, bounding_circles = bounding_circles ,
                                      threshold = threshold, mask = mask, geometry_out = geometry_out,
+                                     pairwise = pairwise,
                                      write_table = write)
           return(distance)
 
@@ -119,7 +123,8 @@ distancefile <- function(nodes, id,
           save <- paste(write, x, ".txt") } else { save <- NULL }
           nodes.1 <- nodes[nodes@data[,which(colnames(nodes@data) == multiple)] == x,]
           distance <- euclidean_distances(x = nodes.1, id = id, type_distance = type, distance_unit = distance_unit,
-                                          keep = keep, threshold = threshold, write_table = save)
+                                          keep = keep, threshold = threshold, pairwise = pairwise,
+                                          write_table = save)
           return(distance) })
         names(distance) <- multiple_1
         return(distance)
@@ -130,6 +135,7 @@ distancefile <- function(nodes, id,
             distance <- cost_distances(x = nodes.1, id = id, type_distance = type, resistance = resistance,
                                        CostFun = CostFun, ngh = ngh, bounding_circles = bounding_circles,
                                        threshold = threshold, mask = mask, geometry_out = geometry_out,
+                                       pairwise = pairwise,
                                        write_table = save)
             return(distance) })
           names(distance) <- multiple_1
@@ -193,7 +199,9 @@ distancefile <- function(nodes, id,
 
             distance <- euclidean_distances(x = coords, id = "Id", type_distance = "centroid",
                                             distance_unit = distance_unit,
-                                            keep = keep, threshold = threshold,  write_table = write)
+                                            keep = keep, threshold = threshold,
+                                            pairwise = pairwise,
+                                            write_table = write)
 
           } else {
             if(isTRUE(parallel)){
@@ -227,7 +235,9 @@ distancefile <- function(nodes, id,
             }
             distance <- euclidean_distances(x = pol_nodes, id = "Id", type_distance = "edge",
                                             distance_unit = distance_unit, edgeParallel = parallel,
-                                            keep = keep, threshold = threshold,  write_table = write)
+                                            keep = keep, threshold = threshold, pairwise = pairwise,
+
+                                            write_table = write)
 
           }
 
@@ -278,6 +288,7 @@ distancefile <- function(nodes, id,
           distance <- cost_distances(x = coords, id = "Id", type_distance = type, resistance = resistance,
                                      CostFun = CostFun, ngh = ngh, bounding_circles = bounding_circles ,
                                      threshold = threshold, mask = mask, geometry_out = geometry_out,
+                                     pairwise = pairwise,
                                      write_table = write)
           return(distance)
 

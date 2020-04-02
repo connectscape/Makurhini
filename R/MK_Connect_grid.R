@@ -334,6 +334,7 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
         x3$TempID <- paste0(x[["TempID"]])
         return(x3)
       }, .progress = intern), error = function(err) err)
+      future:::ClusterRegistry("stop")
     } else {
       pb <- progress_estimated(length(x_grid), 0)
       resultado_1 <- tryCatch(map(x_grid, function(x) {
@@ -487,7 +488,9 @@ MK_Connect_grid <- function(nodes, region = NULL, grid_pol = NULL, grid_id = NUL
         }
         return(x3)
       }, .progress = intern), error = function(err) err)
-    } else {
+
+      future:::ClusterRegistry("stop")
+      } else {
       pb <- progress_estimated(length(x_grid), 0)
       nodes1 <- nodes
       nodes1 <- st_cast(nodes1, "POLYGON")

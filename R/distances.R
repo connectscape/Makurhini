@@ -8,7 +8,8 @@
 #'  number of vertices (from rmapshaper::ms_simplif). The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
 #'   the higher the speed but the greater uncertainty.
 #' @param threshold numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
-#' @param edgeParallel lofical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.
+#' @param edgeParallel logical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.
+#' @param pairwise logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.
 #' @param write_table character. "" indicates output to the console.
 #' @return Pairwise Euclidean distance table
 #' @references Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitized Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
@@ -18,7 +19,8 @@
 #' @importFrom utils combn write.table
 
 euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit = "m",
-                               keep = 0.05, threshold = NULL, edgeParallel = FALSE, write_table = NULL){
+                               keep = 0.05, threshold = NULL, edgeParallel = FALSE,
+                               pairwise = TRUE, write_table = NULL){
   if(missing(id)){
     stop("missing id")
   }
@@ -88,28 +90,36 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
         stop("Error, you have to choose a type_distance option")
       }
 
+  if (distance_unit != "m"){
+  distance <- unit_convert(data_unit = distance, unit_1 = "m", unit_2 = distance_unit)
+  }
+
   name <- c(unique(x@data[,which(colnames(x@data) == id)]), "income")
   name <- name[1:(length(name)-1)]
   colnames(distance) <- name
   rownames(distance) <- name
-  xy <- t(combn(colnames(distance), 2))
-  distance_2 <- data.frame(xy, distance_2 = distance[xy])
-  distance_2[,1] <- as.character(distance_2[,1])
-  distance_2[,2] <- as.character(distance_2[,2])
-  distance_2[,1] <- as.numeric(distance_2[,1])
-  distance_2[,2] <- as.numeric(distance_2[,2])
-  names(distance_2) <- c("From", "To", "Distance")
 
-  if (distance_unit != "m"){
-    distance_2$Distance <- unit_convert(data_unit = distance_2[,3], unit_1 = "m", unit_2 = distance_unit)
-  }
+  if(isTRUE(pairwise)){
+    xy <- t(combn(colnames(distance), 2))
+    distance_2 <- data.frame(xy, distance_2 = distance[xy])
+    distance_2[,1] <- as.character(distance_2[,1])
+    distance_2[,2] <- as.character(distance_2[,2])
+    distance_2[,1] <- as.numeric(distance_2[,1])
+    distance_2[,2] <- as.numeric(distance_2[,2])
+    names(distance_2) <- c("From", "To", "Distance")
 
-  if (!is.null(threshold)){
-    distance_2 <-  distance_2[which(distance_2$Distance <= threshold),]
+    if (!is.null(threshold)){
+      distance_2 <-  distance_2[which(distance_2$Distance <= threshold),]
+    }
+  } else {
+    distance_2 <- distance
+    if (!is.null(threshold)){
+      distance_2[which(distance_2 <= threshold)] <- NA
+    }
   }
 
   if(!is.null(write_table)){
-    write.table(distance_2, write_table, sep = "\t", row.names = FALSE, col.names = FALSE)
+      write.table(distance_2, write_table, sep = "\t", row.names = FALSE, col.names = FALSE)
   }
 
   return(distance_2)
@@ -135,6 +145,7 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 #'  (recommended for speed, large resistance rasters or pixel resolution < 150 m).
 #'  Buffer distances are entered in map units. Also, the function is parallelized using
 #'   and furrr package and multiprocess plan, default = NULL.
+#' @param pairwise logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.
 #' @param write_table character. "" indicates output to the console.
 #' @return cost distance matrix
 #' @references https://cran.r-project.org/web/packages/gdistance/gdistance.pdf
@@ -155,6 +166,7 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
                            ngh = NULL, mask = NULL, threshold = NULL,
                            geometry_out = NULL,
                            bounding_circles = NULL,
+                           pairwise = TRUE,
                            write_table = NULL){
 
   if(missing(id)){
@@ -208,8 +220,8 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
    if(type_distance == "least-cost"){
      Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
        geoCorrection(., scl = FALSE)
-      distance_result <- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
-      } else if (type_distance == "commute-time") {
+     distance_result <- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
+     } else if (type_distance == "commute-time") {
         Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
           geoCorrection(., type = "r")
         distance_result <- commuteDistance(Iso_conductance, coordenates_1)
@@ -220,6 +232,9 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
       distance_result <- as.matrix(distance_result)
       rownames(distance_result)<- x[[id]]
       colnames(distance_result)<- x[[id]]
+
+      distance_result_matrix <- distance_result
+
       distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
       distance_result <- as.data.frame(as.table(distance_result))
       distance_result <- na.omit(distance_result)
@@ -245,6 +260,16 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
         distance2$idn <- NULL
         names(distance_result2)[3] <- "Distance"
         distance_result <- rbind(distance_result2, distance2)
+
+
+        for(i in 1:nrow(distance2)){
+          distance_result_matrix[which(rownames(distance_result_matrix) == distance2$From[i]),
+                                 which(colnames(distance_result_matrix) == distance2$To[i])] <- distance2[i,3]
+
+          distance_result_matrix[which(rownames(distance_result_matrix) == distance2$To[i]),
+                                 which(colnames(distance_result_matrix) == distance2$From[i])] <- distance2[i,3]
+        }
+
       } else {
         Iso_conductance <- raster(Iso_conductance)
         Iso_conductance <- extend(Iso_conductance, as(x, 'Spatial'))
@@ -262,6 +287,9 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
         distance_result <- as.matrix(distance_result)
         rownames(distance_result)<- x[[id]]
         colnames(distance_result)<- x[[id]]
+
+        distance_result_matrix <- distance_result
+
         distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
         distance_result <- as.data.frame(as.table(distance_result))
         distance_result <- na.omit(distance_result)
@@ -270,30 +298,31 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
         names(distance_result)<-c("From", "To", "Distance")
       }
     }
-
   } else {
     ####voronoi vecinos
+
     voronoi_adj <- voronoi(gCentroid(as(x, 'Spatial'), byid = T)) %>%
       gTouches(., byid = T)
-    colnames(voronoi_adj) <- x$id
-    rownames(voronoi_adj) <- x$id
+    colnames(voronoi_adj) <- x[[id]]
+    rownames(voronoi_adj) <- x[[id]]
 
     plan(strategy = multiprocess, gc = TRUE)
+
     distance <- future_map(as.list(colnames(voronoi_adj)), function(i){
       ##
-      foc_adj <- rbind(x[which(x$id == i),],
-                       x[as.vector(which(voronoi_adj[, which(x$id == i)])),]) %>%
+      foc_adj <- rbind(x[which(x[[id]] == i),],
+                       x[as.vector(which(voronoi_adj[, which(x[[id]] == i)])),]) %>%
         as(., 'Spatial')
 
-      dist <- euclidean_distances(foc_adj, "id", threshold = bounding_circles)
-      foc_adj <- foc_adj[which(foc_adj$id %in% c(unique(dist$From), unique(dist$To))),]
+      dist <- euclidean_distances(foc_adj, id, threshold = bounding_circles, distance_unit = "m" )
+      foc_adj <- foc_adj[which(foc_adj[[id]] %in% c(unique(dist$From), unique(dist$To))),]
 
       if(nrow(foc_adj) > 1){
         r2 <- gCentroid(foc_adj, byid = TRUE) %>% buffer(., width = bounding_circles)
         r2 <- crop(resistance_1, r2) %>% raster::mask(., r2)
 
         ##
-        coordenates_2 <- coordenates_1[which(coordenates_1$id %in% foc_adj$id),]
+        coordenates_2 <- coordenates_1[which(coordenates_1[[id]] %in% foc_adj[[id]]),]
         st_geometry(coordenates_2) <- NULL
         coordenates_2 <- cbind(coordenates_2$lon, coordenates_2$lat)
         rownames(coordenates_2) <- NULL
@@ -314,6 +343,9 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
         distance_result <- as.matrix(distance_result)
         rownames(distance_result)<- foc_adj[[id]]
         colnames(distance_result)<- foc_adj[[id]]
+
+        distance_result_matrix <- distance_result
+
         distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
         distance_result <- as.data.frame(as.table(distance_result))
         distance_result <- na.omit(distance_result)
@@ -339,6 +371,15 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
             distance2$idn <- NULL
             names(distance_result2)[3] <- "Distance"
             distance_result <- rbind(distance_result2, distance2)
+
+            for(i in 1:nrow(distance2)){
+              distance_result_matrix[which(rownames(distance_result_matrix) == distance2$From[i]),
+                                     which(colnames(distance_result_matrix) == distance2$To[i])] <- distance2[i,3]
+
+              distance_result_matrix[which(rownames(distance_result_matrix) == distance2$To[i]),
+                                     which(colnames(distance_result_matrix) == distance2$From[i])] <- distance2[i,3]
+            }
+
           } else {
             Iso_conductance <- raster(Iso_conductance)
             Iso_conductance <- extend(Iso_conductance, as(x, 'Spatial'))
@@ -357,6 +398,9 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
             distance_result <- as.matrix(distance_result)
             rownames(distance_result)<- foc_adj[[id]]
             colnames(distance_result)<- foc_adj[[id]]
+
+            distance_result_matrix <- distance_result
+
             distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
             distance_result <- as.data.frame(as.table(distance_result))
             distance_result <- na.omit(distance_result)
@@ -365,17 +409,75 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
             names(distance_result)<-c("From", "To", "Distance")
           }
         }
+        if(isFALSE(pairwise)){
+          distance_result <- distance_result_matrix
+        }
 
         return(distance_result)
       } }, .progress = TRUE)
     future:::ClusterRegistry("stop")
-    distance_result <- do.call(rbind, distance)
-  }
 
-  if (!is.null(threshold)){
-    distance_result <-  distance_result[which(distance_result[,3] <= threshold),]
+    distance <- purrr::compact(distance)
+
+    if(isFALSE(pairwise)){
+      uno <- list()
+      for(i in 1:length(distance)){
+        dos <- rownames(distance[[i]])
+        uno[[i]] <- dos
+      }
+      uno <- do.call(c, uno)
+      uno <- unique(uno)
+
+      mm <- matrix(nrow = length(uno), ncol = length(uno))
+      rownames(mm) <- uno
+      colnames(mm) <- uno
+
+      for(i in uno){
+        mm2 <- mm[,i] %>% as.matrix()
+
+        for(j in rownames(mm2)){
+          if(j != i){
+            mm2[j,] <- min(map(distance, function(x){
+              x2 <- x[which(rownames(x)==i),which(rownames(x)==j)]
+              if(length(x2) == 0){
+                x2 = NULL
+              }
+              return(x2)})%>% purrr::compact(.) %>% unlist())
+          } else {
+            mm2[j,] <- 0
+          }
+          mm[,i] <- mm2
+        }
+      }
+      distance_result_matrix <- mm
+    } else {
+      distance_result <- do.call(rbind, distance)
+      distance_result$dn <- paste0(distance_result$From, "_",distance_result$To)
+
+      distance_result <- map(unique(distance_result$dn), function(i){
+        d1 <- distance_result[which(distance_result$dn == i),]
+        d1 <- d1[which(d1$Distance == min(d1$Distance)),1:3]
+        if(nrow(d1)>1){
+          d1 <- d1[1,]
+        }
+        return(d1)}) %>% do.call(rbind,.)
+      rownames(distance_result) <- NULL
+    }
+    }
+
+
+  if(isTRUE(pairwise)){
+    if (!is.null(threshold)){
+      distance_result <-  distance_result[which(distance_result[,3] <= threshold),]
+    }
+    rownames(distance_result) <- NULL
+  } else {
+    distance_result <- distance_result_matrix
+    distance_result <- as.matrix(distance_result)
+    if (!is.null(threshold)){
+      distance_result[which(distance_result <= threshold)] <- NA
+    }
   }
-  rownames(distance_result) <- NULL
 
   if(!is.null(write_table)){
     write.table(distance_result, write_table, sep = "\t", row.names = FALSE, col.names = FALSE)

@@ -8,7 +8,8 @@ distancefile(nodes, id, type = "centroid", distance_unit = NULL,
   keep = NULL, resistance = NULL, CostFun = NULL, ngh = NULL,
   mask = NULL, threshold = NULL, geometry_out = NULL,
   bounding_circles = NULL, multiple = NULL, prefix = NULL,
-  parallel = FALSE, edgeParallel = FALSE, write = NULL)
+  parallel = FALSE, edgeParallel = FALSE, pairwise = TRUE,
+  write = NULL)
 }
 \arguments{
 \item{nodes}{object of class sf, SpatialPolygons, RasterLaryer or SpatRaster (terra package). It must be in a projected coordinate system.
@@ -61,6 +62,8 @@ Buffer distances are entered in map units. Also, the function is parallelized us
 \item{prefix}{character. Initial prefix, use in case of processing several sites at the same time in CONEFOR command line.}
 
 \item{parallel}{logical. If nodes is a raster then you can use this argument for larges RasterLayer.}
+
+\item{pairwise}{logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.}
 
 \item{write}{character. Choose the output folder if you use multiple argument otherwise, place the output path, with
 the name and extension ".txt".}

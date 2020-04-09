@@ -12,8 +12,11 @@ MK_dECA(nodes, attribute = NULL, area_unit = "ha",
 \arguments{
 \item{nodes}{list of objects of class sf, SpatialPolygonsDataFrame or raster. Nodes of each period of time to analyze.}
 
-\item{attribute}{character. Column name with the attribute in the data table selected for the nodes.
-If NULL the node area will be used as node attribute, the unit area can be selected using the "area_unit" argument.}
+\item{attribute}{character or vector. If nodes is a shappefile then you must specify the column name
+with the attribute in the data table selected for the nodes. If nodes is a raster layer then it must be
+a numeric vector with the node's attribute. The length of the vector must be equal to the number of nodes.
+ The numeric vector is multiplied by the area of each node to obtain a weighted habitat index.
+ If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.}
 
 \item{area_unit}{character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
 compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".}
@@ -27,9 +30,10 @@ the help function of distancefile().}
 considering maximum product probabilities.}
 
 \item{probability}{numeric. Connection probability to the selected distance threshold, e.g.,
-0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.}
+0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.
+If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).}
 
-\item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections.
+\item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections (meters).
 For example, distance_threshold = 30000; two or more specific distances:
 distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).}
 

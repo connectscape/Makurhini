@@ -56,6 +56,7 @@ Imports:
     htmltools,
     webshot,
     boot,
-    dismo
+    dismo,
+    igraph
 Depends: 
     R (>= 3.5)

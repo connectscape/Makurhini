@@ -3,6 +3,8 @@
 #' Use the CONEFOR command line to estimate probabilistic and binary connectivity indexes
 #' @param nodeFile character. Node file name. If prefix is true use the prefix name
 #' @param connectionFile character. Connection file name. If prefix is true use the prefix name
+#' @param coneforpath character. Path to Conefor 2.6 with command line interface
+#' (\url{http://www.conefor.org/coneforsensinode.html}). Example, "C:/Users/coneforWin64.exe".
 #' @param typeconnection character. Indicate if it is distance (dist), probability (prob), adjacency (adj)
 #' @param typepairs character. "all" if all pairs of patches are in the distances file and "notall" if only they are the most important connections
 #' @param index character. Select Binary index (CCP, LCP, IIC, BC, BCIIC, NC, NL, H) or Probabilistic (F, AWF, PC, BCPC)
@@ -35,19 +37,23 @@
 #' @export
 #' @importFrom data.table fread
 EstConefor <- function(nodeFile,
-                     connectionFile,
-                     typeconnection,
-                     typepairs,
-                     index,
-                     thdist,
-                     multdist = NULL,
-                     conprob = NULL,
-                     onlyoverall = TRUE,
-                     LA = NULL,
-                     nrestauration = FALSE,#Onlyoverall=FALSE
-                     prefix = NULL,
-                     write = NULL
-                     ){
+                       coneforpath= NULL,
+                       connectionFile,
+                       typeconnection,
+                       typepairs,
+                       index,
+                       thdist,
+                       multdist = NULL,
+                       conprob = NULL,
+                       onlyoverall = TRUE,
+                       LA = NULL,
+                       nrestauration = FALSE,#Onlyoverall=FALSE
+                       prefix = NULL,
+                       write = NULL
+){
+  if(!file.exists(coneforpath)){
+    stop("error, Conefor 2.6 with command line interface does not exist")
+  }
   tt <- getwd()
   temp <- paste0(tempdir(), "\\TempCONEFOR", sample(1:1000, 1, replace = T))
 
@@ -56,7 +62,7 @@ EstConefor <- function(nodeFile,
   }
 
   dir.create(temp, recursive = TRUE)
-  file.copy(dir(paste0(.libPaths(), "\\Makurhini"), pattern = ".exe$", full.names = T), temp, overwrite = T)
+  file.copy(coneforpath, temp, overwrite = T)
   conefor_exe <- dir(temp, pattern = ".exe$", full.names = TRUE)
   nodefiles <- list.files(pattern = paste0("^", gsub(".txt", "", nodeFile)), full.names = TRUE)
   file.copy(nodefiles, temp, overwrite = TRUE)

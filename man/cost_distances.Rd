@@ -48,6 +48,9 @@ cost distance matrix
 \description{
 Cost distances
 }
+\details{
+The function builds on functions out of Jacob van Etten’s ’gdistance’ package.
+}
 \references{
 https://cran.r-project.org/web/packages/gdistance/gdistance.pdf
 }

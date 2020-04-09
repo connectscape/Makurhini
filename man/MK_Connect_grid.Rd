@@ -4,22 +4,16 @@
 \alias{MK_Connect_grid}
 \title{Connectivity indexes in a regular grid}
 \usage{
-MK_Connect_grid(nodes, region = NULL, grid_pol = NULL,
-  grid_id = NULL, grid_type = c("hexagonal", "square"),
-  cellsize = NULL, grid_boundary = FALSE, clip = FALSE,
-  tolerance = NULL, distance = list(type = "centroid"),
-  probability = 0.5, distance_thresholds = NULL,
-  ProtConn = list(attribute = "Intersected area", area_unit = "ha",
-  transboundary = NULL), PC_IIC = list(attribute = NULL, area_unit =
-  "ha", metric = "PC"), intern = TRUE, parallel = FALSE)
+MK_Connect_grid(grid_pol = NULL, grid_id = NULL,
+  grid_type = c("hexagonal", "square"), cellsize = NULL,
+  grid_boundary = FALSE, clip = FALSE, tolerance = NULL, nodes,
+  region = NULL, attribute = NULL, thintersect = NULL,
+  area_unit = "ha", metric = c("ProtConn", "PC"),
+  distance = list(type = "centroid"), distance_threshold = NULL,
+  probability = NULL, transboundary = NULL, intern = TRUE,
+  parallel = FALSE)
 }
 \arguments{
-\item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. Nodes shapefile, the shapefile must be
-in a projected coordinate system.}
-
-\item{region}{object of class sf, sfc, sfg or SpatialPolygons. Region shapefile, the shapefile must be
-in a projected coordinate system.}
-
 \item{grid_pol}{object of class sf, sfc, sfg or SpatialPolygons. Grid hexagones or squares. The
 shapefile must be in a projected coordinate system.}
 
@@ -38,19 +32,35 @@ if it is a region with many vertices use the argument "tolerance".}
 
 \item{tolerance}{numeric. If "clip" is equal to TRUE reduces the number of vertices in the region polygon.}
 
+\item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. Nodes shapefile, the shapefile must be
+in a projected coordinate system.}
+
+\item{region}{object of class sf, sfc, sfg or SpatialPolygons. Region shapefile, the shapefile must be
+in a projected coordinate system.}
+
+\item{attribute}{character. Select the nodes attribute: "Intersected area" = Available if the metric argument
+is equal to ProtConn, it corresponds to intersected Protected areas (default); or
+another specific column name with the nodes attribute, ideally this attribute mus be an area-weighted index,
+ otherwise the interpretation of the ProtConn or PC metric may change.}
+
+\item{thintersect}{numeric. Only available if you selected ProtConn as metric. Threshold of intersection in percentage allowed to select or not a target geometry.
+Example, if thintersect is equal to 90 then a node will be selected only if the intersection between the node and
+ the region is >= 90 percentage. If NULL, thintersect will be 0 (default). (see, "Makurhini::MK_ProtConn")}
+
+\item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".}
+
+\item{metric}{character. Choose a connectivity metric: "ProtConn" Protected Connected Land or "PC" Probability of conectivity considering maximum product probabilities.}
+
 \item{distance}{list. See distancefile(). Example, list(type= "centroid", resistance = NULL).}
+
+\item{distance_threshold}{numeric. Distance threshold to establish connections (meters).}
 
 \item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5
 (default) that is 50 percentage of probability connection. Use in case of selecting the "PC"
 metric or "ProtConn".}
 
-\item{distance_thresholds}{numeric. Distance thresholds to establish connections (meters).}
-
-\item{ProtConn}{list. ProtConn parameters (see, "Makurhini::MK_ProtConn"). Example,
-list(attribute = "Intersected area", transboundary = NULL).}
-
-\item{PC_IIC}{list. PC or IIC metric parameters (see, "Makurhini::MK_dPCIIC"). Example, list(attribute  = NULL,
-area_unit = "ha", metric = c("IIC", "PC")).}
+\item{transboundary}{numeric. Buffer to select polygones in a second round, their attribute value = 0,
+see  "Makurhini::MK_ProtConn".}
 
 \item{intern}{logical. Show the progress of the process, default = TRUE.}
 
@@ -63,29 +73,20 @@ Use the function to compute the Protected Connected (ProtConn)or EC, PC, IIC ind
 \examples{
 \dontrun{
 data("Protected_areas", package = "Makurhini")
-#plot(Protected_areas, col="green")
-
 data("regions", package = "Makurhini")
-region <- regions[2,]
-plot(region, col="blue")
+ecoregion <- regions[2,]
+plot(ecoregion, col="blue")
 
-hexagons_priority <- MK_Connect_grid(nodes = Protected_areas, region = region,
-                                  grid_type = "hexagonal", cellsize = 3000,
-                                  distance = list(type = "centroid"),
-                                  distance_thresholds = 10000, clip = FALSE,
-                                  PC_IIC = list(metric = "PC"),
-                                  intern = TRUE, parallel = TRUE)
+hexagons_priority <- MK_Connect_grid(grid_type = "hexagonal",
+                                    cellsize = 10000, grid_boundary = FALSE,
+                                    clip = FALSE, nodes = Protected_areas, region = ecoregion,
+                                    attribute = "Intersected area", thintersect = NULL,
+                                    area_unit = "ha", metric = "ProtConn",
+                                    distance = list(type = "centroid"),
+                                    distance_threshold = 3000,
+                                    probability = 0.5, transboundary = 6000,
+                                    intern = TRUE, parallel = FALSE)
 hexagons_priority
-
-
-hexagons_priority_2 <- MK_Connect_grid(nodes = Protected_areas, region = region,
-                                   grid_type = "hexagonal", cellsize = 3000,
-                                   distance = list(type = "centroid"),
-                                   distance_thresholds = 5000, clip = FALSE,
-                                   ProtConn = list(attribute ="Intersected area",
-                                                   transboundary = 10000),
-                                   intern = TRUE, parallel = TRUE)
-hexagons_priority_2
 }
 }
 \references{

@@ -35,6 +35,9 @@ Pairwise Euclidean distance table
 \description{
 Euclidian distances
 }
+\details{
+The function builds on functions out of Roger Bivand and collaborators ’rgeos’ package.
+}
 \references{
 Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitized Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
 }

@@ -8,7 +8,7 @@ MK_ProtConnMult(nodes, regions, thintersect = NULL,
   attribute = "Intersected area", area_unit = "ha",
   res_attribute = 150, distance = list(type = "centroid", resistance =
   NULL), distance_thresholds, probability, transboundary = NULL,
-  keep = 0.02, CI = "all", plot = FALSE, write = NULL,
+  keep = 1, CI = "all", plot = FALSE, write = NULL,
   intern = TRUE, parallel = FALSE)
 }
 \arguments{
@@ -26,7 +26,7 @@ MK_ProtConnMult(nodes, regions, thintersect = NULL,
 
 \item{distance}{list.See distancefile(). E.g.: list(type = "centroid", resistance = NULL, geometry_out = NULL).}
 
-\item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections. For example, one distance: distance_threshold = 30000; two or more specific distances:
+\item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
 distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).}
 
 \item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.}

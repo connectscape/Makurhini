@@ -2,8 +2,11 @@
 #'
 #' Equivalent Connected Area (ECA; if the area is used as attribute) or Equivalent Connectivity index (EC)
 #' @param nodes list of objects of class sf, SpatialPolygonsDataFrame or raster. Nodes of each period of time to analyze.
-#' @param attribute character. Column name with the attribute in the data table selected for the nodes.
-#'  If NULL the node area will be used as node attribute, the unit area can be selected using the "area_unit" argument.
+#' @param attribute character or vector. If nodes is a shappefile then you must specify the column name
+#'  with the attribute in the data table selected for the nodes. If nodes is a raster layer then it must be
+#'  a numeric vector with the node's attribute. The length of the vector must be equal to the number of nodes.
+#'   The numeric vector is multiplied by the area of each node to obtain a weighted habitat index.
+#'   If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
 #' @param area_unit character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
 #' compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".
 #' @param distance list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the
@@ -14,7 +17,8 @@
 #' considering maximum product probabilities.
 #' @param probability numeric. Connection probability to the selected distance threshold, e.g.,
 #' 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.
-#' @param distance_thresholds numeric. Distance or distances thresholds to establish connections.
+#' If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).
+#' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters).
 #' For example, distance_threshold = 30000; two or more specific distances:
 #' distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).
 #' @param LA numeric. Maximum landscape attribute ("units" equal to "area_unit", default equal to "ha").
@@ -59,8 +63,6 @@
 #' @importFrom reshape2 melt
 #' @import ggplot2
 #' @importFrom utils write.csv
-#' @importFrom iterators iter
-#' @importFrom foreach foreach %dopar%
 #' @importFrom future multiprocess plan
 #' @importFrom furrr future_map
 
@@ -91,7 +93,7 @@ MK_dECA <- function(nodes,
   }
 
   if (metric == "PC") {
-    if (is.null(probability) | !is.numeric(probability)) {
+    if (!is.null(probability) & !is.numeric(probability)) {
       stop("error missing probability")
     }
   }
@@ -144,99 +146,55 @@ MK_dECA <- function(nodes,
   colnames(DECA)[2]<-"Area"
 
   #ECA
-  ttt.2 <- getwd()
-  temp.1 <- paste0(tempdir(), "/TempInputs", sample(1:1000, 1, replace = T))
-  dir.create(temp.1, recursive = T)
-  setwd(temp.1)
-
   x = NULL
   y = NULL
-
   if(isFALSE(parallel)){
     pb <- progress_estimated(length(listT), 0)
-    ECA <- foreach(x = iter(listT), .errorhandling = 'pass') %dopar%
-      {
+    ECA <- tryCatch(map(listT, function(x){
         pb$tick()$print()
 
-        nodesfile(nodes = x, id = id, attribute = attribute, area_unit, write = paste0(temp.1,"/nodes.txt"))
-
-        distancefile(x,  id = id, type = distance$type, keep = distance$keep,
-                     resistance = distance$resistance, CostFun = distance$CostFun, ngh = distance$ngh,
-                     threshold = distance$threshold, mask = distance$mask,
-                     distance_unit = distance$distance_unit, distance$geometry_out,
-                     write = paste0(temp.1,"/Dist.txt"))
-
-        if (is.null(distance$threshold)) {
-          pairs = "all"
-        } else {
-          pairs = "notall"
-        }
-
-
-        ECA_metric <-  foreach(y = iter(distance_thresholds)) %dopar%
-          {
-            tab1 <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
-                               typeconnection = "dist", typepairs = pairs,
-                               index = metric, thdist = y,
-                               multdist = NULL, conprob = probability,
-                               onlyoverall = TRUE, LA = LA,
-                               nrestauration = FALSE,
-                               prefix = NULL, write = NULL)
-            tab1 <- tab1[[which(map(tab1, function(x) paste0(nrow(x), ncol(x))) == "32")]]
+        ECA_metric <-  map(distance_thresholds, function(y) {
+            tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
+                              restauration = NULL,
+                              distance = distance, area_unit = area_unit,
+                              metric = metric, probability = probability,
+                              distance_thresholds = y,
+                              overall = TRUE, onlyoverall = TRUE,
+                              LA = LA, rasterparallel = FALSE, write = NULL)
             tab1 <- tab1[[2,2]]
             return(tab1)
-          }
+          })
 
         ECA_metric2 <- do.call(rbind,  ECA_metric)
         ECA_metric2 <- cbind(ECA_metric2, distance_thresholds)
         ECA_metric2 <- as.data.frame(ECA_metric2)
         names(ECA_metric2) <- c("ECA", "Distance")
         return(ECA_metric2)
-      }
+      }), error = function(err) err)
   } else {
     plan(strategy = multiprocess, gc = TRUE)
-    ECA <- future_map(listT, function(x) {
-
-        nodesfile(nodes = x, id = id, attribute = attribute, area_unit, write = paste0(temp.1,"/nodes.txt"))
-
-        distancefile(x,  id = id, type = distance$type, keep = distance$keep,
-                     resistance = distance$resistance, CostFun = distance$CostFun, ngh = distance$ngh,
-                     threshold = distance$threshold, mask = distance$mask,
-                     distance_unit = distance$distance_unit, distance$geometry_out,
-                     write = paste0(temp.1,"/Dist.txt"))
-
-        if (is.null(distance$threshold)) {
-          pairs = "all"
-        } else {
-          pairs = "notall"
-        }
-
-
-        ECA_metric <-  foreach(y = iter(distance_thresholds)) %dopar%
-          {
-            tab1 <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
-                               typeconnection = "dist", typepairs = pairs,
-                               index = metric, thdist = y,
-                               multdist = NULL, conprob = probability,
-                               onlyoverall = TRUE, LA = LA,
-                               nrestauration = FALSE,
-                               prefix = NULL, write = NULL)
-            tab1 <- tab1[[which(map(tab1, function(x) paste0(nrow(x), ncol(x))) == "32")]]
-            tab1 <- tab1[[2,2]]
-            return(tab1)
-          }
-
-        ECA_metric2 <- do.call(rbind,  ECA_metric)
-        ECA_metric2 <- cbind(ECA_metric2, distance_thresholds)
-        ECA_metric2 <- as.data.frame(ECA_metric2)
-        names(ECA_metric2) <- c("ECA", "Distance")
-        return(ECA_metric2)
-      }, .progress = TRUE)
+    ECA <- tryCatch(future_map(listT, function(x) {
+      ECA_metric <-  future_map(distance_thresholds, function(y) {
+        tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
+                          restauration = NULL,
+                          distance = distance, area_unit = area_unit,
+                          metric = metric, probability = probability,
+                          distance_thresholds = y,
+                          overall = TRUE, onlyoverall = TRUE,
+                          LA = LA, rasterparallel = FALSE, write = NULL)
+        tab1 <- tab1[[2,2]]
+        return(tab1)
+      })
+      ECA_metric2 <- do.call(rbind,  ECA_metric)
+      ECA_metric2 <- cbind(ECA_metric2, distance_thresholds)
+      ECA_metric2 <- as.data.frame(ECA_metric2)
+      names(ECA_metric2) <- c("ECA", "Distance")
+      return(ECA_metric2)
+      }, .progress = TRUE),  error = function(err) err)
     future:::ClusterRegistry("stop")
     }
 
-  if(!is.null(attr(warnErrList(ECA), "warningMsg")[[1]])){
-    setwd(ttt.2)
+  if(inherits(ECA, "error")){
     stop("review ECA parameters: nodes, distance file or LA")
   } else {
     ECA2 <- map(distance_thresholds, function(x){
@@ -281,7 +239,6 @@ MK_dECA <- function(nodes,
     if (!is.null(write)){
       write.csv(do.call(rbind, ECA3), write, row.names = FALSE)
       }
-    setwd(ttt.2)
     ###plot
     if(isTRUE(plot) | is.character(plot)){
       if(isTRUE(plot)){
@@ -292,83 +249,86 @@ MK_dECA <- function(nodes,
         ECA4 <- (x[2] * 100)/ LA
         names(ECA4) <- "Habitat"
         ECA4$Loss <- 100 - ECA4$Habitat
-        ECA4$Connected <- x[[5]]
+        ECA4$"Connected habitat" <- x[[5]]
         ECA4$Year <- plot
 
         #Table 1
         ECA5 <- ECA4
         ECA4 <- melt(ECA4, id="Year")
         names(ECA4)[3] <- "percentage"
-        ECA4$variable <- factor(ECA4$variable, levels = c("Loss", "Habitat", "Connected"))
+        ECA4$variable <- factor(ECA4$variable, levels = c("Loss", "Habitat", "Connected habitat"))
 
         #Table 2
-        ECA5$Connected <- (ECA5$Connected * ECA5$Habitat)/100
-        ECA5$Habitat <- ECA5$Habitat - ECA5$Connected
+        ECA5$`Connected habitat` <- (ECA5$`Connected habitat` * ECA5$Habitat)/100
+        ECA5$Habitat <- ECA5$Habitat - ECA5$`Connected habitat`
         ECA5 <- melt(ECA5, id="Year")
         names(ECA5)[3] <- "percentage"
-        ECA5$variable <- factor(ECA5$variable, levels = c("Loss", "Habitat", "Connected"))
+
+        ECA5$variable <- factor(ECA5$variable, levels = c("Loss", "Habitat", "Connected habitat"))
         ECA5$Text <- ECA4$percentage
+        ECA5$Text[which(ECA5$variable == "Connected habitat")] <- ECA5$percentage[which(ECA5$variable == "Connected habitat")]
+
 
         ECA5$pos <- ECA5$percentage/2
-        ECA5$pos[which(ECA5$variable == "Habitat")] <- (ECA5$percentage[which(ECA5$variable == "Habitat")]/2) + ECA5$percentage[which(ECA5$variable == "Connected")]
+        ECA5$pos[which(ECA5$variable == "Habitat")] <- (ECA5$percentage[which(ECA5$variable == "Habitat")]/2) + ECA5$percentage[which(ECA5$variable == "Connected habitat")]
         ECA5$pos[which(ECA5$variable == "Loss")] <- (ECA5$percentage[which(ECA5$variable == "Loss")]/2) + ECA5$Text[which(ECA5$variable == "Habitat")]
 
         #Plot
-        fill <- c("#443A82", "#30678D", "#26AE7F")
+        pcolors <- c("#443A82", "#30678D", "#26AE7F")
 
-        if (distance$type  %in% c("centroid", "edge", "hausdorff edge")){
+        if (distance$type  %in% c("centroid", "edge")){
           if(is.null(distance$distance_unit)){
             dp_text <-  paste0(unique(x$Distance), " m")
-            } else {
-              dp_text <-  paste0(unique(x$Distance)," " ,distance$distance_unit)
-              }
           } else {
-            dp_text <-  paste0(unique(x$Distance), " cost-weighted distance")
-            }
+            dp_text <-  paste0(unique(x$Distance)," " ,distance$distance_unit)
+          }
+        } else {
+          dp_text <-  paste0(unique(x$Distance), " cost-weighted distance")
+        }
 
-    p4 <- ggplot() +
-      geom_bar(aes(y = ECA5$percentage, x = ECA5$Year, fill = ECA5$variable), data = ECA5, stat="identity") +
-      geom_text(data = ECA5, aes(x = ECA5$Year, y = ECA5$pos, label = paste0(round(ECA5$Text, 2), "%")),
-                colour = "white", family = "Tahoma", size = 4, fontface = "bold") +
-      theme(legend.position = "bottom", legend.direction = "horizontal",
-            legend.title = element_blank(),
-            legend.text = element_text(size = 11),
-            legend.spacing.x = unit(0.5, 'cm')) +
-      labs(x = "Year", y = "Percentage (%)") +
-      ggtitle(paste0("Equivalent Connected Area: Dispersal distance = ", dp_text)) +
-      scale_fill_manual(values = fill) +
-      theme(axis.line = element_line(size = 1, colour = "black"),
-                     panel.grid.major = element_line(colour = "#d3d3d3"),
-                     panel.grid.minor = element_blank(),
-                     panel.border = element_blank(),
-                     panel.background = element_blank()) +
-      theme(plot.title = element_text(size = 14, family = "Tahoma", face = "bold"),
-                     text = element_text(family = "Tahoma", size = 12),
-                     axis.text.x = element_text(colour = "black", size = 10),
-                     axis.text.y = element_text(colour = "black", size = 10))
-    if(!is.null(write)){
-      ggsave(paste0(write, "_", unique(x$Distance), '_ECA.tif'), plot = p4, device = "tiff", width = 14,
-             height = 10, compression = "lzw", dpi = "retina", scale = 0.7)}
-    return(p4)})
+        p4 <- ggplot() +
+          geom_bar(aes(y = ECA5$percentage, x = ECA5$Year, fill = ECA5$variable), data = ECA5, stat="identity") +
+          geom_text(data = ECA5, aes(x = ECA5$Year, y = ECA5$pos, label = paste0(round(ECA5$Text, 2), "%")),
+                    colour = "white", family = "Tahoma", size = 4, fontface = "bold") +
+          theme(legend.position = "bottom", legend.direction = "horizontal",
+                legend.title = element_blank(),
+                legend.text = element_text(size = 11),
+                legend.spacing.x = unit(0.5, 'cm')) +
+          labs(x = "Year", y = "Percentage (%)") +
+          ggtitle(paste0("Equivalent Connected Area: Dispersal distance = ", dp_text)) +
+          scale_fill_manual(values = pcolors) +
+          theme(axis.line = element_line(size = 1, colour = "black"),
+                panel.grid.major = element_line(colour = "#d3d3d3"),
+                panel.grid.minor = element_blank(),
+                panel.border = element_blank(),
+                panel.background = element_blank()) +
+          theme(plot.title = element_text(size = 14, family = "Tahoma", face = "bold"),
+                text = element_text(family = "Tahoma", size = 12),
+                axis.text.x = element_text(colour = "black", size = 10),
+                axis.text.y = element_text(colour = "black", size = 10))
+
+        if(!is.null(write)){
+          ggsave(paste0(write, "_", unique(x$Distance), '_ECA.tif'), plot = p4, device = "tiff", width = 14,
+                 height = 10, compression = "lzw", dpi = "retina", scale = 0.7)}
+        return(p4)})
       ECA_result <- list()
       for (i in 1:length(ECA3)){
         ECA_result[[i]] <- list(ECA3[[i]], ECAplot[[i]])
-        }
+      }
 
       names(ECA_result) <- paste(distance_thresholds)
       ECA3 <- ECA_result
-      }
-  #
-  if(length(distance_thresholds) == 1){
-    if((isTRUE(plot) | is.character(plot))){
-      ECA4 <- ECA3[[1]][[2]]
-      ECA3 <- ECA3[[1]][[1]]
-      print(ECA4)
-
-    } else {
-      ECA3 <- ECA3[[1]]
     }
-  }
+  #
+    if(length(distance_thresholds) == 1){
+      if((isTRUE(plot) | is.character(plot))){
+        ECA4 <- ECA3[[1]][[2]]
+        ECA3 <- ECA3[[1]][[1]]
+        print(ECA4)
+      } else {
+        ECA3 <- ECA3[[1]]
+      }
+    }
     }
   return(ECA3)
   }

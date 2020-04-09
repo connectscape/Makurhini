@@ -7,8 +7,9 @@
 MK_BCentrality(nodes, id, attribute = NULL, area_unit = "ha",
   distance = list(type = "centroid", resistance = NULL),
   metric = c("BC", "BCIIC", "BCPC"), distance_thresholds = NULL,
-  probability = NULL, LA = NULL, dA = FALSE, dvars = FALSE,
-  parallel = FALSE, rasterparallel = FALSE, write = NULL)
+  probability = NULL, LA = NULL, coneforpath = NULL, dA = FALSE,
+  dvars = FALSE, parallel = FALSE, rasterparallel = FALSE,
+  write = NULL)
 }
 \arguments{
 \item{nodes}{Object of class sf, SpatialPolygonsDataFrame or raster.
@@ -40,6 +41,9 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
 
 \item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).}
 
+\item{coneforpath}{character. Path to Conefor 2.6 with command line interface
+(\url{http://www.conefor.org/coneforsensinode.html}). Example, "C:/Users/coneforWin64.exe".}
+
 \item{dA}{logical. If TRUE, then the delta attribute will be added to the node's importance result.}
 
 \item{dvars}{logical. If TRUE, then the absolute variation will be added to the node's importance result.}
@@ -54,12 +58,14 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
 Use this function to calculate the BC, BCIIC and BCPC indexes under one or several distance thresholds.
 }
 \examples{
+\dontrun{
 library(Makurhini)
 data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) #Number of patches
 
 #Two distance thresholds
 BCIIC <- MK_BCentrality(nodes = vegetation_patches, id = "id",
+            coneforpath = "C:/Users/coneforWin64.exe",
             distance = list(type = "centroid"),
             metric = "BCIIC", LA = NULL,
             distance_thresholds = c(10000, 30000)) #10 and 30 km
@@ -67,6 +73,7 @@ BCIIC <- MK_BCentrality(nodes = vegetation_patches, id = "id",
 #Using raster
 data("raster_vegetation_patches", package = "Makurhini")
 BCPC <- MK_BCentrality(nodes = raster_vegetation_patches,
+           coneforpath = "C:/Users/coneforWin64.exe",
            attribute = NULL,
            distance = list(type = "centroid"),
            metric = "BCPC", probability = 0.5,
@@ -74,12 +81,13 @@ BCPC <- MK_BCentrality(nodes = raster_vegetation_patches,
            distance_thresholds = 40000) #40 km
 
 BCPC_parallel <- MK_BCentrality(nodes = raster_vegetation_patches,
+                    coneforpath = "C:/Users/coneforWin64.exe",
                     id = "id", attribute = NULL,
                     distance = list(type = "centroid"),
                     metric = "BCPC", LA = NULL, probability = 0.5,
                     distance_thresholds = c(40000, 60000),
                     parallel = TRUE) #40 and 60 km
-
+}
 }
 \references{
 Saura, S. and Torne, J. (2012). Conefor 2.6. Universidad Politecnica de Madrid. Available at \url{www.conefor.org}.\cr

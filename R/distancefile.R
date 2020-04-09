@@ -170,6 +170,7 @@ distancefile <- function(nodes, id,
                 r <- nodes
                 r[r %!in% x] <- NA
                 p <- data.frame(rasterToPoints(r))
+                names(p)[3] <- "layer"
                 p <- p[p$layer > 0,]
 
                 coords1 <- map(split(p, p$layer), function(x){
@@ -185,6 +186,7 @@ distancefile <- function(nodes, id,
 
             } else {
               p <- data.frame(rasterToPoints(nodes))
+              names(p)[3] <- "layer"
 
               p <- p[p$layer > 0,]
 
@@ -273,6 +275,7 @@ distancefile <- function(nodes, id,
 
           } else {
             p <- data.frame(rasterToPoints(nodes))
+            names(p)[3] <- "layer"
 
             p <- p[p$layer > 0,]
 

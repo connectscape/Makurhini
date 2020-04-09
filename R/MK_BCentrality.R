@@ -21,6 +21,8 @@
 #'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).
 #' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "BPC" metric.
 #' @param LA numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).
+#' @param coneforpath character. Path to Conefor 2.6 with command line interface
+#' (\url{http://www.conefor.org/coneforsensinode.html}). Example, "C:/Users/coneforWin64.exe".
 #' @param dA logical. If TRUE, then the delta attribute will be added to the node's importance result.
 #' @param dvars logical. If TRUE, then the absolute variation will be added to the node's importance result.
 #' @param parallel lofical. Parallelize the function using furrr package and multiprocess plan, default = FALSE.
@@ -31,12 +33,14 @@
 #'  Bodin, O. and Saura, S. (2010). Ranking individual habitat patches as connectivity providers: integrating network analysis and patch removal experiments. Ecological Modelling 221: 2393-2405.
 #' @export
 #' @examples
+#' \dontrun{
 #' library(Makurhini)
 #' data("vegetation_patches", package = "Makurhini")
 #' nrow(vegetation_patches) #Number of patches
 #'
 #' #Two distance thresholds
 #' BCIIC <- MK_BCentrality(nodes = vegetation_patches, id = "id",
+#'             coneforpath = "C:/Users/coneforWin64.exe",
 #'             distance = list(type = "centroid"),
 #'             metric = "BCIIC", LA = NULL,
 #'             distance_thresholds = c(10000, 30000)) #10 and 30 km
@@ -44,6 +48,7 @@
 #' #Using raster
 #' data("raster_vegetation_patches", package = "Makurhini")
 #' BCPC <- MK_BCentrality(nodes = raster_vegetation_patches,
+#'            coneforpath = "C:/Users/coneforWin64.exe",
 #'            attribute = NULL,
 #'            distance = list(type = "centroid"),
 #'            metric = "BCPC", probability = 0.5,
@@ -51,12 +56,13 @@
 #'            distance_thresholds = 40000) #40 km
 #'
 #' BCPC_parallel <- MK_BCentrality(nodes = raster_vegetation_patches,
+#'                     coneforpath = "C:/Users/coneforWin64.exe",
 #'                     id = "id", attribute = NULL,
 #'                     distance = list(type = "centroid"),
 #'                     metric = "BCPC", LA = NULL, probability = 0.5,
 #'                     distance_thresholds = c(40000, 60000),
 #'                     parallel = TRUE) #40 and 60 km
-#'
+#' }
 #' @import sf
 #' @importFrom dplyr progress_estimated
 #' @importFrom purrr map
@@ -70,7 +76,8 @@
 MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
                         distance = list(type= "centroid", resistance = NULL),
                         metric = c("BC", "BCIIC", "BCPC"), distance_thresholds = NULL,
-                        probability = NULL, LA = NULL, dA = FALSE, dvars = FALSE,
+                        probability = NULL, LA = NULL, coneforpath = NULL,
+                        dA = FALSE, dvars = FALSE,
                         parallel = FALSE, rasterparallel = FALSE, write = NULL) {
   if (missing(nodes)) {
     stop("error missing shapefile file of nodes")
@@ -101,6 +108,16 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
   if (!is.null(write)) {
     if (!dir.exists(dirname(write))) {
       stop("error, output folder does not exist")
+    }
+  }
+
+  if (!is.null(coneforpath)) {
+    if (!dir.exists(dirname(coneforpath))) {
+      stop("error, output folder does not exist")
+    }
+
+    if(!file.exists(coneforpath)){
+      stop("error, Conefor 2.6 with command line interface does not exist")
     }
   }
 
@@ -138,7 +155,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
                geometry_out = distance$geometry_out,
                bounding_circles = distance$bounding_circles,
                parallel = distance$parallel,
-               edgeParallel = distance$edgeParallel,
+               edgeParallel = distance$edgeParallel, pairwise = TRUE,
                write = paste0(temp.1,"/Dist.txt"))
 
   setwd(temp.1)
@@ -151,12 +168,14 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
   x = NULL
   if(isFALSE(parallel)){
     pb <- progress_estimated(length(distance_thresholds), 0)
+
     BC_metric <- foreach(x = iter(distance_thresholds), .errorhandling = 'pass') %dopar%
       {
         if (length(distance_thresholds) > 1) {
           pb$tick()$print()
         }
         dMetric <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
+                              coneforpath = coneforpath,
                               typeconnection = "dist", typepairs = pairs, index = metric,
                               thdist = x, multdist = NULL, conprob = probability,
                               onlyoverall = FALSE, LA = LA, nrestauration = FALSE,
@@ -236,6 +255,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
     plan(strategy = multiprocess, gc = TRUE)
     BC_metric <- future_map(distance_thresholds, function(x) {
       dMetric <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
+                            coneforpath = coneforpath,
                             typeconnection = "dist", typepairs = pairs, index = metric,
                             thdist = x, multdist = NULL, conprob = probability,
                             onlyoverall = FALSE, LA = LA, nrestauration = FALSE,

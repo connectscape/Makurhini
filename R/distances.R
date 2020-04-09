@@ -12,6 +12,7 @@
 #' @param pairwise logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.
 #' @param write_table character. "" indicates output to the console.
 #' @return Pairwise Euclidean distance table
+#' @details The function builds on functions out of Roger Bivand and collaborators ’rgeos’ package.
 #' @references Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitized Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
 #' @importFrom rgeos gCentroid gDistance
 #' @importFrom rmapshaper ms_simplify
@@ -148,6 +149,7 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 #' @param pairwise logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.
 #' @param write_table character. "" indicates output to the console.
 #' @return cost distance matrix
+#' @details The function builds on functions out of Jacob van Etten’s ’gdistance’ package.
 #' @references https://cran.r-project.org/web/packages/gdistance/gdistance.pdf
 #' @importFrom magrittr %>%
 #' @import sf

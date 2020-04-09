@@ -21,8 +21,6 @@
 #' @importFrom sp merge
 #' @importFrom dplyr summarize
 #' @importFrom rmapshaper ms_dissolve
-#' @importFrom iterators iter
-#' @importFrom foreach foreach %dopar%
 MK_HQuality <- function(x, y, id = NULL, area_unit = NULL,
                   by_zone = NULL, write = NULL, SAGA = TRUE){
   #
@@ -63,11 +61,10 @@ MK_HQuality <- function(x, y, id = NULL, area_unit = NULL,
     y2 <- st_as_sf(y2) %>% st_cast("POLYGON")
 
 
-    list_y_err <- foreach(x = iter(list_y), .errorhandling = 'pass') %dopar%
-      {
+    list_y_err <- tryCatch(map(list_y, function(x){
         result <- st_intersection(x, y = y2) %>% st_cast("POLYGON")
         return(result)
-      }
+      }), error = function(err) err)
 
 
     if(inherits(list_y_err, "error")){

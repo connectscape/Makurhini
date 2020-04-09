@@ -185,31 +185,33 @@ test_ECA_distance <- function(nodes,
 #'Plot probability  of dispersal
 #'
 #' Negative exponential dispersal kernel to calculate the probability of dispersal between two nodes. Used in probabilistic indexes (e.g., PC, BCPC, ProtConn etc.)
-#' @param probability numeric. Probability of dispersal at max_distance
+#' @param probability numeric. Probability of dispersal at max_distance. If NULL
 #' @param max_distance numeric. Up to five maximum dispersal distance (meters)
 #' @param eval_distance numeric. Calculate the probability of dispersal at a specific distance
 #' @param min.prob numeric. Value between 0-1, maximum x axe value
 #' @examples
 #' \dontrun{
-#' plot_prob_disp(probability= 0.5, max_distance = c(1000, 10000, 30000, 100000), min.prob = 0.2)
-#' plot_prob_disp(probability= 0.5, max_distance = 30000, eval_distance = 10000)
+#' probability_distance(probability= 0.5, max_distance = c(1000, 10000, 30000, 100000))
+#' probability_distance(probability= 0.5, max_distance = 30000, eval_distance = 10000)
 #' }
 #' @export
 #' @importFrom purrr map
 #' @importFrom graphics par plot axis box lines legend
 
-plot_prob_disp <- function(probability, max_distance, eval_distance = NULL, min.prob = 0.2){
+probability_distance <- function(probability, max_distance, eval_distance = NULL, min.prob = 0.2){
   x <-1
   repeat{
     x = x+1
     m <- exp(x * log(probability)/max(max_distance))
-    if (m < min.prob){
+    if (m < min.prob & x > max(max_distance)){
       break
       return(x)
     }
   }
+
   m = x
   Rcolors <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00")
+
   if(!is.null(eval_distance)){
     if(m < eval_distance){
       m <- eval_distance + eval_distance/100
@@ -256,7 +258,7 @@ plot_prob_disp <- function(probability, max_distance, eval_distance = NULL, min.
       return(result_1)
     }
     } else {
-      if(length(max_distance) == 1){
+    if(length(max_distance) == 1){
       data <- exp(1:m * log(probability)/max_distance)
       par(xaxs="i")
       plot(data, type = "l", xlab=  "Distance (dij)", ylab = "Probability of dispersal (pij)",  axes=F)
@@ -269,6 +271,7 @@ plot_prob_disp <- function(probability, max_distance, eval_distance = NULL, min.
         data_list <- map(as.list(max_distance), function(x){
           data1 <- exp(1:m * log(probability)/x)
           return(data1)})
+
         par(xaxs="i")
         plot(data_list[[1]], type = "l", xlab= "Distance (dij)", ylab = "Probability of dispersal (pij)",
              lwd = 2, xlim=c(0,m), axes=F)

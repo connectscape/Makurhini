@@ -1,6 +1,6 @@
 Package: Makurhini
 Type: Package
-Title: Landscape fragmentation and connectivity analysis
+Title: Makurhini: A tool set to analyze landscape connectivity
 Version: 0.1.0
 Author: c(person(given = "Oscar",
               family = "Godínez-Gómez",
@@ -11,8 +11,9 @@ Author: c(person(given = "Oscar",
               role = "ctb", 
               comment = c(ORCID = "0000-0001-8619-0295")))
 Maintainer: Godinez-Gomez Oscar <osctapir@gmail.com>
-Description: This package provides functions designed to estimate 
-    landscape fragmentation and connectivity metrics.
+Description: Makurhini (connect in Purépecha language) provides functions designed to estimate 
+    landscape fragmentation and connectivity metrics and includes the ProtConn indicator that is used
+    to report international connectivity targets.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -22,41 +23,37 @@ BugReports: https://github.com/OscarGOGO/Makurhini/issues
 Suggests: 
     knitr,
     rmarkdown,
-    stats,
-    utils,
     deldir
 VignetteBuilder: knitr
 Imports: 
     sf,
     purrr,
     dplyr,
-    raster,
-    sp,
+    raster (>= 3.0.12),
+    sp (>= 1.4.1),
     rmapshaper,
     future,
     furrr,
     magrittr,
-    gdistance,
-    rgeos,
-    methods,
+    gdistance (>= 1.2.2),
+    rgeos (>= 0.5.1),
     data.table,
-    formattable,
-    ggplot2,
+    formattable (>= 0.2.0.1),
+    ggplot2 (>= 3.2.1),
     plyr,
     reshape2,
-    tibble,
-    ggpubr,
-    velox,
+    tibble (>= 2.1.3),
+    ggpubr (>= 0.2.3),
+    velox (>= 0.2.0),
     spex,
     stringr,
-    RSAGA,
-    foreach,
-    iterators,
+    RSAGA (>= 1.3.0),
     fasterize,
-    htmltools,
-    webshot,
     boot,
-    dismo,
-    igraph
+    dismo (>= 1.1.4),
+    igraph (>= 1.2.4.1)
 Depends: 
-    R (>= 3.5)
+    R (>= 3.6.1),
+    methods,
+    utils,
+    stats

@@ -40,7 +40,6 @@
 #' @importFrom ggpubr ggarrange
 #' @importFrom utils write.csv
 #' @importFrom grDevices dev.off tiff
-#' @importFrom foreach foreach %dopar% %do%
 MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
                             attribute = "Intersected area", area_unit = "ha",
                             res_attribute = 150,

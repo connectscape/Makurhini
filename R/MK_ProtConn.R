@@ -66,8 +66,6 @@
 #' @importFrom purrr compact
 #' @importFrom ggpubr ggarrange
 #' @importFrom formattable formattable formatter style color_tile as.htmlwidget
-#' @importFrom htmltools html_print
-#' @importFrom webshot webshot
 #' @importFrom methods as
 MK_ProtConn <- function(nodes, region, thintersect = NULL,
                         attribute = "Intersected area",
@@ -915,15 +913,6 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
       }
 
       if(!is.null(write)){
-        export_formattable <- function(f, file, width = "100%", height = NULL,
-                                       background = "white", delay = 0.2) {
-          w <- as.htmlwidget(f, width = width, height = height)
-          path <- html_print(w, background = background, viewer = NULL)
-          url <- paste0("file:///", gsub("\\\\", "/", normalizePath(path)))
-          webshot(url, file = file, selector = ".formattable_widget", delay = delay)
-        }
-
-        export_formattable(result[[1]], paste0(write, "_d", i, "_TableProtConn.png"))
         write.csv(result[[1]], paste0(write, "_d", i, "_TableProtConn.csv"), row.names = FALSE)
 
         if (nrow(nodes.2) > 0 & isTRUE(plot)){

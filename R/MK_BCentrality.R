@@ -67,8 +67,7 @@
 #' @importFrom dplyr progress_estimated
 #' @importFrom purrr map
 #' @importFrom iterators iter
-#' @importFrom foreach foreach %dopar%
-#' @importFrom utils write.table warnErrList
+#' @importFrom utils write.table
 #' @importFrom raster values as.matrix extent raster stack extent<- writeRaster reclassify crs crs<-
 #' @importFrom future multiprocess plan
 #' @importFrom furrr future_map
@@ -168,9 +167,8 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
   x = NULL
   if(isFALSE(parallel)){
     pb <- progress_estimated(length(distance_thresholds), 0)
+    BC_metric <- tryCatch(map(distance_thresholds, function(x){
 
-    BC_metric <- foreach(x = iter(distance_thresholds), .errorhandling = 'pass') %dopar%
-      {
         if (length(distance_thresholds) > 1) {
           pb$tick()$print()
         }
@@ -250,10 +248,10 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
           }
         }
         return(result_interm)
-      }
+      }), error = function(err) err)
   } else {
     plan(strategy = multiprocess, gc = TRUE)
-    BC_metric <- future_map(distance_thresholds, function(x) {
+    BC_metric <- tryCatch(future_map(distance_thresholds, function(x) {
       dMetric <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
                             coneforpath = coneforpath,
                             typeconnection = "dist", typepairs = pairs, index = metric,
@@ -316,13 +314,13 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
         }
       }
       return(result_interm)
-    }, .progress = TRUE)
+    }, .progress = TRUE), error = function(err) err)
     future:::ClusterRegistry("stop")
     }
 
-  if (!is.null(attr(warnErrList(BC_metric), "warningMsg")[[1]])) {
+  if (inherits(BC_metric, "error"))  {
     setwd(ttt.2)
-    stop(warnErrList(BC_metric))
+    stop(BC_metric)
     } else {
       if (length(distance_thresholds) == 1) {
         BC_metric <- BC_metric[[1]]

@@ -21,8 +21,7 @@
 #' @return nodo file in .txt format
 #' @export
 #' @importFrom raster res
-#' @importFrom sf st_zm
-#' @importFrom sf st_as_sf
+#' @importFrom sf st_zm st_as_sf
 #' @importFrom rgeos gArea
 #' @importFrom methods as
 #' @importFrom utils write.table

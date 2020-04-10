@@ -14,19 +14,30 @@
 #'  distance_thresholds = c(30000, 50000, 100000); sequence distances (recommended): distance_thresholds = seq(10000,100000, 10000).
 #' @param groups Selected representative threshold distances (distance just before the biggest changes in connectivity metric)
 #' @param LA numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to m2).
+#' @param area_unit character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
+#' compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".
 #' @param write character. Write output shapefile, example, "C:/ejemplo.shp".
 #' @references Correa Ayram, C. A., Mendoza, M. E., Etter, A., & Pérez Salicrup, D. R. (2017). Anthropogenic impact on habitat connectivity: A multidimensional human footprint index evaluated in a highly biodiverse landscape of Mexico. Ecological Indicators, 72, 895–909. https://doi.org/10.1016/j.ecolind.2016.09.007
 #' @export
 #' @examples
 #' \dontrun{
-#' ruta <- system.file("extdata", "ECA_example.RData", package = "Makurhini")
+#' library(Makurhini)
+#' library(rgeos)
+#' ruta <- system.file("extdata", "dECA_example.RData", package = "Makurhini")
 #' load(ruta)
-#' test_ECA_distance(nodes = forest_patches[[1]], distance1 =list(type= "centroid"), LA = 279165,
-#'                   distance_thresholds =  seq(10000,100000, 10000))
-#'                   }
+#' Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
+#'
+#' test_ECA_distance(nodes = forest_patches[[1]],
+#'                  distance1 =list(type= "centroid"),
+#'                  distance2 =list(type= "edge"),
+#'                  attribute = NULL, area_unit = "ha",
+#'                  LA = Max_attribute ,
+#'                  distance_thresholds = seq(10000,100000, 10000))
+#'}
 #' @importFrom magrittr %>%
 #' @import ggplot2
-#' @importFrom  purrr compact
+#' @importFrom purrr compact map_dfr
+#' @importFrom dplyr progress_estimated
 #' @importFrom methods as
 #' @importFrom utils tail
 test_ECA_distance <- function(nodes,
@@ -37,110 +48,78 @@ test_ECA_distance <- function(nodes,
                               distance4 = NULL,
                               metric = "IIC", probability = NULL,
                               distance_thresholds, LA = NULL,
+                              area_unit = "ha",
                               groups = 3, write = NULL){
   if(class(nodes)[1] == "sf") {
     nodes <- as(nodes, 'Spatial')
     }
   options(warn = -1)
-  ttt.2 <- getwd()
-  #
-  temp.1 <- paste0(tempdir(), "/TempInputs", sample(1:1000, 1, replace = TRUE))
-  dir.create(temp.1, recursive = T)
+
 
   #Id
   nodes@data$IdTemp <- 1:nrow(nodes)
-
-  #Nodes
-  if(is.null(attribute)){
-    nodesfile(nodes, id = "IdTemp", attribute = NULL, area_unit = "ha", write = paste0(temp.1,"/nodes.txt"))
-  } else {
-    nodesfile(nodes, id = "IdTemp", attribute = attribute, write = paste0(temp.1,"/nodes.txt"))
-  }
-
-  setwd(temp.1)
-
-  distances_test <- list(distance1, distance2, distance3, distance4)
-  distances_test <- compact(distances_test)
-
-  conn_metric <- lapply(distances_test, function(x){
-
-    distancefile(nodes,  id = "IdTemp", type = x$type, keep = x$keep,
-                 resistance = x$resistance, CostFun = x$CostFun, ngh = x$ngh,
-                 threshold = x$threshold,
-                 distance_unit = x$distance_unit, x$geometry_out,
-                 write = paste0(temp.1,"/Dist.txt"))
-
-    if (is.null(x$threshold)) {
-      pairs = "all"
-    } else {
-      pairs = "notall"
+  pb <- progress_estimated(length(distances_test), 0)
+  conn_metric <- map_dfr(distances_test, function(x){
+    ECA_metric <-  map_dfr(distance_thresholds, function(y) {
+      tab1 <- MK_dPCIIC(nodes = nodes, attribute = attribute,
+                        restauration = NULL,
+                        distance = x, area_unit = area_unit,
+                        metric = metric, probability = probability,
+                        distance_thresholds = y,
+                        overall = TRUE, onlyoverall = TRUE,
+                        LA = LA, rasterparallel = FALSE, write = NULL)
+      tab1 <- tab1[2,2]
+      return(tab1)
+    })
+    if(length(distances_test)>1){
+      pb$tick()$print()
     }
-
-    conn_metric2 <- lapply(as.list(distance_thresholds), function(y){
-      tab1 <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
-                         typeconnection = "dist", typepairs = pairs,
-                         index = metric, thdist = y,
-                         multdist = NULL, conprob = probability,
-                         onlyoverall = TRUE, LA = LA,
-                         nrestauration = FALSE,
-                         prefix = NULL, write = NULL)
-      tab1 <- tab1[[which(lapply(tab1, function(x) paste0(nrow(x), ncol(x))) == "32" | lapply(tab1, function(x) paste0(nrow(x), ncol(x))) == "22")]]
-      tab1 <- tab1[[2,2]]
-      return(tab1)})
-
-    conn_metric2 <- do.call(rbind, conn_metric2)
-    conn_metric2 <- cbind(conn_metric2, distance_thresholds)
+    conn_metric2 <- cbind(ECA_metric, distance_thresholds)
     conn_metric2 <- as.data.frame(conn_metric2)
     names(conn_metric2) <- c("ECA", "Distance")
     conn_metric2$Group <- x$type
     return(conn_metric2)
-    })
-
-  setwd(ttt.2)
-  #Join ECA tables
-  conn_metric <-  do.call(rbind, conn_metric)
-
-  #Selection
+  })
   ###Differences
   peaks_groups <- list()
   unique_groups <- unique(conn_metric$Group)
 
   ###Groups return
   for (i in 1:length(unique_groups)){
-      table1 <- conn_metric[conn_metric$Group == unique_groups[i],]
-      dif1 <- table1$ECA[2:length(table1$ECA)]
-      dif2 <- ((dif1 * 100)/table1$ECA) - 100
-      dif2 <-  round(dif2, 6)
-      peak <- table1[which(dif2 %in% tail(sort(dif2),(groups - 1))) +1,]
-      From <- c(min(table1$Distance), peak[[2]] + 1)
-      To <- c(peak[[2]], max(table1$Distance))
-      group_i <- 1:groups
-      group_i <- as.data.frame(cbind(group_i, From, To))
-      names(group_i)[c(1, 3)] <- c("Group", "To(dispersal distance)")
-      group_i$ECA <- c(peak$ECA, table1[which(table1$Distance == max(table1$Distance)), 1])
-      peaks_groups[[i]] <- group_i
-    }
+    table1 <- conn_metric[conn_metric$Group == unique_groups[i],]
+    dif1 <- table1$ECA[2:length(table1$ECA)]
+    dif2 <- ((dif1 * 100)/table1$ECA) - 100
+    dif2 <-  round(dif2, 6)
+    peak <- table1[which(dif2 %in% tail(sort(dif2),(groups - 1))) +1,]
+    From <- c(min(table1$Distance), peak[[2]] + 1)
+    To <- c(peak[[2]], max(table1$Distance))
+    group_i <- 1:groups
+    group_i <- as.data.frame(cbind(group_i, From, To))
+    names(group_i)[c(1, 3)] <- c("Group", "To(dispersal distance)")
+    group_i$ECA <- c(peak$ECA, table1[which(table1$Distance == max(table1$Distance)), 1])
+    peaks_groups[[i]] <- group_i
+  }
   names(peaks_groups) <- unique_groups
 
-    ###Groups plot
+  ###Groups plot
   peak_plot <- list()
-    for(i in 1:length(unique_groups)){
-      peaks_p <- cbind(peaks_groups[[i]], unique_groups[[i]])
-      names(peaks_p)[c(3, 5)] <- c("To", "plot_group")
-      peak_plot[[i]] <- peaks_p
-    }
-    peak_plot <- do.call(rbind, peak_plot)
+  for(i in 1:length(unique_groups)){
+    peaks_p <- cbind(peaks_groups[[i]], unique_groups[[i]])
+    names(peaks_p)[c(3, 5)] <- c("To", "plot_group")
+    peak_plot[[i]] <- peaks_p
+  }
+  peak_plot <- do.call(rbind, peak_plot)
 
-    ###Plot
-    if(is.null(attribute)){
-      ytitle = "ECA (ha)"
-      } else {
-        ytitle = "ECA"
-      }
+  ###Plot
+  if(is.null(attribute)){
+    ytitle = "ECA (ha)"
+  } else {
+    ytitle = paste0("ECA (", area_unit, ")")
+  }
 
 
-    ccolour <- c("#E16A86", "#909800", "#00AD9A", "#9183E6")
-    ccolour <- ccolour[1:length(unique_groups)]
+  ccolour <- c("#E16A86", "#909800", "#00AD9A", "#9183E6")
+  ccolour <- ccolour[1:length(unique_groups)]
 
     p1 <- ggplot() +
         geom_line(aes(y = conn_metric$ECA, x = conn_metric$Distance, colour = conn_metric$Group),

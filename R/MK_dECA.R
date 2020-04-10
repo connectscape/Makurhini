@@ -56,9 +56,8 @@
 #' @importFrom purrr compact map
 #' @importFrom methods as
 #' @importFrom rgeos gArea
-#' @importFrom dplyr progress_estimated
+#' @importFrom dplyr progress_estimated summarize
 #' @importFrom plyr ddply .
-#' @importFrom dplyr summarize
 #' @importFrom formattable formattable color_bar proportion formatter percent style
 #' @importFrom reshape2 melt
 #' @import ggplot2

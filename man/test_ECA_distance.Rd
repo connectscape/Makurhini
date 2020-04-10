@@ -7,7 +7,7 @@
 test_ECA_distance(nodes, attribute = NULL, distance1 = NULL,
   distance2 = NULL, distance3 = NULL, distance4 = NULL,
   metric = "IIC", probability = NULL, distance_thresholds, LA = NULL,
-  groups = 3, write = NULL)
+  area_unit = "ha", groups = 3, write = NULL)
 }
 \arguments{
 \item{nodes}{Object of class sf, sfc, sfg or SpatialPolygons.}
@@ -33,6 +33,9 @@ distance_thresholds = c(30000, 50000, 100000); sequence distances (recommended):
 
 \item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to m2).}
 
+\item{area_unit}{character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
+compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".}
+
 \item{groups}{Selected representative threshold distances (distance just before the biggest changes in connectivity metric)}
 
 \item{write}{character. Write output shapefile, example, "C:/ejemplo.shp".}
@@ -42,11 +45,19 @@ Test the ECA metric to multiple dispersal distances
 }
 \examples{
 \dontrun{
-ruta <- system.file("extdata", "ECA_example.RData", package = "Makurhini")
+library(Makurhini)
+library(rgeos)
+ruta <- system.file("extdata", "dECA_example.RData", package = "Makurhini")
 load(ruta)
-test_ECA_distance(nodes = forest_patches[[1]], distance1 =list(type= "centroid"), LA = 279165,
-                  distance_thresholds =  seq(10000,100000, 10000))
-                  }
+Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
+
+test_ECA_distance(nodes = forest_patches[[1]],
+                 distance1 =list(type= "centroid"),
+                 distance2 =list(type= "edge"),
+                 attribute = NULL, area_unit = "ha",
+                 LA = Max_attribute ,
+                 distance_thresholds = seq(10000,100000, 10000))
+}
 }
 \references{
 Correa Ayram, C. A., Mendoza, M. E., Etter, A., & Pérez Salicrup, D. R. (2017). Anthropogenic impact on habitat connectivity: A multidimensional human footprint index evaluated in a highly biodiverse landscape of Mexico. Ecological Indicators, 72, 895–909. https://doi.org/10.1016/j.ecolind.2016.09.007

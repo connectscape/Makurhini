@@ -63,7 +63,7 @@
 #' @importFrom reshape2 melt
 #' @import ggplot2
 #' @importFrom utils write.csv
-#' @importFrom future multiprocess plan
+#' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
 
 MK_dECA <- function(nodes,
@@ -75,7 +75,7 @@ MK_dECA <- function(nodes,
                       distance_thresholds = NULL,
                       LA = NULL,
                       plot = FALSE, parallel = FALSE,
-                      write = NULL){
+                    write = NULL){
   if (missing(nodes)) {
     stop("error missing file of nodes")
   } else {
@@ -119,11 +119,11 @@ MK_dECA <- function(nodes,
     listT <- map(listT, function(x) { if(class(x)[1] == "sf") {
       x <- as(x, 'Spatial')
       x@data$IdTemp <- 1:nrow(x)
-      } else {
-        x@data$IdTemp <- 1:nrow(x)
-      }
+    } else {
+      x@data$IdTemp <- 1:nrow(x)
+    }
       return(x)
-      })
+    })
   }
 
   #
@@ -151,28 +151,29 @@ MK_dECA <- function(nodes,
   if(isFALSE(parallel)){
     pb <- progress_estimated(length(listT), 0)
     ECA <- tryCatch(map(listT, function(x){
-        pb$tick()$print()
+      pb$tick()$print()
 
-        ECA_metric <-  map(distance_thresholds, function(y) {
-            tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
-                              restauration = NULL,
-                              distance = distance, area_unit = area_unit,
-                              metric = metric, probability = probability,
-                              distance_thresholds = y,
-                              overall = TRUE, onlyoverall = TRUE,
-                              LA = LA, rasterparallel = FALSE, write = NULL)
-            tab1 <- tab1[[2,2]]
-            return(tab1)
-          })
+      ECA_metric <-  map(distance_thresholds, function(y) {
+        tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
+                          restauration = NULL,
+                          distance = distance, area_unit = area_unit,
+                          metric = metric, probability = probability,
+                          distance_thresholds = y,
+                          overall = TRUE, onlyoverall = TRUE,
+                          LA = LA, rasterparallel = FALSE, write = NULL)
+        tab1 <- tab1[[2,2]]
+        return(tab1)
+      })
 
-        ECA_metric2 <- do.call(rbind,  ECA_metric)
-        ECA_metric2 <- cbind(ECA_metric2, distance_thresholds)
-        ECA_metric2 <- as.data.frame(ECA_metric2)
-        names(ECA_metric2) <- c("ECA", "Distance")
-        return(ECA_metric2)
-      }), error = function(err) err)
+      ECA_metric2 <- do.call(rbind,  ECA_metric)
+      ECA_metric2 <- cbind(ECA_metric2, distance_thresholds)
+      ECA_metric2 <- as.data.frame(ECA_metric2)
+      names(ECA_metric2) <- c("ECA", "Distance")
+      return(ECA_metric2)
+    }), error = function(err) err)
   } else {
-    plan(strategy = multiprocess, gc = TRUE)
+    works = as.numeric(availableCores())-
+    plan(strategy = multiprocess, gc = TRUE, workers = works)
     ECA <- tryCatch(future_map(listT, function(x) {
       ECA_metric <-  future_map(distance_thresholds, function(y) {
         tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
@@ -190,9 +191,9 @@ MK_dECA <- function(nodes,
       ECA_metric2 <- as.data.frame(ECA_metric2)
       names(ECA_metric2) <- c("ECA", "Distance")
       return(ECA_metric2)
-      }, .progress = TRUE),  error = function(err) err)
-    future:::ClusterRegistry("stop")
-    }
+    }, .progress = TRUE),  error = function(err) err)
+    close_multiprocess(works)
+  }
 
   if(inherits(ECA, "error")){
     stop("review ECA parameters: nodes, distance file or LA")
@@ -234,11 +235,11 @@ MK_dECA <- function(nodes,
                                  `dA` = formatter("span",style = ~ style(color = ifelse(`dA` > 0, "green", "red"))),
                                  `dECA` = formatter("span",style = ~ style(color = ifelse(`dECA` > 0, "green", "red")))))
       return(DECA.4)
-      })
+    })
     #
     if (!is.null(write)){
       write.csv(do.call(rbind, ECA3), write, row.names = FALSE)
-      }
+    }
     ###plot
     if(isTRUE(plot) | is.character(plot)){
       if(isTRUE(plot)){
@@ -319,7 +320,7 @@ MK_dECA <- function(nodes,
       names(ECA_result) <- paste(distance_thresholds)
       ECA3 <- ECA_result
     }
-  #
+    #
     if(length(distance_thresholds) == 1){
       if((isTRUE(plot) | is.character(plot))){
         ECA4 <- ECA3[[1]][[2]]
@@ -329,7 +330,7 @@ MK_dECA <- function(nodes,
         ECA3 <- ECA3[[1]]
       }
     }
-    }
-  return(ECA3)
   }
+  return(ECA3)
+}
 

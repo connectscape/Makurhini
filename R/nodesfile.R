@@ -26,7 +26,7 @@
 #' @importFrom methods as
 #' @importFrom utils write.table
 nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauration = NULL, multiple = NULL,
-                         prefix = NULL, write = NULL) {
+                      prefix = NULL, write = NULL) {
   if (missing(nodes)) {
     stop("error missing file of nodes")
   } else {
@@ -43,16 +43,16 @@ nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauratio
   if(class(nodes)[1] == "sf" | class(nodes)[1] == "SpatialPolygonsDataFrame"){
     if(missing(id)){
       stop("Error, missing id argument")
-      }
+    }
 
     if(class(nodes)[1] == "sf") {
       nodes <- st_zm(nodes)
       nodes <- as(nodes, 'Spatial')
-      } else {
-        nodes <- st_as_sf(nodes)
-        nodes <- st_zm(nodes)
-        nodes <- as(nodes, 'Spatial')
-      }
+    } else {
+      nodes <- st_as_sf(nodes)
+      nodes <- st_zm(nodes)
+      nodes <- as(nodes, 'Spatial')
+    }
 
     if (is.null(attribute)) {
       nodes$Area <- gArea(nodes, byid = TRUE)
@@ -126,31 +126,31 @@ nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauratio
       if (dim(nodes)[1] > 1){
         write.table(nodes, write, sep="\t", row.names = FALSE, col.names = FALSE)
         return(nodes)
-    } else {
-      stop("Error only one node")
-    }
+      } else {
+        stop("Error only one node")
       }
-    } else {
-      x <- unique(nodes[,2])
-      for(i in x) {
-        multiple_1 <- nodes[nodes[2] == i,]
-        if (dim(multiple_1)[1] > 1){
-          if (is.null(restauration)) {
-            multiple_2 <- c(multiple_1[1], multiple_1[3])
-            } else {
-              multiple_2 <- c(multiple_1[1], multiple_1[3], multiple_1[4])
-            }
-          if (!is.null(prefix)) {
-            write.table(multiple_2, paste0(write, paste(prefix, i, sep = "_"), ".txt", sep = "."),
-                    sep = "\t", row.names = FALSE, col.names = FALSE)
-            } else {
-              write.table(multiple_2, paste0(write, paste(i, sep = "_"), ".txt", sep = "."),
-                    sep = "\t", row.names = FALSE, col.names = FALSE)
-              }
-          } else {
-            stop("Error only one node")
-          }
+    }
+  } else {
+    x <- unique(nodes[,2])
+    for(i in x) {
+      multiple_1 <- nodes[nodes[2] == i,]
+      if (dim(multiple_1)[1] > 1){
+        if (is.null(restauration)) {
+          multiple_2 <- c(multiple_1[1], multiple_1[3])
+        } else {
+          multiple_2 <- c(multiple_1[1], multiple_1[3], multiple_1[4])
+        }
+        if (!is.null(prefix)) {
+          write.table(multiple_2, paste0(write, paste(prefix, i, sep = "_"), ".txt", sep = "."),
+                      sep = "\t", row.names = FALSE, col.names = FALSE)
+        } else {
+          write.table(multiple_2, paste0(write, paste(i, sep = "_"), ".txt", sep = "."),
+                      sep = "\t", row.names = FALSE, col.names = FALSE)
+        }
+      } else {
+        stop("Error only one node")
       }
     }
   }
+}
 

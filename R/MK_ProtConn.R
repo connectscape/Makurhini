@@ -428,7 +428,7 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
 
               #Distance file
               distance_protconn.2 <- distance_base[which(row.names(distance_base) %in% as.numeric(nodes.2$IDTemp)),
-                                                       which(colnames(distance_base) %in% as.numeric(nodes.2$IDTemp))]
+                                                   which(colnames(distance_base) %in% as.numeric(nodes.2$IDTemp))]
 
               result.2 <- tryCatch(MK_dPCIIC(nodes = nodes_protconn.2, attribute = names(nodes_protconn.2)[2],
                                              distance = distance_protconn.2,

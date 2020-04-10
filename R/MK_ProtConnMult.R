@@ -34,7 +34,7 @@
 #' @import sf
 #' @import ggplot2
 #' @importFrom dplyr progress_estimated
-#' @importFrom future multiprocess plan
+#' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
 #' @importFrom formattable color_tile area style formattable formatter
 #' @importFrom ggpubr ggarrange
@@ -140,11 +140,11 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
       }
 
       if(length(distance_thresholds) > 1){
-      ECAlist <- tryCatch(map(protconn, function(x){
-        n <- as.vector(x[[1]][[1]])
-        x2 <- t(x[[1]][[2]]) %>% as.data.frame()
-        colnames(x2) <- n
-        return(x2)}), error = function(err)err)
+        ECAlist <- tryCatch(map(protconn, function(x){
+          n <- as.vector(x[[1]][[1]])
+          x2 <- t(x[[1]][[2]]) %>% as.data.frame()
+          colnames(x2) <- n
+          return(x2)}), error = function(err)err)
       } else {
         n <- as.vector(protconn[[1]])
         ECAlist <- t(protconn[[2]]) %>% as.data.frame()
@@ -158,7 +158,8 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
       result <- list(Ecoreglist, ECAlist)
       return(result)})
   } else {
-    plan(strategy = multiprocess)
+    works <- as.numeric(availableCores())-1
+    plan(strategy = multiprocess, gc = TRUE, workers = works)
     protconn_result <- tryCatch(future_map(as.list(1:length(regions$ID_Temp)), function(x){
       Ecoreg_sel <- regions[regions$ID_Temp == unique(regions$ID_Temp)[x],]
       protconn <- tryCatch(MK_ProtConn(nodes = nodes,
@@ -214,6 +215,7 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
 
       result <- list(Ecoreglist, ECAlist)
       return(result)}, .progress = intern), error = function(err)err)
+    close_multiprocess(works)
   }
 
   Ecoreglist <- lapply(protconn_result, function(x){x[[1]]})
@@ -240,9 +242,9 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
       ECA_2 <- map(1:length(regions$ID_Temp), function(j) {
         ECAlist[[j]][[i]]
       })
-      } else {
-        ECA_2 <- ECAlist
-      }
+    } else {
+      ECA_2 <- ECAlist
+    }
 
     ECA_3 <- do.call(rbind, ECA_2)
     rownames(ECA_3) <- NULL
@@ -273,7 +275,7 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
 
     if(!is.null(write)){
       write.csv(DataProtconn, paste0(write, "SummaryStats_", distance_thresholds[i], ".csv"))
-      }
+    }
 
     if(ncol(DataProtconn_2) > 2){
       DataProtconn <- formattable(DataProtconn_2[3:nrow(DataProtconn_2),], align = c("l", rep("r", NCOL(DataProtconn_2) - 1)),
@@ -291,103 +293,103 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
                         paste0("ProtConn_overall_", distance_thresholds[i]))
 
     if(isTRUE(plot)){
-        dacc <- as.data.frame(DataProtconn[c(1:3), c(2:3)])
-        dacc$name <- c("Unprotected", "Protected", "Protected connected")
-        dacc$name <- factor(dacc$name, levels = c("Unprotected", "Protected", "Protected connected"))
-        dacc$col <- c("#C34D51", "#53A768", "#4C72AF")
-        names(dacc)[1] <- "Values"
-        dacc <- dacc[which(dacc$Values > 0), ]
-        if(nrow(dacc) > 1){
-          dacc$max <- dacc$Values+dacc$SD
-          dacc$min <- dacc$Values-dacc$SD
-          dacc[5:6] <- apply(dacc[5:6], 2, function(x){
-            x[which(x >100)]<- 100
-            x[which(x <0)]<- 0
-            return(x)})
+      dacc <- as.data.frame(DataProtconn[c(1:3), c(2:3)])
+      dacc$name <- c("Unprotected", "Protected", "Protected connected")
+      dacc$name <- factor(dacc$name, levels = c("Unprotected", "Protected", "Protected connected"))
+      dacc$col <- c("#C34D51", "#53A768", "#4C72AF")
+      names(dacc)[1] <- "Values"
+      dacc <- dacc[which(dacc$Values > 0), ]
+      if(nrow(dacc) > 1){
+        dacc$max <- dacc$Values+dacc$SD
+        dacc$min <- dacc$Values-dacc$SD
+        dacc[5:6] <- apply(dacc[5:6], 2, function(x){
+          x[which(x >100)]<- 100
+          x[which(x <0)]<- 0
+          return(x)})
 
-          plot_protconn1 <- ggplot(dacc, aes(x = dacc$name, y = dacc$Values, fill = dacc$name)) +
-            geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, size = 0.2) +
-            geom_errorbar(position = position_dodge(), width = 0.2, aes(ymin = min, ymax = max)) +
-            labs(title = paste0("ProtConn Indicators: ", distance_thresholds[i]), x = "", y = "Percentage (%)", size = rel(1.2)) +
-            theme_bw()  +
-            theme(plot.title = element_text(color = "#252525", size = rel(1.4), hjust = 0.5, face = "bold"),
-                  axis.title= element_text(color = "#252525", size = rel(1.2)),
-                  legend.title= element_blank(),
-                  legend.text = element_text(colour = "#252525", size = rel(1.2)),
-                  axis.text= element_text(colour = "#525252", size = rel(1)))+
-            scale_fill_manual(values = dacc$col) +
-            geom_hline(aes(yintercept = 17, linetype = "Aichi Target (17%)"),
-                       colour = 'black', size = 1.2) +
-            scale_linetype_manual(name = " Aichi Target", values = c(2, 2),
-                                  guide = guide_legend(override.aes = list(color = c("black"), size = 0.8)))
-          plots <- list(plot_protconn1)
-        }
-
-        dacc2 <- as.data.frame(DataProtconn[c(7:10), c(1:3)])
-        dacc2$name <- c("ProtConn[Trans]", "ProtConn[Unprot]", "ProtConn[Within]", "ProtConn[Contig]")
-        dacc2$Indicator <- NULL
-        dacc2$name <- factor(dacc2$name, levels = c("ProtConn[Trans]", "ProtConn[Unprot]", "ProtConn[Within]", "ProtConn[Contig]"))
-        dacc2$col <- c("#253494", "#2c7fb8", "#41b6c4", "#7fcdbb")
-        names(dacc2)[2] <- "Values"
-        dacc2 <- dacc2[which(dacc2$Values > 0), ]
-        if(nrow(dacc2) > 1){
-          dacc2$max <- dacc2$Values+dacc2$SD
-          dacc2$min <- dacc2$Values-dacc2$SD
-          dacc2[6:7] <- apply(dacc2[6:7], 2, function(x){
-            x[which(x >100)]<- 100
-            x[which(x <0)]<- 0
-            return(x)})
-          plot_protconn2 <- ggplot(dacc2, aes(x = dacc2$name, y = dacc2$Values, fill = dacc2$name)) +
-            geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, size = 0.2) +
-            geom_errorbar(position = position_dodge(), width = 0.2, aes(ymin = min, ymax = max)) +
-            labs(title = "Protected connected fraction", x = "", y = "Percentage (%)", size = rel(1.2)) +
-            theme_bw()  +
-            theme(plot.title = element_text(color = "#252525", size = rel(1.4), hjust = 0.45, face = "bold"),
-                  axis.title= element_text(color = "#252525", size = rel(1.2)),
-                  plot.margin = margin(0, 5.3, 0, 0.3, "cm"),
-                  legend.title= element_blank(),
-                  legend.text = element_text(colour = "#252525", size = rel(1.2)),
-                  axis.text= element_text(colour = "#525252", size = rel(1)))+
-            scale_fill_manual(values = dacc2$col)
-          plots <- list(plot_protconn1, plot_protconn2)
-        }
-        plots <- compact(plots)
-
-        if(length(plots) == 2){
-          figure <- ggarrange(plots[[1]], plots[[2]],
-                              ncol = 1, nrow = 2)
-        } else if (length(plots) == 1) {
-          figure <- plots[[1]]
-        } else {
-          figure <- "There are insufficient data to plot"
-        }
-
-        results[[3]] <- figure
-        names(results)[3] <- "ProtConn Plot"
+        plot_protconn1 <- ggplot(dacc, aes(x = dacc$name, y = dacc$Values, fill = dacc$name)) +
+          geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, size = 0.2) +
+          geom_errorbar(position = position_dodge(), width = 0.2, aes(ymin = min, ymax = max)) +
+          labs(title = paste0("ProtConn Indicators: ", distance_thresholds[i]), x = "", y = "Percentage (%)", size = rel(1.2)) +
+          theme_bw()  +
+          theme(plot.title = element_text(color = "#252525", size = rel(1.4), hjust = 0.5, face = "bold"),
+                axis.title= element_text(color = "#252525", size = rel(1.2)),
+                legend.title= element_blank(),
+                legend.text = element_text(colour = "#252525", size = rel(1.2)),
+                axis.text= element_text(colour = "#525252", size = rel(1)))+
+          scale_fill_manual(values = dacc$col) +
+          geom_hline(aes(yintercept = 17, linetype = "Aichi Target (17%)"),
+                     colour = 'black', size = 1.2) +
+          scale_linetype_manual(name = " Aichi Target", values = c(2, 2),
+                                guide = guide_legend(override.aes = list(color = c("black"), size = 0.8)))
+        plots <- list(plot_protconn1)
       }
+
+      dacc2 <- as.data.frame(DataProtconn[c(7:10), c(1:3)])
+      dacc2$name <- c("ProtConn[Trans]", "ProtConn[Unprot]", "ProtConn[Within]", "ProtConn[Contig]")
+      dacc2$Indicator <- NULL
+      dacc2$name <- factor(dacc2$name, levels = c("ProtConn[Trans]", "ProtConn[Unprot]", "ProtConn[Within]", "ProtConn[Contig]"))
+      dacc2$col <- c("#253494", "#2c7fb8", "#41b6c4", "#7fcdbb")
+      names(dacc2)[2] <- "Values"
+      dacc2 <- dacc2[which(dacc2$Values > 0), ]
+      if(nrow(dacc2) > 1){
+        dacc2$max <- dacc2$Values+dacc2$SD
+        dacc2$min <- dacc2$Values-dacc2$SD
+        dacc2[6:7] <- apply(dacc2[6:7], 2, function(x){
+          x[which(x >100)]<- 100
+          x[which(x <0)]<- 0
+          return(x)})
+        plot_protconn2 <- ggplot(dacc2, aes(x = dacc2$name, y = dacc2$Values, fill = dacc2$name)) +
+          geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, size = 0.2) +
+          geom_errorbar(position = position_dodge(), width = 0.2, aes(ymin = min, ymax = max)) +
+          labs(title = "Protected connected fraction", x = "", y = "Percentage (%)", size = rel(1.2)) +
+          theme_bw()  +
+          theme(plot.title = element_text(color = "#252525", size = rel(1.4), hjust = 0.45, face = "bold"),
+                axis.title= element_text(color = "#252525", size = rel(1.2)),
+                plot.margin = margin(0, 5.3, 0, 0.3, "cm"),
+                legend.title= element_blank(),
+                legend.text = element_text(colour = "#252525", size = rel(1.2)),
+                axis.text= element_text(colour = "#525252", size = rel(1)))+
+          scale_fill_manual(values = dacc2$col)
+        plots <- list(plot_protconn1, plot_protconn2)
+      }
+      plots <- compact(plots)
+
+      if(length(plots) == 2){
+        figure <- ggarrange(plots[[1]], plots[[2]],
+                            ncol = 1, nrow = 2)
+      } else if (length(plots) == 1) {
+        figure <- plots[[1]]
+      } else {
+        figure <- "There are insufficient data to plot"
+      }
+
+      results[[3]] <- figure
+      names(results)[3] <- "ProtConn Plot"
+    }
 
     if(!is.null(write)){
-        regions.2[is.na(regions.2)] <- 0
-        nn <- c("EC", "PC", "Unprot", "Prot", "ProtConn", "ProtUnconn", "RelConn", "Design", "Bound", "P_Prot",
-                "P_Trans", "P_Unprot", "P_Within", "P_Contig", "P_WithinL", "P_ContigL", "P_UnprotL", "P_TransL")
-        names(regions.2)[which(names(regions.2)=="EC(PC)"):(ncol(regions.2)-1)] <- nn
+      regions.2[is.na(regions.2)] <- 0
+      nn <- c("EC", "PC", "Unprot", "Prot", "ProtConn", "ProtUnconn", "RelConn", "Design", "Bound", "P_Prot",
+              "P_Trans", "P_Unprot", "P_Within", "P_Contig", "P_WithinL", "P_ContigL", "P_UnprotL", "P_TransL")
+      names(regions.2)[which(names(regions.2)=="EC(PC)"):(ncol(regions.2)-1)] <- nn
 
-        write_sf(regions.2, paste0(write, "ProtConn_", distance_thresholds[i], ".shp"), delete_layer = T)
-        if(isTRUE(plot)){
-          if(!is.character(figure)){
-            tiff(paste0(write, "ProtConn_plot_d", distance_thresholds[i], ".tif"), width = 806, height = 641)
-            print(figure)
-            dev.off()
-          }
+      write_sf(regions.2, paste0(write, "ProtConn_", distance_thresholds[i], ".shp"), delete_layer = T)
+      if(isTRUE(plot)){
+        if(!is.character(figure)){
+          tiff(paste0(write, "ProtConn_plot_d", distance_thresholds[i], ".tif"), width = 806, height = 641)
+          print(figure)
+          dev.off()
         }
       }
+    }
 
     return(results)
-    }), error = function(err)err)
+  }), error = function(err)err)
 
   if (inherits(data_1, "error")){
     stop(data_1)
   }
   names(data_1) <- paste0("ProtConn_", distance_thresholds)
   return(data_1)
-  }
+}

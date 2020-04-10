@@ -33,6 +33,7 @@
 #' @param multiple character. If nodes is a shapefile then you can use this argument. Name of the column with the zone to which each core area belongs.
 #' @param prefix character. Initial prefix, use in case of processing several sites at the same time in CONEFOR command line.
 #' @param parallel logical. If nodes is a raster then you can use this argument for larges RasterLayer.
+#' @param edgeParallel logical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.
 #' @param bounding_circles numeric. If a value is entered, this will create bounding circles around pairs of core areas
 #'  (recommended for speed, large resistance rasters or pixel resolution < 150 m).
 #'  Buffer distances are entered in map units. Also, the function is parallelized using
@@ -48,7 +49,7 @@
 #' @import sf
 #' @importFrom methods as
 #' @importFrom purrr map
-#' @importFrom future multiprocess plan
+#' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
 #' @importFrom rmapshaper ms_dissolve
 #' @importFrom spex qm_rasterToPolygons
@@ -92,17 +93,17 @@ distancefile <- function(nodes, id,
 
   if(class(nodes)[1] == "sf" | class(nodes)[1] == "SpatialPolygonsDataFrame"){
 
-  if(class(nodes)[1] == "sf") {
-    nodes <- as(nodes, 'Spatial')
+    if(class(nodes)[1] == "sf") {
+      nodes <- as(nodes, 'Spatial')
     }
 
-  if (nrow(nodes) > 1) {
-    if (is.null(multiple)) {
-      if (type %in%  c("centroid", "edge")){
-        distance <- euclidean_distances(x = nodes, id = id, type_distance = type, distance_unit =distance_unit,
-                                        keep = keep, threshold = threshold,  pairwise = pairwise,
-                                        write_table = write)
-        return(distance)
+    if (nrow(nodes) > 1) {
+      if (is.null(multiple)) {
+        if (type %in%  c("centroid", "edge")){
+          distance <- euclidean_distances(x = nodes, id = id, type_distance = type, distance_unit =distance_unit,
+                                          keep = keep, threshold = threshold,  pairwise = pairwise,
+                                          write_table = write)
+          return(distance)
 
         } else if (type %in%  c("least-cost", "commute-time")){
           distance <- cost_distances(x = nodes, id = id, type_distance = type, resistance = resistance,
@@ -112,22 +113,22 @@ distancefile <- function(nodes, id,
                                      write_table = write)
           return(distance)
 
-          } else {
-            stop("Error, you have to choose a type_distance option")
-          }
+        } else {
+          stop("Error, you have to choose a type_distance option")
+        }
 
-    } else {
-      multiple_1 <- unique(nodes@data[,which(colnames(nodes@data) == multiple)])
-      if (type %in%  c("centroid", "edge")){
-        distance <- map(as.list(multiple_1), function(x) { if (!is.null(write)){
-          save <- paste(write, x, ".txt") } else { save <- NULL }
-          nodes.1 <- nodes[nodes@data[,which(colnames(nodes@data) == multiple)] == x,]
-          distance <- euclidean_distances(x = nodes.1, id = id, type_distance = type, distance_unit = distance_unit,
-                                          keep = keep, threshold = threshold, pairwise = pairwise,
-                                          write_table = save)
-          return(distance) })
-        names(distance) <- multiple_1
-        return(distance)
+      } else {
+        multiple_1 <- unique(nodes@data[,which(colnames(nodes@data) == multiple)])
+        if (type %in%  c("centroid", "edge")){
+          distance <- map(as.list(multiple_1), function(x) { if (!is.null(write)){
+            save <- paste(write, x, ".txt") } else { save <- NULL }
+            nodes.1 <- nodes[nodes@data[,which(colnames(nodes@data) == multiple)] == x,]
+            distance <- euclidean_distances(x = nodes.1, id = id, type_distance = type, distance_unit = distance_unit,
+                                            keep = keep, threshold = threshold, pairwise = pairwise,
+                                            write_table = save)
+            return(distance) })
+          names(distance) <- multiple_1
+          return(distance)
         } else if (type %in%  c("least-cost", "commute-time")){
           distance <- map(as.list(multiple_1), function(x) { if (!is.null(write)){
             save <- paste(write, x, ".txt") } else { save <- NULL }
@@ -140,9 +141,9 @@ distancefile <- function(nodes, id,
             return(distance) })
           names(distance) <- multiple_1
           return(distance)
-          } else {
+        } else {
           stop("Error, you have to choose a type_distance option")
-          }
+        }
       }
     } else {
       stop("Error, only one node")
@@ -158,13 +159,14 @@ distancefile <- function(nodes, id,
         if (type %in%  c("centroid", "edge")){
           if(type == "centroid"){
             if(isTRUE(parallel)){
-                rp <- unique(raster::values(nodes))
-                rp <- as.vector(rp)
-                rp <- rp[which(!is.na(rp))]
-                rp <- split(rp, ceiling(seq_along(rp)/round(sqrt(max(rp)))))
+              rp <- unique(raster::values(nodes))
+              rp <- as.vector(rp)
+              rp <- rp[which(!is.na(rp))]
+              rp <- split(rp, ceiling(seq_along(rp)/round(sqrt(max(rp)))))
 
-                '%!in%' <- function(x,y)!('%in%'(x,y))
-                plan(strategy = multiprocess)
+              '%!in%' <- function(x,y)!('%in%'(x,y))
+              works <- as.numeric(availableCores())-1
+              plan(strategy = multiprocess, gc = TRUE, workers = works)
 
               coords <- future_map(rp, function(x){
                 r <- nodes
@@ -179,10 +181,10 @@ distancefile <- function(nodes, id,
                   return(cn)}) %>% do.call(rbind, .)
 
                 coords1 <- st_as_sf(coords1, coords = c("x", "y"),
-                                   crs = crs(nodes), stringsAsFactors = FALSE)
+                                    crs = crs(nodes), stringsAsFactors = FALSE)
                 return(coords1) },.progress = TRUE)
+              close_multiprocess(works)
               coords <- do.call(rbind, coords)
-
 
             } else {
               p <- data.frame(rasterToPoints(nodes))
@@ -213,7 +215,8 @@ distancefile <- function(nodes, id,
               rp <- split(rp, ceiling(seq_along(rp)/round(sqrt(max(rp)))))
 
               '%!in%' <- function(x,y)!('%in%'(x,y))
-              plan(strategy = multiprocess)
+              works <- as.numeric(availableCores())-1
+              plan(strategy = multiprocess, gc = TRUE, workers = works)
 
               pol_nodes <- future_map(rp, function(x){
                 r <- nodes
@@ -222,10 +225,8 @@ distancefile <- function(nodes, id,
                 names(pn)[1] <- "Id"
                 pn <- pn %>% group_by(.data$Id) %>% summarize() %>% st_cast(.)
                 return(pn)
-                }, .progress = TRUE) %>% do.call(rbind, .)
-
-
-
+              }, .progress = TRUE) %>% do.call(rbind, .)
+              close_multiprocess(works)
             } else {
               pol_nodes <- qm_rasterToPolygons(nodes)
               names(pol_nodes)[1] <- "Id"
@@ -254,7 +255,8 @@ distancefile <- function(nodes, id,
             rp <- split(rp, ceiling(seq_along(rp)/round(sqrt(max(rp)))))
 
             '%!in%' <- function(x,y)!('%in%'(x,y))
-            plan(strategy = multiprocess)
+            works <- as.numeric(availableCores())-1
+            plan(strategy = multiprocess, gc = TRUE, workers = works)
 
             coords <- future_map(rp, function(x){
               r <- nodes
@@ -270,9 +272,8 @@ distancefile <- function(nodes, id,
               coords1 <- st_as_sf(coords1, coords = c("x", "y"),
                                   crs = crs(nodes), stringsAsFactors = FALSE)
               return(coords1) },.progress = TRUE)
+            close_multiprocess(works)
             coords <- do.call(rbind, coords)
-
-
           } else {
             p <- data.frame(rasterToPoints(nodes))
             names(p)[3] <- "layer"
@@ -308,6 +309,6 @@ distancefile <- function(nodes, id,
     stop("error missing file of nodes or check the class")
   }
 
-  }
+}
 
 

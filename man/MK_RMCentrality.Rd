@@ -20,6 +20,8 @@ to use the "resistance" argument. To see more arguments see the ?distancefile.}
 \item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections (in meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
 distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).}
 
+\item{binary}{logical. Binary metrics, it only considers the distance thresholds to establish if a pair of nodes is (1) or not connected (0). Probability argument is not necessary.}
+
 \item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.
 If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).}
 

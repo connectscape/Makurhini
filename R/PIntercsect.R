@@ -2,7 +2,6 @@
 #'
 #' @param p1 object of class sf, sfc, sfg or SpatialPolygons. Polygons 1 (polygons to be parallelized)
 #' @param p2 object of class sf, sfc, sfg or SpatialPolygons. Polygons 2
-#' @export
 #' @import parallel
 #' @importFrom methods as
 #' @importFrom raster intersect
@@ -14,8 +13,7 @@ PIntercsect<-function(p1,p2){
   }
   p1$idn <- rep(seq(1:round(nrow(p1)/3,0)),times=5, len=nrow(p1))
   #
-  #p1$idn<-sample.int(length(p1)/2,length(p1),replace=T)
-  listIZ <- split(p1, p1@data[,ncol(p1)])
+   listIZ <- split(p1, p1@data[,ncol(p1)])
   #
   cl <- makeCluster(detectCores()-1)
   listIZ <- parLapply(cl, listIZ, intersect, y=p2)

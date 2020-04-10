@@ -9,6 +9,7 @@
 #' to use the "resistance" argument. To see more arguments see the ?distancefile.
 #' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (in meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
 #'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).
+#' @param binary logical. Binary metrics, it only considers the distance thresholds to establish if a pair of nodes is (1) or not connected (0). Probability argument is not necessary.
 #' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.
 #' If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).
 #' @param rasterparallel logical. If nodes is "raster" then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.
@@ -40,6 +41,8 @@
 #' @importFrom purrr map map_dbl
 #' @importFrom igraph graph.adjacency strength evcent closeness betweenness clusters cluster_louvain degree
 #' @importFrom raster as.matrix extent raster stack extent<- writeRaster reclassify crs crs<- unique
+#' @importFrom future multiprocess plan availableCores
+#' @importFrom furrr future_map
 
 MK_RMCentrality <- function(nodes,
                             distance = list(type = "centroid"),
@@ -193,8 +196,8 @@ MK_RMCentrality <- function(nodes,
         if(!is.null(write)){
           write_sf(nodes.2, paste0(write, "_", "d", x,  ".shp"), delete_layer = TRUE)
         }
-        }
       }
+    }
 
     if(is.null(idT)){
       rp <- raster::unique(nodes)
@@ -205,8 +208,8 @@ MK_RMCentrality <- function(nodes,
         m <- matrix(nrow = nrow(dist), ncol = 2)
         m[,1] <- rownames(dist) %>% as.numeric()
 
-        plan(strategy = multiprocess)
-
+        works <- as.numeric(availableCores())-1
+        plan(strategy = multiprocess, gc = TRUE, workers = works)
         r_metric <- future_map(2:ncol(metric_conn), function(c){
           x1 <- metric_conn[, c(1, c)]
           for(i in rp){
@@ -215,6 +218,7 @@ MK_RMCentrality <- function(nodes,
           }
           x1 <- reclassify(nodes, rcl = m)
           return(x1)}, .progress = TRUE)
+        close_multiprocess(works)
 
       } else {
         m <- matrix(nrow = nrow(dist), ncol = 2)

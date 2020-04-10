@@ -66,10 +66,9 @@
 #' @import sf
 #' @importFrom dplyr progress_estimated
 #' @importFrom purrr map
-#' @importFrom iterators iter
 #' @importFrom utils write.table
 #' @importFrom raster values as.matrix extent raster stack extent<- writeRaster reclassify crs crs<-
-#' @importFrom future multiprocess plan
+#' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
 
 MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
@@ -207,7 +206,8 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
           if(isTRUE(rasterparallel)){
             m <- matrix(nrow = nrow(datat), ncol = 2)
             m[,1] <- datat[,1]
-            plan(strategy = multiprocess)
+            works <- as.numeric(availableCores())-1
+            plan(strategy = multiprocess, gc=TRUE, workers = works)
             r_metric <- future_map(2:ncol(datat), function(c){
               x1 <- datat[,c(1, c)]
               for(i in rp){
@@ -215,7 +215,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
               }
               x1 <- reclassify(nodes, rcl = m)
               return(x1)}, .progress = TRUE)
-            future:::ClusterRegistry("stop")
+            close_multiprocess(works)
           } else {
             m <- matrix(nrow = nrow(datat), ncol = 2)
             m[,1] <- datat[,1]
@@ -250,7 +250,8 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
         return(result_interm)
       }), error = function(err) err)
   } else {
-    plan(strategy = multiprocess, gc = TRUE)
+    works <- as.numeric(availableCores())-1
+    plan(strategy = multiprocess, gc = TRUE, workers = works)
     BC_metric <- tryCatch(future_map(distance_thresholds, function(x) {
       dMetric <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
                             coneforpath = coneforpath,
@@ -315,7 +316,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
       }
       return(result_interm)
     }, .progress = TRUE), error = function(err) err)
-    future:::ClusterRegistry("stop")
+    close_multiprocess(works)
     }
 
   if (inherits(BC_metric, "error"))  {

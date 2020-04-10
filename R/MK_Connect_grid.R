@@ -70,7 +70,7 @@
 #' @importFrom raster extent projection projection<- raster
 #' @import sf
 #' @importFrom rmapshaper ms_dissolve
-#' @importFrom future plan multiprocess
+#' @importFrom future plan multiprocess availableCores
 #' @importFrom furrr future_map
 #' @importFrom dplyr progress_estimated
 #' @importFrom purrr map
@@ -190,15 +190,16 @@ MK_Connect_grid <- function(grid_pol = NULL, grid_id = NULL,
   if (metric == "ProtConn") {
     attribute <- if(is.null(attribute)){"Intersected area"} else{attribute}
     if (isTRUE(parallel)) {
-      plan(strategy = multiprocess)
+      works <- as.numeric(availableCores())-1
+      plan(strategy = multiprocess, gc = TRUE, workers = works)
       resultado_1 <- tryCatch(future_map(x_grid, function(x) {
         ProtConn.1 <- MK_ProtConn(nodes = nodes.2, region = x,
-                             area_unit = area_unit,
-                             thintersect = thintersect, attribute = attribute,
-                             distance = distance, distance_thresholds = distance_threshold,
-                             probability = probability, transboundary = transboundary,
-                             LA = NULL, plot = FALSE, dPC = FALSE, write = NULL,
-                             intern = FALSE)
+                                  area_unit = area_unit,
+                                  thintersect = thintersect, attribute = attribute,
+                                  distance = distance, distance_thresholds = distance_threshold,
+                                  probability = probability, transboundary = transboundary,
+                                  LA = NULL, plot = FALSE, dPC = FALSE, write = NULL,
+                                  intern = FALSE)
 
         n <- as.vector(ProtConn.1[[3]])
         x.2 <- as.data.frame(t(ProtConn.1[[4]]))
@@ -206,7 +207,7 @@ MK_Connect_grid <- function(grid_pol = NULL, grid_id = NULL,
         x.2$TempID <- paste0(x[["TempID"]])
         return(x.2)
       }, .progress = intern), error = function(err) err)
-      future:::ClusterRegistry("stop")
+      close_multiprocess(works)
     } else {
       pb <- progress_estimated(length(x_grid), 0)
       resultado_1 <- tryCatch(map(x_grid, function(x) {
@@ -231,129 +232,130 @@ MK_Connect_grid <- function(grid_pol = NULL, grid_id = NULL,
     }
   } else if (metric == "PC") {
     if (isTRUE(parallel)) {
-     nodes.3 <- nodes.2
-     nodes.3 <- st_cast(nodes.3, "POLYGON") %>% st_zm()
-     nodes.3$IdTemp <- 1:nrow(nodes.3)
-     plan(strategy = multiprocess)
-     resultado_1 <- tryCatch(future_map(x_grid, function(x) {
-       area_x <- unit_convert(as.numeric(st_area(x)), "m2", area_unit)
-       if (is.null(attribute)) {
-         nodes2 <- MK_selectbyloc(nodes.3, x, id = NULL, area_unit = area_unit,
-                                  selreg = "M2", transboundary = 10)
-         nodes2 <- nodes2[which(nodes2$transboundary == 1), ]
+      nodes.3 <- nodes.2
+      nodes.3 <- st_cast(nodes.3, "POLYGON") %>% st_zm()
+      nodes.3$IdTemp <- 1:nrow(nodes.3)
+      works <- as.numeric(availableCores())-1
+      plan(strategy = multiprocess, gc = TRUE, workers = works)
+      resultado_1 <- tryCatch(future_map(x_grid, function(x) {
+        area_x <- unit_convert(as.numeric(st_area(x)), "m2", area_unit)
+        if (is.null(attribute)) {
+          nodes2 <- MK_selectbyloc(nodes.3, x, id = NULL, area_unit = area_unit,
+                                   selreg = "M2", transboundary = 10)
+          nodes2 <- nodes2[which(nodes2$transboundary == 1), ]
 
-         if (nrow(nodes2) > 1) {
-           nodes3 <- st_intersection(nodes2, x) %>%
-             ms_dissolve(.) %>% st_buffer(., dist = 0)
-           nodes2_r <- nodes2
-           nodes2 <- st_cast(nodes3, "POLYGON") %>%
-             st_buffer(., dist = 0)
-           nodes2$attrib <- unit_convert(as.numeric(st_area(nodes2)), "m2", area_unit)
+          if (nrow(nodes2) > 1) {
+            nodes3 <- st_intersection(nodes2, x) %>%
+              ms_dissolve(.) %>% st_buffer(., dist = 0)
+            nodes2_r <- nodes2
+            nodes2 <- st_cast(nodes3, "POLYGON") %>%
+              st_buffer(., dist = 0)
+            nodes2$attrib <- unit_convert(as.numeric(st_area(nodes2)), "m2", area_unit)
 
-           if (nrow(nodes2) == 1) {
-             nodes2 <- (nodes2$attrib * 100)/area_x
-           } else if (nrow(nodes2) == 0) {
-             nodes2 = NULL
-           }
+            if (nrow(nodes2) == 1) {
+              nodes2 <- (nodes2$attrib * 100)/area_x
+            } else if (nrow(nodes2) == 0) {
+              nodes2 = NULL
+            }
 
-         } else if (nrow(nodes2) == 1) {
-           nodes2_r <- nodes2
-           nodes2 <- (nodes2$Area2 * 100)/area_x
-         } else {
-           nodes2 = NULL
-         }
+          } else if (nrow(nodes2) == 1) {
+            nodes2_r <- nodes2
+            nodes2 <- (nodes2$Area2 * 100)/area_x
+          } else {
+            nodes2 = NULL
+          }
 
-       } else {
-         nodes2 <- MK_selectbyloc(nodes.3, x, id = NULL, area_unit = area_unit,
-                                  selreg = "M2", transboundary = 10)
-         nodes2 <- nodes2[which(nodes2$transboundary == 1), ]
+        } else {
+          nodes2 <- MK_selectbyloc(nodes.3, x, id = NULL, area_unit = area_unit,
+                                   selreg = "M2", transboundary = 10)
+          nodes2 <- nodes2[which(nodes2$transboundary == 1), ]
 
-         if (nrow(nodes2) > 1) {
-           nodes3 <- st_intersection(nodes2, x) %>%
-             ms_dissolve(., field = attribute) %>%
-             st_buffer(., dist = 0)
+          if (nrow(nodes2) > 1) {
+            nodes3 <- st_intersection(nodes2, x) %>%
+              ms_dissolve(., field = attribute) %>%
+              st_buffer(., dist = 0)
 
-           nodes3 <- st_cast(nodes3, "POLYGON") %>%
-             st_buffer(., dist = 0)
+            nodes3 <- st_cast(nodes3, "POLYGON") %>%
+              st_buffer(., dist = 0)
 
-           if (nrow(nodes3) > 1) {
-             nodes3$IDTemp <- 1:nrow(nodes3)
-             d <- distancefile(nodes3, id = "IDTemp", type = "edge")
+            if (nrow(nodes3) > 1) {
+              nodes3$IDTemp <- 1:nrow(nodes3)
+              d <- distancefile(nodes3, id = "IDTemp", type = "edge")
 
-             if (unique(d$Distance) == 0) {
-               nodes2_r <- nodes2
-               nodes2 <- unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
-               nodes2 <- sum((nodes2 * 100)/area_x)
-             } else {
-               nodes3$attrib <- nodes3[attribute][[1]]
-               nodes2 <- nodes3
-             }
-           } else {
-             nodes2_r <- nodes2
-             nodes2 <-unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
-             nodes2 <- sum((nodes2 * 100)/area_x)
-           }
-         } else if (nrow(nodes2) == 1) {
-           nodes2_r <- nodes2
-           nodes2 <- nodes2$PercPi
-           nodes3 <- nodes2[attribute][[1]]
-           nodes2 <- (nodes3 * 100)/area_x
-         } else {
-           nodes2 = NULL
-         }
-       }
-       ####
-       if (class(nodes2)[1] == "numeric" | is.null(nodes2)) {
-         if (is.null(nodes2)) {
-           x3 <- c(NA, NA, NA) %>% as.data.frame()
-           x3 <- as.data.frame(t(x3))
-           names(x3) <- c(metric, "EC", "Normalized_EC")
-           x3$PArea <- 0
-           x3$TempID <- paste0(x[["TempID"]])
-           x3 <- x3[, c(4, 1:3, 5)]
-         } else {
-           x3 <- c(NA, sum(unit_convert(as.numeric(st_area(nodes2_r)), "m2", area_unit)), 100) %>% as.data.frame()
-           x3 <- as.data.frame(t(x3))
-           names(x3) <- c(metric, "EC", "Normalized_EC")
+              if (unique(d$Distance) == 0) {
+                nodes2_r <- nodes2
+                nodes2 <- unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
+                nodes2 <- sum((nodes2 * 100)/area_x)
+              } else {
+                nodes3$attrib <- nodes3[attribute][[1]]
+                nodes2 <- nodes3
+              }
+            } else {
+              nodes2_r <- nodes2
+              nodes2 <-unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
+              nodes2 <- sum((nodes2 * 100)/area_x)
+            }
+          } else if (nrow(nodes2) == 1) {
+            nodes2_r <- nodes2
+            nodes2 <- nodes2$PercPi
+            nodes3 <- nodes2[attribute][[1]]
+            nodes2 <- (nodes3 * 100)/area_x
+          } else {
+            nodes2 = NULL
+          }
+        }
+        ####
+        if (class(nodes2)[1] == "numeric" | is.null(nodes2)) {
+          if (is.null(nodes2)) {
+            x3 <- c(NA, NA, NA) %>% as.data.frame()
+            x3 <- as.data.frame(t(x3))
+            names(x3) <- c(metric, "EC", "Normalized_EC")
+            x3$PArea <- 0
+            x3$TempID <- paste0(x[["TempID"]])
+            x3 <- x3[, c(4, 1:3, 5)]
+          } else {
+            x3 <- c(NA, sum(unit_convert(as.numeric(st_area(nodes2_r)), "m2", area_unit)), 100) %>% as.data.frame()
+            x3 <- as.data.frame(t(x3))
+            names(x3) <- c(metric, "EC", "Normalized_EC")
 
-           x3$PArea <- if(((sum(nodes2_r$Area2 * 100))/area_x) > 100){
-             100
-           } else {
-             sum((nodes2_r$Area2 * 100))/area_x
-           }
+            x3$PArea <- if(((sum(nodes2_r$Area2 * 100))/area_x) > 100){
+              100
+            } else {
+              sum((nodes2_r$Area2 * 100))/area_x
+            }
 
-           x3$EC <- if (sum(nodes2_r$Area2) > area_x) {
-             area_x
-           } else {
-             sum(nodes2_r$Area2)
-           }
-           x3$Normalized_EC <- x3$PArea
-           x3$TempID <- paste0(x[["TempID"]])
-           x3 <- x3[, c(4, 1:3, 5)]
-         }
+            x3$EC <- if (sum(nodes2_r$Area2) > area_x) {
+              area_x
+            } else {
+              sum(nodes2_r$Area2)
+            }
+            x3$Normalized_EC <- x3$PArea
+            x3$TempID <- paste0(x[["TempID"]])
+            x3 <- x3[, c(4, 1:3, 5)]
+          }
 
-       } else {
-         test <- MK_dPCIIC(nodes = nodes2,
-                           attribute = "attrib", restauration = NULL,
-                           distance = distance, metric = "PC",
-                           probability = probability,
-                           distance_thresholds = distance_threshold,
-                           overall = TRUE, LA = area_x, onlyoverall = TRUE,
-                           write = NULL)
-         x2 <- as.data.frame(test[,2])
-         x3 <- as.data.frame(t(x2))
-         x3 <- x3[, c(2:3)]
-         names(x3) <- c("EC", metric)
-         x3$Normalized_EC <- (x3$EC * 100)/area_x
-         x3$PArea <- (sum(nodes2$attrib) * 100)/area_x
-         x3$TempID <- paste0(x[["TempID"]])
-         x3 <- x3[, c(4, 2, 1, 3, 5)]
+        } else {
+          test <- MK_dPCIIC(nodes = nodes2,
+                            attribute = "attrib", restauration = NULL,
+                            distance = distance, metric = "PC",
+                            probability = probability,
+                            distance_thresholds = distance_threshold,
+                            overall = TRUE, LA = area_x, onlyoverall = TRUE,
+                            write = NULL)
+          x2 <- as.data.frame(test[,2])
+          x3 <- as.data.frame(t(x2))
+          x3 <- x3[, c(2:3)]
+          names(x3) <- c("EC", metric)
+          x3$Normalized_EC <- (x3$EC * 100)/area_x
+          x3$PArea <- (sum(nodes2$attrib) * 100)/area_x
+          x3$TempID <- paste0(x[["TempID"]])
+          x3 <- x3[, c(4, 2, 1, 3, 5)]
         }
         return(x3)
       }, .progress = intern), error = function(err) err)
+      close_multiprocess(works)
 
-      future:::ClusterRegistry("stop")
-      } else {
+    } else {
       pb <- progress_estimated(length(x_grid), 0)
       nodes.3 <- nodes.2
       nodes.3 <- st_cast(nodes.3, "POLYGON") %>% st_zm()

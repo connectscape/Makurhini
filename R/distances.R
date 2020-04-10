@@ -18,10 +18,12 @@
 #' @importFrom rmapshaper ms_simplify
 #' @importFrom methods as
 #' @importFrom utils combn write.table
+#' @importFrom future multiprocess plan availableCores
+#' @importFrom furrr future_map
 
 euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit = "m",
-                               keep = 0.05, threshold = NULL, edgeParallel = FALSE,
-                               pairwise = TRUE, write_table = NULL){
+                                keep = 0.05, threshold = NULL, edgeParallel = FALSE,
+                                pairwise = TRUE, write_table = NULL){
   if(missing(id)){
     stop("missing id")
   }
@@ -43,56 +45,57 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
     centroid_1 <- gCentroid(x, byid = TRUE)
     distance <- gDistance(centroid_1, byid = TRUE)
 
-    } else if (type_distance == "edge"){
-      if(isFALSE(edgeParallel)){
+  } else if (type_distance == "edge"){
+    if(isFALSE(edgeParallel)){
+      if(!is.null(keep)){
+        x_id <- x@data[,which(colnames(x@data) == id)]
+        x <- ms_simplify(input = x, keep = keep, keep_shapes = TRUE, explode = FALSE)
+        x$id <- x_id
+        names(x) <- id
+      }
+      distance <- gDistance(x, byid = TRUE)
+    } else {
+      i = 0
+      j = 0
+      ng = round(nrow(x)/8)
+      x2 <- list()
+
+      repeat {
+        i <- i + round(ng)
+        ii <- i-(ng-1)
+        if(i > nrow(x)){
+          i <- nrow(x)
+        }
+        r <- x[ii:i,]
+        j <- j+1
+        x2[[j]] <- r
+
+        if (i == nrow(x)){
+          break
+        }
+      }
+      rm(r,i,ii,j)
+
+      works <- as.numeric(availableCores())-1
+      plan(strategy = multiprocess, gc = TRUE, worers = works)
+      distance <- future_map(x2, function(d){
         if(!is.null(keep)){
-          x_id <- x@data[,which(colnames(x@data) == id)]
-          x <- ms_simplify(input = x, keep = keep, keep_shapes = TRUE, explode = FALSE)
-          x$id <- x_id
-          names(x) <- id
-        }
-        distance <- gDistance(x, byid = TRUE)
-      } else {
-        i = 0
-        j = 0
-        ng = round(nrow(x)/8)
-        x2 <- list()
-
-        repeat {
-          i <- i + round(ng)
-          ii <- i-(ng-1)
-          if(i > nrow(x)){
-            i <- nrow(x)
-          }
-          r <- x[ii:i,]
-          j <- j+1
-          x2[[j]] <- r
-
-          if (i == nrow(x)){
-            break
-          }
-        }
-        rm(r,i,ii,j)
-
-        plan(strategy = multiprocess, gc = TRUE)
-        distance <- future_map(x2, function(d){
-          if(!is.null(keep)){
           d <- ms_simplify(input = d, keep = keep, keep_shapes = TRUE, explode = FALSE)
-          }
-          distance2 <- gDistance(d, x, byid = TRUE)
-          return(distance2)
-        })
-        distance <- do.call(cbind, distance)
-        future:::ClusterRegistry("stop")
-      }
-      } else if (type_distance == "hausdorff-edge"){
-        distance <- gDistance(x, byid = TRUE, hausdorff = TRUE)
-      } else {
-        stop("Error, you have to choose a type_distance option")
-      }
+        }
+        distance2 <- gDistance(d, x, byid = TRUE)
+        return(distance2)
+      })
+      close_multiprocess(works)
+      distance <- do.call(cbind, distance)
+    }
+  } else if (type_distance == "hausdorff-edge"){
+    distance <- gDistance(x, byid = TRUE, hausdorff = TRUE)
+  } else {
+    stop("Error, you have to choose a type_distance option")
+  }
 
   if (distance_unit != "m"){
-  distance <- unit_convert(data_unit = distance, unit_1 = "m", unit_2 = distance_unit)
+    distance <- unit_convert(data_unit = distance, unit_1 = "m", unit_2 = distance_unit)
   }
 
   name <- c(unique(x@data[,which(colnames(x@data) == id)]), "income")
@@ -120,7 +123,7 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
   }
 
   if(!is.null(write_table)){
-      write.table(distance_2, write_table, sep = "\t", row.names = FALSE, col.names = FALSE)
+    write.table(distance_2, write_table, sep = "\t", row.names = FALSE, col.names = FALSE)
   }
 
   return(distance_2)
@@ -161,7 +164,7 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 #' @importFrom methods as new
 #' @importFrom stats na.omit
 #' @importFrom utils combn write.table
-#' @importFrom future multiprocess plan
+#' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
 
 cost_distances <- function(x, id, type_distance = "least-cost", resistance = NULL, CostFun = NULL,
@@ -170,7 +173,6 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
                            bounding_circles = NULL,
                            pairwise = TRUE,
                            write_table = NULL){
-
   if(missing(id)){
     stop("missing id")
   }
@@ -219,30 +221,30 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
     coordenates_1 <- cbind(coordenates_1$lon, coordenates_1$lat)
     rownames(coordenates_1) <- NULL
 
-   if(type_distance == "least-cost"){
-     Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
-       geoCorrection(., scl = FALSE)
-     distance_result <- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
-     } else if (type_distance == "commute-time") {
-        Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
-          geoCorrection(., type = "r")
-        distance_result <- commuteDistance(Iso_conductance, coordenates_1)
-      } else {
-        stop("Error, you have to choose a type_distance option")
-      }
+    if(type_distance == "least-cost"){
+      Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
+        geoCorrection(., scl = FALSE)
+      distance_result <- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
+    } else if (type_distance == "commute-time") {
+      Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
+        geoCorrection(., type = "r")
+      distance_result <- commuteDistance(Iso_conductance, coordenates_1)
+    } else {
+      stop("Error, you have to choose a type_distance option")
+    }
 
-      distance_result <- as.matrix(distance_result)
-      rownames(distance_result)<- x[[id]]
-      colnames(distance_result)<- x[[id]]
+    distance_result <- as.matrix(distance_result)
+    rownames(distance_result)<- x[[id]]
+    colnames(distance_result)<- x[[id]]
 
-      distance_result_matrix <- distance_result
+    distance_result_matrix <- distance_result
 
-      distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
-      distance_result <- as.data.frame(as.table(distance_result))
-      distance_result <- na.omit(distance_result)
-      distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
-      distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
-      names(distance_result)<-c("From", "To", "Distance")
+    distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
+    distance_result <- as.data.frame(as.table(distance_result))
+    distance_result <- na.omit(distance_result)
+    distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
+    distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
+    names(distance_result)<-c("From", "To", "Distance")
 
     #Inf
     x2 <- distance_result[which(is.infinite(distance_result[,3])),]
@@ -308,8 +310,8 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
     colnames(voronoi_adj) <- x[[id]]
     rownames(voronoi_adj) <- x[[id]]
 
-    plan(strategy = multiprocess, gc = TRUE)
-
+    works <- as.numeric(availableCores())-1
+    plan(strategy = multiprocess, gc = TRUE, workers = works)
     distance <- future_map(as.list(colnames(voronoi_adj)), function(i){
       ##
       foc_adj <- rbind(x[which(x[[id]] == i),],
@@ -417,8 +419,7 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
 
         return(distance_result)
       } }, .progress = TRUE)
-    future:::ClusterRegistry("stop")
-
+    close_multiprocess(works)
     distance <- purrr::compact(distance)
 
     if(isFALSE(pairwise)){
@@ -465,7 +466,7 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
         return(d1)}) %>% do.call(rbind,.)
       rownames(distance_result) <- NULL
     }
-    }
+  }
 
 
   if(isTRUE(pairwise)){
@@ -485,4 +486,4 @@ cost_distances <- function(x, id, type_distance = "least-cost", resistance = NUL
     write.table(distance_result, write_table, sep = "\t", row.names = FALSE, col.names = FALSE)
   }
   return(distance_result)
-  }
+}

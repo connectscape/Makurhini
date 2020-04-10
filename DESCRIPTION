@@ -50,9 +50,11 @@ Imports:
     fasterize,
     boot,
     dismo (>= 1.1.4),
-    igraph (>= 1.2.4.1)
+    igraph (>= 1.2.4.1),
+    tools,
+    ps
 Depends: 
-    R (>= 3.6.1),
     methods,
     utils,
-    stats
+    stats,
+    R (>= 3.5)

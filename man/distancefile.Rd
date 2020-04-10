@@ -63,6 +63,8 @@ Buffer distances are entered in map units. Also, the function is parallelized us
 
 \item{parallel}{logical. If nodes is a raster then you can use this argument for larges RasterLayer.}
 
+\item{edgeParallel}{logical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.}
+
 \item{pairwise}{logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.}
 
 \item{write}{character. Choose the output folder if you use multiple argument otherwise, place the output path, with

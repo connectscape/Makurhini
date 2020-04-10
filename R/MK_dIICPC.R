@@ -29,6 +29,7 @@
 #' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
 #'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).
 #' @param overall logical. If TRUE, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE
+#' @param onlyoverall logical. If TRUE, then only overall metrics will be calculated.
 #' @param LA numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).
 #' @param rasterparallel logical. If nodes is "raster" then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.
 #' @param write character. Write output shapefile and overall table (if TRUE overall argument).
@@ -61,7 +62,7 @@
 #' @importFrom utils write.table
 #' @importFrom purrr map map_dbl
 #' @importFrom raster as.matrix extent raster stack extent<- writeRaster reclassify crs crs<- unique
-#' @importFrom future multiprocess plan
+#' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
 #' @importFrom igraph graph.adjacency shortest.paths E
 #' @importFrom data.table data.table
@@ -299,7 +300,8 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
             m <- matrix(nrow = nrow(attribute_1), ncol = 2)
             m[,1] <- attribute_1[,1]
 
-            plan(strategy = multiprocess)
+            works <- as.numeric(availableCores())-1
+            plan(strategy = multiprocess, gc = TRUE, workers = works)
             r_metric <- future_map(2:ncol(metric_conn), function(c){
               x1 <- metric_conn[,c(1, c)]
               for(i in rp){
@@ -307,6 +309,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
               }
               x1 <- reclassify(nodes, rcl = m)
               return(x1)}, .progress = TRUE)
+            close_multiprocess(works)
 
           } else {
             m <- matrix(nrow = nrow(attribute_1), ncol = 2)
@@ -467,7 +470,8 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
               m <- matrix(nrow = nrow(attribute_1), ncol = 2)
               m[,1] <- attribute_1[,1]
 
-              plan(strategy = multiprocess)
+              works <- as.numeric(availableCores())-1
+              plan(strategy = multiprocess, gc = TRUE, workers = works)
               r_metric <- future_map(2:ncol(metric_conn), function(c){
                 x1 <- metric_conn[,c(1, c)]
                 for(i in rp){
@@ -475,6 +479,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                 }
                 x1 <- reclassify(nodes, rcl = m)
                 return(x1)}, .progress = TRUE)
+              close_multiprocess(works)
 
             } else {
               m <- matrix(nrow = nrow(attribute_1), ncol = 2)

@@ -48,6 +48,8 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
 
 \item{overall}{logical. If TRUE, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE}
 
+\item{onlyoverall}{logical. If TRUE, then only overall metrics will be calculated.}
+
 \item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).}
 
 \item{rasterparallel}{logical. If nodes is "raster" then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.}

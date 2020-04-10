@@ -12,77 +12,758 @@ landscape fragmentation and connectivity metrics
 ## Installation
 
 You can install the released version of Makurhini from
-[CRAN](https://CRAN.R-project.org) with:
+[GitHub](https://github.com) with:
 
 ``` r
-install.packages("Makurhini")
+library(devtools)
+install_github("OscarGOGO/Makurhini", dependencies = TRUE)
 ```
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you how to solve some common
+problems:
+
+### Protected Connected Land (ProtConn)
+
+Protected areas:
 
 ``` r
-library(sf)
-#> Linking to GEOS 3.6.1, GDAL 2.2.3, PROJ 4.9.3
-## basic example code
+data("Protected_areas", package = "Makurhini")
+data("regions", package = "Makurhini")
+region <- regions[1,]
 ```
 
+<img src="man/figures/README-cores-1.png" width="100%" /><img src="man/figures/README-cores-2.png" width="100%" />
+
 ``` r
-library(Makurhini)
-ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
+test <- MK_ProtConn(nodes = Protected_areas, region = region,
+                    attribute = "Intersected area", area_unit = "ha",
+                    distance = list(type= "centroid"),
+                    distance_thresholds = 10000,
+                    probability = 0.5, transboundary = 50000,
+                    LA = NULL, plot = TRUE, dPC = FALSE,
+                    write = NULL, SAGA = FALSE, intern = FALSE)
+test$`Protected Connected (Viewer Panel)`
+```
+
+<table class="table table-condensed">
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+Index
+
+</th>
+
+<th style="text-align:center;">
+
+Value
+
+</th>
+
+<th style="text-align:left;">
+
+ProtConn indicator
+
+</th>
+
+<th style="text-align:center;">
+
+Percentage
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">EC(PC)</span>
+
+</td>
+
+<td style="text-align:center;">
+
+130189.18
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">Unprotected </span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa90d">92.540</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">PC </span>
+
+</td>
+
+<td style="text-align:center;">
+
+1.2324e-03
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">Prot </span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff8eb">7.460</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProtConn </span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf5">3.511</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProtUnconn </span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf4">3.950</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">RelConn </span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffd383">47.058</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProConn\_design </span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf4">3.950</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProConn\_Bound </span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf5">3.511</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProtConn\_Prot </span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa500">97.512</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProtConn\_Trans </span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProtConn\_Unprot </span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffcf8">2.488</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProtConn\_Within </span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa707">94.784</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProtConn\_Contig </span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffcf7">2.728</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProtConn\_Within\_land</span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf6">3.327</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProtConn\_Contig\_land</span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffefe">0.096</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProtConn\_Unprot\_land</span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffefe">0.087</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold"> </span>
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:left;">
+
+<span style="color: #636363; font-weight: bold">ProtConn\_Trans\_land
+</span>
+
+</td>
+
+<td style="text-align:center;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+``` r
+test$`ProtConn Plot`
+```
+
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+
+### Equivalent Connectivity (EC)
+
+Example with old-growth vegetation fragments of four years.
+
+``` r
+ruta <- system.file("extdata", "dECA_example.RData", package = "Makurhini")
 load(ruta)
-cores
-#> Simple feature collection with 142 features and 1 field
-#> geometry type:  POLYGON
-#> dimension:      XY
-#> bbox:           xmin: 3340120 ymin: 322869.6 xmax: 3739484 ymax: 696540.5
-#> epsg (SRID):    NA
-#> proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
-#> # A tibble: 142 x 2
-#>       id                                                           geometry
-#>    <int>                                                      <POLYGON [m]>
-#>  1     1 ((3676911 589967.3, 3676931 589895.5, 3676948 589818.3, 3676957 5~
-#>  2     2 ((3558044 696202.5, 3557972 696280.9, 3557957 696291.6, 3558118 6~
-#>  3     3 ((3569169 687776.4, 3569146 687749.5, 3569096 687745.6, 3569069 6~
-#>  4     4 ((3547317 685713.2, 3547363 685573.9, 3547391 685401.4, 3547435 6~
-#>  5     5 ((3567471 684357.4, 3567380 684214.3, 3567303 684046, 3567224 683~
-#>  6     6 ((3590569 672451.7, 3590090 672574.9, 3589912 672547.5, 3589761 6~
-#>  7     7 ((3570789 670959.4, 3570860 671015.4, 3570909 671019.3, 3570932 6~
-#>  8     8 ((3440118 666273.2, 3440372 666849.2, 3440584 667001.7, 3440838 6~
-#>  9     9 ((3451637 671232.4, 3451616 671287.1, 3451535 671315.1, 3451413 6~
-#> 10    10 ((3444396 671675.7, 3444715 671834.8, 3444873 672019, 3444773 672~
-#> # ... with 132 more rows
-```
 
-<img src="man/figures/README-cores-1.png" width="100%" />
+Max_attribute <- gArea(study_area) * 0.0001 #hectares
+```
 
 ``` r
-nrow(cores)
-#> [1] 142
-IIC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
-                 distance = list(type = "centroid"),
-                 metric = "IIC", distance_thresholds = 30000,
-                 LA = NULL, overall = FALSE)
-plot(IIC["dIIC"], breaks = "jenks")
+dECA_test <- MK_dECA(nodes= forest_patches, attribute = NULL, area_unit = "ha",
+                  distance = list(type= "centroid"), metric = "PC",
+                  probability = 0.05, distance_thresholds = 5000,
+                  LA = Max_attribute, plot= c("T1", "T2", "T3", "T4"))
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
 ``` r
-plot(IIC["dIICintra"], breaks = "jenks")
+dECA_test
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-2.png" width="100%" />
+<table class="table table-condensed">
 
-``` r
-plot(IIC["dIICflux"], breaks = "jenks")
-```
+<thead>
 
-<img src="man/figures/README-unnamed-chunk-3-3.png" width="100%" />
+<tr>
 
-``` r
-plot(IIC["dIICconnector"], breaks = "jenks")
-```
+<th style="text-align:left;">
 
-<img src="man/figures/README-unnamed-chunk-3-4.png" width="100%" />
+</th>
+
+<th style="text-align:left;">
+
+Scenary
+
+</th>
+
+<th style="text-align:right;">
+
+Area (ha)
+
+</th>
+
+<th style="text-align:right;">
+
+ECA (ha)
+
+</th>
+
+<th style="text-align:right;">
+
+Distance
+
+</th>
+
+<th style="text-align:right;">
+
+Normalized ECA
+
+</th>
+
+<th style="text-align:right;">
+
+dA
+
+</th>
+
+<th style="text-align:right;">
+
+dECA
+
+</th>
+
+<th style="text-align:right;">
+
+dA/dECA comparisons
+
+</th>
+
+<th style="text-align:right;">
+
+Type of change
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+T1
+
+</td>
+
+<td style="text-align:left;">
+
+1
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: inline-block; direction: rtl; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 98.07%">91438.11</span>
+
+</td>
+
+<td style="text-align:right;">
+
+50657.60
+
+</td>
+
+<td style="text-align:right;">
+
+5000
+
+</td>
+
+<td style="text-align:right;">
+
+<span>55.40%</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="color: red">-67.246</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="color: red">-81.854</span>
+
+</td>
+
+<td style="text-align:right;">
+
+dECA \< dA \< 0
+
+</td>
+
+<td style="text-align:right;">
+
+  - Connectivity loss
+    </td>
+    </tr>
+    <tr>
+    <td style="text-align:left;">
+    T2
+    </td>
+    <td style="text-align:left;">
+    2
+    </td>
+    <td style="text-align:right;">
+    <span style="display: inline-block; direction: rtl; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 100.00%">93238.91</span>
+    </td>
+    <td style="text-align:right;">
+    53604.33
+    </td>
+    <td style="text-align:right;">
+    5000
+    </td>
+    <td style="text-align:right;">
+    <span>57.49%</span>
+    </td>
+    <td style="text-align:right;">
+    <span style="color: green">1.969</span>
+    </td>
+    <td style="text-align:right;">
+    <span style="color: green">5.817</span>
+    </td>
+    <td style="text-align:right;">
+    dECA or dA gain
+    </td>
+    <td style="text-align:right;">
+    Habitat or connectivity gain
+    </td>
+    </tr>
+    <tr>
+    <td style="text-align:left;">
+    T3
+    </td>
+    <td style="text-align:left;">
+    3
+    </td>
+    <td style="text-align:right;">
+    <span style="display: inline-block; direction: rtl; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 89.57%">83517.49</span>
+    </td>
+    <td style="text-align:right;">
+    38756.64
+    </td>
+    <td style="text-align:right;">
+    5000
+    </td>
+    <td style="text-align:right;">
+    <span>46.41%</span>
+    </td>
+    <td style="text-align:right;">
+    <span style="color: red">-10.426</span>
+    </td>
+    <td style="text-align:right;">
+    <span style="color: red">-27.699</span>
+    </td>
+    <td style="text-align:right;">
+    dECA \< dA \< 0
+    </td>
+    <td style="text-align:right;">
+      - Connectivity loss
+        </td>
+        </tr>
+        <tr>
+        <td style="text-align:left;">
+        T4
+        </td>
+        <td style="text-align:left;">
+        4
+        </td>
+        <td style="text-align:right;">
+        <span style="display: inline-block; direction: rtl; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 89.94%">83859.71</span>
+        </td>
+        <td style="text-align:right;">
+        40187.05
+        </td>
+        <td style="text-align:right;">
+        5000
+        </td>
+        <td style="text-align:right;">
+        <span>47.92%</span>
+        </td>
+        <td style="text-align:right;">
+        <span style="color: green">0.410</span>
+        </td>
+        <td style="text-align:right;">
+        <span style="color: green">3.691</span>
+        </td>
+        <td style="text-align:right;">
+        dECA or dA gain
+        </td>
+        <td style="text-align:right;">
+        Habitat or connectivity gain
+        </td>
+        </tr>
+        </tbody>
+        </table>

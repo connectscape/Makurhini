@@ -20,41 +20,72 @@ The goal of Makurhini is to provide a set of functions to estimate landscape fra
 
 ## Installation
 
-You can install the released version of Makurhini from [CRAN](https://CRAN.R-project.org) with:
+You can install the released version of Makurhini from [GitHub](https://github.com) with:
 
 ``` r
-install.packages("Makurhini")
+library(devtools)
+install_github("OscarGOGO/Makurhini", dependencies = TRUE)
 ```
 
 ## Example
+This is a basic example which shows you how to solve some common problems:
 
-This is a basic example which shows you how to solve a common problem:
+### Protected Connected Land (ProtConn)
 
-```{r example, echo=TRUE}
-library(sf)
-## basic example code
-```
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, echo=FALSE}
 library(Makurhini)
-ruta <- system.file("extdata", "Fragmentation.RData", package = "Makurhini")
-load(ruta)
-cores
+library(raster)
+library(rgeos)
 ```
 
-```{r cores, echo=FALSE}
-plot(cores["id"])
+Protected areas:
+
+```{r message=FALSE, warning=FALSE, echo=TRUE}
+data("Protected_areas", package = "Makurhini")
+data("regions", package = "Makurhini")
+region <- regions[1,]
+```
+
+
+```{r cores, message=FALSE, warning=FALSE, echo=FALSE}
+plot(Protected_areas, col="#beaed4", main="Protected areas",
+     axes = TRUE, key.pos = 4)
+
+plot(region, col="#7fc97f", main="Ecoregion",
+     axes = TRUE, key.pos = 4)
+
 ```
 
 
 ```{r message=FALSE, warning=FALSE}
-nrow(cores)
-IIC <- MK_dPCIIC(nodes = cores, id = "id", attribute = NULL,
-                 distance = list(type = "centroid"),
-                 metric = "IIC", distance_thresholds = 30000,
-                 LA = NULL, overall = FALSE)
-plot(IIC["dIIC"], breaks = "jenks")
-plot(IIC["dIICintra"], breaks = "jenks")
-plot(IIC["dIICflux"], breaks = "jenks")
-plot(IIC["dIICconnector"], breaks = "jenks")
+test <- MK_ProtConn(nodes = Protected_areas, region = region,
+                    attribute = "Intersected area", area_unit = "ha",
+                    distance = list(type= "centroid"),
+                    distance_thresholds = 10000,
+                    probability = 0.5, transboundary = 50000,
+                    LA = NULL, plot = TRUE, dPC = FALSE,
+                    write = NULL, SAGA = FALSE, intern = FALSE)
+test$`Protected Connected (Viewer Panel)`
+test$`ProtConn Plot`
 ```
 
+###  Equivalent Connectivity (EC) 
+
+Example with old-growth vegetation fragments of four years.
+
+```{r message=FALSE, warning=FALSE}
+ruta <- system.file("extdata", "dECA_example.RData", package = "Makurhini")
+load(ruta)
+
+Max_attribute <- gArea(study_area) * 0.0001 #hectares
+```
+
+```{r message=FALSE, warning=FALSE}
+dECA_test <- MK_dECA(nodes= forest_patches, attribute = NULL, area_unit = "ha",
+                  distance = list(type= "centroid"), metric = "PC",
+                  probability = 0.05, distance_thresholds = 5000,
+                  LA = Max_attribute, plot= c("T1", "T2", "T3", "T4"))
+dECA_test
+
+
+```

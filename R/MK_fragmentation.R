@@ -33,7 +33,7 @@
 #' @examples
 #' data("vegetation_patches", package = "Makurhini")
 #' nrow(vegetation_patches) # Number of patches
-#' fragmentation <- MK_fragmentation(patches = vegetation_patches, edge_distance = 500, plot = TRUE)
+#' fragmentation <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500, plot = TRUE)
 #'
 #' #Table
 #' fragmentation$`Summary landscape metrics (Viewer Panel)`
@@ -48,7 +48,7 @@
 #' @import ggplot2
 #' @importFrom formattable formattable formatter style
 #' @importFrom ggpubr ggarrange
-MK_fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100, landscape_area = NULL,
+MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100, landscape_area = NULL,
                              area_unit = "km2", perimeter_unit = "km",
                              plot = FALSE, write = NULL){
   if (missing(patches)) {

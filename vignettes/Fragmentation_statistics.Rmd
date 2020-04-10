@@ -1,0 +1,144 @@
+---
+title: "Fragmentation statistics"
+output: rmarkdown::html_document
+vignette: >
+  %\VignetteIndexEntry{Fragmentation_statistics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We explored the <strong> MK_Fragmentation() </strong> to estimate fragmentation statistics at the landscape and patch level.
+
+```{r}
+library(Makurhini)
+library(sf)
+```
+
+We loaded the "vegetation_patches" database that contains 142 patches of old-growth vegetation from the state of Chiapas, Mexico. The shapefile has 143 rows (patches), the first column corresponds to the id of the patch.
+
+```{r message=FALSE, warning=FALSE}
+data("vegetation_patches", package = "Makurhini")
+nrow(vegetation_patches) # Number of patches
+
+```
+
+##
+
+```{r message=FALSE, warning=FALSE}
+plot(vegetation_patches, col="#00B050", main="Old-growth vegetation fragments",
+     axes = TRUE, key.pos = 4)
+```
+
+
+To define the edge of the patches we will use a distance of 500 m from the limit of the patches (Haddad et al. 2015).
+
+
+![](C:/Users/oscja/Desktop/Nuevos_paquetes/vignettes/Imagen1.png)
+
+```{r message=FALSE, warning=FALSE}
+#help("FragmentationST")
+Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500, plot = TRUE)
+```
+
+The results are presented as a list, the first result is called *"Summary landscape metrics (Viewer Panel)"* and it has fragmentation statistics at landscape level.
+
+```{r message=FALSE, warning=FALSE}
+names(Fragmentation_test)
+Fragmentation_test$`Summary landscape metrics (Viewer Panel)`
+```
+
+The second output *"Patch statistics shapefile"* is a shapefile with patch level fragmentation statistics.
+
+```{r message=FALSE, warning=FALSE}
+Fragmentation_test$`Patch statistics shapefile`
+#Para guardar
+#write_sf(Fragmentacion$`Patch statistics shapefile`, ".../folder/fragmentacion.shp")
+```
+
+
+We can visualize the static at the patch level, for example:
+
+* Core area (%):
+```{r message=FALSE, warning=FALSE}
+plot(Fragmentation_test$`Patch statistics shapefile`["CAPercent"], main="Core Area (%)",
+     axes = TRUE, key.pos = 4)
+```
+
+* Edge (%)
+
+```{r message = FALSE, warning = FALSE}
+plot(Fragmentation_test$`Patch statistics shapefile`["EdgePercent"], main="Edge (%)",
+     axes = TRUE, key.pos = 4)
+```
+
+* Perimeter-area ratio
+
+```{r message = FALSE, warning = FALSE}
+plot(Fragmentation_test$`Patch statistics shapefile`["PARA"], main="Perimeter-area ratio",
+     axes = TRUE, key.pos = 4)
+```
+
+* Shape Index
+
+```{r message = FALSE, warning = FALSE}
+plot(Fragmentation_test$`Patch statistics shapefile`["ShapeIndex"], main="Shape index",
+     axes = TRUE, key.pos = 4)
+```
+
+* Fractal Dimension Index
+
+```{r message = FALSE, warning = FALSE}
+plot(Fragmentation_test$`Patch statistics shapefile`["FRAC"], main="Fractal dimension index",
+     axes = TRUE, key.pos = 4)
+```
+
+
+We can make a loop where we explore different edge depths. And we can plot the average of the patch core area percentage and average of the edge percentage (% core area +% edge = 100%).
+
+```{r message = FALSE, warning = FALSE}
+Fragmentation_test.2 <- purrr::map_dfr(seq(100, 1000, 100), function(x){
+  x.1 <- MK_Fragmentation(patches = vegetation_patches, edge_distance = x,
+                          plot = FALSE)[[2]]
+  CA <- mean(x.1$CAPercent)
+  Edge <- mean(x.1$EdgePercent)
+  x.2 <- rbind(data.frame('Edge distance' = x, Type = "Core Area", Percentage = CA),
+                     data.frame('Edge distance' = x, Type = "Edge", Percentage = Edge))
+  return(x.2)
+})
+
+head(Fragmentation_test.2)
+```
+
+
+```{r message = FALSE, warning = FALSE}
+library(ggplot2)
+ggplot(Fragmentation_test.2, aes(x = Edge.distance, y = Percentage, group = Type)) +
+  geom_line(aes(color = Type))+
+  geom_point(aes(color = Type))+ ylim(0,100)+
+  scale_x_continuous("Edge depth distance", labels = as.character(Fragmentation_test.2$Edge.distance), breaks = Fragmentation_test.2$Edge.distance)+
+  scale_color_brewer(palette="Dark2")+
+  theme_classic()
+```
+
+
+The average core area percentage (absence of edge effect) for all patches decreases by more than 70% when considering an edge effect with a penetration of 1 km.
+
+
+ |Edge depth distance (m) | CoreArea (%)|
+ |------------------------|:-----------:|
+ |100                     | 83.5%       |
+ |500                     | 34.14%      |
+ |1000                    | 9.78%       |
+
+
+<strong>Reference</strong>:
+
+* INEGI. (2013). Conjunto de datos vectoriales de uso del suelo y vegetación, serie V (capa unión), escala 1:250,000. Instituto Nacional de Estadística y Geografía, Aguascalientes.
+
+* McGarigal, K., S. A. Cushman, M. C. Neel, and E. Ene. 2002. FRAGSTATS: Spatial Pattern Analysis Program for Categorical Maps. Computer software program produced by the authors at the University of Massachusetts, Amherst. Available at the following web site: www.umass.edu/landeco/research/fragstats/fragstats.html.
+
+* Haddad et al. (2015). Science Advances 1(2):e1500052. DOI: 10.1126/sciadv.1500052.

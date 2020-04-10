@@ -1,7 +1,7 @@
 #' @title Protected areas shapefile for analysis
 #'
-#' @description A Spatial Polygons DataFrame \code{SpatialPolygonsDataFrame} with 1192 polygons of Protected Areas of Mexico.
-#' @format A \code{SpatialPolygonsDataFrame} with 1192 features and 5 fields, which are:
+#' @description A Spatial Polygons DataFrame \code{SpatialPolygonsDataFrame} with 706 polygons of Protected Areas in Mexico.
+#' @format A \code{SpatialPolygonsDataFrame} with 706 features and 1 field, which is:
 #' \describe{
 #' \item{OBJECTID}{Protected areas identifier.}
 #'  }

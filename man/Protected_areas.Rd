@@ -4,7 +4,7 @@
 \name{Protected_areas}
 \alias{Protected_areas}
 \title{Protected areas shapefile for analysis}
-\format{A \code{SpatialPolygonsDataFrame} with 1192 features and 5 fields, which are:
+\format{A \code{SpatialPolygonsDataFrame} with 706 features and 1 field, which is:
 \describe{
 \item{OBJECTID}{Protected areas identifier.}
  }}
@@ -12,7 +12,7 @@
 Protected_areas
 }
 \description{
-A Spatial Polygons DataFrame \code{SpatialPolygonsDataFrame} with 1192 polygons of Protected Areas of Mexico.
+A Spatial Polygons DataFrame \code{SpatialPolygonsDataFrame} with 706 polygons of Protected Areas in Mexico.
 }
 \references{
 UNEP-WCMC (2019). Protected Area Profile for Mexico from the World Database of Protected Areas, May 2019.

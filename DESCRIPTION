@@ -13,7 +13,7 @@ Author: c(person(given = "Oscar",
 Maintainer: Godinez-Gomez Oscar <osctapir@gmail.com>
 Description: Makurhini (connect in Purépecha language) provides functions designed to estimate 
     landscape fragmentation and connectivity metrics and includes the ProtConn indicator that is used to report international connectivity targets.
-License: MIT + file LICENSE
+License: LGPL (>= 2.1)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1

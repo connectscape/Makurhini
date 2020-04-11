@@ -6,7 +6,7 @@ status](https://ci.appveyor.com/api/projects/status/github/OscarGOGO/Makurhini?b
 
 # Makurhini
 
-![](C:/Users/oscja/Desktop/Nuevos_paquetes/vignettes/LOGO_MAKHURINI.png)
+![LOGO\_MAKHURINI](https://user-images.githubusercontent.com/30152793/79033305-ce8c2280-7b72-11ea-8df7-b8b48409b818.png)
 
 The goal of Makurhini is to provide a set of functions to estimate
 landscape fragmentation and connectivity metrics

@@ -96,4 +96,4 @@ dECA_test
 ### Citing Makurhini package
 A formal paper detailing this packe is forthcoming, but until it is published, please use the something like the following to cite if you use it in your work:
 
-<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R package for analyzing landscape connectivity. https://github.com/OscarGOGO/Makurhini, DOI: 10.5281/zenodo.3748086 </i> </code>
+<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R package for analyzing landscape connectivity. https://github.com/OscarGOGO/Makurhini, DOI: 10.5281/zenodo.3748095 </i> </code>

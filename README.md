@@ -779,5 +779,5 @@ use it in your work:
 
 <code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R
 package for analyzing landscape connectivity.
-<https://github.com/OscarGOGO/Makurhini>, DOI: 10.5281/zenodo.3748086
+<https://github.com/OscarGOGO/Makurhini>, DOI: 10.5281/zenodo.3748095
 </i> </code>

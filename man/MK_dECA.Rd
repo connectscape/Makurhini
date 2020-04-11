@@ -2,7 +2,7 @@
 % Please edit documentation in R/MK_dECA.R
 \name{MK_dECA}
 \alias{MK_dECA}
-\title{ECA, dA and dECA estimation using the Conefor command line.}
+\title{ECA, dA and dECA.}
 \usage{
 MK_dECA(nodes, attribute = NULL, area_unit = "ha",
   distance = list(type = "centroid", resistance = NULL),

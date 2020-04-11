@@ -42,10 +42,14 @@
 #' \dontrun{
 #' library(Makurhini)
 #' library(rgeos)
-#' ruta <- system.file("extdata", "dECA_example.RData", package = "Makurhini")
-#' load(ruta)
-#' Max_attribute <- gArea(study_area) * 0.0001 #hectares
-#' dECA_test <- MK_dECA(nodes= forest_patches, attribute = NULL, area_unit = "ha",
+#'
+#' data("list_forest_patches", package = "Makurhini")
+#' data("study_area", package = "Makurhini")
+#' class(list_forest_patches)
+#'
+#' Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
+#'
+#' dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
 #'                   distance = list(type= "centroid"), metric = "PC",
 #'                   probability = 0.05, distance_thresholds = 5000,
 #'                   LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))

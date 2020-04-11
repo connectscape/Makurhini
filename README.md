@@ -516,7 +516,8 @@ test$`ProtConn Plot`
 
 ### Equivalent Connectivity (EC)
 
-Example with old-growth vegetation fragments of four years.
+Example with old-growth vegetation fragments of four times (T1, T2, T3
+and T4).
 
 ``` r
 ruta <- system.file("extdata", "dECA_example.RData", package = "Makurhini")
@@ -767,3 +768,14 @@ dECA \< dA \< 0
         </tr>
         </tbody>
         </table>
+
+### Citing Makurhini package
+
+A formal paper detailing this packe is forthcoming, but until it is
+published, please use the something like the following to cite if you
+use it in your work:
+
+<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R
+package for analyzing landscape connectivity.
+<https://github.com/OscarGOGO/Makurhini>, DOI: 10.5281/zenodo.3748045
+</i> </code>

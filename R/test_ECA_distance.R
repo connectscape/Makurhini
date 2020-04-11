@@ -23,11 +23,13 @@
 #' \dontrun{
 #' library(Makurhini)
 #' library(rgeos)
-#' ruta <- system.file("extdata", "dECA_example.RData", package = "Makurhini")
-#' load(ruta)
+#'
+#' data("list_forest_patches", package = "Makurhini")
+#' data("study_area", package = "Makurhini")
+#'
 #' Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
 #'
-#' test_ECA_distance(nodes = forest_patches[[1]],
+#' test_ECA_distance(nodes = list_forest_patches[[1]],
 #'                  distance1 =list(type= "centroid"),
 #'                  distance2 =list(type= "edge"),
 #'                  attribute = NULL, area_unit = "ha",

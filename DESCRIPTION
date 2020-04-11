@@ -1,6 +1,6 @@
 Package: Makurhini
 Type: Package
-Title: Makurhini: A tool set to analyze landscape connectivity
+Title: Makurhini: An R package for analyzing landscape connectivity
 Version: 1.0.0
 Author: c(person(given = "Oscar",
               family = "Godínez-Gómez",

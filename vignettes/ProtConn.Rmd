@@ -1,0 +1,112 @@
+---
+title: "Protected Connected Land (ProtConn)"
+output: rmarkdown::html_document
+vignette: >
+  %\VignetteIndexEntry{ProtConn}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+library(Makurhini)
+library(raster)
+```
+
+We will explore the ProtConn indicator which was developed to report international conservation targets (Saura et al. 2017), the indicator offers you an analysis of protected areas connectivity for a particular region.
+
+* Loading data (two ecoregions and one set of protected areas, both shapefiles):
+
+```{r message=FALSE, warning=FALSE}
+#Protected areas
+data("Protected_areas", package = "Makurhini")
+
+#Ecoregions
+data("regions", package = "Makurhini")
+
+```
+
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+plot(regions, col="#beaed4", main="Protected areas and ecoregions",
+     axes = TRUE, key.pos = 4)
+plot(Protected_areas, add=TRUE, col = "#00B050")
+legend("topright",
+       c("Ecoregions", "Protected areas"),
+       fill = c("#beaed4", "#00B050"), # set the color of each legend line
+       bty = "n", # turn off border
+       cex = .8) # adjust font size
+```
+
+* ProtConn only one ecoregion using two distance thresholds (median distance) and a connection probability of 0.5. 
+
+```{r message=FALSE, warning=FALSE}
+region <- regions[1,]
+test.1 <- MK_ProtConn(nodes = Protected_areas, region = region,
+                    attribute = "Intersected area", area_unit = "ha",
+                    distance = list(type= "centroid"),
+                    distance_thresholds = c(50000, 10000),
+                    probability = 0.5, transboundary = 50000,
+                    LA = NULL, plot = TRUE, dPC = FALSE,
+                    write = NULL, SAGA = FALSE, intern = FALSE)
+```
+
+Result 50 km:
+
+```{r message=FALSE, warning=FALSE}
+test.1$d50000
+```
+
+
+Result 10 km:
+
+```{r message=FALSE, warning=FALSE}
+test.1$d10000
+```
+
+
+
+* Using the two ecoregions (or ideally more regions):
+
+```{r message=FALSE, warning=FALSE}
+test.2 <- MK_ProtConnMult(nodes = Protected_areas, regions = regions,
+                          attribute = "Intersected area", area_unit = "ha",
+                          distance = list(type= "centroid"),
+                          distance_thresholds = 10000,
+                          probability = 0.5, transboundary = 50000,
+                          plot = FALSE, write = NULL, 
+                          intern = FALSE)
+```
+
+Table summary result:
+```{r message=FALSE, warning=FALSE}
+test.2$ProtConn_10000$ProtConn_10000
+
+```
+
+Shapefile result
+```{r message=FALSE, warning=FALSE}
+test.2$ProtConn_10000$ProtConn_overall_10000
+```
+
+
+
+Moreover, you can change distance using the distance (<code> distancefile () </code>) argument:
+
+<code>Euclidean distances:
+* distance = list(type= "centroid")
+* distance = list(type= "edge")
+Least cost distances:
+* distance = list(type= "least-cost", resistance = "resistance raster")
+* distance = list(type= "commute-time", resistance = "resistance raster")</code>
+
+
+<strong>Reference</strong>:
+
+* Saura, S., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2017). Protected areas in the world’s ecoregions: How well connected are they? Ecological Indicators, 76, 144–158. 

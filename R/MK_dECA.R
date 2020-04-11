@@ -1,4 +1,4 @@
-#' ECA, dA and dECA estimation using the Conefor command line.
+#' ECA, dA and dECA.
 #'
 #' Equivalent Connected Area (ECA; if the area is used as attribute) or Equivalent Connectivity index (EC)
 #' @param nodes list of objects of class sf, SpatialPolygonsDataFrame or raster. Nodes of each period of time to analyze.

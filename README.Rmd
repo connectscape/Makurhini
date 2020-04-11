@@ -71,20 +71,20 @@ test$`ProtConn Plot`
 
 ###  Equivalent Connectivity (EC) 
 
-Example with old-growth vegetation fragments of four times (T1, T2, T3 and T4).
+Example with old-growth vegetation fragments of four times (?list_forest_patches).
 
 ```{r message=FALSE, warning=FALSE}
-ruta <- system.file("extdata", "dECA_example.RData", package = "Makurhini")
-load(ruta)
+data("list_forest_patches", package = "Makurhini")
+data("study_area", package = "Makurhini")
 
-Max_attribute <- gArea(study_area) * 0.0001 #hectares
+Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
 ```
 
 ```{r message=FALSE, warning=FALSE}
-dECA_test <- MK_dECA(nodes= forest_patches, attribute = NULL, area_unit = "ha",
+dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
                   distance = list(type= "centroid"), metric = "PC",
                   probability = 0.05, distance_thresholds = 5000,
-                  LA = Max_attribute, plot= c("T1", "T2", "T3", "T4"))
+                  LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))
 dECA_test
 
 
@@ -94,4 +94,4 @@ dECA_test
 ### Citing Makurhini package
 A formal paper detailing this packe is forthcoming, but until it is published, please use the something like the following to cite if you use it in your work:
 
-<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R package for analyzing landscape connectivity. https://github.com/OscarGOGO/Makurhini, DOI: 10.5281/zenodo.3748045 </i> </code>
+<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R package for analyzing landscape connectivity. https://github.com/OscarGOGO/Makurhini, DOI: 10.5281/zenodo.3748086 </i> </code>

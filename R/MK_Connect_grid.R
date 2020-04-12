@@ -68,7 +68,7 @@
 #' }
 #' @importFrom magrittr %>%
 #' @importFrom raster extent projection projection<- raster
-#' @import sf
+#' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_intersection
 #' @importFrom rmapshaper ms_dissolve
 #' @importFrom future plan multiprocess availableCores
 #' @importFrom furrr future_map

@@ -13,7 +13,7 @@ MK_RMCentrality(nodes, distance = list(type = "centroid"),
 It must be in a projected coordinate system. If nodes is a raster layer then raster values (Integer) will be taken as "id".}
 
 \item{distance}{list. Distance parameters. For example: type, resistance,or keep. For "type" choose one
-of the distances: "centroid" (faster), "edge", "hausdorff-edge",
+of the distances: "centroid" (faster), "edge",
 "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have
 to use the "resistance" argument. To see more arguments see the ?distancefile.}
 

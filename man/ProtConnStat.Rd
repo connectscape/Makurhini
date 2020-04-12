@@ -7,7 +7,7 @@
 ProtConnStat(ProtConn, ci = "all", nr = 500)
 }
 \arguments{
-\item{ProtConn}{ProtConn table (see, ProtConnCLaMult())}
+\item{ProtConn}{ProtConn table (see, MK_ProtConnMult())}
 
 \item{ci}{character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, boot::boot.ci())}
 

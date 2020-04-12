@@ -32,13 +32,14 @@
 #' }
 #' @export
 #' @importFrom magrittr %>%
-#' @import sf
+#' @importFrom sf st_as_sf st_cast st_zm st_buffer write_sf st_intersection st_difference st_area st_intersects st_geometry
 #' @importFrom sp over geometry
 #' @importFrom rgeos gBuffer
 #' @importFrom RSAGA rsaga.intersect.polygons
 #' @importFrom dplyr mutate group_by summarize
 #' @importFrom tibble as_tibble
 #' @importFrom methods as
+#' @importFrom rlang .data
 MK_selectbyloc <- function(target, sourcelyr, id = NULL, selreg = "M1",
                         buffer = NULL, thintersect = NULL,
                         transboundary = NULL,  area_unit = "ha",

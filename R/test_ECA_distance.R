@@ -37,7 +37,7 @@
 #'                  distance_thresholds = seq(10000,100000, 10000))
 #'}
 #' @importFrom magrittr %>%
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot geom_line geom_point aes theme scale_x_continuous scale_y_continuous element_blank labs scale_colour_manual element_line element_text element_rect
 #' @importFrom purrr compact map_dfr
 #' @importFrom dplyr progress_estimated
 #' @importFrom methods as
@@ -57,6 +57,8 @@ test_ECA_distance <- function(nodes,
     }
   options(warn = -1)
 
+  distances_test <- list(distance1, distance2, distance3, distance4)
+  distances_test <- compact(distances_test)
 
   #Id
   nodes@data$IdTemp <- 1:nrow(nodes)

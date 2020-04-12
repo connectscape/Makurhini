@@ -57,27 +57,28 @@
 #' }
 #' @export
 #' @importFrom magrittr %>%
-#' @importFrom purrr compact map
+#' @importFrom purrr compact map map_dfr
 #' @importFrom methods as
 #' @importFrom rgeos gArea
 #' @importFrom dplyr progress_estimated summarize
 #' @importFrom plyr ddply .
 #' @importFrom formattable formattable color_bar proportion formatter percent style
 #' @importFrom reshape2 melt
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot geom_bar aes geom_text theme element_blank element_text labs ggtitle scale_fill_manual element_line ggsave
 #' @importFrom utils write.csv
 #' @importFrom future multiprocess plan availableCores
-#' @importFrom furrr future_map
+#' @importFrom furrr future_map future_map_dfr
+#' @importFrom rlang .data
 
 MK_dECA <- function(nodes,
-                      attribute = NULL,
-                      area_unit = "ha",
-                      distance = list(type = "centroid", resistance = NULL),
-                      metric = "IIC",
-                      probability = NULL,
-                      distance_thresholds = NULL,
-                      LA = NULL,
-                      plot = FALSE, parallel = FALSE,
+                    attribute = NULL,
+                    area_unit = "ha",
+                    distance = list(type = "centroid", resistance = NULL),
+                    metric = "IIC",
+                    probability = NULL,
+                    distance_thresholds = NULL,
+                    LA = NULL,
+                    plot = FALSE, parallel = FALSE,
                     write = NULL){
   if (missing(nodes)) {
     stop("error missing file of nodes")
@@ -133,17 +134,18 @@ MK_dECA <- function(nodes,
   scenary <- as.vector(1:length(listT)) %>% as.character()
   #
   if(class(listT[[1]])[1] == "SpatialPolygonsDataFrame"){
-    DECA <- map(listT, function(x){unit_convert(sum(gArea(x, byid = T)), "m2", area_unit)})
+    DECA <- map_dfr(listT, function(x){unit_convert(sum(gArea(x, byid = T)), "m2", area_unit) %>% as.data.frame()})
     id = "IdTemp"
   } else {
     nres <- unit_convert(res(listT[[1]])[1]^2, "m2", area_unit)
     DECA <- map(listT, function(x){
       x1 <- as.data.frame(table(x[]))
       sum(x1$Freq * nres)})
+    DECA <- do.call(rbind, DECA) %>% as.data.frame(as.numeric(.))
     id = NULL
   }
 
-  DECA <- do.call(rbind, DECA) %>% as.data.frame(as.numeric(.))
+  #DECA <- do.call(rbind, DECA) %>% as.data.frame(as.numeric(.))
   DECA <- cbind(scenary, DECA)
   rownames(DECA) <- NULL
   colnames(DECA)[2]<-"Area"
@@ -156,7 +158,7 @@ MK_dECA <- function(nodes,
     ECA <- tryCatch(map(listT, function(x){
       pb$tick()$print()
 
-      ECA_metric <-  map(distance_thresholds, function(y) {
+      ECA_metric <-  map_dfr(distance_thresholds, function(y) {
         tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
                           restauration = NULL,
                           distance = distance, area_unit = area_unit,
@@ -164,21 +166,21 @@ MK_dECA <- function(nodes,
                           distance_thresholds = y,
                           overall = TRUE, onlyoverall = TRUE,
                           LA = LA, rasterparallel = FALSE, write = NULL)
-        tab1 <- tab1[[2,2]]
+        tab1 <- tab1[2,2]
         return(tab1)
       })
 
-      ECA_metric2 <- do.call(rbind,  ECA_metric)
-      ECA_metric2 <- cbind(ECA_metric2, distance_thresholds)
+      #ECA_metric2 <- do.call(rbind,  ECA_metric)
+      ECA_metric2 <- cbind(ECA_metric, distance_thresholds)
       ECA_metric2 <- as.data.frame(ECA_metric2)
       names(ECA_metric2) <- c("ECA", "Distance")
       return(ECA_metric2)
     }), error = function(err) err)
   } else {
     works = as.numeric(availableCores())-
-    plan(strategy = multiprocess, gc = TRUE, workers = works)
+      plan(strategy = multiprocess, gc = TRUE, workers = works)
     ECA <- tryCatch(future_map(listT, function(x) {
-      ECA_metric <-  future_map(distance_thresholds, function(y) {
+      ECA_metric <-  future_map_dfr(distance_thresholds, function(y) {
         tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
                           restauration = NULL,
                           distance = distance, area_unit = area_unit,
@@ -186,11 +188,11 @@ MK_dECA <- function(nodes,
                           distance_thresholds = y,
                           overall = TRUE, onlyoverall = TRUE,
                           LA = LA, rasterparallel = FALSE, write = NULL)
-        tab1 <- tab1[[2,2]]
+        tab1 <- tab1[2,2]
         return(tab1)
       })
-      ECA_metric2 <- do.call(rbind,  ECA_metric)
-      ECA_metric2 <- cbind(ECA_metric2, distance_thresholds)
+      #ECA_metric2 <- do.call(rbind,  ECA_metric)
+      ECA_metric2 <- cbind(ECA_metric, distance_thresholds)
       ECA_metric2 <- as.data.frame(ECA_metric2)
       names(ECA_metric2) <- c("ECA", "Distance")
       return(ECA_metric2)
@@ -232,6 +234,15 @@ MK_dECA <- function(nodes,
 
       names(DECA.4)[c(1:3,5)] <- c("Scenary", paste0("Area (",area_unit,")"),
                                    paste0("ECA (",area_unit,")"), "Normalized ECA")
+
+      if(is.character(plot) & length(plot) == nrow(DECA.4)){
+        DECA.4$Scenary <- plot
+      } else {
+        DECA.4$Scenary <- rownames(DECA.4)
+      }
+
+      rownames(DECA.4) <- NULL
+
       DECA.4 <- formattable(DECA.4, align = c("l", rep("r", NCOL(DECA.4) - 1)),
                             list(`Area (ha)`= color_bar("#94D8B1", proportion),
                                  `Normalized ECA` = formatter("span", x ~ percent(x / 100)),
@@ -296,8 +307,7 @@ MK_dECA <- function(nodes,
                     colour = "white", family = "Tahoma", size = 4, fontface = "bold") +
           theme(legend.position = "bottom", legend.direction = "horizontal",
                 legend.title = element_blank(),
-                legend.text = element_text(size = 11),
-                legend.spacing.x = unit(0.5, 'cm')) +
+                legend.text = element_text(size = 11)) +
           labs(x = "Year", y = "Percentage (%)") +
           ggtitle(paste0("Equivalent Connected Area: Dispersal distance = ", dp_text)) +
           scale_fill_manual(values = pcolors) +

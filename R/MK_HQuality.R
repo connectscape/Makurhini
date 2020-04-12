@@ -9,18 +9,18 @@
 #' @param SAGA Logical. Optimize the process using SAGA GIS and RSAGA package (see, \url{https://github.com/r-spatial/RSAGA}).
 #' @return SpatialPolygons with value of the climatic stability index weighted by the area, standardized and not standardized for all the nodes and by area of interest.
 #' @export
-#' @importFrom velox velox
 #' @importFrom methods as
 #' @importFrom stringr word
-#' @importFrom raster crs projectRaster shapefile
+#' @importFrom raster crs projectRaster shapefile crop
 #' @importFrom spex qm_rasterToPolygons_sp
 #' @importFrom rgeos gArea gBuffer
-#' @import sf
+#' @importFrom sf st_as_sf st_cast st_intersection st_buffer write_sf
 #' @importFrom purrr map
 #' @importFrom plyr ddply .
 #' @importFrom sp merge
 #' @importFrom dplyr summarize
 #' @importFrom rmapshaper ms_dissolve
+#' @importFrom rlang .data
 MK_HQuality <- function(x, y, id = NULL, area_unit = NULL,
                   by_zone = NULL, write = NULL, SAGA = TRUE){
   #
@@ -43,9 +43,7 @@ MK_HQuality <- function(x, y, id = NULL, area_unit = NULL,
     x <- projectRaster(x, crs = toString(crs(y)))
   }
   #
-  x <- velox(x)
-  x$crop(ms_dissolve(y))
-  x <- x$as.RasterLayer(band = 1)
+  x <- crop(x, ms_dissolve(y))
   #
   y2 <- qm_rasterToPolygons_sp(x)
   y@data$area <- gArea(y, byid = T)
@@ -59,7 +57,6 @@ MK_HQuality <- function(x, y, id = NULL, area_unit = NULL,
     y3$idn <- sample.int(nrow(y3)/2, nrow(y3), replace = T)
     list_y <- split(y3, y3$idn)
     y2 <- st_as_sf(y2) %>% st_cast("POLYGON")
-
 
     list_y_err <- tryCatch(map(list_y, function(x){
         result <- st_intersection(x, y = y2) %>% st_cast("POLYGON")

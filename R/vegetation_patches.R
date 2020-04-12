@@ -35,6 +35,4 @@
 #' @description shapefile. Biosphere reserve Mariposa Monarca plus a buffer of 10 km. It is
 #' used to run the MK_dECA and test_ECA_distance examples.
 #' @format A \code{sf} with 4 shapefiles:
-#' @references
-#'
 "study_area"

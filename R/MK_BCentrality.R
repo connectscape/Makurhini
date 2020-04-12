@@ -63,7 +63,7 @@
 #'                     distance_thresholds = c(40000, 60000),
 #'                     parallel = TRUE) #40 and 60 km
 #' }
-#' @import sf
+#' @importFrom sf st_as_sf
 #' @importFrom dplyr progress_estimated
 #' @importFrom purrr map
 #' @importFrom utils write.table

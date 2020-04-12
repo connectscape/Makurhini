@@ -1,6 +1,6 @@
 #' Multiple ProtConn statistic
 #'
-#' @param ProtConn ProtConn table (see, ProtConnCLaMult())
+#' @param ProtConn ProtConn table (see, MK_ProtConnMult())
 #' @param ci character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, boot::boot.ci())
 #' @param nr numeric. The number of bootstrap replicates
 #' @references Carpenter, J., & Bithell, J. (2000). Bootstrap con " dence intervals : when , which , what ? A practical guide for medical statisticians. Statist. Med., 19, 1141–1164.

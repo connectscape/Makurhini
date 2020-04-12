@@ -155,7 +155,7 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 #' @details The function builds on functions out of Jacob van Etten’s ’gdistance’ package.
 #' @references https://cran.r-project.org/web/packages/gdistance/gdistance.pdf
 #' @importFrom magrittr %>%
-#' @import sf
+#' @importFrom sf st_as_sf st_geometry st_geometry<-
 #' @importFrom purrr map_dbl
 #' @importFrom rgeos gTouches gCentroid
 #' @importFrom dismo voronoi
@@ -166,7 +166,6 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
 #' @importFrom utils combn write.table
 #' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
-
 cost_distances <- function(x, id, type_distance = "least-cost", resistance = NULL, CostFun = NULL,
                            ngh = NULL, mask = NULL, threshold = NULL,
                            geometry_out = NULL,

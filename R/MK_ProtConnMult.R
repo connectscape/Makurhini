@@ -31,8 +31,8 @@
 #' Saura, S., Bertzky, B., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2018). Protected area connectivity: Shortfalls in global targets and country-level priorities. Biological Conservation, 219(October 2017), 53–67.
 #' @export
 #' @importFrom magrittr %>%
-#' @import sf
-#' @import ggplot2
+#' @importFrom sf st_as_sf st_zm st_geometry st_geometry<- write_sf
+#' @importFrom ggplot2 ggplot geom_bar aes position_dodge labs rel theme_bw theme element_blank element_text scale_fill_manual geom_hline scale_linetype_manual guide_legend margin geom_errorbar
 #' @importFrom dplyr progress_estimated
 #' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map

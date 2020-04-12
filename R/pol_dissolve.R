@@ -2,7 +2,7 @@
 #' @param polygone object of class sf, sfc, sfg or SpatialPolygons
 #' @param attribute character. Column name with the dissolve attribute
 #' @importFrom magrittr %>%
-#' @import sf
+#' @importFrom sf st_as_sf st_cast st_union
 #' @importFrom methods as
 pol_dissolve<-function(polygone, attribute){
   if(class(polygone)[1]!="sf"){

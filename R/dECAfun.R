@@ -1,7 +1,6 @@
 #' Function to contrast differences of dA and dECA
 #' @param dECA dECA
 #' @param dA dA
-#' @export
 
 dECAfun<-function(dECA, dA) {
   if (dECA < dA & dA < 0){
@@ -19,7 +18,6 @@ dECAfun<-function(dECA, dA) {
 #' Function to contrast differences of dA and dECA
 #' @param dECA dECA
 #' @param dA dA
-#' @export
 
 dECAfun2<-function(dECA, dA) {
   if (dECA < dA & dA < 0){

@@ -56,7 +56,6 @@
 #'                 overall = TRUE,
 #'                 distance_thresholds = 40000) # 40 km
 #' PC
-#'
 #' @importFrom dplyr progress_estimated
 #' @importFrom methods as
 #' @importFrom utils write.table
@@ -66,6 +65,7 @@
 #' @importFrom furrr future_map
 #' @importFrom igraph graph.adjacency shortest.paths E
 #' @importFrom data.table data.table
+#' @importFrom sf write_sf st_as_sf st_zm
 
 MK_dPCIIC <- function(nodes, attribute  = NULL,
                       area_unit = "ha", restauration = NULL,

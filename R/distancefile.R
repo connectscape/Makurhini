@@ -46,7 +46,7 @@
 #' \url{https://www.rdocumentation.org/packages/rgeos/versions/0.3-26/topics/gDistance}\cr
 #' \url{http://cgm.cs.mcgill.ca/~godfried/teaching/cg-projects/98/normand/main.html}.
 #' @export
-#' @import sf
+#' @importFrom sf st_as_sf st_cast st_union st_sf
 #' @importFrom methods as
 #' @importFrom purrr map
 #' @importFrom future multiprocess plan availableCores
@@ -56,7 +56,7 @@
 #' @importFrom raster rasterToPoints crs values raster
 #' @importFrom magrittr %>%
 #' @importFrom dplyr group_by summarize
-
+#' @importFrom rlang .data
 distancefile <- function(nodes, id,
                          type =  "centroid",
                          distance_unit = NULL,

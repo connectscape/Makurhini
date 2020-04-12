@@ -54,19 +54,19 @@
 #' test$d50000
 #' test$d10000
 #' }
-#' @importFrom velox velox
-#' @import sf
+#' @importFrom sf st_as_sf st_cast st_zm st_simplify st_buffer write_sf st_intersection st_difference st_area
 #' @importFrom magrittr %>%
 #' @importFrom rmapshaper ms_dissolve ms_simplify
 #' @importFrom dplyr progress_estimated mutate group_by summarize
-#' @importFrom raster raster
+#' @importFrom raster raster extract
 #' @importFrom fasterize fasterize
 #' @importFrom tibble as_tibble
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot geom_bar aes position_dodge labs rel theme_bw theme element_blank element_text scale_fill_manual geom_hline scale_linetype_manual guide_legend margin
 #' @importFrom purrr compact
 #' @importFrom ggpubr ggarrange
 #' @importFrom formattable formattable formatter style color_tile as.htmlwidget
 #' @importFrom methods as
+#' @importFrom rlang .data
 MK_ProtConn <- function(nodes, region, thintersect = NULL,
                         attribute = "Intersected area",
                         area_unit = "ha",
@@ -257,11 +257,8 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
         #If cost or commutate distance will be used
         if(!is.null(distance$resistance) & is.null(distance$mask)){
           mask <- region_1
-          resistance_protconn <- velox(distance$resistance)
-          resistance_protconn$crop(as(st_buffer(mask, dist = distance_thresholds), 'Spatial'))
-          resistance_protconn <- resistance_protconn$as.RasterLayer(band = 1)
+          resistance_protconn <- crop(distance$resistance, as(st_buffer(mask, dist = distance_thresholds), 'Spatial'))
           distance$resistance <- resistance_protconn
-
         }
 
         distance_base <- tryCatch(distancefile(nodes = bound_nodes,  id = "IDTemp", type = distance$type,
@@ -331,8 +328,18 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
           } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
             r.raster <- raster(nodes.1, res= res_attribute)
             r.raster <- fasterize(nodes.1, r.raster, field = attribute, background = 0)
-            r.raster <- velox(r.raster)
-            majority <- r.raster$extract(sp=nodes.2, fun = Mode)
+            Mode <- function(x, na.rm = FALSE) {
+              if(na.rm){
+                x = subset(x, !is.na(x))
+              }
+              ux <- unique(x)
+              ux <- ux[which.max(tabulate(match(x, ux)))]
+              if(is.na(ux)){
+                ux = 0
+              }
+              return(ux)
+            }
+            majority <- extract(r.raster, nodes.2, fun = Mode)
             majority[is.na(majority)] <- 0
             nodes.2$AreaTemp <- majority * nodes.2$transboundary
           } else {
@@ -653,8 +660,7 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
           } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
             r.raster <- raster(nodes.1, res= res_attribute)
             r.raster <- fasterize(nodes.1, r.raster, field = attribute, background = 0)
-            r.raster <- velox(r.raster)
-
+            majority <- extract(r.raster, nodes.2, fun = Mode)
             Mode <- function(x, na.rm = FALSE) {
               if(na.rm){
                 x = subset(x, !is.na(x))
@@ -667,7 +673,6 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
               return(ux)
             }
 
-            majority <- r.raster$extract(sp=nodes.2, fun = Mode)
             majority[is.na(majority)] <- 0
             Area <- majority * nodes.2$transboundary
           } else {
@@ -715,8 +720,6 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
         } else if (is.character(attribute) & isFALSE(attribute %in% c("Area", "Intersected area"))){
           r.raster <- raster(nodes.1, res= res_attribute)
           r.raster <- fasterize(nodes.1, r.raster, field = attribute, background = 0)
-          r.raster <- velox(r.raster)
-
           Mode <- function(x, na.rm = FALSE) {
             if(na.rm){
               x = subset(x, !is.na(x))
@@ -728,7 +731,7 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
             }
             return(ux)
           }
-          majority <- r.raster$extract(sp=nodes.2, fun = Mode)
+          majority <- extract(r.raster, nodes.2, fun = Mode)
           majority[is.na(majority)] <- 0
           Area <- majority * nodes.2$transboundary
         } else {

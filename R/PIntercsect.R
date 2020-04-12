@@ -2,7 +2,7 @@
 #'
 #' @param p1 object of class sf, sfc, sfg or SpatialPolygons. Polygons 1 (polygons to be parallelized)
 #' @param p2 object of class sf, sfc, sfg or SpatialPolygons. Polygons 2
-#' @import parallel
+#' @importFrom parallel makeCluster stopCluster parLapply detectCores
 #' @importFrom methods as
 #' @importFrom raster intersect
 PIntercsect<-function(p1,p2){

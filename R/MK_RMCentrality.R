@@ -4,7 +4,7 @@
 #' @param nodes Object of class sf, SpatialPolygonsDataFrame or raster.
 #' It must be in a projected coordinate system. If nodes is a raster layer then raster values (Integer) will be taken as "id".
 #' @param distance list. Distance parameters. For example: type, resistance,or keep. For "type" choose one
-#' of the distances: "centroid" (faster), "edge", "hausdorff-edge",
+#' of the distances: "centroid" (faster), "edge",
 #' "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have
 #' to use the "resistance" argument. To see more arguments see the ?distancefile.
 #' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (in meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
@@ -37,7 +37,7 @@
 #'
 #' @importFrom dplyr progress_estimated
 #' @importFrom magrittr %>%
-#' @import sf
+#' @importFrom sf write_sf st_as_sf
 #' @importFrom purrr map map_dbl
 #' @importFrom igraph graph.adjacency strength evcent closeness betweenness clusters cluster_louvain degree
 #' @importFrom raster as.matrix extent raster stack extent<- writeRaster reclassify crs crs<- unique

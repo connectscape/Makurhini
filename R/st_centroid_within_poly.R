@@ -6,12 +6,13 @@
 #' \url{https://stackoverflow.com/questions/52522872/r-sf-package-centroid-within-polygon}
 #' \url{https://stackoverflow.com/users/3609772/mitch}.
 #' @importFrom magrittr %>%
-#' @import sf
+#' @importFrom sf st_centroid st_within st_point_on_surface
 
 st_centroid_within_poly <- function(poly){
   centroid <- poly %>% st_centroid()
-  in_poly <- st_within(centroid, poly, sparse = F)[[1]]
-  if (in_poly) return(centroid)
+  in_poly <- st_within(centroid, poly, sparse = FALSE)[[1]]
+  if (in_poly){
+    return(centroid)}
   centroid_in_poly <- st_point_on_surface(poly)
   return(centroid_in_poly)
   }
@@ -19,7 +20,7 @@ st_centroid_within_poly <- function(poly){
 #' Number of vertices
 #'
 #' @param poly Object of class sf, sfc, sfg or SpatialPolygons
-#' @import sf
+#' @importFrom sf st_cast st_as_sf
 #' @export
 
 num_vert <- function(poly){
@@ -36,7 +37,7 @@ num_vert <- function(poly){
 #'
 #' @param x Object of class sf, sfc, sfg or SpatialPolygons
 #' @param y Object of class sf, sfc, sfg or SpatialPolygons
-#' @import sf
+#' @importFrom sf st_as_sf st_intersects st_geometry
 #' @importFrom magrittr %>%
 
 over_poly <- function(x, y) {
@@ -58,7 +59,7 @@ over_poly <- function(x, y) {
 #' @param clip logical. If TRUE, the new grid will be clipped to the region area. The operation time will be longer the greater the number of vertices in the polygon of the region, if it is a region with many vertices use the argument "tolerance".
 #' @param tolerance numeric. If Reduces the number of vertices in the region polygon.
 #' @param grid_boundary logical.If TRUE, the Incomplete "hexagons" or "squares" in the boundaries of the region will be discarded
-#' @import sf
+#' @importFrom sf st_as_sf st_cast st_zm st_simplify st_buffer st_intersection st_area
 #' @importFrom magrittr %>%
 #' @importFrom methods as
 #' @importFrom raster extent projection raster

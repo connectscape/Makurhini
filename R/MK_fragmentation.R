@@ -41,11 +41,11 @@
 #' fragmentation$`Patch statistics shapefile`
 #' @export
 #' @importFrom magrittr %>%
-#' @import sf
+#' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_length st_boundary st_geometry st_geometry<- write_sf
 #' @importFrom raster plot
 #' @importFrom graphics par plot axis box lines legend grid
 #' @importFrom grDevices dev.off tiff
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot aes geom_histogram theme element_blank element_text labs ggsave
 #' @importFrom formattable formattable formatter style
 #' @importFrom ggpubr ggarrange
 MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100, landscape_area = NULL,
@@ -136,7 +136,7 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
     legend("topleft",legend = c("Core Area", "Edge"), fill = c("#1a9641", "red"), cex = 2)
     dev.off()
 
-    p1 <- ggplot(data, aes(x = log10(.data$Area))) +
+    p1 <- ggplot(data, aes(x = log10(data$Area))) +
       geom_histogram(color = "black", fill = vcol, bins = 10,
                      position = "dodge", na.rm = T) +
       labs(x = "log10 (km2)", y = "Frequency", title = "Size") +
@@ -145,7 +145,7 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
       axis.title.y = element_text(size = 20))+
       theme(text = element_text(size = 20),
             axis.text.x = element_text(hjust = 1))
-    p2 <- ggplot(data, aes(x = log10(.data$Perimeter))) +
+    p2 <- ggplot(data, aes(x = log10(data$Perimeter))) +
       geom_histogram(color = "black", fill = vcol, bins = 10,
                      position = "dodge", na.rm = T)+
       labs(x = "log10 (km)", y ="Frequency", title = "Perimeter") +
@@ -154,7 +154,7 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
       axis.title.y = element_text(size = 20))+
       theme(text = element_text(size = 20),
                      axis.text.x = element_text(hjust = 1))
-    p3 <- ggplot(data, aes(x = .data$ShapeIndex)) +
+    p3 <- ggplot(data, aes(x = data$ShapeIndex)) +
       geom_histogram(color = "black", fill = vcol, bins = 10,
                      position = "dodge", na.rm = T) +
       labs(x = "Shape Index", y = "Frequency", title = "Shape Index") +
@@ -163,7 +163,7 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
       axis.title.y = element_text(size = 20))+
       theme(text = element_text(size = 20),
             axis.text.x = element_text(hjust = 1))
-    p4 <- ggplot(data, aes(x = log10(.data$CA))) +
+    p4 <- ggplot(data, aes(x = log10(data$CA))) +
       geom_histogram(color = "black", fill = vcol, bins = 10,
                      position = "dodge", na.rm = T)+
       labs(x = "log10 (km2)", y = "Frequency", title = "Core Area") +
@@ -179,28 +179,28 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
     }
 
   if (isTRUE(plot)) {
-      p1 <- ggplot(data, aes(x = log10(.data$Area))) +
+      p1 <- ggplot(data, aes(x = log10(data$Area))) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T) +
         labs(x = "log10 (km2)", y = "Frequency", title = "Size") +
         theme(plot.title = element_text(size = 14, face = "bold"),
               axis.title.x = element_text(size = 14),
               axis.title.y = element_text(size = 14))
-      p2 <- ggplot(data, aes(x = log10(.data$Perimeter))) +
+      p2 <- ggplot(data, aes(x = log10(data$Perimeter))) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T) +
         labs(x = "log10(km)", y ="Frequency", title = "Perimeter") +
         theme(plot.title = element_text(size=14, face="bold"),
               axis.title.x = element_text(size = 14),
               axis.title.y = element_text(size = 14))
-      p3 <- ggplot(data, aes(x = .data$ShapeIndex)) +
+      p3 <- ggplot(data, aes(x = data$ShapeIndex)) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T) +
         labs(x = "Shape Index", y ="Frequency", title = "Shape Index") +
         theme(plot.title = element_text(size = 14, face = "bold"),
               axis.title.x = element_text(size = 14),
               axis.title.y = element_text(size = 14))
-      p4 <- ggplot(data, aes(x = log10(.data$CA))) +
+      p4 <- ggplot(data, aes(x = log10(data$CA))) +
         geom_histogram(color = "black", fill = vcol,
                        bins = 10, position = "dodge", na.rm = T) +
         labs(x = "log10 (km2)", y ="Frequency", title = "Core Area")+

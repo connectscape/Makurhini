@@ -13,8 +13,10 @@ landscape fragmentation and connectivity metrics
 
 ## Installation
 
-  - Pre-install Rtools.
+  - Pre-install
+    [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
   - Pre-install devtools package
+    (<code>install.packages(“devtools”)</code>)
 
 You can install the released version of Makurhini from
 [GitHub](https://github.com) with:

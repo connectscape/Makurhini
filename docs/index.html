@@ -94,12 +94,13 @@
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
 <ul>
-<li>Pre-install Rtools.</li>
-<li>Pre-install devtools package</li>
+<li>Pre-install <a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a>.</li>
+<li>Pre-install devtools package (<code>install.packages(“devtools”)</code>)</li>
 </ul>
 <p>You can install the released version of Makurhini from <a href="https://github.com">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">devtools</span>)
-<span class="fu"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"OscarGOGO/Makurhini"</span>, <span class="kw">dependencies</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></div>
+<span class="fu"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"OscarGOGO/Makurhini"</span>, <span class="kw">dependencies</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">upgrade</span> <span class="kw">=</span> <span class="st">"never"</span>)</pre></div>
+<p>In case it does not appear in the list of packages, close the R session and reopen.</p>
 </div>
 <div id="example" class="section level2">
 <h2 class="hasAnchor">

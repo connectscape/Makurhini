@@ -24,6 +24,9 @@ library(devtools)
 install_github("OscarGOGO/Makurhini", dependencies = TRUE)
 ```
 
+In case it does not appear in the list of packages, close the R session
+and reopen.
+
 ## Example
 
 This is a basic example which shows you how to solve some common

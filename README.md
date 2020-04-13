@@ -8,8 +8,9 @@ status](https://ci.appveyor.com/api/projects/status/github/OscarGOGO/Makurhini?b
 
 ![LOGO\_MAKHURINI](https://user-images.githubusercontent.com/30152793/79033305-ce8c2280-7b72-11ea-8df7-b8b48409b818.png)
 
-The goal of Makurhini is to provide a set of functions to estimate
-landscape fragmentation and connectivity metrics
+The goal of Makurhini (Connect in Purépecha language) is to provide a
+set of functions to estimate landscape fragmentation and connectivity
+metrics
 
 ## Installation
 
@@ -885,5 +886,5 @@ use it in your work:
 
 <code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R
 package for analyzing landscape connectivity.
-<https://github.com/OscarGOGO/Makurhini>, DOI: 10.5281/zenodo.3749434
-</i> </code>
+<https://github.com/OscarGOGO/Makurhini>,
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3749434.svg)](https://doi.org/10.5281/zenodo.3749434)

@@ -21,7 +21,7 @@ You can install the released version of Makurhini from
 
 ``` r
 library(devtools)
-install_github("OscarGOGO/Makurhini", dependencies = TRUE)
+install_github("OscarGOGO/Makurhini", dependencies = TRUE, upgrade = "never")
 ```
 
 In case it does not appear in the list of packages, close the R session

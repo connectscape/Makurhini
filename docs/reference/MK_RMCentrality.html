@@ -147,7 +147,7 @@ It must be in a projected coordinate system. If nodes is a raster layer then ras
     <tr>
       <th>distance</th>
       <td><p>list. Distance parameters. For example: type, resistance,or keep. For "type" choose one
-of the distances: "centroid" (faster), "edge", "hausdorff-edge",
+of the distances: "centroid" (faster), "edge",
 "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have
 to use the "resistance" argument. To see more arguments see the ?distancefile.</p></td>
     </tr>
@@ -194,9 +194,51 @@ Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented 
 <span class='no'>centrality_test</span> <span class='kw'>&lt;-</span> <span class='fu'>MK_RMCentrality</span>(<span class='kw'>nodes</span> <span class='kw'>=</span> <span class='no'>vegetation_patches</span>,
                                 <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>),
                                  <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>10000</span>, <span class='fl'>100000</span>),
-                                 <span class='kw'>probability</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
-                                 <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: At centrality.c:2784 :closeness centrality is not well-defined for disconnected graphs</span></div><div class='input'>
-</div></pre>
+                                 <span class='kw'>probability</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
+                                 <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: At centrality.c:2784 :closeness centrality is not well-defined for disconnected graphs</span></div><div class='input'><span class='no'>centrality_test</span></div><div class='output co'>#&gt; $d10000
+#&gt; Simple feature collection with 142 features and 7 fields
+#&gt; geometry type:  POLYGON
+#&gt; dimension:      XY
+#&gt; bbox:           xmin: 3340120 ymin: 322869.6 xmax: 3739484 ymax: 696540.5
+#&gt; epsg (SRID):    NA
+#&gt; proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#&gt; <span style='color: #555555;'># A tibble: 142 x 8</span><span>
+#&gt;       id degree    eigen   close   BWC cluster modules                  geometry
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>             </span><span style='color: #555555;font-style: italic;'>&lt;POLYGON [m]&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 1</span><span>     1      0 2.30</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-17</span><span> 4.99</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-5</span><span>     0       1       1 ((3676911 589967.3, 3676~
+#&gt; </span><span style='color: #555555;'> 2</span><span>     2      0 2.30</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-17</span><span> 4.99</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-5</span><span>     0       2       2 ((3558044 696202.5, 3557~
+#&gt; </span><span style='color: #555555;'> 3</span><span>     3      1 0.  </span><span style='color: #555555;'> </span><span>    5.03</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-5</span><span>     0       3       4 ((3569169 687776.4, 3569~
+#&gt; </span><span style='color: #555555;'> 4</span><span>     4      0 2.30</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-17</span><span> 4.99</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-5</span><span>     0       4       3 ((3547317 685713.2, 3547~
+#&gt; </span><span style='color: #555555;'> 5</span><span>     5      1 0.  </span><span style='color: #555555;'> </span><span>    5.03</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-5</span><span>     0       3       4 ((3567471 684357.4, 3567~
+#&gt; </span><span style='color: #555555;'> 6</span><span>     6      0 2.30</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-17</span><span> 4.99</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-5</span><span>     0       5       5 ((3590569 672451.7, 3590~
+#&gt; </span><span style='color: #555555;'> 7</span><span>     7      0 2.30</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-17</span><span> 4.99</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-5</span><span>     0       6       6 ((3570789 670959.4, 3570~
+#&gt; </span><span style='color: #555555;'> 8</span><span>     8      1 0.  </span><span style='color: #555555;'> </span><span>    5.07</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-5</span><span>     0       7       7 ((3440118 666273.2, 3440~
+#&gt; </span><span style='color: #555555;'> 9</span><span>     9      1 0.  </span><span style='color: #555555;'> </span><span>    5.07</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-5</span><span>     0       7       7 ((3451637 671232.4, 3451~
+#&gt; </span><span style='color: #555555;'>10</span><span>    10      2 0.  </span><span style='color: #555555;'> </span><span>    5.07</span><span style='color: #555555;'>e</span><span style='color: #BB0000;'>-5</span><span>     1       7       7 ((3444396 671675.7, 3444~
+#&gt; </span><span style='color: #555555;'># ... with 132 more rows</span><span>
+#&gt; 
+#&gt; $`d1e+05`
+#&gt; Simple feature collection with 142 features and 7 fields
+#&gt; geometry type:  POLYGON
+#&gt; dimension:      XY
+#&gt; bbox:           xmin: 3340120 ymin: 322869.6 xmax: 3739484 ymax: 696540.5
+#&gt; epsg (SRID):    NA
+#&gt; proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#&gt; </span><span style='color: #555555;'># A tibble: 142 x 8</span><span>
+#&gt;       id degree eigen   close    BWC cluster modules                    geometry
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>               </span><span style='color: #555555;font-style: italic;'>&lt;POLYGON [m]&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 1</span><span>     1     32 0.328 0.003</span><span style='text-decoration: underline;'>07</span><span> 30.1         1       1 ((3676911 589967.3, 367693~
+#&gt; </span><span style='color: #555555;'> 2</span><span>     2     22 0.257 0.003</span><span style='text-decoration: underline;'>09</span><span>  3.03        1       1 ((3558044 696202.5, 355797~
+#&gt; </span><span style='color: #555555;'> 3</span><span>     3     18 0.204 0.003</span><span style='text-decoration: underline;'>01</span><span>  0.472       1       1 ((3569169 687776.4, 356914~
+#&gt; </span><span style='color: #555555;'> 4</span><span>     4     26 0.303 0.003</span><span style='text-decoration: underline;'>17</span><span>  8.87        1       1 ((3547317 685713.2, 354736~
+#&gt; </span><span style='color: #555555;'> 5</span><span>     5     23 0.274 0.003</span><span style='text-decoration: underline;'>11</span><span>  1.85        1       1 ((3567471 684357.4, 356738~
+#&gt; </span><span style='color: #555555;'> 6</span><span>     6     26 0.311 0.003</span><span style='text-decoration: underline;'>13</span><span>  3.17        1       1 ((3590569 672451.7, 359009~
+#&gt; </span><span style='color: #555555;'> 7</span><span>     7     30 0.365 0.003</span><span style='text-decoration: underline;'>26</span><span>  7.51        1       1 ((3570789 670959.4, 357086~
+#&gt; </span><span style='color: #555555;'> 8</span><span>     8     26 0.299 0.003</span><span style='text-decoration: underline;'>25</span><span>  1.23        1       2 ((3440118 666273.2, 344037~
+#&gt; </span><span style='color: #555555;'> 9</span><span>     9     24 0.271 0.003</span><span style='text-decoration: underline;'>15</span><span>  2.05        1       2 ((3451637 671232.4, 345161~
+#&gt; </span><span style='color: #555555;'>10</span><span>    10     26 0.299 0.003</span><span style='text-decoration: underline;'>25</span><span>  1.23        1       2 ((3444396 671675.7, 344471~
+#&gt; </span><span style='color: #555555;'># ... with 132 more rows</span><span>
+#&gt; </div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/sf/man/plot.html'>plot</a></span>(<span class='no'>centrality_test</span>$<span class='no'>d10000</span>[<span class='st'>"degree"</span>])</div><div class='img'><img src='MK_RMCentrality-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/sf/man/plot.html'>plot</a></span>(<span class='no'>centrality_test</span>$<span class='no'>d10000</span>[<span class='st'>"BWC"</span>])</div><div class='img'><img src='MK_RMCentrality-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/sf/man/plot.html'>plot</a></span>(<span class='no'>centrality_test</span>$<span class='no'>d10000</span>[<span class='st'>"cluster"</span>])</div><div class='img'><img src='MK_RMCentrality-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/sf/man/plot.html'>plot</a></span>(<span class='no'>centrality_test</span>$<span class='no'>d10000</span>[<span class='st'>"modules"</span>])</div><div class='img'><img src='MK_RMCentrality-4.png' alt='' width='700' height='433' /></div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

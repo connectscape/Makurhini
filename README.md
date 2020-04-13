@@ -13,6 +13,9 @@ landscape fragmentation and connectivity metrics
 
 ## Installation
 
+  - Pre-install Rtools.
+  - Pre-install devtools package
+
 You can install the released version of Makurhini from
 [GitHub](https://github.com) with:
 
@@ -25,6 +28,15 @@ install_github("OscarGOGO/Makurhini", dependencies = TRUE)
 
 This is a basic example which shows you how to solve some common
 problems:
+
+  - Protected Connected Land (<i>ProtConn</i>)
+  - Equivalent Connectivity (<i>EC</i>)
+  - Integral index of connectivity (<i>IIC</i>) and fractions
+    (<i>dIICintra, dIICflux and dIICconnector</i>)
+  - Probability of connectivity (<i>PC</i>) and fractions (<i>dPCintra,
+    dPCflux and dPCconnector</i>)
+  - Centrality measures (e.g., betweenness centrality, node memberships,
+    and modularity)
 
 ### Protected Connected Land (ProtConn)
 
@@ -549,10 +561,6 @@ dECA_test
 
 <th style="text-align:left;">
 
-</th>
-
-<th style="text-align:left;">
-
 Scenary
 
 </th>
@@ -615,13 +623,7 @@ Type of change
 
 <td style="text-align:left;">
 
-T1
-
-</td>
-
-<td style="text-align:left;">
-
-1
+1993
 
 </td>
 
@@ -674,10 +676,7 @@ dECA \< dA \< 0
     </tr>
     <tr>
     <td style="text-align:left;">
-    T2
-    </td>
-    <td style="text-align:left;">
-    2
+    2003
     </td>
     <td style="text-align:right;">
     <span style="display: inline-block; direction: rtl; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 100.00%">93238.91</span>
@@ -706,10 +705,7 @@ dECA \< dA \< 0
     </tr>
     <tr>
     <td style="text-align:left;">
-    T3
-    </td>
-    <td style="text-align:left;">
-    3
+    2007
     </td>
     <td style="text-align:right;">
     <span style="display: inline-block; direction: rtl; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 89.57%">83517.49</span>
@@ -738,10 +734,7 @@ dECA \< dA \< 0
         </tr>
         <tr>
         <td style="text-align:left;">
-        T4
-        </td>
-        <td style="text-align:left;">
-        4
+        2011
         </td>
         <td style="text-align:right;">
         <span style="display: inline-block; direction: rtl; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 89.94%">83859.71</span>
@@ -771,6 +764,114 @@ dECA \< dA \< 0
         </tbody>
         </table>
 
+### Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector)
+
+Example with 142 old-growth vegetation fragments (?MK\_dPCIIC).
+
+``` r
+data("vegetation_patches", package = "Makurhini")
+nrow(vegetation_patches) # Number of patches
+#> [1] 142
+
+IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
+                distance = list(type = "centroid"),
+                metric = "IIC", distance_thresholds = 10000) #10 km
+head(IIC)
+#> Simple feature collection with 6 features and 5 fields
+#> geometry type:  POLYGON
+#> dimension:      XY
+#> bbox:           xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
+#> epsg (SRID):    NA
+#> proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#> # A tibble: 6 x 6
+#>      id   dIIC dIICintra dIICflux dIICconnector                    geometry
+#>   <int>  <dbl>     <dbl>    <dbl>         <dbl>               <POLYGON [m]>
+#> 1     1 88.8    88.1      0.360           0.357 ((3676911 589967.3, 367693~
+#> 2     2  0.736   0.0181   0.00766         0.710 ((3558044 696202.5, 355797~
+#> 3     3  0.738   0.0119   0.0143          0.712 ((3569169 687776.4, 356914~
+#> 4     4  0.719   0.00115  0.00194         0.716 ((3547317 685713.2, 354736~
+#> 5     5  0.732   0.00554  0.0124          0.714 ((3567471 684357.4, 356738~
+#> 6     6  0.732   0.0141   0.00677         0.711 ((3590569 672451.7, 359009~
+plot(IIC["dIIC"], breaks = "jenks")
+```
+
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+
+``` r
+plot(IIC["dIICflux"], breaks = "jenks")
+```
+
+<img src="man/figures/README-unnamed-chunk-7-2.png" width="100%" />
+
+### Probability of connectivity (PC) and fractions (Intra, Flux and Connector)
+
+``` r
+PC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
+                distance = list(type = "centroid"),
+                metric = "PC", probability = 0.05,
+                distance_thresholds = 10000)
+head(PC)
+#> Simple feature collection with 6 features and 5 fields
+#> geometry type:  POLYGON
+#> dimension:      XY
+#> bbox:           xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
+#> epsg (SRID):    NA
+#> proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#> # A tibble: 6 x 6
+#>      id      dPC dPCintra dPCflux dPCconnector                     geometry
+#>   <int>    <dbl>    <dbl>   <dbl>        <dbl>                <POLYGON [m]>
+#> 1     1 89.1     89.1     7.78e-4     0.       ((3676911 589967.3, 3676931~
+#> 2     2  0.0194   0.0184  1.00e-3     5.72e-15 ((3558044 696202.5, 3557972~
+#> 3     3  0.0152   0.0121  3.11e-3     3.82e-15 ((3569169 687776.4, 3569146~
+#> 4     4  0.00153  0.00117 3.61e-4     5.05e-15 ((3547317 685713.2, 3547363~
+#> 5     5  0.00833  0.00560 2.73e-3     0.       ((3567471 684357.4, 3567380~
+#> 6     6  0.0143   0.0143  6.32e-5     0.       ((3590569 672451.7, 3590090~
+plot(PC["dPC"], breaks = "jenks")
+```
+
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+
+``` r
+plot(PC["dPCflux"], breaks = "jenks")
+```
+
+<img src="man/figures/README-unnamed-chunk-8-2.png" width="100%" />
+
+### Centrality measures
+
+``` r
+centrality_test <- MK_RMCentrality(nodes = vegetation_patches,
+                                distance = list(type = "centroid"),
+                                 distance_thresholds = 10000,
+                                 probability = 0.05,
+                                 write = NULL)
+#Examples:
+plot(centrality_test["cluster"])
+```
+
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+
+``` r
+plot(centrality_test["modules"])
+```
+
+<img src="man/figures/README-unnamed-chunk-9-2.png" width="100%" />
+
+Moreover, you can change distance using the distance
+(<code>?distancefile</code>) argument:
+
+Euclidean distances:
+
+  - distance = list(type= “centroid”)
+  - distance = list(type= “edge”)
+
+Least cost distances:
+
+  - distance = list(type= “least-cost”, resistance = “resistance
+    raster”)
+  - distance = list(type= “commute-time”, resistance = “resistance
+    raster”)
+
 ### Citing Makurhini package
 
 A formal paper detailing this packe is forthcoming, but until it is
@@ -779,5 +880,5 @@ use it in your work:
 
 <code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R
 package for analyzing landscape connectivity.
-<https://github.com/OscarGOGO/Makurhini>, DOI: 10.5281/zenodo.3748095
+<https://github.com/OscarGOGO/Makurhini>, DOI: 10.5281/zenodo.3749434
 </i> </code>

@@ -44,7 +44,6 @@ Imports:
     reshape2,
     tibble (>= 2.1.3),
     ggpubr (>= 0.2.3),
-    velox (>= 0.2.0),
     spex,
     stringr,
     RSAGA (>= 1.3.0),

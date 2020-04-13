@@ -99,12 +99,13 @@ test.2$ProtConn_10000$ProtConn_overall_10000
 
 Moreover, you can change distance using the distance (<code> distancefile () </code>) argument:
 
-<code>Euclidean distances:
+Euclidean distances:
 * distance = list(type= "centroid")
 * distance = list(type= "edge")
+
 Least cost distances:
 * distance = list(type= "least-cost", resistance = "resistance raster")
-* distance = list(type= "commute-time", resistance = "resistance raster")</code>
+* distance = list(type= "commute-time", resistance = "resistance raster")
 
 
 <strong>Reference</strong>:

@@ -22,6 +22,8 @@ knitr::opts_chunk$set(
 The goal of Makurhini is to provide a set of functions to estimate landscape fragmentation and connectivity metrics
 
 ## Installation
+* Pre-install Rtools.
+* Pre-install devtools package
 
 You can install the released version of Makurhini from [GitHub](https://github.com) with:
 
@@ -33,12 +35,20 @@ install_github("OscarGOGO/Makurhini", dependencies = TRUE)
 ## Example
 This is a basic example which shows you how to solve some common problems:
 
+* Protected Connected Land (<i>ProtConn</i>)
+* Equivalent Connectivity (<i>EC</i>)
+* Integral index of connectivity (<i>IIC</i>) and fractions (<i>dIICintra, dIICflux and dIICconnector</i>)
+* Probability of connectivity (<i>PC</i>) and fractions (<i>dPCintra, dPCflux and dPCconnector</i>)
+* Centrality measures (e.g., betweenness centrality, node memberships, and modularity)
+
+
 ### Protected Connected Land (ProtConn)
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 library(Makurhini)
 library(raster)
 library(rgeos)
+library(sf)
 ```
 
 Protected areas:
@@ -93,8 +103,64 @@ dECA_test
 
 ```
 
+###  Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector)
+
+Example with 142 old-growth vegetation fragments (?MK_dPCIIC).
+
+```{r message=FALSE, warning=FALSE}
+data("vegetation_patches", package = "Makurhini")
+nrow(vegetation_patches) # Number of patches
+
+IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
+                distance = list(type = "centroid"),
+                metric = "IIC", distance_thresholds = 10000) #10 km
+head(IIC)
+plot(IIC["dIIC"], breaks = "jenks")
+plot(IIC["dIICflux"], breaks = "jenks")
+```
+
+
+###  Probability of connectivity (PC) and fractions (Intra, Flux and Connector)
+
+```{r message=FALSE, warning=FALSE}
+PC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
+                distance = list(type = "centroid"),
+                metric = "PC", probability = 0.05,
+                distance_thresholds = 10000)
+head(PC)
+plot(PC["dPC"], breaks = "jenks")
+plot(PC["dPCflux"], breaks = "jenks")
+```
+
+
+###  Centrality measures
+
+```{r message=FALSE, warning=FALSE}
+centrality_test <- MK_RMCentrality(nodes = vegetation_patches,
+                                distance = list(type = "centroid"),
+                                 distance_thresholds = 10000,
+                                 probability = 0.05,
+                                 write = NULL)
+#Examples:
+plot(centrality_test["cluster"])
+plot(centrality_test["modules"])
+```
+
+
+Moreover, you can change distance using the distance (<code>?distancefile</code>) argument:
+
+Euclidean distances:
+
+* distance = list(type= "centroid")
+* distance = list(type= "edge")
+
+Least cost distances:
+
+* distance = list(type= "least-cost", resistance = "resistance raster")
+* distance = list(type= "commute-time", resistance = "resistance raster")
+
 
 ### Citing Makurhini package
 A formal paper detailing this packe is forthcoming, but until it is published, please use the something like the following to cite if you use it in your work:
 
-<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R package for analyzing landscape connectivity. https://github.com/OscarGOGO/Makurhini, DOI: 10.5281/zenodo.3748095 </i> </code>
+<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R package for analyzing landscape connectivity. https://github.com/OscarGOGO/Makurhini, DOI: 10.5281/zenodo.3749434 </i> </code>

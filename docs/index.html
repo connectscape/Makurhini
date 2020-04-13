@@ -93,6 +93,10 @@
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
+<ul>
+<li>Pre-install Rtools.</li>
+<li>Pre-install devtools package</li>
+</ul>
 <p>You can install the released version of Makurhini from <a href="https://github.com">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">devtools</span>)
 <span class="fu"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"OscarGOGO/Makurhini"</span>, <span class="kw">dependencies</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></div>
@@ -101,6 +105,13 @@
 <h2 class="hasAnchor">
 <a href="#example" class="anchor"></a>Example</h2>
 <p>This is a basic example which shows you how to solve some common problems:</p>
+<ul>
+<li>Protected Connected Land (<i>ProtConn</i>)</li>
+<li>Equivalent Connectivity (<i>EC</i>)</li>
+<li>Integral index of connectivity (<i>IIC</i>) and fractions (<i>dIICintra, dIICflux and dIICconnector</i>)</li>
+<li>Probability of connectivity (<i>PC</i>) and fractions (<i>dPCintra, dPCflux and dPCconnector</i>)</li>
+<li>Centrality measures (e.g., betweenness centrality, node memberships, and modularity)</li>
+</ul>
 <div id="protected-connected-land-protconn" class="section level3">
 <h3 class="hasAnchor">
 <a href="#protected-connected-land-protconn" class="anchor"></a>Protected Connected Land (ProtConn)</h3>
@@ -365,8 +376,6 @@
 <table class="table table table-condensed">
 <thead><tr>
 <th style="text-align:left;">
-</th>
-<th style="text-align:left;">
 <p>Scenary</p>
 </th>
 <th style="text-align:right;">
@@ -397,10 +406,7 @@
 <tbody>
 <tr>
 <td style="text-align:left;">
-<p>T1</p>
-</td>
-<td style="text-align:left;">
-<p>1</p>
+<p>1993</p>
 </td>
 <td style="text-align:right;">
 <p><span style="display: inline-block; direction: rtl; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 98.07%">91438.11</span></p>
@@ -430,10 +436,7 @@
 </tr>
 <tr>
 <td style="text-align:left;">
-T2
-</td>
-<td style="text-align:left;">
-2
+2003
 </td>
 <td style="text-align:right;">
 <span style="display: inline-block; direction: rtl; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 100.00%">93238.91</span>
@@ -462,10 +465,7 @@ Habitat or connectivity gain
 </tr>
 <tr>
 <td style="text-align:left;">
-T3
-</td>
-<td style="text-align:left;">
-3
+2007
 </td>
 <td style="text-align:right;">
 <span style="display: inline-block; direction: rtl; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 89.57%">83517.49</span>
@@ -495,10 +495,7 @@ dECA &lt; dA &lt; 0
 </tr>
 <tr>
 <td style="text-align:left;">
-T4
-</td>
-<td style="text-align:left;">
-4
+2011
 </td>
 <td style="text-align:right;">
 <span style="display: inline-block; direction: rtl; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 89.94%">83859.71</span>
@@ -528,11 +525,96 @@ Habitat or connectivity gain
 </tbody>
 </table>
 </div>
+<div id="integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector" class="section level3">
+<h3 class="hasAnchor">
+<a href="#integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector" class="anchor"></a>Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector)</h3>
+<p>Example with 142 old-growth vegetation fragments (?MK_dPCIIC).</p>
+<div class="sourceCode" id="cb8"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"vegetation_patches"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"Makurhini"</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span>(<span class="no">vegetation_patches</span>) <span class="co"># Number of patches</span>
+<span class="co">#&gt; [1] 142</span>
+
+<span class="no">IIC</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/MK_dPCIIC.html">MK_dPCIIC</a></span>(<span class="kw">nodes</span> <span class="kw">=</span> <span class="no">vegetation_patches</span>, <span class="kw">attribute</span> <span class="kw">=</span> <span class="kw">NULL</span>,
+                <span class="kw">distance</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">type</span> <span class="kw">=</span> <span class="st">"centroid"</span>),
+                <span class="kw">metric</span> <span class="kw">=</span> <span class="st">"IIC"</span>, <span class="kw">distance_thresholds</span> <span class="kw">=</span> <span class="fl">10000</span>) <span class="co">#10 km</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="no">IIC</span>)
+<span class="co">#&gt; Simple feature collection with 6 features and 5 fields</span>
+<span class="co">#&gt; geometry type:  POLYGON</span>
+<span class="co">#&gt; dimension:      XY</span>
+<span class="co">#&gt; bbox:           xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5</span>
+<span class="co">#&gt; epsg (SRID):    NA</span>
+<span class="co">#&gt; proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs</span>
+<span class="co">#&gt; # A tibble: 6 x 6</span>
+<span class="co">#&gt;      id   dIIC dIICintra dIICflux dIICconnector                    geometry</span>
+<span class="co">#&gt;   &lt;int&gt;  &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;         &lt;dbl&gt;               &lt;POLYGON [m]&gt;</span>
+<span class="co">#&gt; 1     1 88.8    88.1      0.360           0.357 ((3676911 589967.3, 367693~</span>
+<span class="co">#&gt; 2     2  0.736   0.0181   0.00766         0.710 ((3558044 696202.5, 355797~</span>
+<span class="co">#&gt; 3     3  0.738   0.0119   0.0143          0.712 ((3569169 687776.4, 356914~</span>
+<span class="co">#&gt; 4     4  0.719   0.00115  0.00194         0.716 ((3547317 685713.2, 354736~</span>
+<span class="co">#&gt; 5     5  0.732   0.00554  0.0124          0.714 ((3567471 684357.4, 356738~</span>
+<span class="co">#&gt; 6     6  0.732   0.0141   0.00677         0.711 ((3590569 672451.7, 359009~</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="no">IIC</span>[<span class="st">"dIIC"</span>], <span class="kw">breaks</span> <span class="kw">=</span> <span class="st">"jenks"</span>)</pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-7-1.png" width="100%"></p>
+<div class="sourceCode" id="cb9"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="no">IIC</span>[<span class="st">"dIICflux"</span>], <span class="kw">breaks</span> <span class="kw">=</span> <span class="st">"jenks"</span>)</pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-7-2.png" width="100%"></p>
+</div>
+<div id="probability-of-connectivity-pc-and-fractions-intra-flux-and-connector" class="section level3">
+<h3 class="hasAnchor">
+<a href="#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector" class="anchor"></a>Probability of connectivity (PC) and fractions (Intra, Flux and Connector)</h3>
+<div class="sourceCode" id="cb10"><pre class="r"><span class="no">PC</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/MK_dPCIIC.html">MK_dPCIIC</a></span>(<span class="kw">nodes</span> <span class="kw">=</span> <span class="no">vegetation_patches</span>, <span class="kw">attribute</span> <span class="kw">=</span> <span class="kw">NULL</span>,
+                <span class="kw">distance</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">type</span> <span class="kw">=</span> <span class="st">"centroid"</span>),
+                <span class="kw">metric</span> <span class="kw">=</span> <span class="st">"PC"</span>, <span class="kw">probability</span> <span class="kw">=</span> <span class="fl">0.05</span>,
+                <span class="kw">distance_thresholds</span> <span class="kw">=</span> <span class="fl">10000</span>)
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="no">PC</span>)
+<span class="co">#&gt; Simple feature collection with 6 features and 5 fields</span>
+<span class="co">#&gt; geometry type:  POLYGON</span>
+<span class="co">#&gt; dimension:      XY</span>
+<span class="co">#&gt; bbox:           xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5</span>
+<span class="co">#&gt; epsg (SRID):    NA</span>
+<span class="co">#&gt; proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs</span>
+<span class="co">#&gt; # A tibble: 6 x 6</span>
+<span class="co">#&gt;      id      dPC dPCintra dPCflux dPCconnector                     geometry</span>
+<span class="co">#&gt;   &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;        &lt;dbl&gt;                &lt;POLYGON [m]&gt;</span>
+<span class="co">#&gt; 1     1 89.1     89.1     7.78e-4     0.       ((3676911 589967.3, 3676931~</span>
+<span class="co">#&gt; 2     2  0.0194   0.0184  1.00e-3     5.72e-15 ((3558044 696202.5, 3557972~</span>
+<span class="co">#&gt; 3     3  0.0152   0.0121  3.11e-3     3.82e-15 ((3569169 687776.4, 3569146~</span>
+<span class="co">#&gt; 4     4  0.00153  0.00117 3.61e-4     5.05e-15 ((3547317 685713.2, 3547363~</span>
+<span class="co">#&gt; 5     5  0.00833  0.00560 2.73e-3     0.       ((3567471 684357.4, 3567380~</span>
+<span class="co">#&gt; 6     6  0.0143   0.0143  6.32e-5     0.       ((3590569 672451.7, 3590090~</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="no">PC</span>[<span class="st">"dPC"</span>], <span class="kw">breaks</span> <span class="kw">=</span> <span class="st">"jenks"</span>)</pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-8-1.png" width="100%"></p>
+<div class="sourceCode" id="cb11"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="no">PC</span>[<span class="st">"dPCflux"</span>], <span class="kw">breaks</span> <span class="kw">=</span> <span class="st">"jenks"</span>)</pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-8-2.png" width="100%"></p>
+</div>
+<div id="centrality-measures" class="section level3">
+<h3 class="hasAnchor">
+<a href="#centrality-measures" class="anchor"></a>Centrality measures</h3>
+<div class="sourceCode" id="cb12"><pre class="r"><span class="no">centrality_test</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/MK_RMCentrality.html">MK_RMCentrality</a></span>(<span class="kw">nodes</span> <span class="kw">=</span> <span class="no">vegetation_patches</span>,
+                                <span class="kw">distance</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">type</span> <span class="kw">=</span> <span class="st">"centroid"</span>),
+                                 <span class="kw">distance_thresholds</span> <span class="kw">=</span> <span class="fl">10000</span>,
+                                 <span class="kw">probability</span> <span class="kw">=</span> <span class="fl">0.05</span>,
+                                 <span class="kw">write</span> <span class="kw">=</span> <span class="kw">NULL</span>)
+<span class="co">#Examples:</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="no">centrality_test</span>[<span class="st">"cluster"</span>])</pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-9-1.png" width="100%"></p>
+<div class="sourceCode" id="cb13"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="no">centrality_test</span>[<span class="st">"modules"</span>])</pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-9-2.png" width="100%"></p>
+<p>Moreover, you can change distance using the distance (<code><a href="reference/distancefile.html">?distancefile</a></code>) argument:</p>
+<p>Euclidean distances:</p>
+<ul>
+<li>distance = list(type= “centroid”)</li>
+<li>distance = list(type= “edge”)</li>
+</ul>
+<p>Least cost distances:</p>
+<ul>
+<li>distance = list(type= “least-cost”, resistance = “resistance raster”)</li>
+<li>distance = list(type= “commute-time”, resistance = “resistance raster”)</li>
+</ul>
+</div>
 <div id="citing-makurhini-package" class="section level3">
 <h3 class="hasAnchor">
 <a href="#citing-makurhini-package" class="anchor"></a>Citing Makurhini package</h3>
 <p>A formal paper detailing this packe is forthcoming, but until it is published, please use the something like the following to cite if you use it in your work:</p>
-<p><code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R package for analyzing landscape connectivity. <a href="https://github.com/OscarGOGO/Makurhini" class="uri">https://github.com/OscarGOGO/Makurhini</a>, DOI: 10.5281/zenodo.3748095 </i> </code></p>
+<p><code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R package for analyzing landscape connectivity. <a href="https://github.com/OscarGOGO/Makurhini" class="uri">https://github.com/OscarGOGO/Makurhini</a>, DOI: 10.5281/zenodo.3749434 </i> </code></p>
 </div>
 </div>
 </div>
@@ -553,7 +635,7 @@ Habitat or connectivity gain
 <h2>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://www.r-project.org/Licenses/GPL-3">GPL-3</a></small></li>
+<li><small><a href="https://www.r-project.org/Licenses/GPL-3">GPL-3</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
 <div class="developers">

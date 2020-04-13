@@ -144,11 +144,11 @@
     </tr>
     <tr>
       <th>max_distance</th>
-      <td><p>numeric. Up to five maximum dispersal distance (meters)</p></td>
+      <td><p>numeric. Up to five maximum dispersal distance (km)</p></td>
     </tr>
     <tr>
       <th>eval_distance</th>
-      <td><p>numeric. Calculate the probability of dispersal at a specific distance</p></td>
+      <td><p>numeric. Calculate the probability of dispersal at a specific distance (km)</p></td>
     </tr>
     <tr>
       <th>min.prob</th>
@@ -159,8 +159,8 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'>probability_distance</span>(<span class='kw'>probability</span><span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>max_distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1000</span>, <span class='fl'>10000</span>, <span class='fl'>30000</span>, <span class='fl'>100000</span>))
-<span class='fu'>probability_distance</span>(<span class='kw'>probability</span><span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>max_distance</span> <span class='kw'>=</span> <span class='fl'>30000</span>, <span class='kw'>eval_distance</span> <span class='kw'>=</span> <span class='fl'>10000</span>)
+<span class='fu'>probability_distance</span>(<span class='kw'>probability</span><span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>max_distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>10</span>, <span class='fl'>30</span>, <span class='fl'>100</span>))
+<span class='fu'>probability_distance</span>(<span class='kw'>probability</span><span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>max_distance</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>eval_distance</span> <span class='kw'>=</span> <span class='fl'>30</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

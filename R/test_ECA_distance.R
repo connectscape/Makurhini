@@ -169,19 +169,21 @@ test_ECA_distance <- function(nodes,
 #'
 #' Negative exponential dispersal kernel to calculate the probability of dispersal between two nodes. Used in probabilistic indexes (e.g., PC, BCPC, ProtConn etc.)
 #' @param probability numeric. Probability of dispersal at max_distance. If NULL
-#' @param max_distance numeric. Up to five maximum dispersal distance (meters)
-#' @param eval_distance numeric. Calculate the probability of dispersal at a specific distance
+#' @param max_distance numeric. Up to five maximum dispersal distance (km)
+#' @param eval_distance numeric. Calculate the probability of dispersal at a specific distance (km)
 #' @param min.prob numeric. Value between 0-1, maximum x axe value
 #' @examples
 #' \dontrun{
-#' probability_distance(probability= 0.5, max_distance = c(1000, 10000, 30000, 100000))
-#' probability_distance(probability= 0.5, max_distance = 30000, eval_distance = 10000)
+#' probability_distance(probability= 0.5, max_distance = c(1, 10, 30, 100))
+#' probability_distance(probability= 0.05, max_distance = 100, eval_distance = 30)
 #' }
 #' @export
 #' @importFrom purrr map
 #' @importFrom graphics par plot axis box lines legend
 
-probability_distance <- function(probability, max_distance, eval_distance = NULL, min.prob = 0.2){
+probability_distance <- function(probability, max_distance, eval_distance = NULL,
+                                 min.prob = 0.2){
+
   x <-1
   repeat{
     x = x+1
@@ -207,13 +209,13 @@ probability_distance <- function(probability, max_distance, eval_distance = NULL
       t <- c(rep(result_1, eval_distance - 1), result_1, 0)
 
       par(xaxs="i")
-      plot(data1, type = "l", xlab= "Distance (dij)", ylab = "Probability of dispersal (pij)",
+      plot(data1, type = "l", xlab= paste0("Distance", " (dij)"), ylab = "Probability of dispersal (pij)",
            lwd = 2, xlim=c(0,m), axes = F)
       axis(side = 1, at= round(seq(0,m, m/10)))
       axis(side = 2, at= seq(0, 1, 1/10))
       box()
       lines(t, type = "l", col = Rcolors[1], lty = 2, lwd = 2)
-      legend("topright", c(paste0("d ", max_distance), "eval_distance"), lwd=c(2,2), lty = c(1,2), col=c("black",Rcolors[1]), y.intersp=1.5)
+      legend("topright", c(paste0("Distance ", max_distance), "Evaluated distance"), lwd=c(2,2), lty = c(1,2), col=c("black",Rcolors[1]), y.intersp=1.5)
       return(result_1)
     } else {
       data_list <- map(as.list(max_distance), function(x){
@@ -222,7 +224,7 @@ probability_distance <- function(probability, max_distance, eval_distance = NULL
         t <- c(rep(result_1, eval_distance - 1), result_1, 0)
         return(list(data1, result_1, t))})
       par(xaxs="i")
-      plot(data_list[[1]][[1]], type = "l", xlab= "Distance (dij)", ylab = "Probability of dispersal (pij)",
+      plot(data_list[[1]][[1]], type = "l", xlab= paste0("Distance ", "(dij)"), ylab = "Probability of dispersal (pij)",
            lwd = 2, xlim=c(0,m), axes=F)
       axis(side = 1, at= round(seq(0,m, m/10)))
       axis(side = 2, at= seq(0, 1, 1/10))
@@ -233,7 +235,7 @@ probability_distance <- function(probability, max_distance, eval_distance = NULL
         lines(data_list[[i]][[1]], type = "l", col = Rcolors[i], lwd = 2)
         lines(data_list[[i]][[3]], type = "l", col = Rcolors[1], lty = 2, lwd = 2)
       }
-      legend("topright", c(paste0("d ", max_distance), "eval_distance"), lwd=2, lty = c(rep(1,length(max_distance)), 2),
+      legend("topright", c(paste0("Distance ", max_distance), "Evaluated distance"), lwd=2, lty = c(rep(1,length(max_distance)), 2),
              col= c("black", Rcolors[2:length(max_distance)], Rcolors[1]), y.intersp=1.5)
 
       result_1 <- map(data_list, function(x){x[[2]]})
@@ -249,14 +251,15 @@ probability_distance <- function(probability, max_distance, eval_distance = NULL
       axis(side = 2, at= seq(0, 1, 1/10))
       box()
       lines(data_list[[1]][[3]], type = "l", col = Rcolors[1], lty = 2, lwd = 2)
-      legend("topright", paste0("d ", max_distance), lwd=c(2,2), lty = c(1,2), col=c("black",Rcolors[1]), y.intersp=1.5)
+      legend("topright", paste0("Distance ", max_distance), lwd=c(2,2), lty = c(1,2), col=c("black",Rcolors[1]), y.intersp=1.5)
       } else {
         data_list <- map(as.list(max_distance), function(x){
           data1 <- exp(1:m * log(probability)/x)
           return(data1)})
 
         par(xaxs="i")
-        plot(data_list[[1]], type = "l", xlab= "Distance (dij)", ylab = "Probability of dispersal (pij)",
+        plot(data_list[[1]], type = "l", xlab= "Distance (dij)",
+             ylab = "Probability of dispersal (pij)",
              lwd = 2, xlim=c(0,m), axes=F)
         axis(side = 1, at= round(seq(0,m, m/10)))
         axis(side = 2, at= seq(0, 1, 1/10))
@@ -265,7 +268,7 @@ probability_distance <- function(probability, max_distance, eval_distance = NULL
         for(i in 2:length(max_distance)){
           lines(data_list[[i]], type = "l", col = Rcolors[i-1], lwd = 2)
         }
-        legend("topright", paste0("d ", max_distance), lwd=2,
+        legend("topright", paste0("Distance ", max_distance), lwd=2,
                col= c("black", Rcolors[1:length(max_distance)]), y.intersp=1.5)
       }
     }

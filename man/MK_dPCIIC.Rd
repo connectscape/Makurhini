@@ -69,6 +69,9 @@ IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
                 distance = list(type = "centroid"),
                 metric = "IIC", distance_thresholds = c(5000, 10000)) # 5 and 10 km
 IIC
+plot(IIC$d5000["dIIC"], breaks = "jenks")
+plot(IIC$d5000["dIICflux"], breaks = "jenks")
+plot(IIC$d5000["dIICconnector"])
 #Using raster
 data("raster_vegetation_patches", package = "Makurhini")
 PC <- MK_dPCIIC(nodes = raster_vegetation_patches, attribute = NULL,

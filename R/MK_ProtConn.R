@@ -37,6 +37,8 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' library(Makurhini)
+#' library(raster)
 #' data("Protected_areas", package = "Makurhini")
 #' #plot(Protected_areas, col="green")
 #'

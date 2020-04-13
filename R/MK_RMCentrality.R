@@ -32,9 +32,13 @@
 #' centrality_test <- MK_RMCentrality(nodes = vegetation_patches,
 #'                                 distance = list(type = "centroid"),
 #'                                  distance_thresholds = c(10000, 100000),
-#'                                  probability = 0.5,
+#'                                  probability = 0.05,
 #'                                  write = NULL)
-#'
+#' centrality_test
+#' plot(centrality_test$d10000["degree"])
+#' plot(centrality_test$d10000["BWC"])
+#' plot(centrality_test$d10000["cluster"])
+#' plot(centrality_test$d10000["modules"])
 #' @importFrom dplyr progress_estimated
 #' @importFrom magrittr %>%
 #' @importFrom sf write_sf st_as_sf

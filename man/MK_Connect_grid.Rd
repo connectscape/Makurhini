@@ -87,6 +87,7 @@ hexagons_priority <- MK_Connect_grid(grid_type = "hexagonal",
                                     probability = 0.5, transboundary = 6000,
                                     intern = TRUE, parallel = FALSE)
 hexagons_priority
+plot(hexagons_priority["ProtConn"])
 }
 }
 \references{

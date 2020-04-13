@@ -30,6 +30,24 @@
 #' @references Saura, S., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2017). Protected areas in the world’s ecoregions: How well connected are they? Ecological Indicators, 76, 144–158.
 #' Saura, S., Bertzky, B., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2018). Protected area connectivity: Shortfalls in global targets and country-level priorities. Biological Conservation, 219(October 2017), 53–67.
 #' @export
+#' @examples
+#' \dontrun{
+#' library(Makurhini)
+#' library(raster)
+#' data("Protected_areas", package = "Makurhini")
+#' plot(Protected_areas, col="green")
+#'
+#' data("regions", package = "Makurhini")
+#' plot(regions, col=c("blue", "red", "green"))
+#'
+#' test <- MK_ProtConnMult(nodes = Protected_areas, regions = regions,
+#'                         attribute = "Intersected area", area_unit = "ha",
+#'                         distance = list(type= "centroid"),
+#'                         distance_thresholds = 10000,
+#'                         probability = 0.5, transboundary = 50000,
+#'                         plot = TRUE)
+#' test
+#' }
 #' @importFrom magrittr %>%
 #' @importFrom sf st_as_sf st_zm st_geometry st_geometry<- write_sf
 #' @importFrom ggplot2 ggplot geom_bar aes position_dodge labs rel theme_bw theme element_blank element_text scale_fill_manual geom_hline scale_linetype_manual guide_legend margin geom_errorbar
@@ -289,8 +307,8 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
     }
 
     results[[1]] <- DataProtconn
-    names(results) <- c(paste0("ProtConn_", distance_thresholds[i]),
-                        paste0("ProtConn_overall_", distance_thresholds[i]))
+    names(results) <- c(paste0("ProtConn_overall", distance_thresholds[i]),
+                        paste0("ProtConn_", distance_thresholds[i]))
 
     if(isTRUE(plot)){
       dacc <- as.data.frame(DataProtconn[c(1:3), c(2:3)])

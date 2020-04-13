@@ -65,6 +65,7 @@
 #'                                     probability = 0.5, transboundary = 6000,
 #'                                     intern = TRUE, parallel = FALSE)
 #' hexagons_priority
+#' plot(hexagons_priority["ProtConn"])
 #' }
 #' @importFrom magrittr %>%
 #' @importFrom raster extent projection projection<- raster

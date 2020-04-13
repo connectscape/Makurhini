@@ -59,6 +59,25 @@ ProtConn[Unprot][land], ProtConn[Trans][land] \cr
 \description{
 Use the CONEFOR command line to estimate Protected Connected (ProtConn) indexes for multiple ecoregions
 }
+\examples{
+\dontrun{
+library(Makurhini)
+library(raster)
+data("Protected_areas", package = "Makurhini")
+plot(Protected_areas, col="green")
+
+data("regions", package = "Makurhini")
+plot(regions, col=c("blue", "red", "green"))
+
+test <- MK_ProtConnMult(nodes = Protected_areas, regions = regions,
+                        attribute = "Intersected area", area_unit = "ha",
+                        distance = list(type= "centroid"),
+                        distance_thresholds = 10000,
+                        probability = 0.5, transboundary = 50000,
+                        plot = TRUE)
+test
+}
+}
 \references{
 Saura, S., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2017). Protected areas in the world’s ecoregions: How well connected are they? Ecological Indicators, 76, 144–158.
 Saura, S., Bertzky, B., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2018). Protected area connectivity: Shortfalls in global targets and country-level priorities. Biological Conservation, 219(October 2017), 53–67.

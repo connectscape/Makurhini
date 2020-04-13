@@ -48,6 +48,9 @@
 #'                 distance = list(type = "centroid"),
 #'                 metric = "IIC", distance_thresholds = c(5000, 10000)) # 5 and 10 km
 #' IIC
+#' plot(IIC$d5000["dIIC"], breaks = "jenks")
+#' plot(IIC$d5000["dIICflux"], breaks = "jenks")
+#' plot(IIC$d5000["dIICconnector"])
 #' #Using raster
 #' data("raster_vegetation_patches", package = "Makurhini")
 #' PC <- MK_dPCIIC(nodes = raster_vegetation_patches, attribute = NULL,
@@ -240,8 +243,8 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
         #p4
         dIICintra <- attribute_2^2 / sum(IICmat) * 100
         dIICflux <- 2*(rowSums(IICmat) - attribute_2^2)/sum(IICmat) * 100
-        dIICconnnector <- map_dbl(dIIC - dIICintra - dIICflux, function(x){if(x<0){0}else{x}})
-        metric_conn <- as.data.frame(cbind(attribute_1[,1], dIIC, dIICintra, dIICflux, dIICconnnector))
+        dIICconnector <- map_dbl(dIIC - dIICintra - dIICflux, function(x){if(x<0){0}else{x}})
+        metric_conn <- as.data.frame(cbind(attribute_1[,1], dIIC, dIICintra, dIICflux, dIICconnector))
         names(metric_conn)[1] <- c("Id")
 
         if(!is.null(restauration)){
@@ -277,7 +280,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
           nodes.2$dIIC <- dIIC
           nodes.2$dIICintra <- dIICintra
           nodes.2$dIICflux <- dIICflux
-          nodes.2$dIICconnnector <- dIICconnnector
+          nodes.2$dIICconnector <- dIICconnector
           if(!is.null(restauration)){
             nodes.2$dIICres <- dIICres
           }

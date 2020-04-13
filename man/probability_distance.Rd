@@ -10,9 +10,9 @@ probability_distance(probability, max_distance, eval_distance = NULL,
 \arguments{
 \item{probability}{numeric. Probability of dispersal at max_distance. If NULL}
 
-\item{max_distance}{numeric. Up to five maximum dispersal distance (meters)}
+\item{max_distance}{numeric. Up to five maximum dispersal distance (km)}
 
-\item{eval_distance}{numeric. Calculate the probability of dispersal at a specific distance}
+\item{eval_distance}{numeric. Calculate the probability of dispersal at a specific distance (km)}
 
 \item{min.prob}{numeric. Value between 0-1, maximum x axe value}
 }
@@ -21,7 +21,7 @@ Negative exponential dispersal kernel to calculate the probability of dispersal 
 }
 \examples{
 \dontrun{
-probability_distance(probability= 0.5, max_distance = c(1000, 10000, 30000, 100000))
-probability_distance(probability= 0.5, max_distance = 30000, eval_distance = 10000)
+probability_distance(probability= 0.5, max_distance = c(1, 10, 30, 100))
+probability_distance(probability= 0.05, max_distance = 100, eval_distance = 30)
 }
 }

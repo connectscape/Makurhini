@@ -48,9 +48,13 @@ nrow(vegetation_patches) # Number of patches
 centrality_test <- MK_RMCentrality(nodes = vegetation_patches,
                                 distance = list(type = "centroid"),
                                  distance_thresholds = c(10000, 100000),
-                                 probability = 0.5,
+                                 probability = 0.05,
                                  write = NULL)
-
+centrality_test
+plot(centrality_test$d10000["degree"])
+plot(centrality_test$d10000["BWC"])
+plot(centrality_test$d10000["cluster"])
+plot(centrality_test$d10000["modules"])
 }
 \references{
 Borgatti, S. P., & Everett, M. G. (2006). A Graph-theoretic perspective on centrality. Social Networks, 28(4), 466–484. https://doi.org/10.1016/j.socnet.2005.11.005

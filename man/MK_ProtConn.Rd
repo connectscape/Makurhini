@@ -65,6 +65,8 @@ Use the CONEFOR command line to estimate Protected Connected (ProtConn) indexes.
 }
 \examples{
 \dontrun{
+library(Makurhini)
+library(raster)
 data("Protected_areas", package = "Makurhini")
 #plot(Protected_areas, col="green")
 

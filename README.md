@@ -37,14 +37,15 @@ and monitoring of global conservation targets.
 
   - Pre-install
     [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
-  - Pre-install devtools package
-    (<code>install.packages(“devtools”)</code>)
+  - Pre-install devtools (<code>install.packages(“devtools”)</code>) and
+    remotes (<code>install.packages(“remotes”)</code>) packages.
 
 You can install the released version of Makurhini from
 [GitHub](https://github.com) with:
 
 ``` r
 library(devtools)
+library(remotes)
 install_github("OscarGOGO/Makurhini", dependencies = TRUE, upgrade = "never")
 ```
 

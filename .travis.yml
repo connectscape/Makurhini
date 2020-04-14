@@ -1,0 +1,29 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: R
+
+env:
+  - _R_CHECK_FORCE_SUGGESTS_=false
+
+sudo: false
+
+cache: packages
+warnings_are_errors: true
+
+addons:
+  apt:
+    packages:
+    - libproj-dev
+    - libgeos-dev
+    - libgdal-dev
+    - libnetcdf-dev
+
+os:
+  - linux
+
+r:
+  - 3.5
+  - 3.6
+  - release
+  - devel
+

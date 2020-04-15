@@ -127,8 +127,8 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
   if(!is.null(write)) {
     par(mfrow = c(1,1))
     tiff(paste0(write, '_fragmentacion.tif'), width = 1178, height = 882)
-    plot(as(patches, "Spatial"), col = "red")
-    plot(as(CoreA, "Spatial"), col = "#1a9641", add = T)
+    raster::plot(as(patches, "Spatial"), col = "red")
+    raster::plot(as(CoreA[which(!st_is_empty(CoreA)),], "Spatial"), col = "#1a9641", add = T)
     axis(1)
     axis(2)
     box()

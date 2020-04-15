@@ -170,11 +170,13 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
       nodes.1$IDTemp <- 1:nrow(nodes.1)
       nodes.1$dis <- 1
 
-      if(num_vert(region) > 100){
+      if(num_vert(region) > 100 & keep != 1){
         region_2 <- ms_simplify(input = region, keep = keep, keep_shapes = TRUE, explode = TRUE) %>%
           ms_dissolve()
       } else {
         region_2 <- region
+        region_2$rmapshaperid <- 0
+        region_2 <- region_2["rmapshaperid"]
       }
 
       nodes.2 <- MK_selectbyloc(target = nodes.1, sourcelyr = region_2,
@@ -203,12 +205,13 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
         if(!is.null(x) & attribute == "Intersected area"){
           nodes.2t1 <- st_intersection(nodes.2[nodes.2$transboundary==1,], region_2) %>%
             st_cast("POLYGON")
+
           nodes.2t1$rmapshaperid <- NULL
           nodes.2t1$TempID <- NULL
           nodes.2t1$Area2 <- unit_convert(as.numeric(st_area(nodes.2t1)), "m2", area_unit)
-
           nodes.2t2 <- st_difference(nodes.2[nodes.2$transboundary==1,], region_2) %>%
             st_cast("POLYGON")
+
           if(nrow(nodes.2t2) > 0){
             nodes.2t2$rmapshaperid <- NULL
             nodes.2t2$TempID <- NULL
@@ -218,6 +221,7 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
           }
         }
       }
+
       area2_sort <- sort(x = nodes.2[nodes.2$transboundary == 1,]$Area2, decreasing = T)
     } else if (nrow(nodes.1) == 1){
       if(nrow(nodes.1) == 1){
@@ -362,7 +366,7 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
                                              which(colnames(distance_base) %nin% as.numeric(bound_nodes2$IDTemp))]
 
           #Landscape attribute for ECA
-          if (is.null(LA) & isTRUE(attribute %in% c("Intersected area"))){
+          if (is.null(LA) & isTRUE(attribute %in% c("Area", "Intersected area"))){
             LA <- sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit))
           } else {
             if(is.null(LA) & isFALSE(attribute %in% c("Area", "Intersected area"))){

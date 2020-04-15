@@ -33,7 +33,7 @@
 #' @examples
 #' data("vegetation_patches", package = "Makurhini")
 #' nrow(vegetation_patches) # Number of patches
-#' fragmentation <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500, plot = TRUE)
+#' fragmentation <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 1000, plot = TRUE)
 #'
 #' #Table
 #' fragmentation$`Summary landscape metrics (Viewer Panel)`
@@ -41,16 +41,14 @@
 #' fragmentation$`Patch statistics shapefile`
 #' @export
 #' @importFrom magrittr %>%
-#' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_length st_boundary st_geometry st_geometry<- write_sf
+#' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_length st_boundary st_geometry st_geometry<- write_sf st_is_empty
 #' @importFrom raster plot
 #' @importFrom graphics par plot axis box lines legend grid
 #' @importFrom grDevices dev.off tiff
 #' @importFrom ggplot2 ggplot aes geom_histogram theme element_blank element_text labs ggsave
 #' @importFrom formattable formattable formatter style
 #' @importFrom ggpubr ggarrange
-MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100, landscape_area = NULL,
-                             area_unit = "km2", perimeter_unit = "km",
-                             plot = FALSE, write = NULL){
+MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100, landscape_area = NULL, area_unit = "km2", perimeter_unit = "km", plot = FALSE, write = NULL){
   if (missing(patches)) {
     stop("error missing shapefile file of patches")
     } else {

@@ -4,7 +4,9 @@
 \name{study_area}
 \alias{study_area}
 \title{Study area example}
-\format{A \code{sf} with 4 shapefiles:}
+\format{
+A \code{sf} with 4 shapefiles:
+}
 \usage{
 study_area
 }

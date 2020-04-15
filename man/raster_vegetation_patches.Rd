@@ -4,10 +4,12 @@
 \name{raster_vegetation_patches}
 \alias{raster_vegetation_patches}
 \title{Cores raster for analysis}
-\format{A \code{raster} with 142 features and 1 field, which are:
+\format{
+A \code{raster} with 142 features and 1 field, which are:
 \describe{
 \item{id}{Vegetation patches identifier.}
- }}
+ }
+}
 \usage{
 raster_vegetation_patches
 }

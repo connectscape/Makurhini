@@ -4,10 +4,13 @@
 \alias{unit_convert}
 \title{Convert numeric types from one area unit to another}
 \usage{
-unit_convert(data_unit, unit_1 = c("m2", "Dam2", "ha", "km2", "inch2",
-  "foot2", "yard2", "mile2", "m", "km", "inch", "foot", "yard", "mile"),
-  unit_2 = c("m2", "Dam2", "ha", "km2", "inch2", "foot2", "yard2",
-  "mile2", "m", "km", "inch", "foot", "yard", "mile"))
+unit_convert(
+  data_unit,
+  unit_1 = c("m2", "Dam2", "ha", "km2", "inch2", "foot2", "yard2", "mile2", "m", "km",
+    "inch", "foot", "yard", "mile"),
+  unit_2 = c("m2", "Dam2", "ha", "km2", "inch2", "foot2", "yard2", "mile2", "m", "km",
+    "inch", "foot", "yard", "mile")
+)
 }
 \arguments{
 \item{data_unit}{numeric. Area value to be converted.}

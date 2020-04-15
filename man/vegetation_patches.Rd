@@ -4,10 +4,12 @@
 \name{vegetation_patches}
 \alias{vegetation_patches}
 \title{Cores shapefile for analysis}
-\format{A \code{sf} with 142 features and 1 field, which are:
+\format{
+A \code{sf} with 142 features and 1 field, which are:
 \describe{
 \item{id}{Vegetation patches identifier.}
- }}
+ }
+}
 \usage{
 vegetation_patches
 }

@@ -4,8 +4,15 @@
 \alias{MK_HQuality}
 \title{Habitat quality weighted by node area and estandarized}
 \usage{
-MK_HQuality(x, y, id = NULL, area_unit = NULL, by_zone = NULL,
-  write = NULL, SAGA = TRUE)
+MK_HQuality(
+  x,
+  y,
+  id = NULL,
+  area_unit = NULL,
+  by_zone = NULL,
+  write = NULL,
+  SAGA = TRUE
+)
 }
 \arguments{
 \item{x}{RasterLayer. Habitat quality raster. Proyected coordinate system equal to y shapefile.}

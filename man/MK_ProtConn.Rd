@@ -4,12 +4,25 @@
 \alias{MK_ProtConn}
 \title{Protected Connected (ProtConn)}
 \usage{
-MK_ProtConn(nodes, region, thintersect = NULL,
-  attribute = "Intersected area", area_unit = "ha",
-  res_attribute = 150, distance = list(type = "centroid", resistance =
-  NULL), distance_thresholds, probability, transboundary = NULL,
-  LA = NULL, keep = 1, plot = FALSE, dPC = FALSE, write = NULL,
-  SAGA = FALSE, intern = TRUE)
+MK_ProtConn(
+  nodes,
+  region,
+  thintersect = NULL,
+  attribute = "Intersected area",
+  area_unit = "ha",
+  res_attribute = 150,
+  distance = list(type = "centroid", resistance = NULL),
+  distance_thresholds,
+  probability,
+  transboundary = NULL,
+  LA = NULL,
+  keep = 1,
+  plot = FALSE,
+  dPC = FALSE,
+  write = NULL,
+  SAGA = FALSE,
+  intern = TRUE
+)
 }
 \arguments{
 \item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. Example, Protected areas shapefile.}

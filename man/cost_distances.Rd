@@ -4,10 +4,20 @@
 \alias{cost_distances}
 \title{Cost distances}
 \usage{
-cost_distances(x, id, type_distance = "least-cost", resistance = NULL,
-  CostFun = NULL, ngh = NULL, mask = NULL, threshold = NULL,
-  geometry_out = NULL, bounding_circles = NULL, pairwise = TRUE,
-  write_table = NULL)
+cost_distances(
+  x,
+  id,
+  type_distance = "least-cost",
+  resistance = NULL,
+  CostFun = NULL,
+  ngh = NULL,
+  mask = NULL,
+  threshold = NULL,
+  geometry_out = NULL,
+  bounding_circles = NULL,
+  pairwise = TRUE,
+  write_table = NULL
+)
 }
 \arguments{
 \item{x}{object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}

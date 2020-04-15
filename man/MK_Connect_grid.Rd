@@ -4,14 +4,27 @@
 \alias{MK_Connect_grid}
 \title{Connectivity indexes in a regular grid}
 \usage{
-MK_Connect_grid(grid_pol = NULL, grid_id = NULL,
-  grid_type = c("hexagonal", "square"), cellsize = NULL,
-  grid_boundary = FALSE, clip = FALSE, tolerance = NULL, nodes,
-  region = NULL, attribute = NULL, thintersect = NULL,
-  area_unit = "ha", metric = c("ProtConn", "PC"),
-  distance = list(type = "centroid"), distance_threshold = NULL,
-  probability = NULL, transboundary = NULL, intern = TRUE,
-  parallel = FALSE)
+MK_Connect_grid(
+  grid_pol = NULL,
+  grid_id = NULL,
+  grid_type = c("hexagonal", "square"),
+  cellsize = NULL,
+  grid_boundary = FALSE,
+  clip = FALSE,
+  tolerance = NULL,
+  nodes,
+  region = NULL,
+  attribute = NULL,
+  thintersect = NULL,
+  area_unit = "ha",
+  metric = c("ProtConn", "PC"),
+  distance = list(type = "centroid"),
+  distance_threshold = NULL,
+  probability = NULL,
+  transboundary = NULL,
+  intern = TRUE,
+  parallel = FALSE
+)
 }
 \arguments{
 \item{grid_pol}{object of class sf, sfc, sfg or SpatialPolygons. Grid hexagones or squares. The

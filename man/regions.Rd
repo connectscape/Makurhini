@@ -4,10 +4,12 @@
 \name{regions}
 \alias{regions}
 \title{Ecoregions shapefile for analysis}
-\format{A \code{SpatialPolygonsDataFrame} with 3 features and 3 fields, which are:
+\format{
+A \code{SpatialPolygonsDataFrame} with 3 features and 3 fields, which are:
 \describe{
 \item{OBJECTID}{Ecoregions identifier.}
- }}
+ }
+}
 \usage{
 regions
 }

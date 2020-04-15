@@ -57,17 +57,8 @@
 #' @importFrom magrittr %>%
 #' @importFrom dplyr group_by summarize
 #' @importFrom rlang .data
-distancefile <- function(nodes, id,
-                         type =  "centroid",
-                         distance_unit = NULL,
-                         keep = NULL,
-                         resistance = NULL,
-                         CostFun = NULL,
-                         ngh = NULL,
-                         mask = NULL,
-                         threshold = NULL,
-                         geometry_out = NULL,
-                         bounding_circles = NULL,
+distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, keep = NULL, resistance = NULL, CostFun = NULL, ngh = NULL, mask = NULL,
+                         threshold = NULL, geometry_out = NULL, bounding_circles = NULL,
                          multiple = NULL, prefix = NULL,
                          parallel = FALSE, edgeParallel = FALSE,
                          pairwise = TRUE,

@@ -4,8 +4,14 @@
 \alias{make_grid}
 \title{Make grid}
 \usage{
-make_grid(x, type, cell_area, clip = FALSE, tolerance = NULL,
-  grid_boundary = NULL)
+make_grid(
+  x,
+  type,
+  cell_area,
+  clip = FALSE,
+  tolerance = NULL,
+  grid_boundary = NULL
+)
 }
 \arguments{
 \item{x}{Object of class sf, sfc, sfg or SpatialPolygons}

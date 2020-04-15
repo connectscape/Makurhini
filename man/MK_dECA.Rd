@@ -4,10 +4,19 @@
 \alias{MK_dECA}
 \title{ECA, dA and dECA.}
 \usage{
-MK_dECA(nodes, attribute = NULL, area_unit = "ha",
+MK_dECA(
+  nodes,
+  attribute = NULL,
+  area_unit = "ha",
   distance = list(type = "centroid", resistance = NULL),
-  metric = "IIC", probability = NULL, distance_thresholds = NULL,
-  LA = NULL, plot = FALSE, parallel = FALSE, write = NULL)
+  metric = "IIC",
+  probability = NULL,
+  distance_thresholds = NULL,
+  LA = NULL,
+  plot = FALSE,
+  parallel = FALSE,
+  write = NULL
+)
 }
 \arguments{
 \item{nodes}{list of objects of class sf, SpatialPolygonsDataFrame or raster. Nodes of each period of time to analyze.}

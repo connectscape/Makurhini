@@ -4,12 +4,24 @@
 \alias{MK_ProtConnMult}
 \title{Multiple Protected Connected (ProtConn)}
 \usage{
-MK_ProtConnMult(nodes, regions, thintersect = NULL,
-  attribute = "Intersected area", area_unit = "ha",
-  res_attribute = 150, distance = list(type = "centroid", resistance =
-  NULL), distance_thresholds, probability, transboundary = NULL,
-  keep = 1, CI = "all", plot = FALSE, write = NULL,
-  intern = TRUE, parallel = FALSE)
+MK_ProtConnMult(
+  nodes,
+  regions,
+  thintersect = NULL,
+  attribute = "Intersected area",
+  area_unit = "ha",
+  res_attribute = 150,
+  distance = list(type = "centroid", resistance = NULL),
+  distance_thresholds,
+  probability,
+  transboundary = NULL,
+  keep = 1,
+  CI = "all",
+  plot = FALSE,
+  write = NULL,
+  intern = TRUE,
+  parallel = FALSE
+)
 }
 \arguments{
 \item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. Protected areas (PAs) shapefile.}

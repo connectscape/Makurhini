@@ -4,10 +4,19 @@
 \alias{MK_selectbyloc}
 \title{Select layer by location}
 \usage{
-MK_selectbyloc(target, sourcelyr, id = NULL, selreg = "M1",
-  buffer = NULL, thintersect = NULL, transboundary = NULL,
-  area_unit = "ha", write_select = NULL, plot = FALSE,
-  SAGA = FALSE)
+MK_selectbyloc(
+  target,
+  sourcelyr,
+  id = NULL,
+  selreg = "M1",
+  buffer = NULL,
+  thintersect = NULL,
+  transboundary = NULL,
+  area_unit = "ha",
+  write_select = NULL,
+  plot = FALSE,
+  SAGA = FALSE
+)
 }
 \arguments{
 \item{target}{object of class sf, sfc, sfg or SpatialPolygons.The selection will be applied to this layer.}

@@ -18,15 +18,15 @@ presents an additional improvement, the inclusion of landscape
 heterogeneity as a constraining factor for connectivity.
 
 The network connectivity indices calculated in Makurhini package have
-been previously published (e.g., Pascual-Hortal & Saura. 2006.
+been previously published (e.g., Pascual-Hortal & Saura, 2006.
 *Landscape ecology*, <https://doi.org/10.1007/s10980-006-0013-z>; Saura
-& Pascual-Hortal. 2007. *Lanscape and urban planning*,
-<https://doi.org/10.1016/j.landurbplan.2007.03.005>; Saura & Rubio.
+& Pascual-Hortal, 2007. *Lanscape and urban planning*,
+<https://doi.org/10.1016/j.landurbplan.2007.03.005>; Saura & Rubio,
 2010. *Ecography*, <https://doi.org/10.1111/j.1600-0587.2009.05760.x>;
-Saura et al. 2011. *Ecological indicators*,
-<https://doi.org/10.1016/j.ecolind.2010.06.011>; Saura et al. 2017.
+Saura et al., 2011. *Ecological indicators*,
+<https://doi.org/10.1016/j.ecolind.2010.06.011>; Saura et al., 2017.
 *Ecological indicators*,
-<http://dx.doi.org/10.1016/j.ecolind.2016.12.047>; Saura et al. 2018.
+<http://dx.doi.org/10.1016/j.ecolind.2016.12.047>; Saura et al., 2018.
 *Biological conservation*,
 <https://doi.org/10.1016/j.biocon.2017.12.020>), and it allows the
 integration of efficient and useful workflow for landscape management

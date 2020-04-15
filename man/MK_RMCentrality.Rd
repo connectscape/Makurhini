@@ -4,9 +4,15 @@
 \alias{MK_RMCentrality}
 \title{Estimate centrality measures.}
 \usage{
-MK_RMCentrality(nodes, distance = list(type = "centroid"),
-  distance_thresholds = NULL, binary = TRUE, probability = NULL,
-  rasterparallel = FALSE, write = NULL)
+MK_RMCentrality(
+  nodes,
+  distance = list(type = "centroid"),
+  distance_thresholds = NULL,
+  binary = TRUE,
+  probability = NULL,
+  rasterparallel = FALSE,
+  write = NULL
+)
 }
 \arguments{
 \item{nodes}{Object of class sf, SpatialPolygonsDataFrame or raster.

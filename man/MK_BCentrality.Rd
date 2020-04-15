@@ -4,12 +4,23 @@
 \alias{MK_BCentrality}
 \title{Betweenness Centrality metrics}
 \usage{
-MK_BCentrality(nodes, id, attribute = NULL, area_unit = "ha",
+MK_BCentrality(
+  nodes,
+  id,
+  attribute = NULL,
+  area_unit = "ha",
   distance = list(type = "centroid", resistance = NULL),
-  metric = c("BC", "BCIIC", "BCPC"), distance_thresholds = NULL,
-  probability = NULL, LA = NULL, coneforpath = NULL, dA = FALSE,
-  dvars = FALSE, parallel = FALSE, rasterparallel = FALSE,
-  write = NULL)
+  metric = c("BC", "BCIIC", "BCPC"),
+  distance_thresholds = NULL,
+  probability = NULL,
+  LA = NULL,
+  coneforpath = NULL,
+  dA = FALSE,
+  dvars = FALSE,
+  parallel = FALSE,
+  rasterparallel = FALSE,
+  write = NULL
+)
 }
 \arguments{
 \item{nodes}{Object of class sf, SpatialPolygonsDataFrame or raster.

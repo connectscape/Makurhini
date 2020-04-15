@@ -4,7 +4,9 @@
 \name{list_forest_patches}
 \alias{list_forest_patches}
 \title{List of vegetation patches}
-\format{A \code{sf} with 4 shapefiles:}
+\format{
+A \code{sf} with 4 shapefiles:
+}
 \usage{
 list_forest_patches
 }

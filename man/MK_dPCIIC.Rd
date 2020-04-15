@@ -4,11 +4,21 @@
 \alias{MK_dPCIIC}
 \title{Estimate the integral index of connectivity (IIC) or the probability of connectivity (PC)}
 \usage{
-MK_dPCIIC(nodes, attribute = NULL, area_unit = "ha",
-  restauration = NULL, distance = list(type = "centroid", resistance =
-  NULL), metric = c("IIC", "PC"), probability = NULL,
-  distance_thresholds = NULL, overall = FALSE, onlyoverall = FALSE,
-  LA = NULL, rasterparallel = FALSE, write = NULL)
+MK_dPCIIC(
+  nodes,
+  attribute = NULL,
+  area_unit = "ha",
+  restauration = NULL,
+  distance = list(type = "centroid", resistance = NULL),
+  metric = c("IIC", "PC"),
+  probability = NULL,
+  distance_thresholds = NULL,
+  overall = FALSE,
+  onlyoverall = FALSE,
+  LA = NULL,
+  rasterparallel = FALSE,
+  write = NULL
+)
 }
 \arguments{
 \item{nodes}{Object of class sf, SpatialPolygonsDataFrame, raster or data frame.

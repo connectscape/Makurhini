@@ -4,9 +4,17 @@
 \alias{euclidean_distances}
 \title{Euclidian distances}
 \usage{
-euclidean_distances(x, id, type_distance = "centroid",
-  distance_unit = "m", keep = 0.05, threshold = NULL,
-  edgeParallel = FALSE, pairwise = TRUE, write_table = NULL)
+euclidean_distances(
+  x,
+  id,
+  type_distance = "centroid",
+  distance_unit = "m",
+  keep = 0.05,
+  threshold = NULL,
+  edgeParallel = FALSE,
+  pairwise = TRUE,
+  write_table = NULL
+)
 }
 \arguments{
 \item{x}{object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.}

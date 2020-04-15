@@ -4,12 +4,26 @@
 \alias{distancefile}
 \title{Get a Distance table that can be used as a connector file in Conefor}
 \usage{
-distancefile(nodes, id, type = "centroid", distance_unit = NULL,
-  keep = NULL, resistance = NULL, CostFun = NULL, ngh = NULL,
-  mask = NULL, threshold = NULL, geometry_out = NULL,
-  bounding_circles = NULL, multiple = NULL, prefix = NULL,
-  parallel = FALSE, edgeParallel = FALSE, pairwise = TRUE,
-  write = NULL)
+distancefile(
+  nodes,
+  id,
+  type = "centroid",
+  distance_unit = NULL,
+  keep = NULL,
+  resistance = NULL,
+  CostFun = NULL,
+  ngh = NULL,
+  mask = NULL,
+  threshold = NULL,
+  geometry_out = NULL,
+  bounding_circles = NULL,
+  multiple = NULL,
+  prefix = NULL,
+  parallel = FALSE,
+  edgeParallel = FALSE,
+  pairwise = TRUE,
+  write = NULL
+)
 }
 \arguments{
 \item{nodes}{object of class sf, SpatialPolygons, RasterLaryer or SpatRaster (terra package). It must be in a projected coordinate system.

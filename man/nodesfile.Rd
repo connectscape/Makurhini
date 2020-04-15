@@ -4,9 +4,16 @@
 \alias{nodesfile}
 \title{Creation of nodefile to CONEFOR command line}
 \usage{
-nodesfile(nodes, id, attribute = NULL, area_unit = "m2",
-  restauration = NULL, multiple = NULL, prefix = NULL,
-  write = NULL)
+nodesfile(
+  nodes,
+  id,
+  attribute = NULL,
+  area_unit = "m2",
+  restauration = NULL,
+  multiple = NULL,
+  prefix = NULL,
+  write = NULL
+)
 }
 \arguments{
 \item{nodes}{sp, sf object, RasterLaryer or SpatRaster (terra package). It must be in a projected coordinate system.}

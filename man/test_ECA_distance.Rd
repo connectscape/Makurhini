@@ -4,10 +4,21 @@
 \alias{test_ECA_distance}
 \title{Test the ECA metric to multiple dispersal distances}
 \usage{
-test_ECA_distance(nodes, attribute = NULL, distance1 = NULL,
-  distance2 = NULL, distance3 = NULL, distance4 = NULL,
-  metric = "IIC", probability = NULL, distance_thresholds, LA = NULL,
-  area_unit = "ha", groups = 3, write = NULL)
+test_ECA_distance(
+  nodes,
+  attribute = NULL,
+  distance1 = NULL,
+  distance2 = NULL,
+  distance3 = NULL,
+  distance4 = NULL,
+  metric = "IIC",
+  probability = NULL,
+  distance_thresholds,
+  LA = NULL,
+  area_unit = "ha",
+  groups = 3,
+  write = NULL
+)
 }
 \arguments{
 \item{nodes}{Object of class sf, sfc, sfg or SpatialPolygons.}

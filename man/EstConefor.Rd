@@ -4,10 +4,22 @@
 \alias{EstConefor}
 \title{Estimation of connectivity indexes from CONEFOR}
 \usage{
-EstConefor(nodeFile, coneforpath = NULL, connectionFile, typeconnection,
-  typepairs, index, thdist, multdist = NULL, conprob = NULL,
-  onlyoverall = TRUE, LA = NULL, nrestauration = FALSE,
-  prefix = NULL, write = NULL)
+EstConefor(
+  nodeFile,
+  coneforpath = NULL,
+  connectionFile,
+  typeconnection,
+  typepairs,
+  index,
+  thdist,
+  multdist = NULL,
+  conprob = NULL,
+  onlyoverall = TRUE,
+  LA = NULL,
+  nrestauration = FALSE,
+  prefix = NULL,
+  write = NULL
+)
 }
 \arguments{
 \item{nodeFile}{character. Node file name. If prefix is true use the prefix name}

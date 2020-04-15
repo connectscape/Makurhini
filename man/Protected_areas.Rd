@@ -4,10 +4,12 @@
 \name{Protected_areas}
 \alias{Protected_areas}
 \title{Protected areas shapefile for analysis}
-\format{A \code{SpatialPolygonsDataFrame} with 706 features and 1 field, which is:
+\format{
+A \code{SpatialPolygonsDataFrame} with 706 features and 1 field, which is:
 \describe{
 \item{OBJECTID}{Protected areas identifier.}
- }}
+ }
+}
 \usage{
 Protected_areas
 }

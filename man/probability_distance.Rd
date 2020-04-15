@@ -4,8 +4,12 @@
 \alias{probability_distance}
 \title{Plot probability  of dispersal}
 \usage{
-probability_distance(probability, max_distance, eval_distance = NULL,
-  min.prob = 0.2)
+probability_distance(
+  probability,
+  max_distance,
+  eval_distance = NULL,
+  min.prob = 0.2
+)
 }
 \arguments{
 \item{probability}{numeric. Probability of dispersal at max_distance. If NULL}

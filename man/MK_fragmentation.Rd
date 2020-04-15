@@ -4,9 +4,16 @@
 \alias{MK_Fragmentation}
 \title{Fragmentation Statistics}
 \usage{
-MK_Fragmentation(patches, edge_distance = 500, min_patch_area = 100,
-  landscape_area = NULL, area_unit = "km2", perimeter_unit = "km",
-  plot = FALSE, write = NULL)
+MK_Fragmentation(
+  patches,
+  edge_distance = 500,
+  min_patch_area = 100,
+  landscape_area = NULL,
+  area_unit = "km2",
+  perimeter_unit = "km",
+  plot = FALSE,
+  write = NULL
+)
 }
 \arguments{
 \item{patches}{Object of class sf, sfc, sfg or SpatialPolygons with individual patches. The shapefile must be in a projected coordinate system.}
@@ -49,7 +56,7 @@ Calculate patch and landscape statistics
 \examples{
 data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) # Number of patches
-fragmentation <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500, plot = TRUE)
+fragmentation <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 1000, plot = TRUE)
 
 #Table
 fragmentation$`Summary landscape metrics (Viewer Panel)`

@@ -4,8 +4,15 @@
 \alias{merge_conefor}
 \title{Join a connectivity index (dIIC o dPC, and the "intra",  "dflux", "connector") to core areas}
 \usage{
-merge_conefor(datat = NULL, pattern = NULL, merge_shape = NULL,
-  id = NULL, dA = FALSE, var = FALSE, write = NULL)
+merge_conefor(
+  datat = NULL,
+  pattern = NULL,
+  merge_shape = NULL,
+  id = NULL,
+  dA = FALSE,
+  var = FALSE,
+  write = NULL
+)
 }
 \arguments{
 \item{datat}{Data table, data frame or direction of node_importances.txt files (character).}

@@ -4,9 +4,11 @@ status](https://ci.appveyor.com/api/projects/status/github/OscarGOGO/Makurhini?b
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Makurhini
+# Makurhini: Analyzing landscape connectivity.
 
-![LOGO\_MAKHURINI](https://user-images.githubusercontent.com/30152793/79033305-ce8c2280-7b72-11ea-8df7-b8b48409b818.png)
+![](man/figures/LOGO_MAKHURINI.png)
+
+## Overview
 
 <strong>Makurhini</strong> *(Connect in Purépecha language)* is an R
 package for calculating fragmentation and landscape connectivity indices
@@ -32,6 +34,17 @@ Saura et al., 2011. *Ecological indicators*,
 integration of efficient and useful workflow for landscape management
 and monitoring of global conservation targets.
 
+### Citing Makurhini package
+
+A formal paper detailing this packe is forthcoming, but until it is
+published, please use the something like the following to cite if you
+use it in your work:
+
+<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini:
+Analyzing landscape connectivity.
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3749434.svg)](https://doi.org/10.5281/zenodo.3749434)
+</code> </i>
+
 ## Installation
 
   - Pre-install
@@ -51,42 +64,7 @@ install_github("OscarGOGO/Makurhini", dependencies = TRUE, upgrade = "never")
 In case it does not appear in the list of packages, close the R session
 and reopen.
 
-## Example
-
-This is a basic example which shows you how to solve some common
-problems:
-
-  - Protected Connected Land (<i>ProtConn</i>)
-  - Equivalent Connectivity (<i>EC</i>)
-  - Integral index of connectivity (<i>IIC</i>) and fractions
-    (<i>dIICintra, dIICflux and dIICconnector</i>)
-  - Probability of connectivity (<i>PC</i>) and fractions (<i>dPCintra,
-    dPCflux and dPCconnector</i>)
-  - Centrality measures (e.g., betweenness centrality, node memberships,
-    and modularity)
-
-### Protected Connected Land (ProtConn)
-
-Protected areas:
-
-``` r
-data("Protected_areas", package = "Makurhini")
-data("regions", package = "Makurhini")
-region <- regions[1,]
-```
-
-<img src="man/figures/README-cores-1.png" width="100%" /><img src="man/figures/README-cores-2.png" width="100%" />
-
-``` r
-test <- MK_ProtConn(nodes = Protected_areas, region = region,
-                    attribute = "Intersected area", area_unit = "ha",
-                    distance = list(type= "centroid"),
-                    distance_thresholds = 10000,
-                    probability = 0.5, transboundary = 50000,
-                    LA = NULL, plot = TRUE, dPC = FALSE,
-                    write = NULL, SAGA = FALSE, intern = FALSE)
-test$`Protected Connected (Viewer Panel)`
-```
+## Summary of main *Makurhini* functions
 
 <table class="table table-condensed">
 
@@ -96,25 +74,13 @@ test$`Protected Connected (Viewer Panel)`
 
 <th style="text-align:left;">
 
-Index
-
-</th>
-
-<th style="text-align:center;">
-
-Value
+Function
 
 </th>
 
 <th style="text-align:left;">
 
-ProtConn indicator
-
-</th>
-
-<th style="text-align:center;">
-
-Percentage
+Purpose
 
 </th>
 
@@ -128,13 +94,254 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold">EC(PC)</span>
+<span style="font-style: italic">MK\_Fragmentation </span>
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:left;">
 
-130189.18
+Calculate patch and landscape statistics (e.g., mean size patches, edge
+density, core area percent, shape index, fractal dimension index,
+effective mesh size).
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="font-style: italic">distancefile </span>
+
+</td>
+
+<td style="text-align:left;">
+
+Get a table or matrix with the distances between pairs of nodes. Two
+Euclidean distances (‘centroid’ and ‘edge’) and two cost distances that
+consider the landscape heterogeneity (‘least-cost’ and ‘commute-time,
+this last is analogous to the resistance distance of circuitscape, see
+’gdistance’ package).
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="font-style: italic">MK\_RMCentrality </span>
+
+</td>
+
+<td style="text-align:left;">
+
+Estimate centrality measures under one or several dispersal distances
+(e.g., betweenness centrality, node memberships, modularity). It uses
+the ‘distancefile ()’ to calculate the distances of the nodes so they
+can be calculated using Euclidean or cost distances that consider the
+landscape heterogeneity.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="font-style: italic">MK\_dPCIIC </span>
+
+</td>
+
+<td style="text-align:left;">
+
+Calculate the integral index of connectivity (IIC) and probability of
+connectivity (PC) indices under one or several dispersal distances. It
+computes overall and index fractions (dPC or dIIC, intra, flux and
+connector) and the effect of restauration in the landscape connectivity
+when adding new nodes (restoration scenarios). It uses the
+‘distancefile()’.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="font-style: italic">MK\_dECA </span>
+
+</td>
+
+<td style="text-align:left;">
+
+Estimate the Equivalent Connected Area (ECA) and compare the relative
+change in ECA (dECA) between time periods using one or several dispersal
+distances. It uses the ‘distancefile()’.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="font-style: italic">MK\_ProtConn </span>
+
+</td>
+
+<td style="text-align:left;">
+
+Estimate the Protected Connected (ProtConn) indicator and fractions for
+one region using one or several dispersal distances and transboundary
+buffer areas (e.g., ProtConn, ProtUnconn, RelConn, ProtConn\[design\],
+ProtConn\[bound\], ProtConn\[Prot\], ProtConn\[Within\],
+ProtConn\[Contig\], ProtConn\[Trans\], ProtConn\[Unprot\]). It uses the
+’distancefile()
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="font-style: italic">MK\_ProtConnMult </span>
+
+</td>
+
+<td style="text-align:left;">
+
+Estimate the ProtConn indicator and fractions for multiple regions. It
+uses the ‘distancefile()’.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="font-style: italic">MK\_Connect\_grid </span>
+
+</td>
+
+<td style="text-align:left;">
+
+Compute the ProtConn indicator and fractions, PC or IIC overall
+connectivity metrics (ECA) in a regular grid. It uses the
+‘distancefile()’.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+<span style="font-style: italic">test\_metric\_distance</span>
+
+</td>
+
+<td style="text-align:left;">
+
+Compare ECA or ProtConn connectivity metrics using one or up to four
+types of distances, computed in the ‘distancefile()’ function, and
+multiple dispersion distances.
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+## Example
+
+This is a basic example which shows you how to solve some common
+problems:
+
+  - Protected Connected Land (<i>ProtConn</i>)
+  - Equivalent Connectivity Area (<i>ECA</i>)
+  - Integral index of connectivity (<i>IIC</i>) and fractions
+    (<i>dIICintra, dIICflux and dIICconnector</i>)
+  - Probability of connectivity (<i>PC</i>) and fractions (<i>dPCintra,
+    dPCflux and dPCconnector</i>)
+  - Centrality measures (e.g., betweenness centrality, node memberships,
+    and modularity)
+
+### Protected Connected Land (ProtConn)
+
+En el siguiente ejemplo, calcularemos el índicador ProtConn y sus
+fracciones para cuatro ecorregiones del amazonas colombiano y áreas
+protegidas de Colombia y de los paises vecinos en un buffer de 50 km.
+
+![](man/figures/Example_PA_Eco.png)
+
+``` r
+test_protconn <- MK_ProtConnMult(nodes = Protected_areas, region = ecoregions,
+                    attribute = "Intersected area", area_unit = "ha",
+                    distance = list(type= "centroid"),
+                    distance_thresholds = 10000,
+                    probability = 0.5, transboundary = 50000,
+                    plot = TRUE, CI = NULL, parallel = TRUE, intern = FALSE)
+test_protconn[[1]][[1]]
+```
+
+<table class="table table-condensed">
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:left;">
+
+ProtConn indicator
+
+</th>
+
+<th style="text-align:right;">
+
+Values(%)
+
+</th>
+
+<th style="text-align:right;">
+
+SD
+
+</th>
+
+<th style="text-align:right;">
+
+SEM
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+3
 
 </td>
 
@@ -144,9 +351,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa90d">92.540</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f99e3b">82.720</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #eab9d4">10.256</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f5e0eb">4.587</span>
 
 </td>
 
@@ -156,13 +375,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold">PC </span>
-
-</td>
-
-<td style="text-align:center;">
-
-1.2324e-03
+4
 
 </td>
 
@@ -172,9 +385,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff8eb">7.460</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdead6">17.280</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #eab9d4">10.256</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f5e0eb">4.587</span>
 
 </td>
 
@@ -184,11 +409,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+5
 
 </td>
 
@@ -198,9 +419,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf5">3.511</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #feefe0">13.027</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ecc0d8">9.205</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e3ed">4.117</span>
 
 </td>
 
@@ -210,11 +443,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+6
 
 </td>
 
@@ -224,9 +453,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf4">3.950</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefaf4">4.253</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f4ddea">4.955</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf0f5">2.216</span>
 
 </td>
 
@@ -236,11 +477,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+7
 
 </td>
 
@@ -250,9 +487,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffd383">47.058</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f9a345">78.609</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ce5d9b">24.007</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e9b6d2">10.736</span>
 
 </td>
 
@@ -262,11 +511,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+8
 
 </td>
 
@@ -276,9 +521,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf4">3.950</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefbf6">3.432</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f5deea">4.829</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf0f6">2.160</span>
 
 </td>
 
@@ -288,11 +545,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+9
 
 </td>
 
@@ -302,9 +555,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf5">3.511</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #feeede">13.848</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ecc1d9">9.061</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e3ee">4.052</span>
 
 </td>
 
@@ -314,11 +579,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+10
 
 </td>
 
@@ -328,9 +589,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa500">97.512</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88b13">99.916</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfe">0.189</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.084</span>
 
 </td>
 
@@ -340,11 +613,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+11
 
 </td>
 
@@ -354,7 +623,19 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span>
+
+</td>
+
+<td style="text-align:right;">
 
 <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span>
 
@@ -366,11 +647,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+12
 
 </td>
 
@@ -380,9 +657,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffcf8">2.488</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.084</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfe">0.189</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.084</span>
 
 </td>
 
@@ -392,11 +681,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+13
 
 </td>
 
@@ -406,9 +691,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa707">94.784</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88c16">98.292</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6ef">3.688</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fbf3f8">1.649</span>
 
 </td>
 
@@ -418,11 +715,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+14
 
 </td>
 
@@ -432,9 +725,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffcf7">2.728</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfa">1.708</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6ef">3.688</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fbf3f8">1.649</span>
 
 </td>
 
@@ -444,11 +749,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+15
 
 </td>
 
@@ -458,9 +759,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf6">3.327</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdeedd">14.371</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #eec9dd">7.953</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6f0">3.557</span>
 
 </td>
 
@@ -470,11 +783,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+16
 
 </td>
 
@@ -484,9 +793,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffefe">0.096</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.219</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefbfd">0.463</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfe">0.207</span>
 
 </td>
 
@@ -496,11 +817,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+17
 
 </td>
 
@@ -510,9 +827,21 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffefe">0.087</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.006</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.014</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.006</span>
 
 </td>
 
@@ -522,11 +851,7 @@ Percentage
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold"> </span>
-
-</td>
-
-<td style="text-align:center;">
+18
 
 </td>
 
@@ -537,7 +862,19 @@ Percentage
 
 </td>
 
-<td style="text-align:center;">
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span>
+
+</td>
+
+<td style="text-align:right;">
+
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span>
+
+</td>
+
+<td style="text-align:right;">
 
 <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span>
 
@@ -549,16 +886,12 @@ Percentage
 
 </table>
 
-``` r
-test$`ProtConn Plot`
-```
+![](man/figures/Example_Protconn.png)
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+### Equivalent Connectivity Area (ECA)
 
-### Equivalent Connectivity (EC)
-
-Example with old-growth vegetation fragments of four times
-(?list\_forest\_patches).
+Example in the Biosphere Reserve Mariposa Monarca, Mexico, with
+old-growth vegetation fragments of four times (?list\_forest\_patches).
 
 ``` r
 data("list_forest_patches", package = "Makurhini")
@@ -574,7 +907,7 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
                   LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="70%" />
 
 ``` r
 dECA_test
@@ -791,9 +1124,19 @@ dECA \< dA \< 0
         </tbody>
         </table>
 
+Another way to analyze the ECA (and ProtConn indicator) is by using the
+*‘MK\_Connect\_grid()’* that estimates the index values on a grid. An
+example of its application is the following, on the Andean-Amazon
+Piedmont. The analysis was performed using a grid of hexagons each with
+an area of 10,000 ha and a forest/non-forest map to measure changes in
+Andean-Amazon connectivity.
+
+![](man/figures/grid_example.png)
+
 ### Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector)
 
-Example with 142 old-growth vegetation fragments (?MK\_dPCIIC).
+Example with 142 old-growth vegetation fragments in southeast Mexico
+(?vegetation\_patches).
 
 ``` r
 data("vegetation_patches", package = "Makurhini")
@@ -808,8 +1151,7 @@ head(IIC)
 #> geometry type:  POLYGON
 #> dimension:      XY
 #> bbox:           xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
-#> epsg (SRID):    NA
-#> proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#> CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #> # A tibble: 6 x 6
 #>      id   dIIC dIICintra dIICflux dIICconnector                    geometry
 #>   <int>  <dbl>     <dbl>    <dbl>         <dbl>               <POLYGON [m]>
@@ -819,16 +1161,9 @@ head(IIC)
 #> 4     4  0.719   0.00115  0.00194         0.716 ((3547317 685713.2, 354736~
 #> 5     5  0.732   0.00554  0.0124          0.714 ((3567471 684357.4, 356738~
 #> 6     6  0.732   0.0141   0.00677         0.711 ((3590569 672451.7, 359009~
-plot(IIC["dIIC"], breaks = "jenks")
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
-
-``` r
-plot(IIC["dIICflux"], breaks = "jenks")
-```
-
-<img src="man/figures/README-unnamed-chunk-7-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
 ### Probability of connectivity (PC) and fractions (Intra, Flux and Connector)
 
@@ -842,8 +1177,7 @@ head(PC)
 #> geometry type:  POLYGON
 #> dimension:      XY
 #> bbox:           xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
-#> epsg (SRID):    NA
-#> proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#> CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #> # A tibble: 6 x 6
 #>      id      dPC dPCintra dPCflux dPCconnector                     geometry
 #>   <int>    <dbl>    <dbl>   <dbl>        <dbl>                <POLYGON [m]>
@@ -853,16 +1187,9 @@ head(PC)
 #> 4     4  0.00153  0.00117 3.61e-4     5.05e-15 ((3547317 685713.2, 3547363~
 #> 5     5  0.00833  0.00560 2.73e-3     0.       ((3567471 684357.4, 3567380~
 #> 6     6  0.0143   0.0143  6.32e-5     0.       ((3590569 672451.7, 3590090~
-plot(PC["dPC"], breaks = "jenks")
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
-
-``` r
-plot(PC["dPCflux"], breaks = "jenks")
-```
-
-<img src="man/figures/README-unnamed-chunk-8-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
 
 ### Centrality measures
 
@@ -872,17 +1199,27 @@ centrality_test <- MK_RMCentrality(nodes = vegetation_patches,
                                  distance_thresholds = 10000,
                                  probability = 0.05,
                                  write = NULL)
-#Examples:
-plot(centrality_test["cluster"])
+head(centrality_test)
+#> Simple feature collection with 6 features and 7 fields
+#> geometry type:  POLYGON
+#> dimension:      XY
+#> bbox:           xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
+#> CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#> # A tibble: 6 x 8
+#>      id degree    eigen   close   BWC cluster modules
+#>   <int>  <dbl>    <dbl>   <dbl> <dbl>   <dbl>   <dbl>
+#> 1     1      0 0.       4.99e-5     0       1       1
+#> 2     2      0 0.       4.99e-5     0       2       2
+#> 3     3      1 1.84e-16 5.03e-5     0       3       4
+#> 4     4      0 0.       4.99e-5     0       4       3
+#> 5     5      1 1.84e-16 5.03e-5     0       3       4
+#> 6     6      0 0.       4.99e-5     0       5       5
+#> # ... with 1 more variable: geometry <POLYGON [m]>
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+Examples:
 
-``` r
-plot(centrality_test["modules"])
-```
-
-<img src="man/figures/README-unnamed-chunk-9-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
 Moreover, you can change distance using the distance
 (<code>?distancefile</code>) argument:
@@ -898,14 +1235,3 @@ Least cost distances:
     raster”)
   - distance = list(type= “commute-time”, resistance = “resistance
     raster”)
-
-### Citing Makurhini package
-
-A formal paper detailing this packe is forthcoming, but until it is
-published, please use the something like the following to cite if you
-use it in your work:
-
-<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: An R
-package for analyzing landscape connectivity.
-<https://github.com/OscarGOGO/Makurhini>,
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3749434.svg)](https://doi.org/10.5281/zenodo.3749434)

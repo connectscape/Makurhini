@@ -41,7 +41,8 @@ MK_ProtConnMult(
 \item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
 distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).}
 
-\item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.}
+\item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. numeric.
+If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).}
 
 \item{transboundary}{numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017.}
 
@@ -69,7 +70,7 @@ ProtConn[Unprot][land], ProtConn[Trans][land] \cr
 *If plot is not NULL a list is returned with the ProtConn table and a plots.
 }
 \description{
-Use the CONEFOR command line to estimate Protected Connected (ProtConn) indexes for multiple ecoregions
+Estimate Protected Connected (ProtConn) indicator and fractions for multiple regions.
 }
 \examples{
 \dontrun{

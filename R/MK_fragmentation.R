@@ -79,7 +79,7 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
   data <- cbind(data, data.frame(Area = cbind(round(unit_convert(st_area(patches, byid = T), "m2", area_unit), 3)),
               CA = cbind(round(unit_convert(st_area(CoreA), "m2", area_unit), 3))))
   data$CAPercent <- round((data$CA * 100) / data$Area, 3)
-  data$Perimeter <- cbind(round(unit_convert(st_length(st_boundary(patches)), "m", perimeter_unit), 3))
+  data$Perimeter <- round(unit_convert(st_length(st_boundary(patches)), "m", perimeter_unit), 3) %>% as.numeric()
   data$EdgePercent <- round((100 - data$CAPercent), 3)
   data$PARA <- round(data$Area / data$Perimeter, 3)
   data$ShapeIndex <- round((data$Perimeter / (2 * pi * sqrt(data$Area/pi))), 3)

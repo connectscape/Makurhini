@@ -2,7 +2,7 @@
 % Please edit documentation in R/nodesfile.R
 \name{nodesfile}
 \alias{nodesfile}
-\title{Creation of nodefile to CONEFOR command line}
+\title{Creation of nodefile attribute.}
 \usage{
 nodesfile(
   nodes,
@@ -45,5 +45,5 @@ to each node in the raster. Binary values (0,1), where 1 = existing nodes in the
 nodo file in .txt format
 }
 \description{
-Generates a table with the Core ID and the their attribute value (e.g. area in km²), using a shapefile with these values. The table is the nodefile input for CONEFOR.
+Generates a table with the Core ID and the their attribute value (e.g. area in km²), using a shapefile with these values.
 }

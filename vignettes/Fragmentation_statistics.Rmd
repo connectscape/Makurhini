@@ -11,96 +11,99 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Overview
 We explored the <strong> MK_Fragmentation() </strong> to estimate fragmentation statistics at the landscape and patch level.
 
-```{r setup}
+```{r setup, message=FALSE, warning=FALSE}
 library(Makurhini)
 library(sf)
 ```
 
-We loaded the "vegetation_patches" database that contains 142 patches of old-growth vegetation from the state of Chiapas, Mexico. The shapefile has 143 rows (patches), the first column corresponds to the id of the patch.
+## Example database 
+We loaded the "vegetation_patches" database with 142 patches of old-growth vegetation from the state of Chiapas, Mexico. The shapefile has 142 rows (patches), the first column corresponds to the id of the patch.
 
 ```{r message=FALSE, warning=FALSE}
 data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) # Number of patches
-
 ```
-
-##
 
 ```{r someplot, message=FALSE, warning=FALSE, echo=FALSE}
-plot(vegetation_patches, col="#00B050", main="Old-growth vegetation fragments",
-     axes = TRUE, key.pos = 4)
+library(mapview)
+vegetation_patches$Legend <- "Old-growth vegetation fragments"
+mapview(vegetation_patches, zcol ="Legend", col.regions= "#00B050")
+vegetation_patches$Legend <- NULL
 ```
 
+## MK_Fragmentation()
 
 To define the edge of the patches we will use a distance of 500 m from the limit of the patches (Haddad et al. 2015).
 
 
-![](C:/Users/oscja/Desktop/Nuevos_paquetes/vignettes/Imagen1.png)
-
 ```{r message=FALSE, warning=FALSE}
-#help("FragmentationST")
-Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500, plot = TRUE)
+Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500, plot = TRUE,
+                                       min_patch_area = 100, landscape_area = NULL, area_unit = "km2", perimeter_unit = "km")
 ```
 
-The results are presented as a list, the first result is called *"Summary landscape metrics (Viewer Panel)"* and it has fragmentation statistics at landscape level.
+### Exploring results
+
+* The results are presented as a list, the first result is called *"Summary landscape metrics (Viewer Panel)"* and it has fragmentation statistics at landscape level.
 
 ```{r message=FALSE, warning=FALSE}
 names(Fragmentation_test)
 Fragmentation_test$`Summary landscape metrics (Viewer Panel)`
 ```
 
-The second output *"Patch statistics shapefile"* is a shapefile with patch level fragmentation statistics.
+* The second output *"Patch statistics shapefile"* is a shapefile with patch level fragmentation statistics that can be saved using write_sf() from *'sf'* package (https://cran.r-project.org/web/packages/sf/index.html).
 
 ```{r message=FALSE, warning=FALSE}
-Fragmentation_test$`Patch statistics shapefile`
-#Para guardar
+head(Fragmentation_test[[2]])
+
+#To save the shapefile 
 #write_sf(Fragmentacion$`Patch statistics shapefile`, ".../folder/fragmentacion.shp")
 ```
 
 
-We can visualize the static at the patch level, for example:
+### Viewing the results
+We can visualize the static at the patch level using the default *plot()* function or other spatial information display packages like the *'tmap'* package, for example:
 
 * Core area (%):
 ```{r message=FALSE, warning=FALSE}
-plot(Fragmentation_test$`Patch statistics shapefile`["CAPercent"], main="Core Area (%)",
-     axes = TRUE, key.pos = 4)
+library(tmap)
+tmap_mode("plot")
+tm_shape(Fragmentation_test[[2]]) + tm_fill("CAPercent", palette = c( "#762A83", "#AF8DC3", "#E7D4E8", "#D9F0D3", "#7FBF7B", "#1B7837"))+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
 ```
 
 * Edge (%)
 
 ```{r message = FALSE, warning = FALSE}
-plot(Fragmentation_test$`Patch statistics shapefile`["EdgePercent"], main="Edge (%)",
-     axes = TRUE, key.pos = 4)
+tm_shape(Fragmentation_test[[2]]) + tm_fill("EdgePercent", palette = c("#542788", "#998EC3", "#D8DAEB", "#FEE0B6", "#F1A340", "#B35806"))+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
 ```
 
-* Perimeter-area ratio
+* Perimeter-area ratio (PARA)
 
 ```{r message = FALSE, warning = FALSE}
-plot(Fragmentation_test$`Patch statistics shapefile`["PARA"], main="Perimeter-area ratio",
-     axes = TRUE, key.pos = 4)
+tm_shape(Fragmentation_test[[2]]) + tm_fill("PARA", palette = c("#542788", "#998EC3", "#D8DAEB", "#FEE0B6", "#F1A340", "#B35806"))+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
 ```
 
 * Shape Index
 
 ```{r message = FALSE, warning = FALSE}
-plot(Fragmentation_test$`Patch statistics shapefile`["ShapeIndex"], main="Shape index",
-     axes = TRUE, key.pos = 4)
+tm_shape(Fragmentation_test[[2]]) + tm_fill("ShapeIndex", palette = c("#542788", "#998EC3", "#D8DAEB", "#FEE0B6", "#F1A340", "#B35806"))+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+
 ```
 
 * Fractal Dimension Index
 
 ```{r message = FALSE, warning = FALSE}
-plot(Fragmentation_test$`Patch statistics shapefile`["FRAC"], main="Fractal dimension index",
-     axes = TRUE, key.pos = 4)
+tm_shape(Fragmentation_test[[2]]) + tm_fill("FRAC", palette = c("#542788", "#998EC3", "#D8DAEB", "#FEE0B6", "#F1A340", "#B35806"))+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
 ```
 
-
-We can make a loop where we explore different edge depths. And we can plot the average of the patch core area percentage and average of the edge percentage (% core area +% edge = 100%).
+### Exploring other edge depths
+We can make a loop where we explore different edge depths. In the following example, We will explore 10 edge depths (*edge_distance argument*): 100, 200, 300, 400, 500, 600, 700, 800, 900 and 1000 meters. We will apply the *'MK_Fragmentation'* function using the previous distances and then, we will extract the core area percentage and edge percentage statistics. Finally, we will plot the average of the patch core area percentage and edge percentage (% core area + % edge = 100%). 
 
 ```{r message = FALSE, warning = FALSE}
-Fragmentation_test.2 <- purrr::map_dfr(seq(100, 1000, 100), function(x){
+library(purrr)
+Fragmentation_test.2 <- map_dfr(seq(100, 1000, 100), function(x){
   x.1 <- MK_Fragmentation(patches = vegetation_patches, edge_distance = x,
                           plot = FALSE)[[2]]
   CA <- mean(x.1$CAPercent)
@@ -119,13 +122,13 @@ library(ggplot2)
 ggplot(Fragmentation_test.2, aes(x = Edge.distance, y = Percentage, group = Type)) +
   geom_line(aes(color = Type))+
   geom_point(aes(color = Type))+ ylim(0,100)+
-  scale_x_continuous("Edge depth distance", labels = as.character(Fragmentation_test.2$Edge.distance), breaks = Fragmentation_test.2$Edge.distance)+
+  scale_x_continuous("Edge depth distance (m)", labels = as.character(Fragmentation_test.2$Edge.distance), breaks = Fragmentation_test.2$Edge.distance)+
   scale_color_brewer(palette="Dark2")+
   theme_classic()
 ```
 
 
-The average core area percentage (absence of edge effect) for all patches decreases by more than 70% when considering an edge effect with a penetration of 1 km.
+The average core area percentage (average patch area that has the least possible edge effect) for all patches decreases by more than 70% when considering an edge effect with an edge depth distance of 1 km.
 
 
  |Edge depth distance (m) | CoreArea (%)|

@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Protected Connected (ProtConn) — MK_ProtConn" />
-<meta property="og:description" content="Use the CONEFOR command line to estimate Protected Connected (ProtConn) indexes." />
+<meta property="og:description" content="Estimate Protected Connected (ProtConn) indicator and fractions for one region." />
 
 
 
@@ -129,15 +129,28 @@
     </div>
 
     <div class="ref-description">
-    <p>Use the CONEFOR command line to estimate Protected Connected (ProtConn) indexes.</p>
+    <p>Estimate Protected Connected (ProtConn) indicator and fractions for one region.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>MK_ProtConn</span>(<span class='no'>nodes</span>, <span class='no'>region</span>, <span class='kw'>thintersect</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='st'>"Intersected area"</span>, <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
-  <span class='kw'>res_attribute</span> <span class='kw'>=</span> <span class='fl'>150</span>, <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>, <span class='kw'>resistance</span> <span class='kw'>=</span>
-  <span class='kw'>NULL</span>), <span class='no'>distance_thresholds</span>, <span class='no'>probability</span>, <span class='kw'>transboundary</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>LA</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>keep</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>dPC</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>SAGA</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>intern</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>MK_ProtConn</span>(
+  <span class='no'>nodes</span>,
+  <span class='no'>region</span>,
+  <span class='kw'>thintersect</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='st'>"Intersected area"</span>,
+  <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
+  <span class='kw'>res_attribute</span> <span class='kw'>=</span> <span class='fl'>150</span>,
+  <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>, <span class='kw'>resistance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>),
+  <span class='no'>distance_thresholds</span>,
+  <span class='no'>probability</span>,
+  <span class='kw'>transboundary</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>LA</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>keep</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>dPC</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>SAGA</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>intern</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -181,7 +194,8 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
     </tr>
     <tr>
       <th>probability</th>
-      <td><p>numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.</p></td>
+      <td><p>numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection.
+If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).</p></td>
     </tr>
     <tr>
       <th>transboundary</th>
@@ -263,7 +277,7 @@ Saura, S., Bertzky, B., Bastin, L., Battistella, L., Mandrici, A., &amp; Dubois,
 
       <footer>
       <div class="copyright">
-  <p>Developed by Godinez-Gomez Oscar.</p>
+  <p>Developed by Oscar Godínez-Gómez, Camilo A. Correa Ayram.</p>
 </div>
 
 <div class="pkgdown">

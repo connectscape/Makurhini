@@ -1,6 +1,6 @@
 #' Multiple Protected Connected (ProtConn)
 #'
-#' Use the CONEFOR command line to estimate Protected Connected (ProtConn) indexes for multiple ecoregions
+#' Estimate Protected Connected (ProtConn) indicator and fractions for multiple regions.
 #' @param nodes object of class sf, sfc, sfg or SpatialPolygons. Protected areas (PAs) shapefile.
 #' @param regions object of class sf, sfc, sfg or SpatialPolygons. Ecoregions shapefile.
 #' @param thintersect numeric.Threshold of intersection in percentage allowed to select or not a target geometry. Default = 90, if intersection >=90 percentage, the geometry will be selected.
@@ -8,7 +8,8 @@
 #' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".
 #' @param res_attribute numeric. If the attribute is no equal to "Area" or "Intersected area" then nodes will be converted to raster to extract values in one  process step, you can set the raster resolution, default = 150.
 #' @param distance list.See distancefile(). E.g.: list(type = "centroid", resistance = NULL, geometry_out = NULL).
-#' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.
+#' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. numeric.
+#' If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).
 #' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
 #'  distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).
 #' @param transboundary numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017.
@@ -278,12 +279,20 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
     st_geometry(DataProtconn) <- NULL
 
     #
+    if(is.null(CI)){
+      DataProtconn_2 <-  tryCatch(ProtConnStat(DataProtconn, ci = NULL), error = function(err)err)
+      if(inherits(DataProtconn_2, "error")){
+        DataProtconn_2 <- DataProtconn
+      }
+
+    } else {
     DataProtconn_2 <-  tryCatch(ProtConnStat(DataProtconn, ci = CI, nr = 1000), error = function(err)err)
     if(inherits(DataProtconn_2, "error")){
       DataProtconn_2 <-  tryCatch(ProtConnStat(DataProtconn, ci = NULL), error = function(err)err)
       if(inherits(DataProtconn_2, "error")){
         DataProtconn_2 <- DataProtconn
       }
+    }
     }
     DataProtconn_2$Indicator <- rownames(DataProtconn_2)
     DataProtconn_2 <- DataProtconn_2[moveme(names(DataProtconn_2), "Indicator first")]

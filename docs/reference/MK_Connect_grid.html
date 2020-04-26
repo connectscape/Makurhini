@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Connectivity indexes in a regular grid — MK_Connect_grid" />
-<meta property="og:description" content="Use the function to compute the Protected Connected (ProtConn)or EC, PC, IIC indexes on a grid." />
+<meta property="og:description" content="Use the function to compute the Protected Connected (ProtConn), EC, PC or IIC indexes in a regular grid." />
 
 
 
@@ -129,17 +129,30 @@
     </div>
 
     <div class="ref-description">
-    <p>Use the function to compute the Protected Connected (ProtConn)or EC, PC, IIC indexes on a grid.</p>
+    <p>Use the function to compute the Protected Connected (ProtConn), EC, PC or IIC indexes in a regular grid.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>MK_Connect_grid</span>(<span class='kw'>grid_pol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>grid_id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>grid_type</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"hexagonal"</span>, <span class='st'>"square"</span>), <span class='kw'>cellsize</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>grid_boundary</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>clip</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>tolerance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>nodes</span>,
-  <span class='kw'>region</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>thintersect</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>, <span class='kw'>metric</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ProtConn"</span>, <span class='st'>"PC"</span>),
-  <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>), <span class='kw'>distance_threshold</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>probability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>transboundary</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>intern</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>MK_Connect_grid</span>(
+  <span class='kw'>grid_pol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>grid_id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>grid_type</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"hexagonal"</span>, <span class='st'>"square"</span>),
+  <span class='kw'>cellsize</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>grid_boundary</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>clip</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>tolerance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='no'>nodes</span>,
+  <span class='kw'>region</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>thintersect</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
+  <span class='kw'>metric</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ProtConn"</span>, <span class='st'>"PC"</span>),
+  <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>),
+  <span class='kw'>distance_threshold</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>probability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>transboundary</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>intern</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -219,7 +232,8 @@ Example, if thintersect is equal to 90 then a node will be selected only if the 
       <th>probability</th>
       <td><p>numeric. Connection probability to the selected distance threshold, e.g., 0.5
 (default) that is 50 percentage of probability connection. Use in case of selecting the "PC"
-metric or "ProtConn".</p></td>
+metric or "ProtConn". If probability = NULL, then it will be the inverse of the mean dispersal distance
+for the species (1/α; Hanski and Ovaskainen 2000).</p></td>
     </tr>
     <tr>
       <th>transboundary</th>
@@ -253,10 +267,13 @@ Landscape and Urban Planning, 83(2-3): 91-103.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>Makurhini</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>raster</span>)
+
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"Protected_areas"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Makurhini"</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"regions"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Makurhini"</span>)
 <span class='no'>ecoregion</span> <span class='kw'>&lt;-</span> <span class='no'>regions</span>[<span class='fl'>2</span>,]
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>ecoregion</span>, <span class='kw'>col</span><span class='kw'>=</span><span class='st'>"blue"</span>)
+<span class='fu'><a href='https://rdrr.io/pkg/raster/man/plot.html'>plot</a></span>(<span class='no'>ecoregion</span>, <span class='kw'>col</span><span class='kw'>=</span><span class='st'>"blue"</span>)
 
 <span class='no'>hexagons_priority</span> <span class='kw'>&lt;-</span> <span class='fu'>MK_Connect_grid</span>(<span class='kw'>grid_type</span> <span class='kw'>=</span> <span class='st'>"hexagonal"</span>,
                                     <span class='kw'>cellsize</span> <span class='kw'>=</span> <span class='fl'>10000</span>, <span class='kw'>grid_boundary</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
@@ -268,7 +285,7 @@ Landscape and Urban Planning, 83(2-3): 91-103.</p>
                                     <span class='kw'>probability</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>transboundary</span> <span class='kw'>=</span> <span class='fl'>6000</span>,
                                     <span class='kw'>intern</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 <span class='no'>hexagons_priority</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>hexagons_priority</span>[<span class='st'>"ProtConn"</span>])
+<span class='fu'><a href='https://rdrr.io/pkg/raster/man/plot.html'>plot</a></span>(<span class='no'>hexagons_priority</span>[<span class='st'>"ProtConn"</span>])
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -281,7 +298,7 @@ Landscape and Urban Planning, 83(2-3): 91-103.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Godinez-Gomez Oscar.</p>
+  <p>Developed by Oscar Godínez-Gómez, Camilo A. Correa Ayram.</p>
 </div>
 
 <div class="pkgdown">

@@ -22,7 +22,7 @@
 #' @importFrom furrr future_map
 
 euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit = "m",
-                                keep = 0.05, threshold = NULL, edgeParallel = FALSE,
+                                keep = NULL, threshold = NULL, edgeParallel = FALSE,
                                 pairwise = TRUE, write_table = NULL){
   if(missing(id)){
     stop("missing id")
@@ -57,7 +57,7 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
     } else {
       i = 0
       j = 0
-      ng = round(nrow(x)/8)
+      ng = round(nrow(x)/as.numeric(availableCores())-1)
       x2 <- list()
 
       repeat {
@@ -77,7 +77,7 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
       rm(r,i,ii,j)
 
       works <- as.numeric(availableCores())-1
-      plan(strategy = multiprocess, gc = TRUE, worers = works)
+      plan(strategy = multiprocess, gc = TRUE, workers = works)
       distance <- future_map(x2, function(d){
         if(!is.null(keep)){
           d <- ms_simplify(input = d, keep = keep, keep_shapes = TRUE, explode = FALSE)

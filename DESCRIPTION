@@ -1,17 +1,20 @@
 Package: Makurhini
 Type: Package
-Title: Makurhini: An R package for analyzing landscape connectivity
+Title: Makurhini: Analyzing landscape connectivity
 Version: 1.0.0
-Author: c(person(given = "Oscar",
+Authors@R: c(person(given = "Oscar",
               family = "Godínez-Gómez",
               role = c("aut", "cre"),
               email = "osctapir@gmail.com",
-              comment = c(ORCID = "0000-0003-3016-739X")),
+              comment = c(ORCID = "0000-0003-3016-739X")
+              ),
           person(given = "Camilo A.",
               family = "Correa Ayram",
-              role = "ctb", 
-              comment = c(ORCID = "0000-0001-8619-0295")))
-Maintainer: Godinez-Gomez Oscar <osctapir@gmail.com>
+              role = c("aut"), 
+              comment = c(ORCID = "0000-0001-8619-0295")
+              )
+              )
+Maintainer: Oscar Godínez-Gómez <osctapir@gmail.com>
 Description: Makurhini (connect in Purépecha language) provides functions designed to estimate 
     landscape fragmentation and connectivity metrics and includes the ProtConn indicator that is used to report international connectivity targets.
 License: GPL-3 + file LICENSE
@@ -53,7 +56,8 @@ Imports:
     igraph (>= 1.2.4.1),
     tools,
     ps,
-    rlang
+    rlang,
+    remotes
 Depends: 
     methods,
     utils,

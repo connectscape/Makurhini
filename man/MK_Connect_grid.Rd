@@ -70,7 +70,8 @@ Example, if thintersect is equal to 90 then a node will be selected only if the 
 
 \item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5
 (default) that is 50 percentage of probability connection. Use in case of selecting the "PC"
-metric or "ProtConn".}
+metric or "ProtConn". If probability = NULL, then it will be the inverse of the mean dispersal distance
+for the species (1/α; Hanski and Ovaskainen 2000).}
 
 \item{transboundary}{numeric. Buffer to select polygones in a second round, their attribute value = 0,
 see  "Makurhini::MK_ProtConn".}
@@ -81,10 +82,13 @@ see  "Makurhini::MK_ProtConn".}
 plan, default = FALSE.}
 }
 \description{
-Use the function to compute the Protected Connected (ProtConn)or EC, PC, IIC indexes on a grid.
+Use the function to compute the Protected Connected (ProtConn), EC, PC or IIC indexes in a regular grid.
 }
 \examples{
 \dontrun{
+library(Makurhini)
+library(raster)
+
 data("Protected_areas", package = "Makurhini")
 data("regions", package = "Makurhini")
 ecoregion <- regions[2,]

@@ -132,10 +132,20 @@
     <p>Cost distances</p>
     </div>
 
-    <pre class="usage"><span class='fu'>cost_distances</span>(<span class='no'>x</span>, <span class='no'>id</span>, <span class='kw'>type_distance</span> <span class='kw'>=</span> <span class='st'>"least-cost"</span>, <span class='kw'>resistance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>CostFun</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ngh</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>mask</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>geometry_out</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bounding_circles</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>write_table</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>cost_distances</span>(
+  <span class='no'>x</span>,
+  <span class='no'>id</span>,
+  <span class='kw'>type_distance</span> <span class='kw'>=</span> <span class='st'>"least-cost"</span>,
+  <span class='kw'>resistance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>CostFun</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>ngh</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>mask</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>geometry_out</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>bounding_circles</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>write_table</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -219,7 +229,7 @@ Buffer distances are entered in map units. Also, the function is parallelized us
 
       <footer>
       <div class="copyright">
-  <p>Developed by Godinez-Gomez Oscar.</p>
+  <p>Developed by Oscar Godínez-Gómez, Camilo A. Correa Ayram.</p>
 </div>
 
 <div class="pkgdown">

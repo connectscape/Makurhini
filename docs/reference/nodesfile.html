@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Creation of nodefile to CONEFOR command line — nodesfile • Makurhini</title>
+<title>Creation of nodefile attribute. — nodesfile • Makurhini</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Creation of nodefile to CONEFOR command line — nodesfile" />
-<meta property="og:description" content="Generates a table with the Core ID and the their attribute value (e.g. area in km²), using a shapefile with these values. The table is the nodefile input for CONEFOR." />
+<meta property="og:title" content="Creation of nodefile attribute. — nodesfile" />
+<meta property="og:description" content="Generates a table with the Core ID and the their attribute value (e.g. area in km²), using a shapefile with these values." />
 
 
 
@@ -123,18 +123,25 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Creation of nodefile to CONEFOR command line</h1>
+    <h1>Creation of nodefile attribute.</h1>
     <small class="dont-index">Source: <a href='https://github.com/OscarGOGO/Makurhini/blob/master/R/nodesfile.R'><code>R/nodesfile.R</code></a></small>
     <div class="hidden name"><code>nodesfile.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Generates a table with the Core ID and the their attribute value (e.g. area in km²), using a shapefile with these values. The table is the nodefile input for CONEFOR.</p>
+    <p>Generates a table with the Core ID and the their attribute value (e.g. area in km²), using a shapefile with these values.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>nodesfile</span>(<span class='no'>nodes</span>, <span class='no'>id</span>, <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"m2"</span>,
-  <span class='kw'>restauration</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>multiple</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>prefix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>nodesfile</span>(
+  <span class='no'>nodes</span>,
+  <span class='no'>id</span>,
+  <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"m2"</span>,
+  <span class='kw'>restauration</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>multiple</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>prefix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -197,7 +204,7 @@ to each node in the raster. Binary values (0,1), where 1 = existing nodes in the
 
       <footer>
       <div class="copyright">
-  <p>Developed by Godinez-Gomez Oscar.</p>
+  <p>Developed by Oscar Godínez-Gómez, Camilo A. Correa Ayram.</p>
 </div>
 
 <div class="pkgdown">

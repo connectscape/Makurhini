@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Test the ECA metric to multiple dispersal distances — test_ECA_distance • Makurhini</title>
+<title>Test the ECA or ProtConn metrics using multiple dispersal distances — test_metric_distance • Makurhini</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Test the ECA metric to multiple dispersal distances — test_ECA_distance" />
-<meta property="og:description" content="Test the ECA metric to multiple dispersal distances" />
+<meta property="og:title" content="Test the ECA or ProtConn metrics using multiple dispersal distances — test_metric_distance" />
+<meta property="og:description" content="Test the ECA or ProtConn metrics using multiple dispersal distances" />
 
 
 
@@ -123,19 +123,32 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Test the ECA metric to multiple dispersal distances</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OscarGOGO/Makurhini/blob/master/R/test_ECA_distance.R'><code>R/test_ECA_distance.R</code></a></small>
-    <div class="hidden name"><code>test_ECA_distance.Rd</code></div>
+    <h1>Test the ECA or ProtConn metrics using multiple dispersal distances</h1>
+    <small class="dont-index">Source: <a href='https://github.com/OscarGOGO/Makurhini/blob/master/R/test_distance.R'><code>R/test_distance.R</code></a></small>
+    <div class="hidden name"><code>test_metric_distance.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Test the ECA metric to multiple dispersal distances</p>
+    <p>Test the ECA or ProtConn metrics using multiple dispersal distances</p>
     </div>
 
-    <pre class="usage"><span class='fu'>test_ECA_distance</span>(<span class='no'>nodes</span>, <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>distance1</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>distance3</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>distance4</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>metric</span> <span class='kw'>=</span> <span class='st'>"IIC"</span>, <span class='kw'>probability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>distance_thresholds</span>, <span class='kw'>LA</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>, <span class='kw'>groups</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>test_metric_distance</span>(
+  <span class='no'>nodes</span>,
+  <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>distance1</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>distance2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>distance3</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>distance4</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>metric</span> <span class='kw'>=</span> <span class='st'>"IIC"</span>,
+  <span class='kw'>probability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='no'>distance_thresholds</span>,
+  <span class='kw'>region</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>LA</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>transboundary</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
+  <span class='kw'>groups</span> <span class='kw'>=</span> <span class='fl'>3</span>,
+  <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -168,11 +181,14 @@
     </tr>
     <tr>
       <th>metric</th>
-      <td><p>character. "IIC" considering topologycal distances or "PC" considering maximum product probabilities.</p></td>
+      <td><p>character. "IIC" to estimate the ECA using the IIC index, "PC" to estimate the ECA using the PC index or "ProtConn" to estimate the ProtConn indicator using the PC index.</p></td>
     </tr>
     <tr>
       <th>probability</th>
-      <td><p>numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "BPC" metric.</p></td>
+      <td><p>numeric. numeric. Connection probability to the selected distance threshold, e.g., 0.5
+(default) that is 50 percentage of probability connection. Use in case of selecting the "PC"
+metric or "ProtConn". If probability = NULL, then it will be the inverse of the mean dispersal distance
+for the species (1/α; Hanski and Ovaskainen 2000).</p></td>
     </tr>
     <tr>
       <th>distance_thresholds</th>
@@ -180,8 +196,16 @@
 distance_thresholds = c(30000, 50000, 100000); sequence distances (recommended): distance_thresholds = seq(10000,100000, 10000).</p></td>
     </tr>
     <tr>
+      <th>region</th>
+      <td><p>object of class sf, sfc, sfg or SpatialPolygons. If metric is equal to "ProtConn" then you must provide a region shapefile.</p></td>
+    </tr>
+    <tr>
       <th>LA</th>
       <td><p>numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to m2).</p></td>
+    </tr>
+    <tr>
+      <th>transboundary</th>
+      <td><p>numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017. You can set one transboundary value or one per each threshold distance.</p></td>
     </tr>
     <tr>
       <th>area_unit</th>
@@ -194,7 +218,7 @@ compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".</p></t
     </tr>
     <tr>
       <th>write</th>
-      <td><p>character. Write output shapefile, example, "C:/ejemplo.shp".</p></td>
+      <td><p>character. Folder path and prefix, for example: "C:/Folder/test".</p></td>
     </tr>
     </table>
 
@@ -212,12 +236,26 @@ compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".</p></t
 
 <span class='no'>Max_attribute</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='unit_convert.html'>unit_convert</a></span>(<span class='fu'><a href='https://rdrr.io/pkg/rgeos/man/misc-gArea.html'>gArea</a></span>(<span class='no'>study_area</span>), <span class='st'>"m2"</span>, <span class='st'>"ha"</span>)
 
-<span class='fu'>test_ECA_distance</span>(<span class='kw'>nodes</span> <span class='kw'>=</span> <span class='no'>list_forest_patches</span><span class='kw'>[[</span><span class='fl'>1</span>]],
-                 <span class='kw'>distance1</span> <span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span><span class='kw'>=</span> <span class='st'>"centroid"</span>),
-                 <span class='kw'>distance2</span> <span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span><span class='kw'>=</span> <span class='st'>"edge"</span>),
-                 <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
-                 <span class='kw'>LA</span> <span class='kw'>=</span> <span class='no'>Max_attribute</span> ,
-                 <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>10000</span>,<span class='fl'>100000</span>, <span class='fl'>10000</span>))
+<span class='fu'>test_metric_distance</span>(<span class='kw'>nodes</span> <span class='kw'>=</span> <span class='no'>list_forest_patches</span><span class='kw'>[[</span><span class='fl'>1</span>]],
+                     <span class='kw'>distance1</span> <span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span><span class='kw'>=</span> <span class='st'>"centroid"</span>),
+                     <span class='kw'>distance2</span> <span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span><span class='kw'>=</span> <span class='st'>"edge"</span>),
+                     <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
+                     <span class='kw'>LA</span> <span class='kw'>=</span> <span class='no'>Max_attribute</span> ,
+                     <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>10000</span>,<span class='fl'>100000</span>, <span class='fl'>10000</span>),
+                     <span class='kw'>groups</span> <span class='kw'>=</span> <span class='fl'>0</span>)
+
+
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"Protected_areas"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Makurhini"</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"regions"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Makurhini"</span>)
+<span class='no'>region</span> <span class='kw'>&lt;-</span> <span class='no'>regions</span>[<span class='fl'>1</span>,]
+
+<span class='fu'>test_metric_distance</span>(<span class='kw'>nodes</span> <span class='kw'>=</span> <span class='no'>Protected_areas</span>,
+                     <span class='kw'>distance1</span> <span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span><span class='kw'>=</span> <span class='st'>"centroid"</span>),
+                     <span class='kw'>distance2</span> <span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span><span class='kw'>=</span> <span class='st'>"edge"</span>, <span class='kw'>keep</span> <span class='kw'>=</span> <span class='fl'>0.05</span>),
+                     <span class='kw'>metric</span> <span class='kw'>=</span> <span class='st'>"ProtConn"</span>, <span class='kw'>probability</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
+                     <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='st'>"Intersected area"</span>, <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
+                     <span class='kw'>region</span> <span class='kw'>=</span> <span class='no'>region</span>, <span class='kw'>transboundary</span> <span class='kw'>=</span> <span class='fl'>50000</span>,
+                     <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>10000</span>,<span class='fl'>100000</span>, <span class='fl'>10000</span>))
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -230,7 +268,7 @@ compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".</p></t
 
       <footer>
       <div class="copyright">
-  <p>Developed by Godinez-Gomez Oscar.</p>
+  <p>Developed by Oscar Godínez-Gómez, Camilo A. Correa Ayram.</p>
 </div>
 
 <div class="pkgdown">

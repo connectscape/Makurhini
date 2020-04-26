@@ -1,6 +1,6 @@
-#' Get a Distance table that can be used as a connector file in Conefor
+#' Get a table or matrix with the distances between pairs of nodes.
 #'
-#' Generates a distance table between nodes.
+#' Get a table or matrix with the distances (euclidean or cost distances) between pairs of nodes. It can be used as a connector file.
 #' @param nodes object of class sf, SpatialPolygons, RasterLaryer or SpatRaster (terra package). It must be in a projected coordinate system.
 #' If nodes is a raster layer then raster values (Integer) will be taken as "id".
 #' @param id character. If nodes is a shapefile then you must specify the column name with the node ID in the shapefile data table.

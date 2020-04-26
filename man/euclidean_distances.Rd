@@ -9,7 +9,7 @@ euclidean_distances(
   id,
   type_distance = "centroid",
   distance_unit = "m",
-  keep = 0.05,
+  keep = NULL,
   threshold = NULL,
   edgeParallel = FALSE,
   pairwise = TRUE,

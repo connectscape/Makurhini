@@ -1,1 +1,71 @@
-destination: docs
+navbar:
+  structure:
+    left:
+    - home
+    - intro
+    - reference
+    - articles
+    - tutorials
+    - news
+    right: github
+  components:
+    home:
+      icon: fas fa-home fa-lg
+      href: index.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/OscarGOGO/Makurhini/
+    articles:
+      text: Articles
+      menu:
+      - text: Fragmentation statistics
+        href: articles/Fragmentation_statistics.html
+      - text: Protected Connected Land (ProtConn)
+        href: articles/ProtConn.html
+
+reference:
+- title: All functions
+  contents:
+  - '`close_multiprocess`'
+  - '`cost_distances`'
+  - '`dECAfun`'
+  - '`dECAfun2`'
+  - '`distancefile`'
+  - '`div`'
+  - '`EstConefor`'
+  - '`euclidean_distances`'
+  - '`EXTraster`'
+  - '`list_forest_patches`'
+  - '`make_grid`'
+  - '`merge_conefor`'
+  - '`MK_BCentrality`'
+  - '`MK_Connect_grid`'
+  - '`MK_dECA`'
+  - '`MK_dPCIIC`'
+  - '`MK_Fragmentation`'
+  - '`MK_HQuality`'
+  - '`MK_ProtConn`'
+  - '`MK_ProtConnMult`'
+  - '`MK_RMCentrality`'
+  - '`MK_selectbyloc`'
+  - '`moveme`'
+  - '`mult`'
+  - '`nodesfile`'
+  - '`num_vert`'
+  - '`over_poly`'
+  - '`PIntercsect`'
+  - '`pol_dissolve`'
+  - '`probability_distance`'
+  - '`ProtConnStat`'
+  - '`Protected_areas`'
+  - '`raster_vegetation_patches`'
+  - '`regions`'
+  - '`study_area`'
+  - '`st_centroid_within_poly`'
+  - '`test_ECA_distance`'
+  - '`unit_convert`'
+  - '`vegetation_patches`'
+

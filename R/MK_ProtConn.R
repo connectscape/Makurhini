@@ -1,6 +1,6 @@
 #' Protected Connected (ProtConn)
 #'
-#' Use the CONEFOR command line to estimate Protected Connected (ProtConn) indexes.
+#' Estimate Protected Connected (ProtConn) indicator and fractions for one region.
 #' @param nodes object of class sf, sfc, sfg or SpatialPolygons. Example, Protected areas shapefile.
 #' @param region object of class sf, sfc, sfg or SpatialPolygons. Region shapefile.
 #' @param thintersect numeric. Threshold of intersection in percentage allowed to select or not a target geometry.
@@ -12,7 +12,8 @@
 #' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".
 #' @param res_attribute numeric. If the attribute is no equal to "Area" or "Intersected area" then nodes will be converted to raster to extract values in one  process step, you can set the raster resolution, default = 150.
 #' @param distance list. See distancefile(). E.g.: list(type= "centroid", resistance = NULL).
-#' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.
+#' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection.
+#' If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).
 #' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
 #'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).
 #' @param transboundary numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017. You can set one transboundary value or one per each threshold distance.
@@ -581,7 +582,7 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
             }
           }
 
-          ###Proconn bound
+          ###ProtConn bound
           if (nrow(bound_nodes) > 1){
             if (attribute == "Intersected area"){
               bound_nodes$AreaTemp <- bound_nodes$Area2 * bound_nodes$transboundary
@@ -610,8 +611,8 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
             }
             ECA3 <- as.data.frame(cbind(ECA = result.3[[2,2]], PC = result.3[[3,2]]))
 
-            DataProtconn$ProConn_design <- (100*(ECA3$ECA/DataProtconn$LA)) - (100 * (DataProtconn$ECA / DataProtconn$LA))
-            DataProtconn$ProConn_Bound<- DataProtconn$Prot - DataProtconn$ProConn_design
+            DataProtconn$ProtConn_design <- (100*(ECA3$ECA/DataProtconn$LA)) - (100 * (DataProtconn$ECA / DataProtconn$LA))
+            DataProtconn$ProtConn_Bound<- DataProtconn$Prot - DataProtconn$ProtConn_design
           }
 
           ###ProtConn fractions
@@ -692,8 +693,8 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
                                      ProtUnconn = NA,
                                      RelConn = NA,
                                      Unprotected = if(round(100 - (100 * (sum(Area) / LA)),3) < 0){0}else{round(100 - (100 * (sum(Area) / LA)),3)},
-                                     ProConn_design = if(round(100 * (sum(Area) / LA), 3) > 100){100}else{round(100 * (sum(Area) / LA), 3)},
-                                     ProConn_Bound = if(round(100 * (sum(Area) / LA), 3) > 100){100}else{round(100 * (sum(Area) / LA), 3)},
+                                     ProtConn_design = if(round(100 * (sum(Area) / LA), 3) > 100){100}else{round(100 * (sum(Area) / LA), 3)},
+                                     ProtConn_Bound = if(round(100 * (sum(Area) / LA), 3) > 100){100}else{round(100 * (sum(Area) / LA), 3)},
                                      ProtConn_Prot = 100,
                                      ProtConn_Trans = NA,
                                      ProtConn_Unprot = NA,
@@ -750,8 +751,8 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
                                    ProtUnconn = NA,
                                    RelConn = NA,
                                    Unprotected = if(round(100 - (100 * (sum(Area) / LA)),3) < 0){0}else{round(100 - (100 * (sum(Area) / LA)),3)},
-                                   ProConn_design = if(round(100 * (sum(Area) / LA), 3)>100){100}else{round(100 * (sum(Area) / LA), 3)},
-                                   ProConn_Bound = if(round(100 * (sum(Area) / LA), 3)>100){100}else{round(100 * (sum(Area) / LA), 3)},
+                                   ProtConn_design = if(round(100 * (sum(Area) / LA), 3)>100){100}else{round(100 * (sum(Area) / LA), 3)},
+                                   ProtConn_Bound = if(round(100 * (sum(Area) / LA), 3)>100){100}else{round(100 * (sum(Area) / LA), 3)},
                                    ProtConn_Prot = 100,
                                    ProtConn_Trans = NA,
                                    ProtConn_Unprot = NA,
@@ -784,8 +785,8 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
                                    ProtUnconn = NA,
                                    RelConn = NA,
                                    Unprotected = 100,
-                                   ProConn_design = NA,
-                                   ProConn_Bound = NA,
+                                   ProtConn_design = NA,
+                                   ProtConn_Bound = NA,
                                    ProtConn_Prot = NA,
                                    ProtConn_Trans = NA,
                                    ProtConn_Unprot = NA,

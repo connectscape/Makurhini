@@ -124,7 +124,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Plot probability  of dispersal</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OscarGOGO/Makurhini/blob/master/R/test_ECA_distance.R'><code>R/test_ECA_distance.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/OscarGOGO/Makurhini/blob/master/R/test_distance.R'><code>R/test_distance.R</code></a></small>
     <div class="hidden name"><code>probability_distance.Rd</code></div>
     </div>
 
@@ -132,8 +132,12 @@
     <p>Negative exponential dispersal kernel to calculate the probability of dispersal between two nodes. Used in probabilistic indexes (e.g., PC, BCPC, ProtConn etc.)</p>
     </div>
 
-    <pre class="usage"><span class='fu'>probability_distance</span>(<span class='no'>probability</span>, <span class='no'>max_distance</span>, <span class='kw'>eval_distance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>min.prob</span> <span class='kw'>=</span> <span class='fl'>0.2</span>)</pre>
+    <pre class="usage"><span class='fu'>probability_distance</span>(
+  <span class='no'>probability</span>,
+  <span class='no'>max_distance</span>,
+  <span class='kw'>eval_distance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>min.prob</span> <span class='kw'>=</span> <span class='fl'>0.2</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -148,7 +152,7 @@
     </tr>
     <tr>
       <th>eval_distance</th>
-      <td><p>numeric. Calculate the probability of dispersal at a specific distance (km)</p></td>
+      <td><p>numeric. Calculate the probability of dispersal at a specific distance (km). Available when only one max_distance is used.</p></td>
     </tr>
     <tr>
       <th>min.prob</th>
@@ -173,7 +177,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Godinez-Gomez Oscar.</p>
+  <p>Developed by Oscar Godínez-Gómez, Camilo A. Correa Ayram.</p>
 </div>
 
 <div class="pkgdown">

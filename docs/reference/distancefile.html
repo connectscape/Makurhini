@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get a Distance table that can be used as a connector file in Conefor — distancefile • Makurhini</title>
+<title>Get a table or matrix with the distances between pairs of nodes. — distancefile • Makurhini</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Get a Distance table that can be used as a connector file in Conefor — distancefile" />
-<meta property="og:description" content="Generates a distance table between nodes." />
+<meta property="og:title" content="Get a table or matrix with the distances between pairs of nodes. — distancefile" />
+<meta property="og:description" content="Get a table or matrix with the distances (euclidean or cost distances) between pairs of nodes. It can be used as a connector file." />
 
 
 
@@ -123,21 +123,35 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get a Distance table that can be used as a connector file in Conefor</h1>
+    <h1>Get a table or matrix with the distances between pairs of nodes.</h1>
     <small class="dont-index">Source: <a href='https://github.com/OscarGOGO/Makurhini/blob/master/R/distancefile.R'><code>R/distancefile.R</code></a></small>
     <div class="hidden name"><code>distancefile.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Generates a distance table between nodes.</p>
+    <p>Get a table or matrix with the distances (euclidean or cost distances) between pairs of nodes. It can be used as a connector file.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>distancefile</span>(<span class='no'>nodes</span>, <span class='no'>id</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>, <span class='kw'>distance_unit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>keep</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>resistance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>CostFun</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ngh</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>mask</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>geometry_out</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>bounding_circles</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>multiple</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>prefix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>edgeParallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>distancefile</span>(
+  <span class='no'>nodes</span>,
+  <span class='no'>id</span>,
+  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>,
+  <span class='kw'>distance_unit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>keep</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>resistance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>CostFun</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>ngh</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>mask</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>geometry_out</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>bounding_circles</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>multiple</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>prefix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>edgeParallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -257,7 +271,7 @@ the name and extension ".txt".</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Godinez-Gomez Oscar.</p>
+  <p>Developed by Oscar Godínez-Gómez, Camilo A. Correa Ayram.</p>
 </div>
 
 <div class="pkgdown">

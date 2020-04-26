@@ -132,11 +132,21 @@
     <p>Use this function to calculate the PC and IIC indexes under one or several distance thresholds.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>MK_dPCIIC</span>(<span class='no'>nodes</span>, <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
-  <span class='kw'>restauration</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>, <span class='kw'>resistance</span> <span class='kw'>=</span>
-  <span class='kw'>NULL</span>), <span class='kw'>metric</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"IIC"</span>, <span class='st'>"PC"</span>), <span class='kw'>probability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>overall</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>onlyoverall</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>LA</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rasterparallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>MK_dPCIIC</span>(
+  <span class='no'>nodes</span>,
+  <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
+  <span class='kw'>restauration</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>, <span class='kw'>resistance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>),
+  <span class='kw'>metric</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"IIC"</span>, <span class='st'>"PC"</span>),
+  <span class='kw'>probability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>overall</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>onlyoverall</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>LA</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>rasterparallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -234,8 +244,7 @@ Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented 
 #&gt; geometry type:  POLYGON
 #&gt; dimension:      XY
 #&gt; bbox:           xmin: 3340120 ymin: 322869.6 xmax: 3739484 ymax: 696540.5
-#&gt; epsg (SRID):    NA
-#&gt; proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#&gt; CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #&gt; <span style='color: #555555;'># A tibble: 142 x 6</span><span>
 #&gt;       id   dIIC dIICintra dIICflux dIICconnector                        geometry
 #&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>         </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>                   </span><span style='color: #555555;font-style: italic;'>&lt;POLYGON [m]&gt;</span><span>
@@ -256,8 +265,7 @@ Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented 
 #&gt; geometry type:  POLYGON
 #&gt; dimension:      XY
 #&gt; bbox:           xmin: 3340120 ymin: 322869.6 xmax: 3739484 ymax: 696540.5
-#&gt; epsg (SRID):    NA
-#&gt; proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#&gt; CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #&gt; </span><span style='color: #555555;'># A tibble: 142 x 6</span><span>
 #&gt;       id   dIIC dIICintra dIICflux dIICconnector                        geometry
 #&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>         </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>                   </span><span style='color: #555555;font-style: italic;'>&lt;POLYGON [m]&gt;</span><span>
@@ -272,7 +280,8 @@ Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented 
 #&gt; </span><span style='color: #555555;'> 9</span><span>     9  0.724   0.001</span><span style='text-decoration: underline;'>63</span><span>  0.006</span><span style='text-decoration: underline;'>62</span><span>         0.716 ((3451637 671232.4, 3451616 67~
 #&gt; </span><span style='color: #555555;'>10</span><span>    10  0.732   0.006</span><span style='text-decoration: underline;'>60</span><span>  0.011</span><span style='text-decoration: underline;'>1</span><span>          0.714 ((3444396 671675.7, 3444715 67~
 #&gt; </span><span style='color: #555555;'># ... with 132 more rows</span><span>
-#&gt; </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>IIC</span>$<span class='no'>d5000</span>[<span class='st'>"dIIC"</span>], <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='st'>"jenks"</span>)</div><div class='img'><img src='MK_dPCIIC-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>IIC</span>$<span class='no'>d5000</span>[<span class='st'>"dIICflux"</span>], <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='st'>"jenks"</span>)</div><div class='img'><img src='MK_dPCIIC-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>IIC</span>$<span class='no'>d5000</span>[<span class='st'>"dIICconnector"</span>])</div><div class='img'><img src='MK_dPCIIC-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'>#Using raster</span>
+#&gt; </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>IIC</span>$<span class='no'>d5000</span>[<span class='st'>"dIIC"</span>], <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='st'>"jenks"</span>)</div><div class='img'><img src='MK_dPCIIC-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>IIC</span>$<span class='no'>d5000</span>[<span class='st'>"dIICflux"</span>], <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='st'>"jenks"</span>)</div><div class='img'><img src='MK_dPCIIC-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>IIC</span>$<span class='no'>d5000</span>[<span class='st'>"dIICconnector"</span>])</div><div class='img'><img src='MK_dPCIIC-3.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'>#Using raster</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"raster_vegetation_patches"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Makurhini"</span>)
 <span class='no'>PC</span> <span class='kw'>&lt;-</span> <span class='fu'>MK_dPCIIC</span>(<span class='kw'>nodes</span> <span class='kw'>=</span> <span class='no'>raster_vegetation_patches</span>, <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
                 <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>),
@@ -306,7 +315,7 @@ Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented 
 
       <footer>
       <div class="copyright">
-  <p>Developed by Godinez-Gomez Oscar.</p>
+  <p>Developed by Oscar Godínez-Gómez, Camilo A. Correa Ayram.</p>
 </div>
 
 <div class="pkgdown">

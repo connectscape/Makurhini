@@ -19,9 +19,11 @@ library(Makurhini)
 library(raster)
 ```
 
+## Overview
+
 We will explore the ProtConn indicator which was developed to report international conservation targets (Saura et al. 2017), the indicator offers you an analysis of protected areas connectivity for a particular region.
 
-* Loading data (two ecoregions and one set of protected areas, both shapefiles):
+## Loading data (two ecoregions and one set of protected areas, both shapefiles):
 
 ```{r message=FALSE, warning=FALSE}
 #Protected areas
@@ -34,6 +36,13 @@ data("regions", package = "Makurhini")
 
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
+Protected_areas$id <- "Protected areas"
+
+library(mapview)
+library(sf)
+mapview(regions, zcol = "OBJECTID", col.regions = RColorBrewer::brewer.pal(4, "Set2")[2:4])+ mapview(Protected_areas, zcol = "id", col.regions = "#00B050")
+
+
 plot(regions, col="#beaed4", main="Protected areas and ecoregions",
      axes = TRUE, key.pos = 4)
 plot(Protected_areas, add=TRUE, col = "#00B050")
@@ -44,60 +53,71 @@ legend("topright",
        cex = .8) # adjust font size
 ```
 
-* ProtConn only one ecoregion using two distance thresholds (median distance) and a connection probability of 0.5. 
+## ProtConn estimation for a single ecoregion
+In the following example, we will estimate the ProtConn indicator and fractions in one ecoregion using two dispersal distances (10 and 30 km) and a connection probability of 0.5. Also, we will use a Transboundary buffer of 50 km (50000 meters), the distance between protected areas will be using centroids.
 
 ```{r message=FALSE, warning=FALSE}
 region <- regions[1,]
 test.1 <- MK_ProtConn(nodes = Protected_areas, region = region,
                     attribute = "Intersected area", area_unit = "ha",
                     distance = list(type= "centroid"),
-                    distance_thresholds = c(50000, 10000),
+                    distance_thresholds = c(10000, 30000),
                     probability = 0.5, transboundary = 50000,
                     LA = NULL, plot = TRUE, dPC = FALSE,
                     write = NULL, SAGA = FALSE, intern = FALSE)
 ```
 
-Result 50 km:
+### Exploring the results for a single ecoregion
+
+* Result 10 km:
 
 ```{r message=FALSE, warning=FALSE}
-test.1$d50000
-```
-
-
-Result 10 km:
-
-```{r message=FALSE, warning=FALSE}
+test.1$d10000$`Protected Connected (Viewer Panel)`
 test.1$d10000
 ```
 
 
+* Result 30 km:
 
-* Using the two ecoregions (or ideally more regions):
+```{r message=FALSE, warning=FALSE}
+test.1$d30000$`Protected Connected (Viewer Panel)`
+test.1$d30000
+```
+
+## ProtConn estimation for two or more ecoregions.
+
+Now, we will use the three ecoregions. The processing time will be longer when using more regions, although we can reduce it using the parallel argument.
 
 ```{r message=FALSE, warning=FALSE}
 test.2 <- MK_ProtConnMult(nodes = Protected_areas, regions = regions,
                           attribute = "Intersected area", area_unit = "ha",
                           distance = list(type= "centroid"),
-                          distance_thresholds = 10000,
+                          distance_thresholds = c(10000, 30000),
                           probability = 0.5, transboundary = 50000,
-                          plot = FALSE, write = NULL, 
+                          plot = FALSE, write = NULL, parallel = TRUE,
                           intern = FALSE)
 ```
 
-Table summary result:
+### Exploring some results
+
+* Table summary result:
+```{r message=FALSE, warning=FALSE}
+names(test.2)
+test.2$ProtConn_10000$ProtConn_overall10000
+```
+
+* Shapefile result:
 ```{r message=FALSE, warning=FALSE}
 test.2$ProtConn_10000$ProtConn_10000
-
 ```
 
-Shapefile result
+
 ```{r message=FALSE, warning=FALSE}
-test.2$ProtConn_10000$ProtConn_overall_10000
+ProtConn <- test.2[[1]]$ProtConn_10000
+mapview(ProtConn, zcol = c("ProtConn"), col.regions =c("#91CF60", "#FC8D59", "#FFFFBF"))
 ```
 
-
-
-Moreover, you can change distance using the distance (<code> distancefile () </code>) argument:
+* It is important not to forget that you can change the type of distance using the distance (<code>see,  distancefile() </code>) argument:
 
 Euclidean distances:
 * distance = list(type= "centroid")

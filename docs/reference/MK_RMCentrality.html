@@ -132,9 +132,15 @@
     <p>Use this function to calculate centrality measures. under one or several distance thresholds.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>MK_RMCentrality</span>(<span class='no'>nodes</span>, <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>),
-  <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>binary</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>probability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>rasterparallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>MK_RMCentrality</span>(
+  <span class='no'>nodes</span>,
+  <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>),
+  <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>binary</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>probability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>rasterparallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -200,8 +206,7 @@ Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented 
 #&gt; geometry type:  POLYGON
 #&gt; dimension:      XY
 #&gt; bbox:           xmin: 3340120 ymin: 322869.6 xmax: 3739484 ymax: 696540.5
-#&gt; epsg (SRID):    NA
-#&gt; proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#&gt; CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #&gt; <span style='color: #555555;'># A tibble: 142 x 8</span><span>
 #&gt;       id degree    eigen   close   BWC cluster modules                  geometry
 #&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>             </span><span style='color: #555555;font-style: italic;'>&lt;POLYGON [m]&gt;</span><span>
@@ -222,8 +227,7 @@ Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented 
 #&gt; geometry type:  POLYGON
 #&gt; dimension:      XY
 #&gt; bbox:           xmin: 3340120 ymin: 322869.6 xmax: 3739484 ymax: 696540.5
-#&gt; epsg (SRID):    NA
-#&gt; proj4string:    +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#&gt; CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #&gt; </span><span style='color: #555555;'># A tibble: 142 x 8</span><span>
 #&gt;       id degree eigen   close    BWC cluster modules                    geometry
 #&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>               </span><span style='color: #555555;font-style: italic;'>&lt;POLYGON [m]&gt;</span><span>
@@ -250,7 +254,7 @@ Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented 
 
       <footer>
       <div class="copyright">
-  <p>Developed by Godinez-Gomez Oscar.</p>
+  <p>Developed by Oscar Godínez-Gómez, Camilo A. Correa Ayram.</p>
 </div>
 
 <div class="pkgdown">

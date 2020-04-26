@@ -1,6 +1,6 @@
 #' Connectivity indexes in a regular grid
 #'
-#' Use the function to compute the Protected Connected (ProtConn)or EC, PC, IIC indexes on a grid.
+#' Use the function to compute the Protected Connected (ProtConn), EC, PC or IIC indexes in a regular grid.
 #' @param grid_pol object of class sf, sfc, sfg or SpatialPolygons. Grid hexagones or squares. The
 #' shapefile must be in a projected coordinate system.
 #' @param grid_id character. Column name of the grid ID.
@@ -29,7 +29,8 @@
 #' @param distance_threshold numeric. Distance threshold to establish connections (meters).
 #' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5
 #' (default) that is 50 percentage of probability connection. Use in case of selecting the "PC"
-#' metric or "ProtConn".
+#' metric or "ProtConn". If probability = NULL, then it will be the inverse of the mean dispersal distance
+#' for the species (1/α; Hanski and Ovaskainen 2000).
 #' @param transboundary numeric. Buffer to select polygones in a second round, their attribute value = 0,
 #' see  "Makurhini::MK_ProtConn".
 #' @param intern logical. Show the progress of the process, default = TRUE.
@@ -50,12 +51,15 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' library(Makurhini)
+#' library(raster)
+#'
 #' data("Protected_areas", package = "Makurhini")
 #' data("regions", package = "Makurhini")
 #' ecoregion <- regions[2,]
 #' plot(ecoregion, col="blue")
 #'
-#'hexagons_priority <- MK_Connect_grid(grid_type = "hexagonal",
+#' hexagons_priority <- MK_Connect_grid(grid_type = "hexagonal",
 #'                                     cellsize = 10000, grid_boundary = FALSE,
 #'                                     clip = FALSE, nodes = Protected_areas, region = ecoregion,
 #'                                     attribute = "Intersected area", thintersect = NULL,

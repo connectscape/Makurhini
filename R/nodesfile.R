@@ -1,6 +1,6 @@
-#' Creation of nodefile to CONEFOR command line
+#' Creation of nodefile attribute.
 #'
-#' Generates a table with the Core ID and the their attribute value (e.g. area in km²), using a shapefile with these values. The table is the nodefile input for CONEFOR.
+#' Generates a table with the Core ID and the their attribute value (e.g. area in km²), using a shapefile with these values.
 #' @param nodes sp, sf object, RasterLaryer or SpatRaster (terra package). It must be in a projected coordinate system.
 #' @param id character. If nodes is a shappefile then you must specify the column name with the node ID
 #'  in the shapefile data table. If nodes is a raster layer then raster values (Integer) will be taken as "id".

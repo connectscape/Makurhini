@@ -2,7 +2,7 @@
 % Please edit documentation in R/distancefile.R
 \name{distancefile}
 \alias{distancefile}
-\title{Get a Distance table that can be used as a connector file in Conefor}
+\title{Get a table or matrix with the distances between pairs of nodes.}
 \usage{
 distancefile(
   nodes,
@@ -88,7 +88,7 @@ the name and extension ".txt".}
 Exports a euclidean or cost distance table between pairs of nodes.
 }
 \description{
-Generates a distance table between nodes.
+Get a table or matrix with the distances (euclidean or cost distances) between pairs of nodes. It can be used as a connector file.
 }
 \references{
 \url{https://www.rdocumentation.org/packages/rgeos/versions/0.3-26/topics/gDistance}\cr

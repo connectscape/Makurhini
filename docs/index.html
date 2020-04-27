@@ -59,7 +59,7 @@
       <a href="articles/Fragmentation_statistics.html">Fragmentation statistics</a>
     </li>
     <li>
-      <a href="articles/ProtConn_indicator.html">Protected Connected Land (ProtConn)</a>
+      <a href="articles/ProtConnIndicator.html">Protected Connected indicator</a>
     </li>
   </ul>
 </li>
@@ -93,7 +93,7 @@
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h2>
-<p><strong>Makurhini</strong> <em>(Connect in Purépecha language)</em> is an R package for calculating fragmentation and landscape connectivity indices used in conservation planning. Makurhini provides a set of functions to identify connectivity of protected areas networks and the importance of landscape elements for maintaning connectivity. This package allows the evaluation of scenarios under landscape connectivity changes and presents an additional improvement, the inclusion of landscape heterogeneity as a constraining factor for connectivity.</p>
+<p><strong>Makurhini</strong> <em>(Connect in Purépecha language)</em> is an R package for calculating fragmentation and landscape connectivity indices used in conservation planning. Makurhini provides a set of functions to identify connectivity of protected areas networks and the importance of landscape elements for maintaining connectivity. This package allows the evaluation of scenarios under landscape connectivity changes and presents an additional improvement, the inclusion of landscape heterogeneity as a constraining factor for connectivity.</p>
 <p>The network connectivity indices calculated in Makurhini package have been previously published (e.g., Pascual-Hortal &amp; Saura, 2006. <em>Landscape ecology</em>, <a href="https://doi.org/10.1007/s10980-006-0013-z" class="uri">https://doi.org/10.1007/s10980-006-0013-z</a>; Saura &amp; Pascual-Hortal, 2007. <em>Lanscape and urban planning</em>, <a href="https://doi.org/10.1016/j.landurbplan.2007.03.005" class="uri">https://doi.org/10.1016/j.landurbplan.2007.03.005</a>; Saura &amp; Rubio, 2010. <em>Ecography</em>, <a href="https://doi.org/10.1111/j.1600-0587.2009.05760.x" class="uri">https://doi.org/10.1111/j.1600-0587.2009.05760.x</a>; Saura et al., 2011. <em>Ecological indicators</em>, <a href="https://doi.org/10.1016/j.ecolind.2010.06.011" class="uri">https://doi.org/10.1016/j.ecolind.2010.06.011</a>; Saura et al., 2017. <em>Ecological indicators</em>, <a href="http://dx.doi.org/10.1016/j.ecolind.2016.12.047" class="uri">http://dx.doi.org/10.1016/j.ecolind.2016.12.047</a>; Saura et al., 2018. <em>Biological conservation</em>, <a href="https://doi.org/10.1016/j.biocon.2017.12.020" class="uri">https://doi.org/10.1016/j.biocon.2017.12.020</a>), and it allows the integration of efficient and useful workflow for landscape management and monitoring of global conservation targets.</li>
 </ol>
 <div id="citing-makurhini-package" class="section level3">
@@ -335,7 +335,7 @@
 <p>8</p>
 </td>
 <td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProConn_design </span></p>
+<p><span style="color: #636363; font-weight: bold">ProtConn_design </span></p>
 </td>
 <td style="text-align:right;">
 <p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefbf6">3.432</span></p>
@@ -352,7 +352,7 @@
 <p>9</p>
 </td>
 <td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProConn_Bound </span></p>
+<p><span style="color: #636363; font-weight: bold">ProtConn_Bound </span></p>
 </td>
 <td style="text-align:right;">
 <p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #feeede">13.848</span></p>
@@ -533,7 +533,7 @@
                   <span class="kw">distance</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">type</span><span class="kw">=</span> <span class="st">"centroid"</span>), <span class="kw">metric</span> <span class="kw">=</span> <span class="st">"PC"</span>,
                   <span class="kw">probability</span> <span class="kw">=</span> <span class="fl">0.05</span>, <span class="kw">distance_thresholds</span> <span class="kw">=</span> <span class="fl">5000</span>,
                   <span class="kw">LA</span> <span class="kw">=</span> <span class="no">Max_attribute</span>, <span class="kw">plot</span><span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"1993"</span>, <span class="st">"2003"</span>, <span class="st">"2007"</span>, <span class="st">"2011"</span>))</pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-7-1.png" width="70%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-6-1.png" width="70%"></p>
 <div class="sourceCode" id="cb5"><pre class="r"><span class="no">dECA_test</span></pre></div>
 <table class="table table table-condensed">
 <thead><tr>
@@ -715,7 +715,7 @@ Habitat or connectivity gain
 <span class="co">#&gt; 4     4  0.719   0.00115  0.00194         0.716 ((3547317 685713.2, 354736~</span>
 <span class="co">#&gt; 5     5  0.732   0.00554  0.0124          0.714 ((3567471 684357.4, 356738~</span>
 <span class="co">#&gt; 6     6  0.732   0.0141   0.00677         0.711 ((3590569 672451.7, 359009~</span></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-9-1.png" width="100%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-8-1.png" width="100%"></p>
 </div>
 <div id="probability-of-connectivity-pc-and-fractions-intra-flux-and-connector" class="section level3">
 <h3 class="hasAnchor">
@@ -739,7 +739,7 @@ Habitat or connectivity gain
 <span class="co">#&gt; 4     4  0.00153  0.00117 3.61e-4     5.05e-15 ((3547317 685713.2, 3547363~</span>
 <span class="co">#&gt; 5     5  0.00833  0.00560 2.73e-3     0.       ((3567471 684357.4, 3567380~</span>
 <span class="co">#&gt; 6     6  0.0143   0.0143  6.32e-5     0.       ((3590569 672451.7, 3590090~</span></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-11-1.png" width="100%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-10-1.png" width="100%"></p>
 </div>
 <div id="centrality-measures" class="section level3">
 <h3 class="hasAnchor">
@@ -760,13 +760,13 @@ Habitat or connectivity gain
 <span class="co">#&gt;   &lt;int&gt;  &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
 <span class="co">#&gt; 1     1      0 0.       4.99e-5     0       1       1</span>
 <span class="co">#&gt; 2     2      0 0.       4.99e-5     0       2       2</span>
-<span class="co">#&gt; 3     3      1 1.84e-16 5.03e-5     0       3       4</span>
+<span class="co">#&gt; 3     3      1 3.45e-16 5.03e-5     0       3       4</span>
 <span class="co">#&gt; 4     4      0 0.       4.99e-5     0       4       3</span>
-<span class="co">#&gt; 5     5      1 1.84e-16 5.03e-5     0       3       4</span>
+<span class="co">#&gt; 5     5      1 3.45e-16 5.03e-5     0       3       4</span>
 <span class="co">#&gt; 6     6      0 0.       4.99e-5     0       5       5</span>
 <span class="co">#&gt; # ... with 1 more variable: geometry &lt;POLYGON [m]&gt;</span></pre></div>
 <p>Examples:</p>
-<p><img src="reference/figures/README-unnamed-chunk-13-1.png" width="100%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-12-1.png" width="100%"></p>
 <p>Moreover, you can change distance using the distance (<code><a href="reference/distancefile.html">?distancefile</a></code>) argument:</p>
 <p>Euclidean distances:</p>
 <ul>

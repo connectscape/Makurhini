@@ -27,8 +27,7 @@ The network connectivity indices calculated in Makurhini package have been previ
 ### Citing Makurhini package
 A formal paper detailing this packe is forthcoming, but until it is published, please use the something like the following to cite if you use it in your work:
 
-<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: Analyzing landscape connectivity. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3749434.svg)](https://doi.org/10.5281/zenodo.3749434) </code> </i>
-
+<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: Analyzing landscape connectivity. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3771605.svg)](https://doi.org/10.5281/zenodo.3771605) </code> </i>
 
 ## Installation
 * Pre-install [Rtools](https://cran.r-project.org/bin/windows/Rtools/).

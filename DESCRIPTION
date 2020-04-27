@@ -28,7 +28,9 @@ BugReports: https://github.com/OscarGOGO/Makurhini/issues
 Suggests: 
     knitr,
     rmarkdown,
-    deldir
+    deldir,
+    mapview,
+    tmap
 VignetteBuilder: knitr
 Imports: 
     sf,

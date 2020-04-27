@@ -24,7 +24,7 @@ navbar:
       - text: Fragmentation statistics
         href: articles/Fragmentation_statistics.html
       - text: Protected Connected Land (ProtConn)
-        href: articles/ProtConn.html
+        href: articles/ProtConn_indicator.html
 
 reference:
 - title: All functions
@@ -65,7 +65,7 @@ reference:
   - '`regions`'
   - '`study_area`'
   - '`st_centroid_within_poly`'
-  - '`test_ECA_distance`'
+  - '`test_metric_distance`'
   - '`unit_convert`'
   - '`vegetation_patches`'
 

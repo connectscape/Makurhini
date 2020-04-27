@@ -14,7 +14,7 @@ status](https://ci.appveyor.com/api/projects/status/github/OscarGOGO/Makurhini?b
 package for calculating fragmentation and landscape connectivity indices
 used in conservation planning. Makurhini provides a set of functions to
 identify connectivity of protected areas networks and the importance of
-landscape elements for maintaning connectivity. This package allows the
+landscape elements for maintaining connectivity. This package allows the
 evaluation of scenarios under landscape connectivity changes and
 presents an additional improvement, the inclusion of landscape
 heterogeneity as a constraining factor for connectivity.
@@ -517,7 +517,7 @@ SEM
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold">ProConn\_design </span>
+<span style="color: #636363; font-weight: bold">ProtConn\_design </span>
 
 </td>
 
@@ -551,7 +551,7 @@ SEM
 
 <td style="text-align:left;">
 
-<span style="color: #636363; font-weight: bold">ProConn\_Bound </span>
+<span style="color: #636363; font-weight: bold">ProtConn\_Bound </span>
 
 </td>
 
@@ -907,7 +907,7 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
                   LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="70%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="70%" />
 
 ``` r
 dECA_test
@@ -1163,7 +1163,7 @@ head(IIC)
 #> 6     6  0.732   0.0141   0.00677         0.711 ((3590569 672451.7, 359009~
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ### Probability of connectivity (PC) and fractions (Intra, Flux and Connector)
 
@@ -1189,7 +1189,7 @@ head(PC)
 #> 6     6  0.0143   0.0143  6.32e-5     0.       ((3590569 672451.7, 3590090~
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
 ### Centrality measures
 
@@ -1210,16 +1210,16 @@ head(centrality_test)
 #>   <int>  <dbl>    <dbl>   <dbl> <dbl>   <dbl>   <dbl>
 #> 1     1      0 0.       4.99e-5     0       1       1
 #> 2     2      0 0.       4.99e-5     0       2       2
-#> 3     3      1 1.84e-16 5.03e-5     0       3       4
+#> 3     3      1 3.45e-16 5.03e-5     0       3       4
 #> 4     4      0 0.       4.99e-5     0       4       3
-#> 5     5      1 1.84e-16 5.03e-5     0       3       4
+#> 5     5      1 3.45e-16 5.03e-5     0       3       4
 #> 6     6      0 0.       4.99e-5     0       5       5
 #> # ... with 1 more variable: geometry <POLYGON [m]>
 ```
 
 Examples:
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
 Moreover, you can change distance using the distance
 (<code>?distancefile</code>) argument:

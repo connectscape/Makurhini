@@ -11,7 +11,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "70%"
+  out.width = "70%",
+  message=FALSE, warning=FALSE
 )
 ```
 # Makurhini: Analyzing landscape connectivity.
@@ -19,7 +20,7 @@ knitr::opts_chunk$set(
 
 
 ## Overview
-<strong>Makurhini</strong> *(Connect in Purépecha language)* is an R package for calculating fragmentation and landscape connectivity indices used in conservation planning. Makurhini provides a set of functions to identify connectivity of protected areas networks and the importance of landscape elements for maintaning connectivity. This package allows the evaluation of scenarios under landscape connectivity changes and presents an additional improvement, the inclusion of landscape heterogeneity as a constraining factor for connectivity.
+<strong>Makurhini</strong> *(Connect in Purépecha language)* is an R package for calculating fragmentation and landscape connectivity indices used in conservation planning. Makurhini provides a set of functions to identify connectivity of protected areas networks and the importance of landscape elements for maintaining connectivity. This package allows the evaluation of scenarios under landscape connectivity changes and presents an additional improvement, the inclusion of landscape heterogeneity as a constraining factor for connectivity.
 
 The network connectivity indices calculated in Makurhini package have been previously published (e.g., Pascual-Hortal & Saura, 2006. *Landscape ecology*, https://doi.org/10.1007/s10980-006-0013-z; Saura & Pascual-Hortal, 2007. *Lanscape and urban planning*, https://doi.org/10.1016/j.landurbplan.2007.03.005; Saura & Rubio, 2010. *Ecography*, https://doi.org/10.1111/j.1600-0587.2009.05760.x; Saura et al., 2011. *Ecological indicators*, https://doi.org/10.1016/j.ecolind.2010.06.011; Saura et al., 2017. *Ecological indicators*, http://dx.doi.org/10.1016/j.ecolind.2016.12.047; Saura et al., 2018. *Biological conservation*, https://doi.org/10.1016/j.biocon.2017.12.020), and it allows the integration of efficient and useful workflow for landscape management and monitoring of global conservation targets.
 
@@ -45,7 +46,7 @@ In case it does not appear in the list of packages, close the R session and reop
 
 ## Summary of main *Makurhini* functions
 
-```{r message=FALSE, warning=FALSE, echo=FALSE}
+```{r echo=FALSE}
 library(formattable)
 functions_MK <- data.frame(Function = c("MK_Fragmentation", "distancefile", "MK_RMCentrality", "MK_dPCIIC", "MK_dECA", "MK_ProtConn", "MK_ProtConnMult", "MK_Connect_grid", "test_metric_distance"), Purpose = c("Calculate patch and landscape statistics (e.g., mean size patches, edge density, core area percent, shape index, fractal dimension index, effective mesh size).", "Get a table or matrix with the distances between pairs of nodes. Two Euclidean distances ('centroid' and 'edge') and two cost distances that consider the landscape heterogeneity ('least-cost' and 'commute-time, this last is analogous to the resistance distance of circuitscape, see ’gdistance’ package).", "Estimate centrality measures under one or several dispersal distances (e.g., betweenness centrality, node memberships, modularity). It uses the 'distancefile ()' to calculate the distances of the nodes so they can be calculated using Euclidean or cost distances that consider the landscape heterogeneity.", "Calculate the integral index of connectivity (IIC) and probability of connectivity (PC) indices under one or several dispersal distances. It computes overall and index fractions (dPC or dIIC, intra, flux and connector) and the effect of restauration in the landscape connectivity when adding new nodes (restoration scenarios). It uses the 'distancefile()'.", "Estimate the Equivalent Connected Area (ECA) and compare the relative change in ECA (dECA) between time periods using one or several dispersal distances. It uses the 'distancefile()'.", "Estimate the Protected Connected (ProtConn) indicator and fractions for one region using one or several dispersal distances and transboundary buffer areas (e.g., ProtConn, ProtUnconn, RelConn, ProtConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within], ProtConn[Contig], ProtConn[Trans], ProtConn[Unprot]). It uses the 'distancefile()", "Estimate the ProtConn indicator and fractions for multiple regions. It uses the 'distancefile()'.", "Compute the ProtConn indicator and fractions, PC or IIC overall connectivity metrics (ECA) in a regular grid. It uses the 'distancefile()'.", "Compare ECA or ProtConn connectivity metrics using one or up to four types of distances, computed in the 'distancefile()' function, and multiple dispersion distances."))
 
@@ -65,7 +66,7 @@ This is a basic example which shows you how to solve some common problems:
 
 ### Protected Connected Land (ProtConn)
 
-```{r message=FALSE, warning=FALSE, echo=FALSE}
+```{r echo=FALSE}
 library(Makurhini)
 library(raster)
 library(rgeos)
@@ -77,7 +78,7 @@ library(classInt)
 
 En el siguiente ejemplo, calcularemos el índicador ProtConn y sus fracciones para cuatro ecorregiones del amazonas colombiano y áreas protegidas de Colombia y de los paises vecinos en un buffer de 50 km.
 
-```{r message=FALSE, warning=FALSE, echo=FALSE}
+```{r echo=FALSE}
 ecoregions <- read_sf("D:/Paper_Makurhini/Ejemplos/Ecoregiones_Colombia_amazonas.shp")
 Protected_areas <- read_sf("D:/Paper_Makurhini/Ejemplos/PAs_Colombia_amazonas.shp")
 ```
@@ -86,7 +87,7 @@ Protected_areas <- read_sf("D:/Paper_Makurhini/Ejemplos/PAs_Colombia_amazonas.sh
 
 
 
-```{r message=FALSE, warning=FALSE}
+```{r }
 test_protconn <- MK_ProtConnMult(nodes = Protected_areas, region = ecoregions,
                     attribute = "Intersected area", area_unit = "ha",
                     distance = list(type= "centroid"),
@@ -102,14 +103,14 @@ test_protconn[[1]][[1]]
 
 Example in the Biosphere Reserve Mariposa Monarca, Mexico, with old-growth vegetation fragments of four times (?list_forest_patches).
 
-```{r message=FALSE, warning=FALSE}
+```{r polygons}
 data("list_forest_patches", package = "Makurhini")
 data("study_area", package = "Makurhini")
 
 Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
 ```
 
-```{r message=FALSE, warning=FALSE}
+```{r }
 dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
                   distance = list(type= "centroid"), metric = "PC",
                   probability = 0.05, distance_thresholds = 5000,
@@ -127,7 +128,7 @@ Another way to analyze the ECA (and ProtConn indicator) is by using the *'MK_Con
 
 Example with 142 old-growth vegetation fragments in southeast Mexico (?vegetation_patches).
 
-```{r message=FALSE, warning=FALSE}
+```{r }
 data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) # Number of patches
 
@@ -137,7 +138,7 @@ IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
 head(IIC)
 ```
 
-```{r message=FALSE, warning=FALSE, echo=FALSE, out.width = "100%"}
+```{r echo=FALSE, out.width = "100%"}
 library(classInt)
 tmap_mode("plot")
 c <-9
@@ -158,7 +159,7 @@ tmap_arrange(diic, dintra, dflux, dconect)
 
 ###  Probability of connectivity (PC) and fractions (Intra, Flux and Connector)
 
-```{r message=FALSE, warning=FALSE}
+```{r }
 PC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
                 distance = list(type = "centroid"),
                 metric = "PC", probability = 0.05,
@@ -166,7 +167,7 @@ PC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
 head(PC)
 ```
 
-```{r message=FALSE, warning=FALSE, echo=FALSE, out.width = "100%"}
+```{r echo=FALSE, out.width = "100%"}
 dpc <- tm_shape(PC) + tm_fill("dPC", palette = RColorBrewer::brewer.pal(c, "RdYlGn"),
                             breaks =  classIntervals(PC$dPC, c, "jenks")[[2]])+ 
   tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
@@ -188,7 +189,7 @@ tmap_arrange(diic, dintra, dflux, dconect)
 
 ###  Centrality measures
 
-```{r message=FALSE, warning=FALSE}
+```{r }
 centrality_test <- MK_RMCentrality(nodes = vegetation_patches,
                                 distance = list(type = "centroid"),
                                  distance_thresholds = 10000,
@@ -201,7 +202,7 @@ head(centrality_test)
 Examples:
 
 
-```{r message=FALSE, warning=FALSE, echo=FALSE, out.width = "100%"}
+```{r echo=FALSE, out.width = "100%"}
 clustertest <- tm_shape(centrality_test) + tm_fill("cluster", palette = RColorBrewer::brewer.pal(c, "PuOr"), breaks =  classIntervals(centrality_test$cluster, c, "jenks")[[2]])+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
 
 modules <- tm_shape(centrality_test) + tm_fill("modules", palette = RColorBrewer::brewer.pal(c, "PuOr"), breaks =  classIntervals(centrality_test$modules, c, "jenks")[[2]])+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)

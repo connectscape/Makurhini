@@ -10,7 +10,7 @@ r:
 sudo: required
 dist: trusty
 
-cache: 
+cache:
   - packages
   - ccache
 warnings_are_errors: true
@@ -20,7 +20,6 @@ latex: false
 r_github_packages:
   - r-spatial/stars
   - r-spatial/mapview@develop
-
 #  - r-dbi/DBI
 #  - r-dbi/RPostgres
 #  - r-lib/covr
@@ -34,7 +33,7 @@ addons:
     - sourceline: 'ppa:opencpu/jq'
     - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
     - sourceline: 'deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main'
-      key_url: 'https://www.postgresql.org/media/keys/ACCC4CF8.asc'  
+      key_url: 'https://www.postgresql.org/media/keys/ACCC4CF8.asc'
     packages:
     - libproj-dev
     - libgeos-dev
@@ -43,14 +42,16 @@ addons:
     - devscripts # checkbashisms
     - libprotobuf-dev
     - protobuf-compiler
-    - libv8-3.14-dev
     - libjq-dev
     - libudunits2-dev
     - libspatialite-dev
     - libjson-c-dev
     - netcdf-bin
+    - libnode-dev
+    # - libv8-dev
     # - postgresql-server-dev-9.6
     # - postgis
+    # - libv8-3.14-dev
 
 before_install:
   # install postgis from source, to avoid dependency conflict with GDAL >= 2.0:
@@ -70,7 +71,7 @@ before_install:
   #- psql -d empty -c "CREATE EXTENSION postgis;"
   - R -e 'install.packages("rgdal", repos="http://R-Forge.R-project.org")'
   - R -q -e 'install.packages("remotes"); remotes::install_github("ropenscilabs/tic"); tic::prepare_all_stages()'
-  
+
 after_success:
   #- dropdb postgis
   #- dropdb empty

@@ -1,0 +1,8 @@
+pandoc: 2.7.1
+pkgdown: 1.5.1
+pkgdown_sha: ~
+articles:
+  Fragmentation_statistics: Fragmentation_statistics.html
+  ProtConnIndicator: ProtConnIndicator.html
+last_built: 2020-04-27T20:26Z
+

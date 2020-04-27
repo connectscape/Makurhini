@@ -100,8 +100,7 @@ test_protconn[[1]][[1]]
 
 
 ProtConn value:
-
-![](man/figures/Example_Protconn.png)
+![](man/figures/protconn.png)
 
 ###  Equivalent Connectivity Area (ECA)
 

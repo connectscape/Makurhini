@@ -76,3 +76,36 @@ v Writing 'appveyor.yml'
   [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/connectscape/Makurhini?branch=master&svg=true)](https://ci.appveyor.com/project/connectscape/Makurhini)
   <!-- badges: end -->
   [Copied to clipboard]
+v Adding 'docs/' to '.gitignore'
+* Set up deploy keys by running `travis::use_travis_deploy()`
+* Insert the following code in '.travis.yml'
+  before_cache: Rscript -e 'remotes::install_cran("pkgdown")'
+  deploy:
+    provider: script
+    script: Rscript -e 'pkgdown::deploy_site_github()'
+    skip_cleanup: true
+  [Copied to clipboard]
+v Initializing empty gh-pages branch
+v Writing '.travis.yml'
+* Turn on travis for your repo at https://travis-ci.com/profile/connectscape
+* Copy and paste the following lines into 'C:/Users/oscja/Desktop/Nuevos_paquetes/Makurhini/README.Rmd':
+  <!-- badges: start -->
+  [![Travis build status](https://travis-ci.com/connectscape/Makurhini.svg?branch=master)](https://travis-ci.com/connectscape/Makurhini)
+  <!-- badges: end -->
+  [Copied to clipboard]
+* Set up deploy keys by running `travis::use_travis_deploy()`
+* Insert the following code in '.travis.yml'
+  before_cache: Rscript -e 'remotes::install_cran("pkgdown")'
+  deploy:
+    provider: script
+    script: Rscript -e 'pkgdown::deploy_site_github()'
+    skip_cleanup: true
+  [Copied to clipboard]
+v Initializing empty gh-pages branch
+v Writing '.travis.yml'
+* Turn on travis for your repo at https://travis-ci.com/profile/connectscape
+* Copy and paste the following lines into 'C:/Users/oscja/Desktop/Nuevos_paquetes/Makurhini/README.Rmd':
+  <!-- badges: start -->
+  [![Travis build status](https://travis-ci.com/connectscape/Makurhini.svg?branch=master)](https://travis-ci.com/connectscape/Makurhini)
+  <!-- badges: end -->
+  [Copied to clipboard]

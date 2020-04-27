@@ -83,6 +83,7 @@ ecoregions <- read_sf("D:/Paper_Makurhini/Ejemplos/Ecoregiones_Colombia_amazonas
 Protected_areas <- read_sf("D:/Paper_Makurhini/Ejemplos/PAs_Colombia_amazonas.shp")
 ```
 
+
 ![](man/figures/Example_PA_Eco.png)
 
 
@@ -96,6 +97,8 @@ test_protconn <- MK_ProtConnMult(nodes = Protected_areas, region = ecoregions,
                     plot = TRUE, CI = NULL, parallel = TRUE, intern = FALSE)
 test_protconn[[1]][[1]]
 ```
+
+
 
 ![](man/figures/Example_Protconn.png)
 

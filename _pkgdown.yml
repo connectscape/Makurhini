@@ -62,3 +62,17 @@
 |-Reading 'vignettes/ProtConnIndicator.Rmd'
 |-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|== DONE ====================================================================================-
 |- -- Previewing site -------------------------------------------------------------
+v Writing 'appveyor.yml'
+* Turn on AppVeyor for this repo at https://ci.appveyor.com/projects/new
+* Copy and paste the following lines into 'C:/Users/oscja/Desktop/Nuevos_paquetes/Makurhini/README.Rmd':
+  <!-- badges: start -->
+  [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/connectscape/Makurhini?branch=master&svg=true)](https://ci.appveyor.com/project/connectscape/Makurhini)
+  <!-- badges: end -->
+  [Copied to clipboard]
+v Writing 'appveyor.yml'
+* Turn on AppVeyor for this repo at https://ci.appveyor.com/projects/new
+* Copy and paste the following lines into 'C:/Users/oscja/Desktop/Nuevos_paquetes/Makurhini/README.Rmd':
+  <!-- badges: start -->
+  [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/connectscape/Makurhini?branch=master&svg=true)](https://ci.appveyor.com/project/connectscape/Makurhini)
+  <!-- badges: end -->
+  [Copied to clipboard]

@@ -40,7 +40,7 @@ You can install the released version of Makurhini from [GitHub](https://github.c
 ``` r
 library(devtools)
 library(remotes)
-install_github("OscarGOGO/Makurhini", dependencies = TRUE, upgrade = "never")
+install_github("connectscape/Makurhini", dependencies = TRUE, upgrade = "never")
 ```
 In case it does not appear in the list of packages, close the R session and reopen.
 

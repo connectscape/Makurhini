@@ -58,7 +58,7 @@ You can install the released version of Makurhini from
 ``` r
 library(devtools)
 library(remotes)
-install_github("OscarGOGO/Makurhini", dependencies = TRUE, upgrade = "never")
+install_github("connectscape/Makurhini", dependencies = TRUE, upgrade = "never")
 ```
 
 In case it does not appear in the list of packages, close the R session
@@ -1206,14 +1206,14 @@ head(centrality_test)
 #> bbox:           xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
 #> CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #> # A tibble: 6 x 8
-#>      id degree eigen   close   BWC cluster modules
-#>   <int>  <dbl> <dbl>   <dbl> <dbl>   <dbl>   <dbl>
-#> 1     1      0     0 4.99e-5     0       1       1
-#> 2     2      0     0 4.99e-5     0       2       2
-#> 3     3      1     0 5.03e-5     0       3       4
-#> 4     4      0     0 4.99e-5     0       4       3
-#> 5     5      1     0 5.03e-5     0       3       4
-#> 6     6      0     0 4.99e-5     0       5       5
+#>      id degree    eigen   close   BWC cluster modules
+#>   <int>  <dbl>    <dbl>   <dbl> <dbl>   <dbl>   <dbl>
+#> 1     1      0 2.30e-17 4.99e-5     0       1       1
+#> 2     2      0 2.30e-17 4.99e-5     0       2       2
+#> 3     3      1 0.       5.03e-5     0       3       4
+#> 4     4      0 2.30e-17 4.99e-5     0       4       3
+#> 5     5      1 0.       5.03e-5     0       3       4
+#> 6     6      0 2.30e-17 4.99e-5     0       5       5
 #> # ... with 1 more variable: geometry <POLYGON [m]>
 ```
 

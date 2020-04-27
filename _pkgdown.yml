@@ -1,0 +1,64 @@
+-- Installing package into temporary library -----------------------------------
+-|== Building pkgdown site ===================================================================-
+|Reading from: 'C:/Users/oscja/Desktop/Nuevos_paquetes/Makurhini'
+-Writing to:   'C:/Users/oscja/Desktop/Nuevos_paquetes/Makurhini/docs'
+|-- Initialising site ------------------------------------------------------------------------
+|--- Building home ---------------------------------------------------------------------------|
+-|Reading 'LICENSE.md'
+-|-|-|-|-|-|-|-|--- Building function reference -------------------------------------------------------------|
+-|Registered S3 method overwritten by 'xts':
+  method     from
+  as.zoo.xts zoo 
+-|-|-|-|-|-|Registered S3 method overwritten by 'crul':
+  method                 from
+  as.character.form_file httr
+-Registered S3 method overwritten by 'geojsonlint':
+  method         from 
+  print.location dplyr
+|-Reading 'man/close_multiprocess.Rd'
+|Reading 'man/cost_distances.Rd'
+-|Reading 'man/dECAfun.Rd'
+-Reading 'man/dECAfun2.Rd'
+|Reading 'man/distancefile.Rd'
+-Reading 'man/div.Rd'
+|Reading 'man/EstConefor.Rd'
+-Reading 'man/euclidean_distances.Rd'
+|Reading 'man/EXTraster.Rd'
+-Reading 'man/list_forest_patches.Rd'
+|Reading 'man/make_grid.Rd'
+-Reading 'man/merge_conefor.Rd'
+|Reading 'man/MK_BCentrality.Rd'
+-|Reading 'man/MK_Connect_grid.Rd'
+-|-|-|-|-|-|-Reading 'man/MK_dECA.Rd'
+|-|-|-|-|-|-|-|Reading 'man/MK_dPCIIC.Rd'
+-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-Writing 'reference/MK_dPCIIC.html'
+|Reading 'man/MK_Fragmentation.Rd'
+-|-|-|-|-|-|-|-|-|-|-|Reading 'man/MK_HQuality.Rd'
+-Reading 'man/MK_ProtConn.Rd'
+|Reading 'man/MK_ProtConnMult.Rd'
+-|Reading 'man/MK_RMCentrality.Rd'
+-|-|-|-|-|Writing 'reference/MK_RMCentrality.html'
+-Reading 'man/MK_selectbyloc.Rd'
+|Reading 'man/moveme.Rd'
+-Reading 'man/mult.Rd'
+|Reading 'man/nodesfile.Rd'
+-Reading 'man/num_vert.Rd'
+|Reading 'man/over_poly.Rd'
+-Reading 'man/PIntercsect.Rd'
+|Reading 'man/pol_dissolve.Rd'
+-Reading 'man/probability_distance.Rd'
+|Reading 'man/ProtConnStat.Rd'
+-Reading 'man/Protected_areas.Rd'
+|Reading 'man/raster_vegetation_patches.Rd'
+-Reading 'man/regions.Rd'
+|Reading 'man/study_area.Rd'
+-Reading 'man/st_centroid_within_poly.Rd'
+|Reading 'man/test_metric_distance.Rd'
+-Reading 'man/unit_convert.Rd'
+|Reading 'man/vegetation_patches.Rd'
+--- Building articles -----------------------------------------------------------------------|
+-Reading 'vignettes/Fragmentation_statistics.Rmd'
+|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-Writing 'articles/Fragmentation_statistics.html'
+|-Reading 'vignettes/ProtConnIndicator.Rmd'
+|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|== DONE ====================================================================================-
+|- -- Previewing site -------------------------------------------------------------

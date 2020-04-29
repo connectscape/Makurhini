@@ -131,8 +131,9 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
     st_buffer(., dist = 0) %>% st_cast("POLYGON")
 
   nodes <- st_as_sf(nodes) %>% st_zm() %>%
-    st_buffer(., dist = 0) %>% st_cast("POLYGON")
+    st_buffer(., dist = 0)
 
+  # write_sf(nodes, "C:/Users/oscja/Desktop/Nuevos_paquetes/data-raw/nodes_base.shp", delete_layer = T)
   #1 First selection to reduce the extent of work and dissolve polygones
   select_distance <- max(c(transboundary, distance_thresholds)) * 2
 
@@ -151,7 +152,7 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
     region_1 <- st_buffer(x = region, dist = select_distance)
   }
 
-  select_PA <- tryCatch(over_poly(x = nodes, y = region_1), error = function(err)err)
+select_PA <- tryCatch(over_poly(x = nodes, y = region_1), error = function(err)err)
 
   if (inherits(select_PA, "error")){
     nodes <- st_buffer(x = nodes, dist = 0)
@@ -180,6 +181,7 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
         region_2 <- region_2["rmapshaperid"]
       }
 
+
       nodes.2 <- MK_selectbyloc(target = nodes.1, sourcelyr = region_2,
                                 selreg = "M2", thintersect = thintersect,
                                 area_unit = area_unit,
@@ -202,16 +204,15 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
         nodes.2 <- nodes.2[nodes.2$transboundary == 1,]
       }
 
+
       if(nrow(nodes.2) > 0){
         if(!is.null(x) & attribute == "Intersected area"){
-          nodes.2t1 <- st_intersection(nodes.2[nodes.2$transboundary==1,], region_2) %>%
-            st_cast("POLYGON")
+          nodes.2t1 <- st_intersection(nodes.2[nodes.2$transboundary==1,], region_2)
 
           nodes.2t1$rmapshaperid <- NULL
           nodes.2t1$TempID <- NULL
           nodes.2t1$Area2 <- unit_convert(as.numeric(st_area(nodes.2t1)), "m2", area_unit)
-          nodes.2t2 <- st_difference(nodes.2[nodes.2$transboundary==1,], region_2) %>%
-            st_cast("POLYGON")
+          nodes.2t2 <- st_difference(nodes.2[nodes.2$transboundary==1,], region_2)
 
           if(nrow(nodes.2t2) > 0){
             nodes.2t2$rmapshaperid <- NULL
@@ -222,7 +223,6 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
           }
         }
       }
-
       area2_sort <- sort(x = nodes.2[nodes.2$transboundary == 1,]$Area2, decreasing = T)
     } else if (nrow(nodes.1) == 1){
       if(nrow(nodes.1) == 1){
@@ -464,8 +464,8 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
               nodes.3 <- nodes.1[!is.na(TopologError),]
 
               if (inherits(TopologError, "error")){
-                nodes.1 <- st_buffer(nodes.1, dist = 0) %>% st_cast("POLYGON")
-                nodes.2 <- st_buffer(nodes.2, dist = 0) %>% st_cast("POLYGON")
+                nodes.1 <- st_buffer(nodes.1, dist = 0)
+                nodes.2 <- st_buffer(nodes.2, dist = 0)
                 TopologError <- tryCatch(over_poly(nodes.1, nodes.2), error = function(err)err)
                 nodes.3 <- nodes.1[!is.na(TopologError),]
               }
@@ -524,8 +524,8 @@ MK_ProtConn <- function(nodes, region, thintersect = NULL,
               nodes.3 <- nodes.1[!is.na(TopologError),]
 
               if (inherits(TopologError, "error")){
-                nodes.1 <- st_buffer(nodes.1, dist = 0) %>% st_cast("POLYGON")
-                nodes.2 <- st_buffer(nodes.2, dist = 0) %>% st_cast("POLYGON")
+                nodes.1 <- st_buffer(nodes.1, dist = 0)
+                nodes.2 <- st_buffer(nodes.2, dist = 0)
                 TopologError <- tryCatch(over_poly(nodes.1, nodes.2), error = function(err)err)
                 nodes.3 <- nodes.1[!is.na(TopologError),]
               }

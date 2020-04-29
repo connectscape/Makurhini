@@ -301,15 +301,17 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
     DataProtconn_2[c(2:ncol(DataProtconn_2))] <- round(DataProtconn_2[c(2:ncol(DataProtconn_2))], 3)
 
     if(!is.null(write)){
-      write.csv(DataProtconn, paste0(write, "SummaryStats_", distance_thresholds[i], ".csv"))
+      write.csv(DataProtconn_2, paste0(write, "SummaryStats_", distance_thresholds[i], ".csv"), row.names = F)
     }
 
     if(ncol(DataProtconn_2) > 2){
+      row.names(DataProtconn_2) <- NULL
       DataProtconn <- formattable(DataProtconn_2[3:nrow(DataProtconn_2),], align = c("l", rep("r", NCOL(DataProtconn_2) - 1)),
                                   list(`ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
                                        `Values(%)` = color_tile("white", "#F88B13"),
                                        area(col = 3:4) ~ color_tile("white", "#CE5D9B")))
     } else {
+      row.names(DataProtconn_2) <- NULL
       DataProtconn <- formattable(DataProtconn_2[3:nrow(DataProtconn_2),], align = c("l", rep("r", NCOL(DataProtconn_2) - 1)),
                                   list(`ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
                                        `Values(%)` = color_tile("white", "#F88B13")))

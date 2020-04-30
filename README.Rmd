@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 The network connectivity indices calculated in Makurhini package have been previously published (e.g., Pascual-Hortal & Saura, 2006. *Landscape ecology*, https://doi.org/10.1007/s10980-006-0013-z; Saura & Pascual-Hortal, 2007. *Lanscape and urban planning*, https://doi.org/10.1016/j.landurbplan.2007.03.005; Saura & Rubio, 2010. *Ecography*, https://doi.org/10.1111/j.1600-0587.2009.05760.x; Saura et al., 2011. *Ecological indicators*, https://doi.org/10.1016/j.ecolind.2010.06.011; Saura et al., 2017. *Ecological indicators*, http://dx.doi.org/10.1016/j.ecolind.2016.12.047; Saura et al., 2018. *Biological conservation*, https://doi.org/10.1016/j.biocon.2017.12.020), and it allows the integration of efficient and useful workflow for landscape management and monitoring of global conservation targets.
 
 ### Citing Makurhini package
-A formal paper detailing this packe is forthcoming, but until it is published, please use the something like the following to cite if you use it in your work:
+A formal paper detailing this package is forthcoming, but until it is published, please use the something like the following to cite if you use it in your work:
 
 <code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: Analyzing landscape connectivity. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3771605.svg)](https://doi.org/10.5281/zenodo.3771605) </code> </i>
 
@@ -75,7 +75,7 @@ library(mapview)
 library(classInt)
 ```
 
-En el siguiente ejemplo, calcularemos el índicador ProtConn y sus fracciones para cuatro ecorregiones del amazonas colombiano y áreas protegidas de Colombia y de los paises vecinos en un buffer de 50 km.
+In the following example, we will calculate the connectivity of the protected areas network in four ecoregions of the Colombian Amazon  neighboring countries using the ProtConn indicator and its fractions. We considered a transboundary distance of 50 km.
 
 ```{r echo=FALSE}
 ecoregions <- read_sf("D:/Paper_Makurhini/Ejemplos/Ecoregiones_Colombia_amazonas.shp")

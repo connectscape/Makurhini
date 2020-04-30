@@ -36,7 +36,7 @@ and monitoring of global conservation targets.
 
 ### Citing Makurhini package
 
-A formal paper detailing this packe is forthcoming, but until it is
+A formal paper detailing this package is forthcoming, but until it is
 published, please use the something like the following to cite if you
 use it in your work:
 
@@ -281,9 +281,10 @@ problems:
 
 ### Protected Connected Land (ProtConn)
 
-En el siguiente ejemplo, calcularemos el índicador ProtConn y sus
-fracciones para cuatro ecorregiones del amazonas colombiano y áreas
-protegidas de Colombia y de los paises vecinos en un buffer de 50 km.
+In the following example, we will calculate the connectivity of the
+protected areas network in four ecoregions of the Colombian Amazon
+neighboring countries using the ProtConn indicator and its fractions. We
+considered a transboundary distance of 50 km.
 
 ![](man/figures/Example_PA_Eco.png)
 
@@ -353,19 +354,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f99e3b">82.720</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f9a64b">76.109</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #eab9d4">10.256</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #edc4da">9.768</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f5e0eb">4.587</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e4ee">4.368</span>
 
 </td>
 
@@ -387,19 +388,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdead6">17.280</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fde3c6">23.891</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #eab9d4">10.256</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #edc4da">9.768</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f5e0eb">4.587</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e4ee">4.368</span>
 
 </td>
 
@@ -421,19 +422,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #feefe0">13.027</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdebd6">16.972</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ecc0d8">9.205</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f3d7e6">6.613</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e3ed">4.117</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f9edf4">2.958</span>
 
 </td>
 
@@ -455,19 +456,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefaf4">4.253</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef6ee">6.919</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f4ddea">4.955</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #efcce0">8.371</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf0f5">2.216</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f8e8f1">3.744</span>
 
 </td>
 
@@ -489,19 +490,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f9a345">78.609</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f9a549">76.821</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ce5d9b">24.007</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ce5d9b">27.033</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e9b6d2">10.736</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e9b6d2">12.090</span>
 
 </td>
 
@@ -523,19 +524,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefbf6">3.432</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef8f0">5.956</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f5deea">4.829</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f0cee0">8.170</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf0f6">2.160</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f8e9f1">3.654</span>
 
 </td>
 
@@ -557,19 +558,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #feeede">13.848</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdead4">17.935</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ecc1d9">9.061</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f3d8e7">6.351</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e3ee">4.052</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f9edf4">2.840</span>
 
 </td>
 
@@ -591,19 +592,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88b13">99.916</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88b13">99.935</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfe">0.189</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.144</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.084</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.065</span>
 
 </td>
 
@@ -659,19 +660,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.084</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.065</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfe">0.189</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.144</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.084</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.065</span>
 
 </td>
 
@@ -693,19 +694,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88c16">98.292</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f8901e">94.982</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6ef">3.688</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ebbdd6">10.916</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fbf3f8">1.649</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e1ec">4.882</span>
 
 </td>
 
@@ -727,19 +728,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfa">1.708</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef9f3">5.018</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6ef">3.688</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ebbdd6">10.916</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fbf3f8">1.649</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e1ec">4.882</span>
 
 </td>
 
@@ -761,19 +762,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdeedd">14.371</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdead6">17.279</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #eec9dd">7.953</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f4dbe9">5.894</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6f0">3.557</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faeff5">2.636</span>
 
 </td>
 
@@ -795,19 +796,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.219</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfc">0.898</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefbfd">0.463</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fbf3f7">1.936</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfe">0.207</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdf9fb">0.866</span>
 
 </td>
 
@@ -829,19 +830,19 @@ SEM
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.006</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.007</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.014</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.015</span>
 
 </td>
 
 <td style="text-align:right;">
 
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.006</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.007</span>
 
 </td>
 
@@ -1206,14 +1207,14 @@ head(centrality_test)
 #> bbox:           xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
 #> CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #> # A tibble: 6 x 8
-#>      id degree eigen   close   BWC cluster modules
-#>   <int>  <dbl> <dbl>   <dbl> <dbl>   <dbl>   <dbl>
-#> 1     1      0     0 4.99e-5     0       1       1
-#> 2     2      0     0 4.99e-5     0       2       2
-#> 3     3      1     0 5.03e-5     0       3       4
-#> 4     4      0     0 4.99e-5     0       4       3
-#> 5     5      1     0 5.03e-5     0       3       4
-#> 6     6      0     0 4.99e-5     0       5       5
+#>      id degree    eigen   close   BWC cluster modules
+#>   <int>  <dbl>    <dbl>   <dbl> <dbl>   <dbl>   <dbl>
+#> 1     1      0 4.60e-17 4.99e-5     0       1       1
+#> 2     2      0 4.60e-17 4.99e-5     0       2       2
+#> 3     3      1 2.07e-16 5.03e-5     0       3       4
+#> 4     4      0 4.60e-17 4.99e-5     0       4       3
+#> 5     5      1 2.30e-16 5.03e-5     0       3       4
+#> 6     6      0 4.60e-17 4.99e-5     0       5       5
 #> # ... with 1 more variable: geometry <POLYGON [m]>
 ```
 

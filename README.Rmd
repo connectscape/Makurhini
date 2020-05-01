@@ -11,7 +11,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "70%",
+  out.width = "60%",
   message=FALSE, warning=FALSE
 )
 ```
@@ -123,11 +123,16 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
 dECA_test
 ```
 
-* ECA table:
+
+ECA table:
 
 ![](man/figures/table_eca.png)
 
-* ECA plot:
+
+
+
+
+ECA plot:
 
 ![](man/figures/ECAplot.png)
 

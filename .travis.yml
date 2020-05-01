@@ -18,6 +18,7 @@ latex: false
 r_github_packages:
   - r-spatial/stars
   - r-spatial/mapview@develop
+  - jimhester/covr
 
 addons:
   apt:
@@ -40,15 +41,27 @@ addons:
     - libjson-c-dev
     - netcdf-bin
     - libv8-dev
+    - jsonlite
+    - devtools
 
 before_install:
    - R -e 'install.packages("rgdal", repos="http://R-Forge.R-project.org")'
    - R -q -e 'install.packages("remotes"); remotes::install_github("ropenscilabs/tic"); tic::prepare_all_stages()'
+   - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable --yes
+   - sudo add-apt-repository -y ppa:opencpu/jq
+   - sudo add-apt-repository -y ppa:cran/v8
+   - sudo apt-get --yes --force-yes update -qq
+   - sudo apt-get install --yes libprotobuf-dev protobuf-compiler libnode-dev libjq-dev
+   - sudo apt-get install --yes libudunits2-dev libproj-dev libgeos-dev libgdal-dev
+   - . $HOME/.nvm/nvm.sh
+   - nvm install stable
+   - nvm use stable
+   - npm install -g mapshaper
 install: R -q -e 'tic::install()'
 script: R -q -e 'tic::script()'
 
 after_success:
-  - R -q -e 'covr::codecov(quiet = FALSE)'
+  - R -e 'covr::codecov()'
 
 before_deploy: R -q -e 'tic::before_deploy()'
 deploy:
@@ -61,7 +74,10 @@ deploy:
        - $TRAVIS_EVENT_TYPE != cron
        - $TRAVIS_R_VERSION_STRING = release
 
-
+matrix:
+  allow_failures:
+    - r: devel
+    
 deploy.skip_cleanup: true
 
 

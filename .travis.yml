@@ -20,6 +20,10 @@ r_github_packages:
   - r-spatial/mapview@develop
   - jimhester/covr
 
+r_packages:
+  - jsonlite
+  - devtools
+  
 addons:
   apt:
     sources:
@@ -41,8 +45,6 @@ addons:
     - libjson-c-dev
     - netcdf-bin
     - libv8-dev
-    - jsonlite
-    - devtools
 
 before_install:
    - R -e 'install.packages("rgdal", repos="http://R-Forge.R-project.org")'

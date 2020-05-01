@@ -323,8 +323,7 @@ dECA_test
 ```
 
 ECA table:
-
-![](man/figures/table_eca.png)
+![](man/figures/table_eca.PNG)
 
 ECA plot:
 

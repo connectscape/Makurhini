@@ -87,7 +87,7 @@ Protected_areas <- read_sf("D:/Paper_Makurhini/Ejemplos/PAs_Colombia_amazonas.sh
 
 
 
-```{r }
+```{r eval = FALSE}
 test_protconn <- MK_ProtConnMult(nodes = Protected_areas, region = ecoregions,
                     attribute = "Intersected area", area_unit = "ha",
                     distance = list(type= "centroid"),
@@ -96,6 +96,9 @@ test_protconn <- MK_ProtConnMult(nodes = Protected_areas, region = ecoregions,
                     plot = TRUE, CI = NULL, parallel = TRUE, intern = FALSE)
 test_protconn[[1]][[1]]
 ```
+
+![](man/figures/table_protconn.png)
+
 
 
 ProtConn value:
@@ -112,7 +115,7 @@ data("study_area", package = "Makurhini")
 Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
 ```
 
-```{r }
+```{r eval=FALSE}
 dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
                   distance = list(type= "centroid"), metric = "PC",
                   probability = 0.05, distance_thresholds = 5000,
@@ -120,6 +123,9 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
 dECA_test
 ```
 
+![](man/figures/table_eca.png)
+
+![](man/figures/ECAplot.png)
 
 Another way to analyze the ECA (and ProtConn indicator) is by using the *'MK_Connect_grid()'* that estimates the index values on a grid. An example of its application is the following, on the Andean-Amazon Piedmont. The analysis was performed using a grid of hexagons each with an area of 10,000 ha and a forest/non-forest map to measure changes in Andean-Amazon connectivity.
 

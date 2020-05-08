@@ -1,85 +1,43 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: R
-cache: packages
-
 r:
   - release
   - oldrel
   - devel
 
-sudo: required
-dist: trusty
-
-warnings_are_errors: true
-
 latex: false
-
-r_github_packages:
-  - r-spatial/stars
-  - r-spatial/mapview@develop
-  - jimhester/covr
-
-r_packages:
-  - jsonlite
-  - devtools
-  
+pandoc_version: 2.9.2.1
 addons:
   apt:
     sources:
-    - sourceline: 'ppa:opencpu/jq'
-    - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
-    - sourceline: 'deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main'
-      key_url: 'https://www.postgresql.org/media/keys/ACCC4CF8.asc'
+      - sourceline: 'ppa:opencpu/jq'
+      - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
+      - sourceline: 'deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main'
+        key_url: 'https://www.postgresql.org/media/keys/ACCC4CF8.asc'
     packages:
-    - libproj-dev
-    - libgeos-dev
-    - libgdal-dev
-    - libnetcdf-dev
-    - devscripts
-    - libprotobuf-dev
-    - protobuf-compiler
-    - libjq-dev
-    - libudunits2-dev
-    - libspatialite-dev
-    - libjson-c-dev
-    - netcdf-bin
-    - libv8-dev
+      - devscripts 
+      - libprotobuf-dev
+      - protobuf-compiler
+      - libv8-3.14-dev
+      - libjq-dev
+      - libudunits2-dev
+      - libproj-dev
+      - libgeos-dev
+      - libspatialite-dev
+      - libgdal-dev
+      - libjson-c-dev
+      - libnetcdf-dev
+      - netcdf-bin
+      
+ repos:
+  CRAN: https://cloud.r-project.org
+  ropensci: http://packages.ropensci.org
 
-before_install:
-   - R -e 'install.packages("rgdal", repos="http://R-Forge.R-project.org")'
-   - R -q -e 'install.packages("remotes"); remotes::install_github("ropenscilabs/tic"); tic::prepare_all_stages()'
-   - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable --yes
-   - sudo add-apt-repository -y ppa:opencpu/jq
-   - sudo add-apt-repository -y ppa:cran/v8
-   - sudo apt-get --yes --force-yes update -qq
-   - sudo apt-get install --yes libprotobuf-dev protobuf-compiler libnode-dev libjq-dev
-   - sudo apt-get install --yes libudunits2-dev libproj-dev libgeos-dev libgdal-dev
-   - . $HOME/.nvm/nvm.sh
-   - nvm install stable
-   - nvm use stable
-   - npm install -g mapshaper
-install: R -q -e 'tic::install()'
-script: R -q -e 'tic::script()'
+install:
+- R -e 'devtools::install_deps(dep = T)'
 
-after_success:
-  - R -e 'covr::codecov()'
-
-before_deploy: R -q -e 'tic::before_deploy()'
-deploy:
-   provider: script
-   script: R -q -e 'tic::deploy()'
-   on:
-     branch: master
-     condition:
-       - $TRAVIS_PULL_REQUEST = false
-       - $TRAVIS_EVENT_TYPE != cron
-       - $TRAVIS_R_VERSION_STRING = release
-
-matrix:
-  allow_failures:
-    - r: devel
-    
-deploy.skip_cleanup: true
-
+script:
+- R CMD build .
+- R CMD check *tar.gz
 

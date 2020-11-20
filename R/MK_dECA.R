@@ -348,4 +348,3 @@ MK_dECA <- function(nodes,
   }
   return(ECA3)
 }
-

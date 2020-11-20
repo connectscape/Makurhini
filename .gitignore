@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+.travis.yml
 inst/doc
 R/MK_ProtConn.R
 R/MK_dIICPC.R

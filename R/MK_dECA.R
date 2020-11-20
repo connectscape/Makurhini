@@ -225,7 +225,7 @@ MK_dECA <- function(nodes,
 
       DECA.2[,2:ncol(DECA.2)] <- round(DECA.2[,2:ncol(DECA.2)], 3)
 
-      DECA.3 <- plyr::ddply(DECA.2, .(scenary), dplyr::summarize,
+      DECA.3 <- ddply(DECA.2, .(scenary), dplyr::summarize,
                       Type_Change = dECAfun(.data$dECA, .data$dA))
       DECA.3$Type <- ddply(DECA.2, .(scenary), dplyr::summarize,
                            Type = dECAfun2(.data$dECA, .data$dA))[[2]]
@@ -251,6 +251,7 @@ MK_dECA <- function(nodes,
                                  `dECA` = formatter("span",style = ~ style(color = ifelse(`dECA` > 0, "green", "red")))))
       return(DECA.4)
     })
+
     #
     if (!is.null(write)){
       write.csv(do.call(rbind, ECA3), write, row.names = FALSE)

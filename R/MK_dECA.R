@@ -169,8 +169,6 @@ MK_dECA <- function(nodes,
         tab1 <- tab1[2,2]
         return(tab1)
       })
-
-      #ECA_metric2 <- do.call(rbind,  ECA_metric)
       ECA_metric2 <- cbind(ECA_metric, distance_thresholds)
       ECA_metric2 <- as.data.frame(ECA_metric2)
       names(ECA_metric2) <- c("ECA", "Distance")
@@ -191,7 +189,6 @@ MK_dECA <- function(nodes,
         tab1 <- tab1[2,2]
         return(tab1)
       })
-      #ECA_metric2 <- do.call(rbind,  ECA_metric)
       ECA_metric2 <- cbind(ECA_metric, distance_thresholds)
       ECA_metric2 <- as.data.frame(ECA_metric2)
       names(ECA_metric2) <- c("ECA", "Distance")
@@ -213,8 +210,8 @@ MK_dECA <- function(nodes,
     ECA3 <- map(ECA2, function(x){
       DECA.2 <- x
       AO <- LA
-      DECA.2$Normalized_ECA <- (DECA.2$ECA*100)/DECA.2$Area
-      AO.2 <- rbind(DECA.2[1:nrow(DECA.2), 2])
+      DECA.2$Normalized_ECA <- (DECA.2$ECA*100)/DECA.2$Area      
+      AO.2 <- DECA.2$Area
       ECA.2 <- cbind(DECA.2[1:nrow(DECA.2), 3])
       DECA.2$dA[1] <- (((DECA.2$Area[1] - AO)/AO) * 100)
       DECA.2$dA[2:nrow(DECA.2)] <- ((DECA.2$Area[2:nrow(DECA.2)] - AO.2)/AO.2) *100
@@ -222,7 +219,7 @@ MK_dECA <- function(nodes,
       DECA.2$dECA[1] <- (((DECA.2$ECA[1] - AO)/AO) * 100)
       DECA.2$dECA[2:nrow(DECA.2)] <- ((DECA.2$ECA[2:nrow(DECA.2)] - ECA.2)/ECA.2) * 100
 
-      DECA.2[,c(2:nrow(DECA.2),5:7)] <- round(DECA.2[,c(2:nrow(DECA.2),5:7)], 3)
+      DECA.2[,2:nrow(DECA.2)] <- round(DECA.2[,2:nrow(DECA.2)], 3)
 
       DECA.3 <- ddply(DECA.2, .(scenary), dplyr::summarize,
                       Type_Change = dECAfun(.data$dECA, .data$dA))

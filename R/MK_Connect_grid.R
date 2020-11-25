@@ -242,6 +242,7 @@ MK_Connect_grid <- function(nodes,
       } else {
         message("Step 3. Processing ProtConn metrics on the grid")
       }
+
       result_1 <- tryCatch(map_df(1:nrow(base_param4[[3]]@grid), function(x) {
         if (isTRUE(intern)) {
           pb$tick()$print()

@@ -145,6 +145,8 @@ MK_ProtConn <- function(nodes,
     } else {
       resist <- NULL
     }
+  } else {
+    resist <- NULL
   }
 
   if(is.null(LA)){
@@ -156,7 +158,7 @@ MK_ProtConn <- function(nodes,
   base_param3 <- list(base_param1, base_param2, nodes.1, resist, LA)
 
   #Tiene 2 o más nodos dentro de la region
-  if (isTRUE(intern)) {
+  if (isTRUE(intern) & length(base_param3[[2]]@transboundary)>1) {
     pb <- dplyr::progress_estimated(length(base_param3[[2]]@transboundary), 0)
     message("Step 2. Processing ProtConn metric. Progress estimated:")
   } else {
@@ -165,7 +167,7 @@ MK_ProtConn <- function(nodes,
 
   if (isFALSE(parallel)) {
     ProtConn_res <- tryCatch(purrr::map(base_param3[[2]]@transboundary, function(n){
-      if (isTRUE(intern)) {
+      if (isTRUE(intern) & length(base_param3[[2]]@transboundary)>1) {
         pb$tick()$print()
       }
       if(is.list(nodes.1)){

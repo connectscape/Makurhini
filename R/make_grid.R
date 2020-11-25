@@ -10,7 +10,7 @@
 #' @importFrom sf st_as_sf st_sf st_cast st_zm st_simplify st_buffer st_intersection st_area st_make_grid st_crop
 #' @importFrom magrittr %>%
 #' @importFrom methods as
-#' @importFrom raster extent projection raster
+#' @importFrom raster extent projection raster projection<-
 #' @importFrom rmapshaper ms_dissolve ms_clip
 #' @export
 make_grid <- function(x, hexagonal = TRUE, cell_area,

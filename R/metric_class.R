@@ -75,3 +75,4 @@ metric_class <- function(metric = NULL,
   return(metr.2)
 
 }
+

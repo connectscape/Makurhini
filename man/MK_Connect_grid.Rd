@@ -68,7 +68,7 @@ data("Protected_areas", package = "Makurhini")
 data("regions", package = "Makurhini")
 ecoregion <- regions[2,]
 plot(ecoregion, col="blue")
-
+#ProtConn
 hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
                                      region = ecoregion,
                                      area_unit = "ha",
@@ -84,6 +84,22 @@ hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
                                     parallel = FALSE)
 hexagons_priority
 plot(hexagons_priority["ProtConn"])
+
+#PC
+hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
+                                     region = ecoregion,
+                                     area_unit = "ha",
+                                     grid_param = list(grid_pol = NULL, hexagonal = TRUE,
+                                                       grid_id = NULL, cellsize = unit_convert(1000, "km2", "m2"),
+                                                       grid_boundary = FALSE, clip = FALSE, tolerance = NULL),
+                                    protconn = FALSE,
+                                    distance_threshold = 3000,
+                                    probability = 0.5,
+                                    distance = list(type = "centroid"),
+                                    intern = TRUE,
+                                    parallel = FALSE)
+hexagons_priority
+plot(hexagons_priority["PC"])
 }
 }
 \references{

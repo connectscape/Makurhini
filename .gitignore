@@ -4,8 +4,4 @@
 .Ruserdata
 .travis.yml
 inst/doc
-R/MK_ProtConn.R
-R/MK_dIICPC.R
-R/MK_Connect_grid.R
-R/st_centroid_within_poly.R
-R/test_distance.R
+vignettes

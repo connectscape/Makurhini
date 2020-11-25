@@ -8,19 +8,16 @@ MK_ProtConn(
   nodes,
   region,
   thintersect = NULL,
-  attribute = "Intersected area",
   area_unit = "ha",
-  res_attribute = 150,
   distance = list(type = "centroid", resistance = NULL),
   distance_thresholds,
   probability,
   transboundary = NULL,
+  protconn_bound = FALSE,
   LA = NULL,
-  keep = 1,
   plot = FALSE,
-  dPC = FALSE,
   write = NULL,
-  SAGA = FALSE,
+  parallel = FALSE,
   intern = TRUE
 )
 }
@@ -33,39 +30,31 @@ MK_ProtConn(
 Example, if thintersect is equal to 90 then a node will be selected only if the intersection between the node and
  the region is >= 90 percentage. If NULL, thintersect will be 0 (default)}
 
-\item{attribute}{character. Select the nodes attribute: "Intersected area" = Intersected Protected areas; or
-another specific column name with the nodes attribute, ideally this attribute mus be an area-weighted index,
- otherwise the interpretation of the protconn index may change.}
-
 \item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".}
 
-\item{res_attribute}{numeric. If the attribute is no equal to "Area" or "Intersected area" then nodes will be converted to raster to extract values in one  process step, you can set the raster resolution, default = 150.}
-
-\item{distance}{list. See distancefile(). E.g.: list(type= "centroid", resistance = NULL).}
+\item{distance}{list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).}
 
 \item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
 distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).}
 
-\item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection.
-If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).}
+\item{probability}{numeric. Probability of direct dispersal between nodes, Default, 0.5,
+ that is 50 percentage of probability connection. If probability = NULL, then it will be the inverse of the mean dispersal distance
+for the species (1/α; Hanski and Ovaskainen 2000).}
 
 \item{transboundary}{numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017. You can set one transboundary value or one per each threshold distance.}
 
 \item{LA}{numeric. Maximum Landscape Attribute.}
 
-\item{keep}{numeric. Simplification of the region's geometry to speed the select by location ("Makurhini::MK_selectbyloc").
-The value can range from 0 to 1 and is the proportion of points to retain (default 1). The lower the value,
- the higher the speed but the greater uncertainty.}
-
 \item{plot}{logical. Plot the main ProtConn indicators and fractions, default = FALSE.}
-
-\item{dPC}{logical. if TRUE dPC indexes are merged with the nodes shapefile, default = FALSE.}
 
 \item{write}{character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".}
 
-\item{SAGA}{Logical. Optimize the large process using SAGA GIS and RSAGA package (see, \url{https://github.com/r-spatial/RSAGA}).}
+\item{parallel}{logical. Parallelize the function using furrr package and multiprocess
+plan when there are more than ONE transboundary, default = FALSE.}
 
 \item{intern}{logical. Show the progress of the process, default = TRUE.}
+
+\item{res_attribute}{numeric. If the attribute is no equal to "Area" or "Intersected area" then nodes will be converted to raster to extract values in one  process step, you can set the raster resolution, default = 150.}
 }
 \value{
 Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
@@ -85,16 +74,16 @@ data("Protected_areas", package = "Makurhini")
 #plot(Protected_areas, col="green")
 
 data("regions", package = "Makurhini")
-region <- regions[1,]
+region <- regions[2,]
 plot(region, col="blue")
 
 test <- MK_ProtConn(nodes = Protected_areas, region = region,
-                    attribute = "Intersected area", area_unit = "ha",
+                    area_unit = "ha",
                     distance = list(type= "centroid"),
                     distance_thresholds = c(50000, 10000),
                     probability = 0.5, transboundary = 50000,
-                    LA = NULL, plot = TRUE, dPC = FALSE,
-                    write = NULL, SAGA = FALSE, intern = TRUE)
+                    LA = NULL, plot = TRUE,
+                    write = NULL, intern = FALSE)
 test$d50000
 test$d10000
 }

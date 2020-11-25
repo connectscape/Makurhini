@@ -30,13 +30,9 @@ MK_ProtConnMult(
 
 \item{thintersect}{numeric.Threshold of intersection in percentage allowed to select or not a target geometry. Default = 90, if intersection >=90 percentage, the geometry will be selected.}
 
-\item{attribute}{character. Select the nodes attribute: "Area" = Complete Protected areas; "Intersected area" = Intersected Protected areas; or another specific column name with the nodes attribute, ideally this attribute mus be an area-weighted index, otherwise the interpretation of the protconn index may change.}
-
 \item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".}
 
-\item{res_attribute}{numeric. If the attribute is no equal to "Area" or "Intersected area" then nodes will be converted to raster to extract values in one  process step, you can set the raster resolution, default = 150.}
-
-\item{distance}{list.See distancefile(). E.g.: list(type = "centroid", resistance = NULL, geometry_out = NULL).}
+\item{distance}{list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).}
 
 \item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
 distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).}
@@ -46,11 +42,7 @@ If probability = NULL, then it will be the inverse of the mean dispersal distanc
 
 \item{transboundary}{numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017.}
 
-\item{keep}{numeric. Simplification of the region's geometry to speed the select by location ("Makurhini::MK_selectbyloc").
-The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
- the higher the speed but the greater uncertainty.}
-
-\item{CI}{character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, boot::boot.ci())}
+\item{CI}{character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, \link[boot]{boot.ci})}
 
 \item{plot}{logical. Plot the main ProtConn indicators and fractions with their standard deviation, default = FALSE.}
 
@@ -83,7 +75,7 @@ data("regions", package = "Makurhini")
 plot(regions, col=c("blue", "red", "green"))
 
 test <- MK_ProtConnMult(nodes = Protected_areas, regions = regions,
-                        attribute = "Intersected area", area_unit = "ha",
+                        area_unit = "ha",
                         distance = list(type= "centroid"),
                         distance_thresholds = 10000,
                         probability = 0.5, transboundary = 50000,

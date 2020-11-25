@@ -4,19 +4,14 @@
 #' @param nodes object of class sf, sfc, sfg or SpatialPolygons. Protected areas (PAs) shapefile.
 #' @param regions object of class sf, sfc, sfg or SpatialPolygons. Ecoregions shapefile.
 #' @param thintersect numeric.Threshold of intersection in percentage allowed to select or not a target geometry. Default = 90, if intersection >=90 percentage, the geometry will be selected.
-#' @param attribute character. Select the nodes attribute: "Area" = Complete Protected areas; "Intersected area" = Intersected Protected areas; or another specific column name with the nodes attribute, ideally this attribute mus be an area-weighted index, otherwise the interpretation of the protconn index may change.
 #' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".
-#' @param res_attribute numeric. If the attribute is no equal to "Area" or "Intersected area" then nodes will be converted to raster to extract values in one  process step, you can set the raster resolution, default = 150.
-#' @param distance list.See distancefile(). E.g.: list(type = "centroid", resistance = NULL, geometry_out = NULL).
+#' @param distance list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).
 #' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. numeric.
 #' If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).
 #' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
 #'  distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).
 #' @param transboundary numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017.
-#' @param keep numeric. Simplification of the region's geometry to speed the select by location ("Makurhini::MK_selectbyloc").
-#'  The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
-#'   the higher the speed but the greater uncertainty.
-#' @param CI character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, boot::boot.ci())
+#' @param CI character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, \link[boot]{boot.ci})
 #' @param plot logical. Plot the main ProtConn indicators and fractions with their standard deviation, default = FALSE.
 #' @param write character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".
 #' @param intern logical. Show the progress of the process, default = TRUE.
@@ -42,7 +37,7 @@
 #' plot(regions, col=c("blue", "red", "green"))
 #'
 #' test <- MK_ProtConnMult(nodes = Protected_areas, regions = regions,
-#'                         attribute = "Intersected area", area_unit = "ha",
+#'                         area_unit = "ha",
 #'                         distance = list(type= "centroid"),
 #'                         distance_thresholds = 10000,
 #'                         probability = 0.5, transboundary = 50000,
@@ -51,13 +46,15 @@
 #' }
 #' @importFrom magrittr %>%
 #' @importFrom sf st_as_sf st_zm st_geometry st_geometry<- write_sf
-#' @importFrom ggplot2 ggplot geom_bar aes position_dodge labs rel theme_bw theme element_blank element_text scale_fill_manual geom_hline scale_linetype_manual guide_legend margin geom_errorbar
 #' @importFrom dplyr progress_estimated
 #' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
 #' @importFrom formattable color_tile area style formattable formatter
-#' @importFrom ggpubr ggarrange
 #' @importFrom utils write.csv
+#' @importFrom ggplot2 ggplot geom_bar aes position_dodge labs rel theme_bw theme element_blank element_text scale_fill_manual geom_hline scale_linetype_manual guide_legend margin geom_errorbar
+#' @importFrom purrr compact
+#' @importFrom ggpubr ggarrange
+#' @importFrom rlang .data
 #' @importFrom grDevices dev.off tiff
 MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
                             attribute = "Intersected area", area_unit = "ha",
@@ -85,14 +82,6 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
     }
   }
 
-  if (is.null(probability) | !is.numeric(probability)) {
-    stop("error missing probability")
-  }
-
-  if (is.null(distance_thresholds)) {
-    stop("error missing numeric distance threshold(s)")
-  }
-
   if (!is.null(write)) {
     if (!dir.exists(dirname(write))) {
       stop("error, output folder does not exist")
@@ -101,40 +90,34 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
 
   if(nrow(regions)<=1){
     stop("one region, for better results please use MK_ProtConn()")
+  } else {
+    regions$ID_Temp <- 1:nrow(regions)
   }
+  regions <- TopoClean(regions)
 
-  #Remove error zm
-  if(class(regions)[1] == "SpatialPolygonsDataFrame") {
-    regions <- st_as_sf(regions)
-  }
-  regions <- st_zm(regions)
-  regions$ID_Temp <- 1:nrow(regions)
 
-  if(class(nodes)[1] == "SpatialPolygonsDataFrame") {
-    nodes <- st_as_sf(nodes)
-  }
-  nodes <- st_zm(nodes)
 
   if(isFALSE(parallel)){
-    pb <- progress_estimated(length(regions$ID_Temp), 0)
-    x=NULL
+    if (isTRUE(intern)){
+      pb <- dplyr::progress_estimated(length(regions$ID_Temp), 0)
+    }
+
     protconn_result <- map(1:length(regions$ID_Temp), function(x){
       Ecoreg_sel <- regions[regions$ID_Temp == unique(regions$ID_Temp)[x],]
       if (isTRUE(intern)){
         pb$tick()$print()
       }
+
       protconn <- tryCatch(MK_ProtConn(nodes = nodes,
                                        region = Ecoreg_sel,
                                        thintersect = thintersect,
-                                       attribute = attribute,
                                        area_unit = area_unit,
                                        distance = distance,
-                                       res_attribute = res_attribute,
                                        transboundary = transboundary,
-                                       keep = keep,
                                        distance_thresholds = distance_thresholds,
                                        probability = probability,
-                                       plot = FALSE, intern = FALSE),  error = function(err)err)
+                                       plot = FALSE,
+                                       intern = FALSE),  error = function(err)err)
 
 
       if (inherits(protconn, "error")){
@@ -142,9 +125,9 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
       }
 
       if(length(distance_thresholds) > 1){
-        Ecoreglist <- tryCatch(map(protconn, function(x){
-          n <- as.vector(x[[1]][[3]])
-          x2 <- t(x[[1]][[4]]) %>% as.data.frame()
+        Ecoreglist <- tryCatch(purrr::map(protconn, function(x){
+          n <- x[[3]]
+          x2 <- t(x[[4]]) %>% as.data.frame()
           colnames(x2) <- n
           return(x2)}), error = function(err)err)
       } else {
@@ -153,20 +136,19 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
         colnames(Ecoreglist) <- n
       }
 
-
       if (inherits(Ecoreglist, "error")){
         stop(Ecoreglist)
       }
 
       if(length(distance_thresholds) > 1){
         ECAlist <- tryCatch(map(protconn, function(x){
-          n <- as.vector(x[[1]][[1]])
-          x2 <- t(x[[1]][[2]]) %>% as.data.frame()
+          n <- as.vector(x[[1]][1:2])
+          x2 <- t(x[[2]][1:2]) %>% as.data.frame()
           colnames(x2) <- n
           return(x2)}), error = function(err)err)
       } else {
-        n <- as.vector(protconn[[1]])
-        ECAlist <- t(protconn[[2]]) %>% as.data.frame()
+        n <- as.vector(protconn[[1]][1:2])
+        ECAlist <- t(protconn[[2]][1:2]) %>% as.data.frame()
         colnames(ECAlist) <- n
       }
 
@@ -179,29 +161,31 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
   } else {
     works <- as.numeric(availableCores())-1
     plan(strategy = multiprocess, gc = TRUE, workers = works)
-    protconn_result <- tryCatch(future_map(as.list(1:length(regions$ID_Temp)), function(x){
+    protconn_result <- future_map(1:length(regions$ID_Temp), function(x){
       Ecoreg_sel <- regions[regions$ID_Temp == unique(regions$ID_Temp)[x],]
+      if (isTRUE(intern)){
+        pb$tick()$print()
+      }
       protconn <- tryCatch(MK_ProtConn(nodes = nodes,
                                        region = Ecoreg_sel,
                                        thintersect = thintersect,
-                                       attribute = attribute,
                                        area_unit = area_unit,
-                                       res_attribute = res_attribute,
                                        distance = distance,
                                        transboundary = transboundary,
-                                       keep = keep,
                                        distance_thresholds = distance_thresholds,
                                        probability = probability,
-                                       plot = FALSE, intern = FALSE),  error = function(err)err)
+                                       plot = FALSE,
+                                       intern = FALSE),  error = function(err)err)
+
 
       if (inherits(protconn, "error")){
         stop(protconn)
       }
 
       if(length(distance_thresholds) > 1){
-        Ecoreglist <- tryCatch(map(protconn, function(x){
-          n <- as.vector(x[[1]][[3]])
-          x2 <- t(x[[1]][[4]]) %>% as.data.frame()
+        Ecoreglist <- tryCatch(purrr::map(protconn, function(x){
+          n <- x[[3]]
+          x2 <- t(x[[4]]) %>% as.data.frame()
           colnames(x2) <- n
           return(x2)}), error = function(err)err)
       } else {
@@ -210,41 +194,38 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
         colnames(Ecoreglist) <- n
       }
 
-
       if (inherits(Ecoreglist, "error")){
         stop(Ecoreglist)
       }
 
       if(length(distance_thresholds) > 1){
         ECAlist <- tryCatch(map(protconn, function(x){
-          n <- as.vector(x[[1]][[1]])
-          x2 <- t(x[[1]][[2]]) %>% as.data.frame()
+          n <- as.vector(x[[1]][1:2])
+          x2 <- t(x[[2]][1:2]) %>% as.data.frame()
           colnames(x2) <- n
           return(x2)}), error = function(err)err)
       } else {
-        n <- as.vector(protconn[[1]])
-        ECAlist <- t(protconn[[2]]) %>% as.data.frame()
+        n <- as.vector(protconn[[1]][1:2])
+        ECAlist <- t(protconn[[2]][1:2]) %>% as.data.frame()
         colnames(ECAlist) <- n
       }
-
 
       if (inherits(ECAlist, "error")){
         stop(ECAlist)
       }
 
       result <- list(Ecoreglist, ECAlist)
-      return(result)}, .progress = intern), error = function(err)err)
+      return(result)}, .progress = intern)
     close_multiprocess(works)
   }
 
   Ecoreglist <- lapply(protconn_result, function(x){x[[1]]})
-
   ECAlist <- lapply(protconn_result, function(x){x[[2]]})
 
   i=NULL
   j=NULL
-  data_1 <- tryCatch(map(1:length(distance_thresholds), function(i){
 
+  data_1 <- tryCatch(map(1:length(distance_thresholds), function(i){
     if(length(distance_thresholds)>1){
       data_2 <- map(1:length(regions$ID_Temp), function(j){
         Ecoreglist[[j]][[i]]
@@ -257,7 +238,7 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
     rownames(ProtConnEcor) <- NULL
     ProtConnEcor$ID_Temp <- regions$ID_Temp
 
-    if(length(distance_thresholds)>1){
+    if(length(distance_thresholds) > 1){
       ECA_2 <- map(1:length(regions$ID_Temp), function(j) {
         ECAlist[[j]][[i]]
       })
@@ -294,10 +275,11 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
       }
     }
     }
+
     DataProtconn_2$Indicator <- rownames(DataProtconn_2)
     DataProtconn_2 <- DataProtconn_2[moveme(names(DataProtconn_2), "Indicator first")]
     rownames(DataProtconn_2) <- NULL
-    names(DataProtconn_2)[1:2] <- c("ProtConn indicator", "Values(%)")
+    names(DataProtconn_2)[1:2] <- c("ProtConn indicator", "Values (%)")
     DataProtconn_2[c(2:ncol(DataProtconn_2))] <- round(DataProtconn_2[c(2:ncol(DataProtconn_2))], 3)
 
     if(!is.null(write)){
@@ -322,7 +304,8 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
                         paste0("ProtConn_", distance_thresholds[i]))
 
     if(isTRUE(plot)){
-      dacc <- as.data.frame(DataProtconn[c(1:3), c(2:3)])
+      DataProtconn <- DataProtconn %>% as.data.frame()
+      dacc <- DataProtconn[c(5,1:2), 2:3]
       dacc$name <- c("Unprotected", "Protected", "Protected connected")
       dacc$name <- factor(dacc$name, levels = c("Unprotected", "Protected", "Protected connected"))
       dacc$col <- c("#C34D51", "#53A768", "#4C72AF")
@@ -338,7 +321,7 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
 
         plot_protconn1 <- ggplot(dacc, aes(x = dacc$name, y = dacc$Values, fill = dacc$name)) +
           geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, size = 0.2) +
-          geom_errorbar(position = position_dodge(), width = 0.2, aes(ymin = min, ymax = max)) +
+          ggplot2::geom_errorbar(position = position_dodge(), width = 0.2, aes(ymin = min, ymax = max)) +
           labs(title = paste0("ProtConn Indicators: ", distance_thresholds[i]), x = "", y = "Percentage (%)", size = rel(1.2)) +
           theme_bw()  +
           theme(plot.title = element_text(color = "#252525", size = rel(1.4), hjust = 0.5, face = "bold"),
@@ -354,10 +337,10 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
         plots <- list(plot_protconn1)
       }
 
-      dacc2 <- as.data.frame(DataProtconn[c(7:10), c(1:3)])
+      dacc2 <- DataProtconn[c(7:10), c(1:3)]
       dacc2$name <- c("ProtConn[Trans]", "ProtConn[Unprot]", "ProtConn[Within]", "ProtConn[Contig]")
       dacc2$Indicator <- NULL
-      dacc2$name <- factor(dacc2$name, levels = c("ProtConn[Trans]", "ProtConn[Unprot]", "ProtConn[Within]", "ProtConn[Contig]"))
+      dacc2$name <- factor(dacc2$name, levels = c("ProtConn[Within]", "ProtConn[Contig]", "ProtConn[Unprot]", "ProtConn[Trans]"))
       dacc2$col <- c("#253494", "#2c7fb8", "#41b6c4", "#7fcdbb")
       names(dacc2)[2] <- "Values"
       dacc2 <- dacc2[which(dacc2$Values > 0), ]
@@ -370,7 +353,7 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
           return(x)})
         plot_protconn2 <- ggplot(dacc2, aes(x = dacc2$name, y = dacc2$Values, fill = dacc2$name)) +
           geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, size = 0.2) +
-          geom_errorbar(position = position_dodge(), width = 0.2, aes(ymin = min, ymax = max)) +
+          ggplot2::geom_errorbar(position = position_dodge(), width = 0.2, aes(ymin = min, ymax = max)) +
           labs(title = "Protected connected fraction", x = "", y = "Percentage (%)", size = rel(1.2)) +
           theme_bw()  +
           theme(plot.title = element_text(color = "#252525", size = rel(1.4), hjust = 0.45, face = "bold"),
@@ -422,3 +405,4 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
   names(data_1) <- paste0("ProtConn_", distance_thresholds)
   return(data_1)
 }
+

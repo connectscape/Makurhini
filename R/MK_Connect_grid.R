@@ -1,38 +1,26 @@
 #' Connectivity indexes in a regular grid
 #'
 #' Use the function to compute the Protected Connected (ProtConn), EC, PC or IIC indexes in a regular grid.
-#' @param grid_pol object of class sf, sfc, sfg or SpatialPolygons. Grid hexagones or squares. The
-#' shapefile must be in a projected coordinate system.
-#' @param grid_id character. Column name of the grid ID.
-#' @param grid_type character. If grid is null you can make a regular grid of "hexagonal" or "square".
-#' @param cellsize numeric. Grid area (square kilometers).
-#' @param grid_boundary logical.If TRUE, the Incomplete "hexagons" or "squares" in the boundaries of
-#' the region will be discarded
-#' @param clip logical. If TRUE, the new grid will be clipped to the region area. The operation time
-#' will be longer the greater the number of vertices in the polygon of the region,
-#' if it is a region with many vertices use the argument "tolerance".
-#' @param tolerance numeric. If "clip" is equal to TRUE reduces the number of vertices in the region polygon.
 #' @param nodes object of class sf, sfc, sfg or SpatialPolygons. Nodes shapefile, the shapefile must be
-#'  in a projected coordinate system.
-#' @param region object of class sf, sfc, sfg or SpatialPolygons. Region shapefile, the shapefile must be
 #'  in a projected coordinate system.
 #' @param attribute character. Select the nodes attribute: "Intersected area" = Available if the metric argument
 #' is equal to ProtConn, it corresponds to intersected Protected areas (default); or
 #' another specific column name with the nodes attribute, ideally this attribute mus be an area-weighted index,
 #'  otherwise the interpretation of the ProtConn or PC metric may change.
-#' @param thintersect numeric. Only available if you selected ProtConn as metric. Threshold of intersection in percentage allowed to select or not a target geometry.
-#'  Example, if thintersect is equal to 90 then a node will be selected only if the intersection between the node and
-#'   the region is >= 90 percentage. If NULL, thintersect will be 0 (default). (see, "Makurhini::MK_ProtConn")
-#' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".
-#' @param metric character. Choose a connectivity metric: "ProtConn" Protected Connected Land or "PC" Probability of conectivity considering maximum product probabilities.
-#' @param distance list. See distancefile(). Example, list(type= "centroid", resistance = NULL).
-#' @param distance_threshold numeric. Distance threshold to establish connections (meters).
-#' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5
-#' (default) that is 50 percentage of probability connection. Use in case of selecting the "PC"
-#' metric or "ProtConn". If probability = NULL, then it will be the inverse of the mean dispersal distance
+#' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit
+#' ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".
+#' @param region object of class sf, sfc, sfg or SpatialPolygons. Region shapefile, the shapefile must be
+#'  in a projected coordinate system.
+#' @param grid_param list. Parameters of the grid shapefile, see \link[Makurhini]{get_grid}.Just omit the parameter 'region'. Example,
+#' list(grid_pol = NULL, hexagonal = TRUE, grid_id = NULL, cellsize = unit_convert(1000, "km2", "m2"),
+#' grid_boundary = FALSE, clip = FALSE, tolerance = NULL).
+#' @param protconn logical. If TRUE then the ProtConn will be estimated; otherwise, the PC index will be estimated.
+#' @param distance list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).
+#' @param distance_threshold numeric. Distance threshold to establish connections (crs units, usually meters).
+#' @param probability numeric. Probability of direct dispersal between nodes, Default, 0.5,
+#'  that is 50 percentage of probability connection. If probability = NULL, then it will be the inverse of the mean dispersal distance
 #' for the species (1/α; Hanski and Ovaskainen 2000).
-#' @param transboundary numeric. Buffer to select polygones in a second round, their attribute value = 0,
-#' see  "Makurhini::MK_ProtConn".
+#' @param transboundary numeric. Buffer to select transboundary polygones, see  \link[Makurhini]{MK_ProtConn}.
 #' @param intern logical. Show the progress of the process, default = TRUE.
 #' @param parallel logical. Parallelize the function using furrr package and multiprocess
 #' plan, default = FALSE.
@@ -59,449 +47,434 @@
 #' ecoregion <- regions[2,]
 #' plot(ecoregion, col="blue")
 #'
-#' hexagons_priority <- MK_Connect_grid(grid_type = "hexagonal",
-#'                                     cellsize = 10000, grid_boundary = FALSE,
-#'                                     clip = FALSE, nodes = Protected_areas, region = ecoregion,
-#'                                     attribute = "Intersected area", thintersect = NULL,
-#'                                     area_unit = "ha", metric = "ProtConn",
-#'                                     distance = list(type = "centroid"),
+#' hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
+#'                                      region = ecoregion,
+#'                                      area_unit = "ha",
+#'                                      grid_param = list(grid_pol = NULL, hexagonal = TRUE,
+#'                                                        grid_id = NULL, cellsize = unit_convert(1000, "km2", "m2"),
+#'                                                        grid_boundary = FALSE, clip = FALSE, tolerance = NULL),
+#'                                     protconn = TRUE,
 #'                                     distance_threshold = 3000,
-#'                                     probability = 0.5, transboundary = 6000,
-#'                                     intern = TRUE, parallel = FALSE)
+#'                                     probability = 0.5,
+#'                                     transboundary = 6000,
+#'                                     distance = list(type = "centroid"),
+#'                                     intern = TRUE,
+#'                                     parallel = FALSE)
 #' hexagons_priority
 #' plot(hexagons_priority["ProtConn"])
 #' }
 #' @importFrom magrittr %>%
-#' @importFrom raster extent projection projection<- raster
-#' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_intersection
-#' @importFrom rmapshaper ms_dissolve
+#' @importFrom raster crop
+#' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_intersection st_convex_hull
 #' @importFrom future plan multiprocess availableCores
-#' @importFrom furrr future_map
+#' @importFrom furrr future_map_dfr
 #' @importFrom dplyr progress_estimated
-#' @importFrom purrr map
-
-MK_Connect_grid <- function(grid_pol = NULL, grid_id = NULL,
-                            grid_type = c("hexagonal", "square"),
-                            cellsize = NULL, grid_boundary = FALSE,
-                            clip = FALSE, tolerance = NULL,
-                            nodes, region = NULL,
+#' @importFrom purrr map_df
+#' @import methods
+MK_Connect_grid <- function(nodes,
                             attribute = NULL,
-                            thintersect = NULL,
                             area_unit = "ha",
-                            metric = c("ProtConn", "PC"),
-                            distance = list(type = "centroid"),
+                            region = NULL,
+                            grid_param = list(grid_pol = NULL, grid_id = NULL, hexagonal = TRUE,
+                                              cellsize = NULL, grid_boundary = FALSE,
+                                              clip = FALSE, tolerance = NULL),
+                            protconn = TRUE,
                             distance_threshold = NULL,
                             probability = NULL,
                             transboundary = NULL,
+                            distance = list(type = "centroid"),
                             intern = TRUE, parallel = FALSE){
-  if (missing(nodes)) {
-    stop("error missing shapefile file of nodes")
-  } else {
-    if (is.numeric(nodes) | is.character(nodes)) {
-      stop("error missing shapefile file of nodes")
-    }
-  }
-
-  if (is.null(region)) {
-    if (is.null(grid_pol)) {
-      stop("error missing shapefile file of region or grid_pol")
-    }
-  } else {
-    if (is.numeric(region) | is.character(region)) {
-      stop("error missing shapefile file of region")
-    }
-
-    if (is.null(grid_pol)) {
-      if (is.null(cellsize)) {
-        stop("error missing cellsize(km2)")
-      }
-      if (!grid_type %in% c("hexagonal", "square")) {
-        stop("Type must be either 'hexagonal' or 'square'")
-      }
-    }
-  }
-
-  if (is.null(distance_threshold)) {
-    stop("error missing numeric distance threshold(s)")
-  }
-
-  if (metric == "ProtConn") {
-    if (!is.null(probability) & !is.numeric(probability)) {
-      stop("error missing probability")
-    }
-  } else {
-    if (metric !=  "PC") {
-      stop("Type must be'PC'")
-    } else {
-      if (!is.null(probability) & !is.numeric(probability)) {
-        stop("error missing probability")
-      }
-    }
-  }
-
-  if(is.null(area_unit)){
-    area_unit = "ha"
-  }
-
-  if(metric == "ProtConn" & is.null(attribute)){
-    attribute = "Intersected area"
-  }
-
-  if(metric == "ProtConn" & is.null(thintersect)){
-    thintersect = 0
-  }
-
-  if(metric == "ProtConn" & is.character(thintersect)){
-    stop("thintersect must be NULL or numeric")
-  }
-
   options(warn = -1)
+  message("Step 1. Reviewing parameters")
+  base_param1 <- input_grid(node = nodes, landscape = region, unit = area_unit,
+                               bdist = if(is.null(transboundary)){0} else{transboundary})
 
-  if (class(nodes)[1] == "SpatialPolygonsDataFrame") {
-    nodes <- st_as_sf(nodes) %>% st_zm()
+  if(class(base_param1)[1] != "input_grid"){
+    stop("error in nodes or region shapefile")
+  }
+  base_param2 <- metric_class(metric = if(isTRUE(protconn)){"ProtConn"} else {"PC"},
+                              distance_threshold = distance_threshold,
+                              probability = probability,
+                              transboundary = transboundary,
+                              distance = distance)
+
+  if(class(base_param2)[1] != "MK_Metric"){
+    stop("error in metric parameters")
   } else {
-    nodes <- st_zm(nodes)
+    message("Step 2. Grid processing")
   }
 
-  nodes$IdTemp <- 1:nrow(nodes)
 
-  if (is.null(grid_pol) & !is.null(region)) {
-    x_grid <- make_grid(x = region, type = grid_type, cell_area = unit_convert(cellsize, "km2", "m2"), clip = clip, tolerance = tolerance, grid_boundary = grid_boundary)
-  } else {
-    if(class(grid_pol)[1] == "SpatialPolygonsDataFrame"){
-      x_grid <- st_as_sf(grid_pol) %>% st_zm() %>% st_cast("POLYGON")
-    } else {
-      x_grid <- grid_pol %>% st_zm() %>% st_cast("POLYGON")
-    }
+  base_param3 <- get_grid(region = base_param1@region,
+                          grid_pol = grid_param$grid_pol,
+                          grid_id = grid_param$grid_id,
+                          hexagonal = grid_param$hexagonal,
+                          cellsize = grid_param$cellsize,
+                          grid_boundary = grid_param$grid_boundary,
+                          clip = grid_param$clip,
+                          tolerance = grid_param$tolerance)
+
+  if(class(base_param3)[1] != "grid"){
+    stop("error making the grid")
   }
 
-  select_distance <- max(c(transboundary, distance_threshold)) * 2
-  mask.1 <- ms_dissolve(x_grid) %>% st_buffer(., dist = select_distance)
 
-  nodes.2 <- tryCatch(over_poly(x = nodes, y = mask.1), error = function(err)err)
+  base_param4 <- list(base_param1, base_param2, base_param3)
+  LA <- as.numeric(st_area(base_param4[[3]]@grid[1,])) %>%
+    unit_convert(., "m2", base_param4[[1]]@area_unit)
 
-  if (inherits(nodes.2, "error")){
-    nodes <- st_buffer(x = nodes, dist = 0)
-    nodes.2 <- over_poly(x = nodes, y = mask.1)
-    nodes.2 <- nodes[which(!is.na(nodes.2)),]
-  } else {
-    nodes.2 <- nodes[which(!is.na(nodes.2)),]
-  }
-
-  ###grid to list
-  x_grid$TempID <- 1:nrow(x_grid)
-  x_grid <- x_grid["TempID"]
-  x_grid <- split(x_grid, x_grid$TempID)
-  if (metric == "ProtConn") {
-    attribute <- if(is.null(attribute)){"Intersected area"} else{attribute}
+  if (isTRUE(protconn)) {
     if (isTRUE(parallel)) {
+      if (isTRUE(intern)) {
+        message("Step 3. Processing ProtConn metrics on the grid. Progress estimated:")
+      } else {
+        message("Step 3. Processing ProtConn metrics on the grid")
+      }
+
       works <- as.numeric(availableCores())-1
       plan(strategy = multiprocess, gc = TRUE, workers = works)
-      resultado_1 <- tryCatch(future_map(x_grid, function(x) {
-        ProtConn.1 <- MK_ProtConn(nodes = nodes.2, region = x,
-                                  area_unit = area_unit,
-                                  thintersect = thintersect, attribute = attribute,
-                                  distance = distance, distance_thresholds = distance_threshold,
-                                  probability = probability, transboundary = transboundary,
-                                  LA = NULL, plot = FALSE, dPC = FALSE, write = NULL,
-                                  intern = FALSE)
+      result_1 <- tryCatch(future_map_dfr(1:nrow(base_param4[[3]]@grid), function(x){
 
-        n <- as.vector(ProtConn.1[[3]])
-        x.2 <- as.data.frame(t(ProtConn.1[[4]]))
-        names(x.2) <- n
-        x.2$TempID <- paste0(x[["TempID"]])
-        return(x.2)
-      }, .progress = intern), error = function(err) err)
+        #nodes and distances,
+        # si se localiza solo un nodo  o 0 mandar un objeto tipo protconn
+        nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
+                                           y = base_param4[[1]]@nodes,
+                                           buff = base_param4[[2]]@transboundary,
+                                           xsimplify = FALSE,
+                                           metrunit = base_param4[[1]]@area_unit,
+                                           protconn_bound = FALSE), error = function(err)err)
+
+        if(inherits(nodes.1, "error")){
+          stop(paste0("error first nodes selection. Check grid: ", x))
+        }
+
+        #Tiene 2 o más nodos dentro de la region
+        if(is.list(nodes.1)){
+          if(base_param4[[2]]@distance$type %in% c("least-cost", "commute-time")){
+            if(is.null(base_param4[[2]]@distance$resistance)){
+              stop("error, you need a resistance raster")
+            } else {
+              centroid <- st_centroid(nodes.1[[1]])
+              mask <- st_convex_hull(st_union(centroid)) %>%
+                st_buffer(res(base_param4[[2]]@distance$resistance)[1]*30)
+              resist <- crop(base_param4[[2]]@distance$resistance, as(mask, 'Spatial'))
+            }
+          } else {
+            resist <- NULL
+          }
+
+          distance.1 <- tryCatch(protconn_dist(nodes.1[[1]], id = "OBJECTID",
+                                               y = base_param4[[2]]@distance,
+                                               r = base_param4[[1]]@region,
+                                               resistance = resist),
+                                 error = function(err)err)
+          if(inherits(distance.1, "error")){
+            stop(paste0("error distance. Check", " grid: ", x))
+          }
+
+          ProtConn_grid <- get_protconn_grid(x = nodes.1,
+                                             y = distance.1,
+                                             p = base_param4[[2]]@probability,
+                                             pmedian = TRUE,
+                                             d = base_param4[[2]]@distance_threshold,
+                                             LA = LA, bound = FALSE)
+          ProtConn_grid <- round(ProtConn_grid, 5)
+
+        } else if(is.numeric(nodes.1)){
+          ProtConn_grid <- data.frame(ECA = if(nodes.1 > LA){LA}else{nodes.1},
+                                      PC = NA,
+                                      LA = LA,
+                                      Protected.surface = nodes.1,
+                                      Prot = if((100 * (nodes.1 / LA)) > 100){100}else{100 * (nodes.1/LA)},
+                                      Unprotected = if((100 - (100 * (nodes.1 / LA))) < 0){0}else{100 - (100 * (nodes.1 / LA))},
+                                      ProtConn = if((100 * (nodes.1 / LA)) > 100){100}else{100 * (nodes.1 / LA)},
+                                      ProtUnconn = NA,
+                                      RelConn = NA,
+                                      ProtConn_Prot = 100,
+                                      ProtConn_Trans = NA,
+                                      ProtConn_Unprot = NA,
+                                      ProtConn_Within = 100,
+                                      ProtConn_Contig = NA,
+                                      ProtConn_Within_land = NA, ProtConn_Contig_land = NA,
+                                      ProtConn_Unprot_land = NA, ProtConn_Trans_land = NA)
+          ProtConn_grid[,which(!is.na(ProtConn_grid))] <- round(ProtConn_grid[,which(!is.na(ProtConn_grid))], 5)
+        } else {
+          ProtConn_grid <- data.frame(ECA = NA,
+                                      PC = NA,
+                                      LA = LA,
+                                      Protected.surface = 0,
+                                      Prot = 0,
+                                      Unprotected = 100,
+                                      ProtConn = NA,
+                                      ProtUnconn = NA,
+                                      RelConn = NA,
+                                      ProtConn_Prot = NA,
+                                      ProtConn_Trans = NA,
+                                      ProtConn_Unprot = NA,
+                                      ProtConn_Within = NA,
+                                      ProtConn_Contig = NA,
+                                      ProtConn_Within_land = NA, ProtConn_Contig_land = NA,
+                                      ProtConn_Unprot_land = NA, ProtConn_Trans_land = NA)
+        }
+        return(ProtConn_grid) }, .progress = intern), error = function(err) err)
       close_multiprocess(works)
     } else {
-      pb <- progress_estimated(length(x_grid), 0)
-      resultado_1 <- tryCatch(map(x_grid, function(x) {
+      pb <- progress_estimated(nrow(base_param4[[3]]@grid), 0)
+      if (isTRUE(intern)) {
+        message("Step 3. Processing ProtConn metrics on the grid. Progress estimated:")
+      } else {
+        message("Step 3. Processing ProtConn metrics on the grid")
+      }
+x=2
+      result_1 <- tryCatch(map_df(1:nrow(base_param4[[3]]@grid), function(x) {
         if (isTRUE(intern)) {
           pb$tick()$print()
         }
 
-        ProtConn.1 <- MK_ProtConn(nodes = nodes.2, region = x,
-                                  area_unit = area_unit,
-                                  thintersect = thintersect, attribute = attribute,
-                                  distance = distance, distance_thresholds = distance_threshold,
-                                  probability = probability, transboundary = transboundary,
-                                  LA = NULL, plot = FALSE, dPC = FALSE, write = NULL,
-                                  intern = FALSE)
+        #nodes and distances,
+        # si se localiza solo un nodo  o 0 mandar un objeto tipo protconn
+        nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
+                                           y = base_param4[[1]]@nodes,
+                                           buff = base_param4[[2]]@transboundary,
+                                           xsimplify = FALSE,
+                                           metrunit = base_param4[[1]]@area_unit,
+                                           protconn = TRUE,
+                                           protconn_bound = FALSE), error = function(err)err)
 
-        n <- as.vector(ProtConn.1[[3]])
-        x.2 <- as.data.frame(t(ProtConn.1[[4]]))
-        names(x.2) <- n
-        x.2$TempID <- paste0(x[["TempID"]])
-        return(x.2)
+        if(inherits(nodes.1, "error")){
+          stop(paste0("error first nodes selection. Check grid: ", x))
+        }
+
+        #Tiene 2 o más nodos dentro de la region
+        if(is.list(nodes.1)){
+          if(base_param4[[2]]@distance$type %in% c("least-cost", "commute-time")){
+            if(is.null(base_param4[[2]]@distance$resistance)){
+              stop("error, you need a resistance raster")
+            } else {
+              centroid <- st_centroid(nodes.1[[1]])
+              mask <- st_convex_hull(st_union(centroid)) %>%
+                st_buffer(res(base_param4[[2]]@distance$resistance)[1]*30)
+              resist <- crop(base_param4[[2]]@distance$resistance, as(mask, 'Spatial'))
+            }
+          } else {
+            resist <- NULL
+          }
+
+          distance.1 <- tryCatch(protconn_dist(nodes.1[[1]], id = "OBJECTID",
+                                               y = base_param4[[2]]@distance,
+                                               r = base_param4[[1]]@region,
+                                               resistance = resist),
+                                 error = function(err)err)
+          if(inherits(distance.1, "error")){
+            stop(paste0("error distance. Check", " grid: ", x))
+          }
+
+          ProtConn_grid <- get_protconn_grid(x = nodes.1,
+                                             y = distance.1,
+                                             p = base_param4[[2]]@probability,
+                                             pmedian = TRUE,
+                                             d = base_param4[[2]]@distance_threshold,
+                                             LA = LA, bound = FALSE)
+          ProtConn_grid <- round(ProtConn_grid, 5)
+
+        } else if(is.numeric(nodes.1)){
+          ProtConn_grid <- data.frame(ECA = if(nodes.1 > LA){LA}else{nodes.1},
+                                      PC = NA,
+                                      LA = LA,
+                                      Protected.surface = nodes.1,
+                                      Prot = if((100 * (nodes.1 / LA)) > 100){100}else{100 * (nodes.1/LA)},
+                                      Unprotected = if((100 - (100 * (nodes.1 / LA))) < 0){0}else{100 - (100 * (nodes.1 / LA))},
+                                      ProtConn = if((100 * (nodes.1 / LA)) > 100){100}else{100 * (nodes.1 / LA)},
+                                      ProtUnconn = NA,
+                                      RelConn = NA,
+                                      ProtConn_Prot = 100,
+                                      ProtConn_Trans = NA,
+                                      ProtConn_Unprot = NA,
+                                      ProtConn_Within = 100,
+                                      ProtConn_Contig = NA,
+                                      ProtConn_Within_land = NA, ProtConn_Contig_land = NA,
+                                      ProtConn_Unprot_land = NA, ProtConn_Trans_land = NA)
+          ProtConn_grid[,which(!is.na(ProtConn_grid))] <- round(ProtConn_grid[,which(!is.na(ProtConn_grid))], 5)
+
+        } else {
+          ProtConn_grid <- data.frame(ECA = NA,
+                                      PC = NA,
+                                      LA = LA,
+                                      Protected.surface = 0,
+                                      Prot = 0,
+                                      Unprotected = 100,
+                                      ProtConn = NA,
+                                      ProtUnconn = NA,
+                                      RelConn = NA,
+                                      ProtConn_Prot = NA,
+                                      ProtConn_Trans = NA,
+                                      ProtConn_Unprot = NA,
+                                      ProtConn_Within = NA,
+                                      ProtConn_Contig = NA,
+                                      ProtConn_Within_land = NA, ProtConn_Contig_land = NA,
+                                      ProtConn_Unprot_land = NA, ProtConn_Trans_land = NA)
+        }
+        return(ProtConn_grid)
       }), error = function(err) err)
-    }
-  } else if (metric == "PC") {
+  }
+
+  } else {
     if (isTRUE(parallel)) {
-      nodes.3 <- nodes.2
-      nodes.3 <- st_cast(nodes.3, "POLYGON") %>% st_zm()
-      nodes.3$IdTemp <- 1:nrow(nodes.3)
+      if (isTRUE(intern)) {
+        message("Step 3. Processing ProtConn metrics on the grid. Progress estimated:")
+      } else {
+        message("Step 3. Processing ProtConn metrics on the grid")
+      }
+
       works <- as.numeric(availableCores())-1
       plan(strategy = multiprocess, gc = TRUE, workers = works)
-      resultado_1 <- tryCatch(future_map(x_grid, function(x) {
-        area_x <- unit_convert(as.numeric(st_area(x)), "m2", area_unit)
-        if (is.null(attribute)) {
-          nodes2 <- MK_selectbyloc(nodes.3, x, id = NULL, area_unit = area_unit,
-                                   selreg = "M2", transboundary = 10)
-          nodes2 <- nodes2[which(nodes2$transboundary == 1), ]
+      result_1 <- tryCatch(future_map_dfr(1:nrow(base_param4[[3]]@grid), function(x) {
+        #nodes and distances,
+        # si se localiza solo un nodo  o 0 mandar un objeto tipo protconn
+        nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
+                                           y = base_param4[[1]]@nodes,
+                                           buff = base_param4[[2]]@transboundary,
+                                           xsimplify = FALSE,
+                                           metrunit = base_param4[[1]]@area_unit,
+                                           protconn = FALSE,
+                                           protconn_bound = FALSE), error = function(err)err)
 
-          if (nrow(nodes2) > 1) {
-            nodes3 <- st_intersection(nodes2, x) %>%
-              ms_dissolve(.) %>% st_buffer(., dist = 0)
-            nodes2_r <- nodes2
-            nodes2 <- st_cast(nodes3, "POLYGON") %>%
-              st_buffer(., dist = 0)
-            nodes2$attrib <- unit_convert(as.numeric(st_area(nodes2)), "m2", area_unit)
-
-            if (nrow(nodes2) == 1) {
-              nodes2 <- (nodes2$attrib * 100)/area_x
-            } else if (nrow(nodes2) == 0) {
-              nodes2 = NULL
-            }
-
-          } else if (nrow(nodes2) == 1) {
-            nodes2_r <- nodes2
-            nodes2 <- (nodes2$Area2 * 100)/area_x
-          } else {
-            nodes2 = NULL
-          }
-
-        } else {
-          nodes2 <- MK_selectbyloc(nodes.3, x, id = NULL, area_unit = area_unit,
-                                   selreg = "M2", transboundary = 10)
-          nodes2 <- nodes2[which(nodes2$transboundary == 1), ]
-
-          if (nrow(nodes2) > 1) {
-            nodes3 <- st_intersection(nodes2, x) %>%
-              ms_dissolve(., field = attribute) %>%
-              st_buffer(., dist = 0)
-
-            nodes3 <- st_cast(nodes3, "POLYGON") %>%
-              st_buffer(., dist = 0)
-
-            if (nrow(nodes3) > 1) {
-              nodes3$IDTemp <- 1:nrow(nodes3)
-              d <- distancefile(nodes3, id = "IDTemp", type = "edge")
-
-              if (unique(d$Distance) == 0) {
-                nodes2_r <- nodes2
-                nodes2 <- unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
-                nodes2 <- sum((nodes2 * 100)/area_x)
-              } else {
-                nodes3$attrib <- nodes3[attribute][[1]]
-                nodes2 <- nodes3
-              }
-            } else {
-              nodes2_r <- nodes2
-              nodes2 <-unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
-              nodes2 <- sum((nodes2 * 100)/area_x)
-            }
-          } else if (nrow(nodes2) == 1) {
-            nodes2_r <- nodes2
-            nodes2 <- nodes2$PercPi
-            nodes3 <- nodes2[attribute][[1]]
-            nodes2 <- (nodes3 * 100)/area_x
-          } else {
-            nodes2 = NULL
-          }
+        if(inherits(nodes.1, "error")){
+          stop(paste0("error first nodes selection. Check grid: ", x))
         }
-        ####
-        if (class(nodes2)[1] == "numeric" | is.null(nodes2)) {
-          if (is.null(nodes2)) {
-            x3 <- c(NA, NA, NA) %>% as.data.frame()
-            x3 <- as.data.frame(t(x3))
-            names(x3) <- c(metric, "EC", "Normalized_EC")
-            x3$PArea <- 0
-            x3$TempID <- paste0(x[["TempID"]])
-            x3 <- x3[, c(4, 1:3, 5)]
+
+        #Tiene 2 o más nodos dentro de la region
+        if(is.list(nodes.1)){
+          if(base_param4[[2]]@distance$type %in% c("least-cost", "commute-time")){
+            if(is.null(base_param4[[2]]@distance$resistance)){
+              stop("error, you need a resistance raster")
+            } else {
+              centroid <- st_centroid(nodes.1[[1]])
+              mask <- st_convex_hull(st_union(centroid)) %>%
+                st_buffer(res(base_param4[[2]]@distance$resistance)[1]*30)
+              resist <- crop(base_param4[[2]]@distance$resistance, as(mask, 'Spatial'))
+            }
           } else {
-            x3 <- c(NA, sum(unit_convert(as.numeric(st_area(nodes2_r)), "m2", area_unit)), 100) %>% as.data.frame()
-            x3 <- as.data.frame(t(x3))
-            names(x3) <- c(metric, "EC", "Normalized_EC")
-
-            x3$PArea <- if(((sum(nodes2_r$Area2 * 100))/area_x) > 100){
-              100
-            } else {
-              sum((nodes2_r$Area2 * 100))/area_x
-            }
-
-            x3$EC <- if (sum(nodes2_r$Area2) > area_x) {
-              area_x
-            } else {
-              sum(nodes2_r$Area2)
-            }
-            x3$Normalized_EC <- x3$PArea
-            x3$TempID <- paste0(x[["TempID"]])
-            x3 <- x3[, c(4, 1:3, 5)]
+            resist <- NULL
           }
 
+          distance.1 <- tryCatch(protconn_dist(nodes.1[[1]], id = "OBJECTID",
+                                               y = base_param4[[2]]@distance,
+                                               r = base_param4[[1]]@region,
+                                               resistance = resist),
+                                 error = function(err)err)
+          if(inherits(distance.1, "error")){
+            stop(paste0("error distance. Check", " grid: ", x))
+          }
+
+          PC_grid <- get_pc_grid(x = nodes.1[[1]],
+                                     y = distance.1,
+                                     p = base_param4[[2]]@probability,
+                                     pmedian = TRUE,
+                                     d = base_param4[[2]]@distance_threshold,
+                                     LA = LA)
+
+          PC_grid <- round(PC_grid, 5)
+
+        } else if(is.numeric(nodes.1)){
+          PC_grid <- data.frame(Protected.surface = nodes.1,
+                                    LA = LA,
+                                    ECA = if(nodes.1 > LA){LA}else{nodes.1},
+                                    ECA.Normalized = if(nodes.1 > LA){100}else{(nodes.1*100)/LA},
+                                    PC = NA)
+          PC_grid[,c(1:4)] <- round(PC_grid[,c(1:4)], 5)
         } else {
-          test <- MK_dPCIIC(nodes = nodes2,
-                            attribute = "attrib", restauration = NULL,
-                            distance = distance, metric = "PC",
-                            probability = probability,
-                            distance_thresholds = distance_threshold,
-                            overall = TRUE, LA = area_x, onlyoverall = TRUE,
-                            write = NULL)
-          x2 <- as.data.frame(test[,2])
-          x3 <- as.data.frame(t(x2))
-          x3 <- x3[, c(2:3)]
-          names(x3) <- c("EC", metric)
-          x3$Normalized_EC <- (x3$EC * 100)/area_x
-          x3$PArea <- (sum(nodes2$attrib) * 100)/area_x
-          x3$TempID <- paste0(x[["TempID"]])
-          x3 <- x3[, c(4, 2, 1, 3, 5)]
+          PC_grid <- data.frame(Protected.surface = 0,
+                                    LA = LA,
+                                    ECA = NA,
+                                    ECA.Normalized = NA,
+                                    PC = NA)
         }
-        return(x3)
-      }, .progress = intern), error = function(err) err)
+
+        return(PC_grid)}, .progress = intern), error = function(err) err)
       close_multiprocess(works)
-
     } else {
-      pb <- progress_estimated(length(x_grid), 0)
-      nodes.3 <- nodes.2
-      nodes.3 <- st_cast(nodes.3, "POLYGON") %>% st_zm()
-      nodes.3$IdTemp <- 1:nrow(nodes.3)
-      resultado_1 <- tryCatch(map(x_grid, function(x) {
+      pb <- progress_estimated(nrow(base_param4[[3]]@grid), 0)
+      if (isTRUE(intern)) {
+        message("Step 3. Processing ProtConn metrics on the grid. Progress estimated:")
+      } else {
+        message("Step 3. Processing ProtConn metrics on the grid")
+      }
+
+      result_1 <- tryCatch(map_df(1:nrow(base_param4[[3]]@grid), function(x) {
         if (isTRUE(intern)) {
           pb$tick()$print()
         }
-        area_x <- unit_convert(as.numeric(st_area(x)), "m2", area_unit)
-        if (is.null(attribute)) {
-          nodes2 <- MK_selectbyloc(nodes.3, x, id = NULL, area_unit = area_unit,
-                                   selreg = "M2", transboundary = 10)
-          nodes2 <- nodes2[which(nodes2$transboundary == 1), ]
+        #nodes and distances,
+        # si se localiza solo un nodo  o 0 mandar un objeto tipo protconn
+        nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
+                                           y = base_param4[[1]]@nodes,
+                                           buff = NULL,
+                                           xsimplify = FALSE,
+                                           metrunit = base_param4[[1]]@area_unit,
+                                           protconn = FALSE,
+                                           protconn_bound = FALSE), error = function(err)err)
 
-          if (nrow(nodes2) > 1) {
-            nodes3 <- st_intersection(nodes2, x) %>%
-              ms_dissolve(.) %>% st_buffer(., dist = 0)
-            nodes2_r <- nodes2
-            nodes2 <- st_cast(nodes3, "POLYGON") %>%
-              st_buffer(., dist = 0)
-            nodes2$attrib <- unit_convert(as.numeric(st_area(nodes2)), "m2", area_unit)
-
-            if (nrow(nodes2) == 1) {
-              nodes2 <- (nodes2$attrib * 100)/area_x
-            } else if (nrow(nodes2) == 0) {
-              nodes2 = NULL
-            }
-
-          } else if (nrow(nodes2) == 1) {
-            nodes2_r <- nodes2
-            nodes2 <- (nodes2$Area2 * 100)/area_x
-          } else {
-            nodes2 = NULL
-          }
-
-        } else {
-          nodes2 <- MK_selectbyloc(nodes.3, x, id = NULL, area_unit = area_unit,
-                                   selreg = "M2", transboundary = 10)
-          nodes2 <- nodes2[which(nodes2$transboundary == 1), ]
-
-          if (nrow(nodes2) > 1) {
-            nodes3 <- st_intersection(nodes2, x) %>%
-              ms_dissolve(., field = attribute) %>%
-              st_buffer(., dist = 0)
-
-            nodes3 <- st_cast(nodes3, "POLYGON") %>%
-              st_buffer(., dist = 0)
-
-            if (nrow(nodes3) > 1) {
-              nodes3$IDTemp <- 1:nrow(nodes3)
-              d <- distancefile(nodes3, id = "IDTemp", type = "edge")
-
-              if (unique(d$Distance) == 0) {
-                nodes2_r <- nodes2
-                nodes2 <- unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
-                nodes2 <- sum((nodes2 * 100)/area_x)
-              } else {
-                nodes3$attrib <- nodes3[attribute][[1]]
-                nodes2 <- nodes3
-              }
-            } else {
-              nodes2_r <- nodes2
-              nodes2 <-unit_convert(as.numeric(st_area(nodes3)), "m2", area_unit)
-              nodes2 <- sum((nodes2 * 100)/area_x)
-            }
-          } else if (nrow(nodes2) == 1) {
-            nodes2_r <- nodes2
-            nodes2 <- nodes2$PercPi
-            nodes3 <- nodes2[attribute][[1]]
-            nodes2 <- (nodes3 * 100)/area_x
-          } else {
-            nodes2 = NULL
-          }
+        if(inherits(nodes.1, "error")){
+          stop(paste0("error first nodes selection. Check grid: ", x))
         }
-        ####
-        if (class(nodes2)[1] == "numeric" | is.null(nodes2)) {
-          if (is.null(nodes2)) {
-            x3 <- c(NA, NA, NA) %>% as.data.frame()
-            x3 <- as.data.frame(t(x3))
-            names(x3) <- c(metric, "EC", "Normalized_EC")
-            x3$PArea <- 0
-            x3$TempID <- paste0(x[["TempID"]])
-            x3 <- x3[, c(4, 1:3, 5)]
+
+        #Tiene 2 o más nodos dentro de la region
+        if(is.list(nodes.1)){
+          if(base_param4[[2]]@distance$type %in% c("least-cost", "commute-time")){
+            if(is.null(base_param4[[2]]@distance$resistance)){
+              stop("error, you need a resistance raster")
+            } else {
+              centroid <- st_centroid(nodes.1[[1]])
+              mask <- st_convex_hull(st_union(centroid)) %>%
+                st_buffer(res(base_param4[[2]]@distance$resistance)[1]*30)
+              resist <- crop(base_param4[[2]]@distance$resistance, as(mask, 'Spatial'))
+            }
           } else {
-            x3 <- c(NA, sum(unit_convert(as.numeric(st_area(nodes2_r)), "m2", area_unit)), 100) %>% as.data.frame()
-            x3 <- as.data.frame(t(x3))
-            names(x3) <- c(metric, "EC", "Normalized_EC")
-
-            x3$PArea <- if(((sum(nodes2_r$Area2 * 100))/area_x) > 100){
-              100
-            } else {
-              sum((nodes2_r$Area2 * 100))/area_x
-            }
-
-            x3$EC <- if (sum(nodes2_r$Area2) > area_x) {
-              area_x
-            } else {
-              sum(nodes2_r$Area2)
-            }
-            x3$Normalized_EC <- x3$PArea
-            x3$TempID <- paste0(x[["TempID"]])
-            x3 <- x3[, c(4, 1:3, 5)]
+            resist <- NULL
           }
 
+          distance.1 <- tryCatch(protconn_dist(nodes.1[[1]], id = "OBJECTID",
+                                               y = base_param4[[2]]@distance,
+                                               r = base_param4[[1]]@region,
+                                               resistance = resist),
+                                 error = function(err)err)
+          if(inherits(distance.1, "error")){
+            stop(paste0("error distance. Check", " grid: ", x))
+          }
+
+          PC_grid <- get_pc_grid(x = nodes.1[[1]],
+                                     y = distance.1,
+                                     p = base_param4[[2]]@probability,
+                                     pmedian = TRUE,
+                                     d = base_param4[[2]]@distance_threshold,
+                                     LA = LA)
+
+          PC_grid <- round(PC_grid, 5)
+
+        } else if(is.numeric(nodes.1)){
+          PC_grid <- data.frame(Protected.surface = nodes.1,
+                                    LA = LA,
+                                    ECA = if(nodes.1 > LA){LA}else{nodes.1},
+                                    ECA.Normalized = if(nodes.1 > LA){100}else{(nodes.1*100)/LA},
+                                    PC = NA)
+          PC_grid[,c(1:4)] <- round(PC_grid[,c(1:4)], 5)
         } else {
-          test <- MK_dPCIIC(nodes = nodes2,
-                            attribute = "attrib", restauration = NULL,
-                            distance = distance, metric = "PC",
-                            probability = probability,
-                            distance_thresholds = distance_threshold,
-                            overall = TRUE, LA = area_x, onlyoverall = TRUE,
-                            write = NULL)
-          x2 <- as.data.frame(test[,2])
-          x3 <- as.data.frame(t(x2))
-          x3 <- x3[, c(2:3)]
-          names(x3) <- c("EC", metric)
-          x3$Normalized_EC <- (x3$EC * 100)/area_x
-          x3$PArea <- (sum(nodes2$attrib) * 100)/area_x
-          x3$TempID <- paste0(x[["TempID"]])
-          x3 <- x3[, c(4, 2, 1, 3, 5)]
+          PC_grid <- data.frame(Protected.surface = 0,
+                                    LA = LA,
+                                    ECA = NA,
+                                    ECA.Normalized = NA,
+                                    PC = NA)
         }
-        return(x3)}), error = function(err) err)
+
+        return(PC_grid)}), error = function(err) err)
     }
-  } else {
-    stop("check arguments or select one metric ProtConn or PC")
   }
-  ####
-  if (inherits(resultado_1, "error")) {
-    stop(resultado_1)
-  } else {
-    result_2 <- do.call(rbind, resultado_1)
-    result_2 <- result_2[, c(ncol(result_2), 1:(ncol(result_2) - 1))]
-    x_grid2 <- do.call(rbind, x_grid)
-    x_grid2 <- merge(x_grid2, result_2, by = "TempID")
-    if (!is.null(grid_id)) {
-      x_grid2$TempID <- grid_pol[, which(names(grid_pol) == grid_id)][[1]]
-      names(x_grid2)[1] <- grid_id
-    } else {
-      names(x_grid2)[1] <- "id"
-    }
-    resultado_1 <- x_grid2
+
+  if(length(which(result_1 < 0)) > 0){
+    result_1[,which(result_1 < 0)] <- 0
   }
-  return(resultado_1)
+
+  result_2 <- cbind(base_param4[[3]]@grid, result_1)
+  return(result_2)
 }

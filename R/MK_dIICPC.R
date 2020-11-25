@@ -413,7 +413,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
           PCnum.i <- sum(PCmat.i)
           dPC <- (PCnum-PCnum.i) / PCnum * 100
           return(dPC)})
-
+#
         #p4
         dPCintra <- attribute_2^2 / sum(PCmat) * 100
         dPCflux <- 2*(rowSums(PCmat) - attribute_2^2)/sum(PCmat) * 100

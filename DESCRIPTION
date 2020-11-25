@@ -1,7 +1,7 @@
 Package: Makurhini
 Type: Package
 Title: Makurhini: Analyzing landscape connectivity
-Version: 1.0.0
+Version: 2.0.0
 Authors@R: c(person(given = "Oscar",
               family = "Godínez-Gómez",
               role = c("aut", "cre"),
@@ -22,7 +22,7 @@ Description: Makurhini (connect in Purépecha language) provides functions desig
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 URL: https://github.com/connectscape/Makurhini
 BugReports: https://github.com/connectscape/Makurhini/issues
 Suggests: 

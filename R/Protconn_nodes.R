@@ -28,6 +28,7 @@ Protconn_nodes <- function(x, y, buff = NULL, xsimplify = FALSE,  metrunit = "ha
   '%!in%' <- function(x,y)!('%in%'(x,y))
   #
   y.1 <- over_poly(y, x.1, geometry = TRUE)
+  y.1 <- st_buffer(y.1, 0)
 
   if(nrow(y.1) > 1){
     f1 <- ms_clip(y.1, x.1)
@@ -42,6 +43,7 @@ Protconn_nodes <- function(x, y, buff = NULL, xsimplify = FALSE,  metrunit = "ha
         y.2 <- y[which(y$PROTIDT %!in% y.1$PROTIDT),]
         mask1 <- ms_simplify(y.1, method = "vis", keep_shapes = TRUE)%>% st_buffer(., buff)
         f3 <- st_difference(y.1, x.1)
+
         f4 <- over_poly(y.2, mask1, geometry = TRUE) %>% ms_clip(., mask1)#
         f5 <- rbind(f3[,"geometry"], f4[,"geometry"])
         f5 <- f5[!st_is_empty(f5), ]

@@ -225,7 +225,6 @@ MK_Connect_grid <- function(nodes,
       } else {
         message("Step 3. Processing ProtConn metrics on the grid")
       }
-x=2
       result_1 <- tryCatch(map_df(1:nrow(base_param4[[3]]@grid), function(x) {
         if (isTRUE(intern)) {
           pb$tick()$print()
@@ -325,7 +324,6 @@ x=2
       } else {
         message("Step 3. Processing ProtConn metrics on the grid")
       }
-
       works <- as.numeric(availableCores())-1
       plan(strategy = multiprocess, gc = TRUE, workers = works)
       result_1 <- tryCatch(future_map_dfr(1:nrow(base_param4[[3]]@grid), function(x) {
@@ -400,7 +398,6 @@ x=2
       } else {
         message("Step 3. Processing ProtConn metrics on the grid")
       }
-
       result_1 <- tryCatch(map_df(1:nrow(base_param4[[3]]@grid), function(x) {
         if (isTRUE(intern)) {
           pb$tick()$print()
@@ -471,10 +468,9 @@ x=2
     }
   }
 
-  if(length(which(result_1 < 0)) > 0){
-    result_1[,which(result_1 < 0)] <- 0
+  if(inherits(result_1, "error")){
+    stop("error, check your input files")
   }
-
   result_2 <- cbind(base_param4[[3]]@grid, result_1)
   return(result_2)
 }

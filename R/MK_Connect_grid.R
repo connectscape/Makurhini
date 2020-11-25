@@ -83,9 +83,9 @@
 #' @importFrom raster crop raster
 #' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_intersection st_convex_hull
 #' @importFrom future plan multiprocess availableCores
-#' @importFrom furrr future_map_dfr
+#' @importFrom furrr future_map
 #' @importFrom dplyr progress_estimated
-#' @importFrom purrr map_df
+#' @importFrom purrr map
 #' @import methods
 MK_Connect_grid <- function(nodes,
                             attribute = NULL,
@@ -233,7 +233,7 @@ MK_Connect_grid <- function(nodes,
                                       ProtConn_Within_land = NA, ProtConn_Contig_land = NA,
                                       ProtConn_Unprot_land = NA, ProtConn_Trans_land = NA)
         }
-        return(ProtConn_grid) }, .progress = intern)%>% do.call(., rbind), error = function(err) err)
+        return(ProtConn_grid) }, .progress = intern)%>% do.call(rbind, .), error = function(err) err)
       close_multiprocess(works)
     } else {
       pb <- progress_estimated(nrow(base_param4[[3]]@grid), 0)
@@ -331,7 +331,7 @@ MK_Connect_grid <- function(nodes,
                                       ProtConn_Unprot_land = NA, ProtConn_Trans_land = NA)
         }
         return(ProtConn_grid)
-      }) %>% do.call(., rbind), error = function(err) err)
+      }) %>% do.call(rbind, .), error = function(err) err)
 
   }
 
@@ -407,7 +407,7 @@ MK_Connect_grid <- function(nodes,
                                     PC = NA)
         }
 
-        return(PC_grid)}, .progress = intern)%>% do.call(., rbind), error = function(err) err)
+        return(PC_grid)}, .progress = intern)%>% do.call(rbind, .), error = function(err) err)
       close_multiprocess(works)
     } else {
       pb <- progress_estimated(nrow(base_param4[[3]]@grid), 0)
@@ -482,7 +482,7 @@ MK_Connect_grid <- function(nodes,
                                     PC = NA)
         }
 
-        return(PC_grid)})%>% do.call(., rbind), error = function(err) err)
+        return(PC_grid)})%>% do.call(rbind, .), error = function(err) err)
     }
   }
 

@@ -163,9 +163,6 @@ MK_ProtConnMult <- function(nodes, regions, thintersect = NULL,
     plan(strategy = multiprocess, gc = TRUE, workers = works)
     protconn_result <- future_map(1:length(regions$ID_Temp), function(x){
       Ecoreg_sel <- regions[regions$ID_Temp == unique(regions$ID_Temp)[x],]
-      if (isTRUE(intern)){
-        pb$tick()$print()
-      }
       protconn <- tryCatch(MK_ProtConn(nodes = nodes,
                                        region = Ecoreg_sel,
                                        thintersect = thintersect,

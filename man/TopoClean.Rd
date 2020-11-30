@@ -4,7 +4,7 @@
 \alias{TopoClean}
 \title{Topological error correction}
 \usage{
-TopoClean(x)
+TopoClean(x, xsimplify = FALSE)
 }
 \arguments{
 \item{x}{Object of class sf, sfc, sfg or SpatialPolygons}

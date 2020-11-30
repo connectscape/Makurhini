@@ -34,5 +34,5 @@ moveme <- function (invec, movecommand){
     }
     myVec <- append(temp, values = movelist[[i]][[1]], after = after)
   }
-  myVec
+  return(myVec)
 }

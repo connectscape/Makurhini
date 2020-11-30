@@ -4,7 +4,13 @@
 \alias{input_grid}
 \title{ProtConn: input files}
 \usage{
-input_grid(node, landscape = NULL, unit = "ha", bdist = NULL)
+input_grid(
+  node,
+  landscape = NULL,
+  unit = "ha",
+  bdist = NULL,
+  xsimplify = FALSE
+)
 }
 \arguments{
 \item{node}{object of class sf, sfc, sfg or SpatialPolygons}
@@ -14,6 +20,8 @@ input_grid(node, landscape = NULL, unit = "ha", bdist = NULL)
 \item{unit}{character}
 
 \item{bdist}{numeric}
+
+\item{xsimplify}{logical}
 }
 \description{
 ProtConn: input files

@@ -15,6 +15,7 @@ MK_ProtConn(
   transboundary = NULL,
   protconn_bound = FALSE,
   LA = NULL,
+  geom_simplify = FALSE,
   plot = FALSE,
   write = NULL,
   parallel = FALSE,
@@ -43,7 +44,11 @@ for the species (1/α; Hanski and Ovaskainen 2000).}
 
 \item{transboundary}{numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017. You can set one transboundary value or one per each threshold distance.}
 
+\item{protconn_bound}{logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.}
+
 \item{LA}{numeric. Maximum Landscape Attribute.}
+
+\item{geom_simplify}{logical. Slightly simplify the region and nodes geometries.}
 
 \item{plot}{logical. Plot the main ProtConn indicators and fractions, default = FALSE.}
 
@@ -53,11 +58,9 @@ for the species (1/α; Hanski and Ovaskainen 2000).}
 plan when there are more than ONE transboundary, default = FALSE.}
 
 \item{intern}{logical. Show the progress of the process, default = TRUE.}
-
-\item{res_attribute}{numeric. If the attribute is no equal to "Area" or "Intersected area" then nodes will be converted to raster to extract values in one  process step, you can set the raster resolution, default = 150.}
 }
 \value{
-Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
+Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
  ProtConn[Contig], ProtConn[Trans], ProtConn[Unprot], ProtConn[Within][land], ProtConn[Contig][land],
  ProtConn[Unprot][land], ProtConn[Trans][land] \cr
 \cr

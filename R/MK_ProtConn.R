@@ -7,22 +7,23 @@
 #'  Example, if thintersect is equal to 90 then a node will be selected only if the intersection between the node and
 #'   the region is >= 90 percentage. If NULL, thintersect will be 0 (default)
 #' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".
-#' @param res_attribute numeric. If the attribute is no equal to "Area" or "Intersected area" then nodes will be converted to raster to extract values in one  process step, you can set the raster resolution, default = 150.
 #' @param distance list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).
+#' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
+#'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).
 #' @param probability numeric. Probability of direct dispersal between nodes, Default, 0.5,
 #'  that is 50 percentage of probability connection. If probability = NULL, then it will be the inverse of the mean dispersal distance
 #' for the species (1/α; Hanski and Ovaskainen 2000).
-#' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
-#'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).
 #' @param transboundary numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017. You can set one transboundary value or one per each threshold distance.
+#' @param protconn_bound logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.
 #' @param LA numeric. Maximum Landscape Attribute.
+#' @param geom_simplify logical. Slightly simplify the region and nodes geometries.
 #' @param plot logical. Plot the main ProtConn indicators and fractions, default = FALSE.
 #' @param write character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".
 #' @param parallel logical. Parallelize the function using furrr package and multiprocess
 #' plan when there are more than ONE transboundary, default = FALSE.
 #' @param intern logical. Show the progress of the process, default = TRUE.
 #' @return
-#' Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
+#' Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
 #'  ProtConn[Contig], ProtConn[Trans], ProtConn[Unprot], ProtConn[Within][land], ProtConn[Contig][land],
 #'  ProtConn[Unprot][land], ProtConn[Trans][land] \cr
 #' \cr
@@ -75,6 +76,7 @@ MK_ProtConn <- function(nodes,
                         transboundary = NULL,
                         protconn_bound = FALSE,
                         LA = NULL,
+                        geom_simplify = FALSE,
                         plot = FALSE,
                         write = NULL,
                         parallel = FALSE,
@@ -103,9 +105,13 @@ MK_ProtConn <- function(nodes,
     }
   }
 
-  message("Step 1. Reviewing parameters")
+  if(isTRUE(intern)){
+    message("Step 1. Reviewing parameters")
+  }
+
   base_param1 <- input_grid(node = nodes, landscape = region, unit = area_unit,
-                            bdist = if(is.null(transboundary)){0} else{transboundary})
+                            bdist = if(is.null(transboundary)){0} else{transboundary},
+                            xsimplify = geom_simplify)
 
   if(class(base_param1)[1] != "input_grid"){
     stop("error in nodes or region shapefile")
@@ -158,11 +164,13 @@ MK_ProtConn <- function(nodes,
   base_param3 <- list(base_param1, base_param2, nodes.1, resist, LA)
 
   #Tiene 2 o más nodos dentro de la region
-  if (isTRUE(intern) & length(base_param3[[2]]@transboundary)>1) {
-    pb <- dplyr::progress_estimated(length(base_param3[[2]]@transboundary), 0)
-    message("Step 2. Processing ProtConn metric. Progress estimated:")
-  } else {
-    message("Step 2. Processing ProtConn metric")
+  if (isTRUE(intern)){
+    if(length(base_param3[[2]]@transboundary)>1){
+      pb <- dplyr::progress_estimated(length(base_param3[[2]]@transboundary), 0)
+      message("Step 2. Processing ProtConn metric. Progress estimated:")
+    } else {
+      message("Step 2. Processing ProtConn metric")
+    }
   }
 
   if (isFALSE(parallel)) {
@@ -265,6 +273,7 @@ MK_ProtConn <- function(nodes,
         } else {
           nodes.2 <- nodes.1
         }
+
         result <- purrr::map(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = if(nodes.2 > LA){LA}else{nodes.2},
                                      PC = NA,
@@ -273,9 +282,9 @@ MK_ProtConn <- function(nodes,
                                      Prot = if((100 * (nodes.2 / LA)) > 100){100}else{100 * (nodes.2/LA)},
                                      Unprotected = if((100 - (100 * (nodes.2 / LA))) < 0){0}else{100 - (100 * (nodes.2 / LA))},
                                      ProtConn = if((100 * (nodes.2 / LA)) > 100){100}else{100 * (nodes.2 / LA)},
-                                     ProtUnconn = NA,
-                                     ProtUnconn_Design = NA,
-                                     ProtConn_Bound = NA,
+                                     ProtUnconn = 0,
+                                     ProtUnconn_Design = 0,
+                                     ProtConn_Bound = if((100 * (nodes.2 / LA)) > 100){100}else{100 * (nodes.2 / LA)},
                                      RelConn = NA,
                                      ProtConn_Prot = 100,
                                      ProtConn_Trans = NA,
@@ -285,7 +294,7 @@ MK_ProtConn <- function(nodes,
                                      ProtConn_Within_land = NA, ProtConn_Contig_land = NA,
                                      ProtConn_Unprot_land = NA, ProtConn_Trans_land = NA)
 
-          DataProtconn[,c(1,3,4:7,12)] <- round(DataProtconn[,c(1,3,4:7,12)], 4)
+          DataProtconn[,c(1,3,4:7,10,12)] <- round(DataProtconn[,c(1,3,4:7,10,12)], 4)
 
           ##
           DataProtconn_2 <- t(DataProtconn) %>% as.data.frame()

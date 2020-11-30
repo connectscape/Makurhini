@@ -161,6 +161,8 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
     }
 
     DataProtconn <- DataProtconn[,c(1:5, 9, 6:7, 19:20, 8, 10:18)]
+  } else {
+    DataProtconn <- DataProtconn[,c(1:5, 9, 6:8, 10:18)]
   }
 
   return(DataProtconn)

@@ -8,6 +8,7 @@
 #' @importFrom boot boot boot.ci
 #' @importFrom purrr map
 #' @importFrom stats sd
+
 ProtConnStat <- function(ProtConn, ci= "all", nr=500){
   if(!is.null(ci)){
     if(ci == "all"){

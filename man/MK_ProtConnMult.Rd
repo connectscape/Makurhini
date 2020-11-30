@@ -8,14 +8,12 @@ MK_ProtConnMult(
   nodes,
   regions,
   thintersect = NULL,
-  attribute = "Intersected area",
   area_unit = "ha",
-  res_attribute = 150,
   distance = list(type = "centroid", resistance = NULL),
   distance_thresholds,
   probability,
   transboundary = NULL,
-  keep = 1,
+  protconn_bound = FALSE,
   CI = "all",
   plot = FALSE,
   write = NULL,
@@ -42,6 +40,8 @@ If probability = NULL, then it will be the inverse of the mean dispersal distanc
 
 \item{transboundary}{numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017.}
 
+\item{protconn_bound}{logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.}
+
 \item{CI}{character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, \link[boot]{boot.ci})}
 
 \item{plot}{logical. Plot the main ProtConn indicators and fractions with their standard deviation, default = FALSE.}
@@ -53,13 +53,13 @@ If probability = NULL, then it will be the inverse of the mean dispersal distanc
 \item{parallel}{logical. Parallelize the function using furrr package and multiprocess plan, default = FALSE.}
 }
 \value{
-Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
-ProtConn[Contig], ProtConn[Trans], ProtConn[Unprot], ProtConn[Within][land], ProtConn[Contig][land],
-ProtConn[Unprot][land], ProtConn[Trans][land] \cr
+Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
+ ProtConn[Contig], ProtConn[Trans], ProtConn[Unprot], ProtConn[Within][land], ProtConn[Contig][land],
+ ProtConn[Unprot][land], ProtConn[Trans][land] \cr
 \cr
 *Each indicator is accompanied by six dispersion statistics: standard deviation, standard error and four confidence intervals obtained with a bootstrap-type resampling (Carpenter & Bithell 2000; see, \strong{ProtConnStat()})\cr
 \cr
-*If plot is not NULL a list is returned with the ProtConn table and a plots.
+*If plot is not TRUE a list is returned with the ProtConn table and a plots.
 }
 \description{
 Estimate Protected Connected (ProtConn) indicator and fractions for multiple regions.

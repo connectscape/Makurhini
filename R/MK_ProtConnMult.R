@@ -12,6 +12,7 @@
 #' If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).
 #' @param transboundary numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017.
 #' @param protconn_bound logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.
+#' @param geom_simplify logical. Slightly simplify the region and nodes geometries.
 #' @param CI character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, \link[boot]{boot.ci})
 #' @param plot logical. Plot the main ProtConn indicators and fractions with their standard deviation, default = FALSE.
 #' @param write character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".
@@ -66,7 +67,7 @@ MK_ProtConnMult <- function(nodes, regions,
                             distance_thresholds, probability,
                             transboundary = NULL,
                             protconn_bound = FALSE,
-                            #keep = 1,
+                            geom_simplify = FALSE,
                             CI = "all",
                             plot = FALSE,
                             write = NULL, intern = TRUE,
@@ -122,6 +123,7 @@ MK_ProtConnMult <- function(nodes, regions,
                                        protconn_bound = protconn_bound,
                                        distance_thresholds = distance_thresholds,
                                        probability = probability,
+                                       geom_simplify = geom_simplify,
                                        plot = FALSE,
                                        intern = FALSE),  error = function(err)err)
 
@@ -200,6 +202,7 @@ MK_ProtConnMult <- function(nodes, regions,
                                        transboundary = transboundary,
                                        distance_thresholds = distance_thresholds,
                                        probability = probability,
+                                       geom_simplify = geom_simplify,
                                        plot = FALSE,
                                        intern = FALSE),  error = function(err)err)
 
@@ -421,7 +424,7 @@ MK_ProtConnMult <- function(nodes, regions,
         figure <- "There are insufficient data to plot"
       }
 
-      if(isTRUE(plot)){
+      if(!is.null(write)){
         if(!is.character(figure)){
           tiff(paste0(write, "ProtConn_plot_d", distance_thresholds[x], ".tif"), width = 806, height = 641)
           print(figure)

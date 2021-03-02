@@ -14,6 +14,7 @@ MK_ProtConnMult(
   probability,
   transboundary = NULL,
   protconn_bound = FALSE,
+  geom_simplify = FALSE,
   CI = "all",
   plot = FALSE,
   write = NULL,
@@ -41,6 +42,8 @@ If probability = NULL, then it will be the inverse of the mean dispersal distanc
 \item{transboundary}{numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017.}
 
 \item{protconn_bound}{logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.}
+
+\item{geom_simplify}{logical. Slightly simplify the region and nodes geometries.}
 
 \item{CI}{character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, \link[boot]{boot.ci})}
 

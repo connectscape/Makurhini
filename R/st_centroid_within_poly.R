@@ -7,6 +7,7 @@
 #' \url{https://stackoverflow.com/users/3609772/mitch}.
 #' @importFrom magrittr %>%
 #' @importFrom sf st_centroid st_within st_point_on_surface
+#' @return
 
 st_centroid_within_poly <- function(poly){
   centroid <- poly %>% st_centroid()

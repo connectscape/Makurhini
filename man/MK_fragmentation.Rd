@@ -20,7 +20,7 @@ MK_Fragmentation(
 
 \item{edge_distance}{Numeric. Distance to edge in meters. Default equal 500 m (Haddad et al. 2015)}
 
-\item{min_patch_area}{Numeric. Minimum patch area. Default equal 100 km2(Haddad et al. 2015)}
+\item{min_patch_area}{Numeric. Minimum patch area. Default equal 100 km2 (Haddad et al. 2015)}
 
 \item{landscape_area}{Numeric. Total landscape area in km2 (optional). If NULL the total patch area will be used.}
 

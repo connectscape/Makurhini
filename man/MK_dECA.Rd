@@ -83,6 +83,7 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
                   probability = 0.05, distance_thresholds = 5000,
                   LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))
 dECA_test
+
 }
 }
 \references{

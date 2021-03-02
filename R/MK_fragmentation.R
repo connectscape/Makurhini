@@ -3,7 +3,7 @@
 #' Calculate patch and landscape statistics
 #' @param patches Object of class sf, sfc, sfg or SpatialPolygons with individual patches. The shapefile must be in a projected coordinate system.
 #' @param edge_distance Numeric. Distance to edge in meters. Default equal 500 m (Haddad et al. 2015)
-#' @param min_patch_area Numeric. Minimum patch area. Default equal 100 km2(Haddad et al. 2015)
+#' @param min_patch_area Numeric. Minimum patch area. Default equal 100 km2 (Haddad et al. 2015)
 #' @param landscape_area Numeric. Total landscape area in km2 (optional). If NULL the total patch area will be used.
 #' @param area_unit character. You can set an area unit (e.g., "km2", "cm2", "m2", "ha"; see Makurhini::unit_convert). Default equal to square kilometers "km2".
 #' @param perimeter_unit character. You can set a perimeter unit (e.g., "km", "cm", "m", "ha"; see Makurhini::unit_convert). Default equal to kilometers "km".

@@ -27,12 +27,12 @@ cost_distances(
 \item{type_distance}{character. Choose one of the distances: "least-cost" (default) that takes into account obstacles and local friction of the landscape (See, gdistance package);
 "commute-time" that is analogous to the resistance distance. This distance is based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).}
 
-\item{resistance}{raster. Raster object with resistance values (landscape friction).}
+\item{resistance}{raster. Raster object with resistance values (landscape friction). Consider using a range of resistance values between 1 and 10, NA should be a complete barrier.}
 
-\item{CostFun}{A function to compute the cost to move between cells.The default is the conductance
-(isotropic cost distance):  function(x) 1/mean(x).}
+\item{CostFun}{A function to compute the cost to move between cells. The default is the conductance
+(isotropic cost distance):  function(x) 1/x[2].}
 
-\item{ngh}{numeric. Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16 (king’s and knight’s moves). Default equal 16.}
+\item{ngh}{numeric. Neighbour graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16 (king’s and knight’s moves). Default equal 8.}
 
 \item{mask}{object of class sf, sfc, sfg or SpatialPolygons. For higher processing speed use this option to clip the resistance at the extent of the mask.}
 

@@ -11,7 +11,7 @@
 #' @import methods
 input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimplify = FALSE){
   class_cache <- new.env(parent = emptyenv())
-  MK_Pol <- setClass("input_grid", slots = list(nodes = "sf", region = "sf",
+  setClass("input_grid", slots = list(nodes = "sf", region = "sf",
                                                          area_unit = "character"),
                               where = class_cache)
 

@@ -9,6 +9,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip
 #' @import methods
+#' @export
 input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimplify = FALSE){
   class_cache <- new.env(parent = emptyenv())
   setClass("input_grid", slots = list(nodes = "sf", region = "sf",
@@ -17,12 +18,12 @@ input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimpl
 
   if(class(landscape)[1] == "SpatialPolygonsDataFrame" | class(landscape)[1] == "sf"){
     landscape <- TopoClean(landscape, xsimplify = xsimplify)
-  } else{
+  } else {
     stop("landscape class should be SpatialPolygonDataframe or sf")
   }
 
   #
-  mask1 <- ms_simplify(landscape, method = "vis", keep_shapes = TRUE)%>% st_buffer(., bdist)
+  mask1 <- rmapshaper::ms_simplify(landscape, method = "vis", keep_shapes = TRUE)%>% st_buffer(., bdist)
   node <- over_poly(node, mask1, geometry = TRUE)
 
 

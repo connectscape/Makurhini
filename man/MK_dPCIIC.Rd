@@ -8,7 +8,7 @@ MK_dPCIIC(
   nodes,
   attribute = NULL,
   area_unit = "ha",
-  restauration = NULL,
+  restoration = NULL,
   distance = list(type = "centroid", resistance = NULL),
   metric = c("IIC", "PC"),
   probability = NULL,
@@ -16,15 +16,15 @@ MK_dPCIIC(
   overall = FALSE,
   onlyoverall = FALSE,
   LA = NULL,
-  rasterparallel = FALSE,
+  rasterparallel = NULL,
   write = NULL
 )
 }
 \arguments{
-\item{nodes}{Object of class sf, SpatialPolygonsDataFrame, raster or data frame.
+\item{nodes}{Nodes, patches, fragments, etc. Object of class sf, SpatialPolygonsDataFrame, raster or data frame.
 If spatial layer, then it must be in a projected coordinate system. If nodes is a raster layer then raster values (Integer)
-will be taken as "id". If nodes is a data frame, then it must have at least two columns, first column with nodes "id" and second with the attribut.
-If you use the restoration argument, then you must have a dataframe with three columns where the third column is equal the restauration values}
+will be taken as "id". If nodes is a data frame, then it must have at least two columns, first column with nodes "id" and second with the attribute.
+If you use the restoration argument, then you must have a dataframe with three columns where the third column is equal the restoration values}
 
 \item{attribute}{character or vector. If nodes is a shappefile then you must specify the column name
 with the attribute selected for the nodes. If nodes is a raster layer then it must be
@@ -36,25 +36,25 @@ a numeric vector with the node's attribute. The length of the vector must be equ
 \item{area_unit}{character. If attribute is NULL you can set an area unit (e.g., "km2", "cm2", "ha";
 see Makurhini::unit_convert). Default equal to hectares "ha".}
 
-\item{restauration}{character or vector. If nodes is a shappefile then you must specify the name of the column
-with restauration value. If nodes is a raster layer then must be a numeric vector with restauration values
+\item{restoration}{character or vector. If nodes is a shappefile then you must specify the name of the column
+with restoration value. If nodes is a raster layer then must be a numeric vector with restoration values
 to each node in the raster. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node
  to add to the initial landscape (restored).
- If nodes is a data frame then it must have three columns where third column has restauration values.}
+ If nodes is a data frame then it must have three columns where third column has restoration values.}
 
 \item{distance}{list or distance matrix. If it is a list, then it must be a set of distance parameters. For example: type, resistance,or keep. For "type" choose one
-of the distances: "centroid" (faster), "edge", "hausdorff-edge",
-"least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have
+of the distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have
 to use the "resistance" argument. To see more arguments see the ?distancefile.
 If it is a distance matrix, then the number of columns and rows must be equal the number of nodes and "id".}
 
-\item{metric}{character. Choose a connectivity metric: "IIC" considering topologycal distances or "PC" considering maximum product probabilities.}
+\item{metric}{character. Choose a connectivity metric: "IIC" considering topological distances or "PC" considering maximum product probabilities.}
 
 \item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.
 If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).}
 
 \item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
-distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).}
+distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000). If NULL then the mean
+distance between nodes will be estimated and used.}
 
 \item{overall}{logical. If TRUE, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE}
 
@@ -62,7 +62,9 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
 
 \item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).}
 
-\item{rasterparallel}{logical. If nodes is "raster" then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.}
+\item{rasterparallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL.
+If nodes is "raster" then you can use this argument to assign the metrics values to the nodes
+ raster. It is useful when raster resolution is less than 100 m2.}
 
 \item{write}{character. Write output shapefile and overall table (if TRUE overall argument).
 It is necessary to specify the "Folder direction" + "Initial prefix",  for example, "C:/ejemplo".}

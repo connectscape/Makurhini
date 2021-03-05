@@ -5,6 +5,7 @@
 #' @param y list. Distance list.
 #' @param r object of class sf, sfc, sfg or SpatialPolygons.
 #' @param resistance raster
+#' @export
 #' @importFrom sf st_buffer
 #' @importFrom raster crop
 #' @importFrom rmapshaper ms_simplify

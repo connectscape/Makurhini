@@ -9,6 +9,7 @@
 #'  }
 #' @references
 #' The solution was proposed by the user "A5C1D2H2I1M1N2O1R2T1" \url{https://stackoverflow.com/users/1270695/a5c1d2h2i1m1n2o1r2t1}.
+#' @export
 moveme <- function (invec, movecommand){
   movecommand <- lapply(strsplit(strsplit(movecommand, ";")[[1]],",|\\s+"), function(x) x[x != ""])
   movelist <- lapply(movecommand, function(x){
@@ -36,3 +37,4 @@ moveme <- function (invec, movecommand){
   }
   return(myVec)
 }
+

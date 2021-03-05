@@ -8,6 +8,7 @@ Protconn_nodes(
   x,
   y,
   buff = NULL,
+  method = "nodes",
   xsimplify = FALSE,
   metrunit = "ha",
   protconn = TRUE,
@@ -20,6 +21,8 @@ Protconn_nodes(
 \item{y}{object of class sf, sfc, sfg or SpatialPolygons}
 
 \item{buff}{numeric}
+
+\item{method}{character}
 
 \item{xsimplify}{logical}
 

@@ -7,6 +7,7 @@
 #' @param probability numeric
 #' @param transboundary numeric
 #' @param distance list
+#' @export
 #' @importFrom sf st_sf st_cast st_buffer st_difference st_area st_geometry
 #' @importFrom magrittr %>%
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip

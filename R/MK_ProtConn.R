@@ -1,8 +1,8 @@
 #' Protected Connected (ProtConn)
 #'
 #' Estimate Protected Connected (ProtConn) indicator and fractions for one region.
-#' @param nodes object of class sf, sfc, sfg or SpatialPolygons. Example, Protected areas shapefile.
-#' @param region object of class sf, sfc, sfg or SpatialPolygons. Region shapefile.
+#' @param nodes object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
+#' @param region object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
 #' @param thintersect numeric. Threshold of intersection in percentage allowed to select or not a target geometry.
 #'  Example, if thintersect is equal to 90 then a node will be selected only if the intersection between the node and
 #'   the region is >= 90 percentage. If NULL, thintersect will be 0 (default)
@@ -13,14 +13,16 @@
 #' @param probability numeric. Probability of direct dispersal between nodes, Default, 0.5,
 #'  that is 50 percentage of probability connection. If probability = NULL, then it will be the inverse of the mean dispersal distance
 #' for the species (1/α; Hanski and Ovaskainen 2000).
-#' @param transboundary numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017. You can set one transboundary value or one per each threshold distance.
+#' @param transboundary numeric. Buffer to select polygons in a second round, their attribute value = 0, see Saura et al. 2017. You can set one transboundary value or one per each threshold distance.
+#' @param transboundary_type character. Two options: "nodes" or "region". If it is "nodes" the transboundary is built from the limits of the nodes present in the region (default),
+#' if "region" is selected the transboundary is built from the limits of the region.
 #' @param protconn_bound logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.
 #' @param LA numeric. Maximum Landscape Attribute.
 #' @param geom_simplify logical. Slightly simplify the region and nodes geometries.
 #' @param plot logical. Plot the main ProtConn indicators and fractions, default = FALSE.
 #' @param write character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".
-#' @param parallel logical. Parallelize the function using furrr package and multiprocess
-#' plan when there are more than ONE transboundary, default = FALSE.
+#' @param parallel logical. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
+#' plan when there are more than ONE transboundary.
 #' @param intern logical. Show the progress of the process, default = TRUE.
 #' @return
 #' Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
@@ -46,6 +48,31 @@
 #' test <- MK_ProtConn(nodes = Protected_areas, region = region,
 #'                     area_unit = "ha",
 #'                     distance = list(type= "centroid"),
+#'                     distance_thresholds = c(50000, 10000),
+#'                     probability = 0.5, transboundary = c(50000, 10000),
+#'                     LA = NULL, plot = TRUE, parallel = NULL,
+#'                     write = NULL, intern = FALSE)
+#' test
+#'
+#' #Least-cost distances
+#' data("HFP_Mexico", package = "Makurhini")
+#' mask_1 <- as(extent(Protected_areas), 'SpatialPolygons')
+#' crs(mask_1) <- crs(Protected_areas)
+#' mask_1 <- buffer(mask_1, 20000)
+#' HFP_Mexico <- crop(HFP_Mexico, mask_1)
+#'
+#' #Penalizing 100 times the distance of a pixel (1 km) is too much
+#' #so we will rescale the values from 1 to 10
+#' HFP_Mexico <- HFP_Mexico/10
+#'
+#' # we have values less than 1 and that could underestimate the least cost distance,
+#' # then we substitute the values less than 1 for 1
+#' HFP_Mexico[HFP_Mexico < 1] <- 1
+#' plot(HFP_Mexico)
+#'
+#' test <- MK_ProtConn(nodes = Protected_areas, region = region,
+#'                     area_unit = "ha",
+#'                     distance = list(type= "least-cost", resistance = HFP_Mexico),
 #'                     distance_thresholds = c(50000, 10000),
 #'                     probability = 0.5, transboundary = 50000,
 #'                     LA = NULL, plot = TRUE,
@@ -74,15 +101,17 @@ MK_ProtConn <- function(nodes,
                         distance_thresholds,
                         probability,
                         transboundary = NULL,
+                        transboundary_type = "nodes",
                         protconn_bound = FALSE,
                         LA = NULL,
                         geom_simplify = FALSE,
                         plot = FALSE,
                         write = NULL,
-                        parallel = FALSE,
+                        parallel = NULL,
                         intern = TRUE){
   options(warn = -1)
   err <- tryCatch(detach("package:plyr", unload = TRUE), error = function(err)err)
+
   if (missing(nodes)) {
     stop("error missing file of nodes")
   } else {
@@ -131,6 +160,7 @@ MK_ProtConn <- function(nodes,
   nodes.1 <- tryCatch(Protconn_nodes(x = base_param1@region,
                                      y = base_param1@nodes,
                                      buff = max(transboundary),
+                                     method = transboundary_type,
                                      xsimplify = TRUE,
                                      metrunit = base_param1@area_unit,
                                      protconn_bound = protconn_bound), error = function(err)err)
@@ -163,7 +193,6 @@ MK_ProtConn <- function(nodes,
 
   base_param3 <- list(base_param1, base_param2, nodes.1, resist, LA)
 
-  #Tiene 2 o más nodos dentro de la region
   if (isTRUE(intern)){
     if(length(base_param3[[2]]@transboundary)>1){
       pb <- dplyr::progress_estimated(length(base_param3[[2]]@transboundary), 0)
@@ -173,16 +202,18 @@ MK_ProtConn <- function(nodes,
     }
   }
 
-  if (isFALSE(parallel)) {
-    ProtConn_res <- tryCatch(purrr::map(base_param3[[2]]@transboundary, function(n){
-      if (isTRUE(intern) & length(base_param3[[2]]@transboundary)>1) {
+  if (is.null(parallel)) {
+    ProtConn_res <- tryCatch(lapply(base_param3[[2]]@transboundary, function(n){
+      if (isTRUE(intern) & length(base_param3[[2]]@transboundary) > 1) {
         pb$tick()$print()
       }
+
       if(is.list(nodes.1)){
         if(n != max(transboundary)){
           nodes.2 <- tryCatch(Protconn_nodes(x = base_param3[[1]]@region,
                                              y = nodes.1[[1]][which(nodes.1[[1]]$type != "Region"),],
                                              buff = n,
+                                             method = transboundary_type,
                                              xsimplify = TRUE,
                                              metrunit = base_param3[[1]]@area_unit,
                                              protconn_bound = protconn_bound), error = function(err)err)
@@ -202,7 +233,7 @@ MK_ProtConn <- function(nodes,
           stop("error distance. Check topology errors or resistance raster")
         }
 
-        result <- purrr::map(base_param3[[2]]@distance_threshold, function(d){
+        result <- lapply(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- get_protconn_grid(x = nodes.2,
                                             y = distance.1,
                                             p = base_param3[[2]]@probability,
@@ -222,7 +253,7 @@ MK_ProtConn <- function(nodes,
           DataProtconn_2$Indicator[4] <- "Protected surface"
           DataProtconn_2$Index <- rep(DataProtconn_2[c(1:4),2], 8)[1:nrow(DataProtconn_2)]
 
-          Value <- DataProtconn_2[c(1:4),1]
+          Value <- DataProtconn_2[c(1:4), 1]
 
           if(Value[1]%%1 == 0){
             Value <- c(formatC(as.numeric(Value[1]), format="d"),
@@ -257,9 +288,10 @@ MK_ProtConn <- function(nodes,
           }
           return(result_lista)
         })
+
         names(result) <- paste0("d", distance_thresholds)
 
-      } else if(is.numeric(nodes.1)){
+      } else if(is.numeric(nodes.1)){ #Just exist only one node in the region
         if(n != max(transboundary)){
           nodes.2 <- tryCatch(Protconn_nodes(x = base_param3[[1]]@region,
                                              y = nodes.1[[1]][which(nodes.1[[1]]$type != "Region"),],
@@ -274,7 +306,7 @@ MK_ProtConn <- function(nodes,
           nodes.2 <- nodes.1
         }
 
-        result <- purrr::map(base_param3[[2]]@distance_threshold, function(d){
+        result <- lapply(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = if(nodes.2 > LA){LA}else{nodes.2},
                                      PC = NA,
                                      LA = LA,
@@ -286,10 +318,10 @@ MK_ProtConn <- function(nodes,
                                      ProtUnconn_Design = 0,
                                      ProtConn_Bound = if((100 * (nodes.2 / LA)) > 100){100}else{100 * (nodes.2 / LA)},
                                      RelConn = NA,
-                                     ProtConn_Prot = 100,
+                                     ProtConn_Prot = NA,
                                      ProtConn_Trans = NA,
                                      ProtConn_Unprot = NA,
-                                     ProtConn_Within = 100,
+                                     ProtConn_Within = NA,
                                      ProtConn_Contig = NA,
                                      ProtConn_Within_land = NA, ProtConn_Contig_land = NA,
                                      ProtConn_Unprot_land = NA, ProtConn_Trans_land = NA)
@@ -335,7 +367,7 @@ MK_ProtConn <- function(nodes,
 
         names(result) <- paste0("d", distance_thresholds)
       } else {
-        result <- purrr::map(base_param3[[2]]@distance_threshold, function(d){
+        result <- lapply(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = NA,
                                      PC = NA,
                                      LA = LA,
@@ -398,11 +430,12 @@ MK_ProtConn <- function(nodes,
         }
       }
 
-      result2 <- compact(result)
+      return(result)
 
     }), error = function(err)err)
   } else {
     works <- as.numeric(availableCores())-1
+    works <-  if(parallel > works){works}else{parallel}
     plan(strategy = multiprocess, gc = TRUE, workers = works)
     ProtConn_res <- tryCatch(future_map(base_param3[[2]]@transboundary, function(n){
       if(is.list(nodes.1)){
@@ -410,6 +443,7 @@ MK_ProtConn <- function(nodes,
           nodes.2 <- tryCatch(Protconn_nodes(x = base_param3[[1]]@region,
                                              y = nodes.1[[1]][which(nodes.1[[1]]$type != "Region"),],
                                              buff = n,
+                                             method = transboundary_type,
                                              xsimplify = TRUE,
                                              metrunit = base_param3[[1]]@area_unit,
                                              protconn_bound = protconn_bound), error = function(err)err)
@@ -501,21 +535,21 @@ MK_ProtConn <- function(nodes,
           nodes.2 <- nodes.1
         }
         result <- future_map(base_param3[[2]]@distance_threshold, function(d){
-          DataProtconn <- data.frame(ECA = if(nodes.2 > LA){LA}else{nodes.2},
+          DataProtconn <- data.frame(ECA = NA,
                                      PC = NA,
                                      LA = LA,
                                      Protected.surface = nodes.2,
                                      Prot = if((100 * (nodes.2 / LA)) > 100){100}else{100 * (nodes.2/LA)},
                                      Unprotected = if((100 - (100 * (nodes.2 / LA))) < 0){0}else{100 - (100 * (nodes.2 / LA))},
-                                     ProtConn = if((100 * (nodes.2 / LA)) > 100){100}else{100 * (nodes.2 / LA)},
+                                     ProtConn = NA,
                                      ProtUnconn = NA,
                                      ProtUnconn_Design = NA,
                                      ProtConn_Bound = NA,
                                      RelConn = NA,
-                                     ProtConn_Prot = 100,
+                                     ProtConn_Prot = NA,
                                      ProtConn_Trans = NA,
                                      ProtConn_Unprot = NA,
-                                     ProtConn_Within = 100,
+                                     ProtConn_Within = NA,
                                      ProtConn_Contig = NA,
                                      ProtConn_Within_land = NA, ProtConn_Contig_land = NA,
                                      ProtConn_Unprot_land = NA, ProtConn_Trans_land = NA)
@@ -624,10 +658,9 @@ MK_ProtConn <- function(nodes,
         }
       }
 
-      result2 <- compact(result)
+      return(result)
 
-    },
-    .progress = intern), error = function(err)err)
+    }, .progress = intern), error = function(err)err)
     close_multiprocess(works)
     }
 

@@ -17,8 +17,6 @@ distancefile(
   threshold = NULL,
   geometry_out = NULL,
   bounding_circles = NULL,
-  multiple = NULL,
-  prefix = NULL,
   parallel = FALSE,
   edgeParallel = FALSE,
   pairwise = TRUE,
@@ -42,7 +40,7 @@ If the type is equal to "least-cost" or "commute-time", then you have to use the
 compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".}
 
 \item{keep}{numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
-number of vertices (from rmapshaper::ms_simplify). The value can range from 0 to 1 and is the proportion of points to retain (default equal to NULL). The higher the value,
+number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to NULL). The higher the value,
  the higher the speed but less precision.}
 
 \item{resistance}{raster. Raster object with resistance values.}
@@ -71,24 +69,19 @@ If NULL, then a Euclidean distance (centroid) will be calculated to find these d
 Buffer distances are entered in map units. Also, the function is parallelized using
  and furrr package and multiprocess plan, default = NULL.}
 
-\item{multiple}{character. If nodes is a shapefile then you can use this argument. Name of the column with the zone to which each core area belongs.}
-
-\item{prefix}{character. Initial prefix, use in case of processing several sites at the same time in CONEFOR command line.}
-
 \item{parallel}{logical. If nodes is a raster then you can use this argument for larges RasterLayer.}
 
 \item{edgeParallel}{logical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.}
 
 \item{pairwise}{logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.}
 
-\item{write}{character. Choose the output folder if you use multiple argument otherwise, place the output path, with
-the name and extension ".txt".}
+\item{write}{character. Output path, with name and extension ".txt".}
 }
 \value{
 Exports a euclidean or cost distance table between pairs of nodes.
 }
 \description{
-Get a table or matrix with the distances (euclidean or cost distances) between pairs of nodes. It can be used as a connector file.
+Get a table or matrix with the distances (Euclidean or cost distances) between pairs of nodes. It can be used as a connector file.
 }
 \references{
 \url{https://www.rdocumentation.org/packages/rgeos/versions/0.3-26/topics/gDistance}\cr

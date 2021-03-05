@@ -184,7 +184,7 @@ test_metric_distance <- function(nodes,
   conn_metric <- map_dfr(distances_test, function(x){
     ECA_metric <-  map_dfr(distance_thresholds, function(y) {
       tab1 <- tryCatch(MK_dPCIIC(nodes = nodes, attribute = attribute,
-                                 restauration = NULL,
+                                 restoration = NULL,
                                  distance = x, area_unit = area_unit,
                                  metric = if(metric=="ProtConn"){"PC"}else{metric}, probability = probability,
                                  distance_thresholds = y,

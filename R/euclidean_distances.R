@@ -1,19 +1,19 @@
 #' Euclidian distances
 #'
-#' @param x object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.
-#' @param id character. Column name with the core id.
-#' @param type_distance character. Choose one of the distances: "centroid" (faster, default), where Euclidean distance is calculated from feature centroid; "edge", where Euclidean distance is calculated from feature edges;
+#' @param x object of class sf, sfc, sfg or SpatialPolygons. It must be in a projected coordinate system.
+#' @param id character. Column name with the patches+ id.
+#' @param centroid logical. If centroid is TRUE then the Euclidean distance is calculated from patch centroids, if FALSE the Euclidean distance is calculated from patch edges.
 #' @param distance_unit character. Set a distance unit, "Makurhini::unit_covert()" compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".
-#' @param keep numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
-#'  number of vertices (from rmapshaper::ms_simplif). The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
-#'   the higher the speed but the greater uncertainty.
 #' @param threshold numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
-#' @param edgeParallel logical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.
+#' @param keep numeric. Argument for higher processing speed. Only is available for "edge" distance or centroid equal FALSE, use this option to simplify the geometry and reduce the
+#'  number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
+#'   the higher the speed but the greater uncertainty.
+#' @param edgeParallel logical. Only is available for "edge" distance or centroid equal FALSE, use this option to parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.
 #' @param pairwise logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.
 #' @param write_table character. "" indicates output to the console.
 #' @return Pairwise Euclidean distance table
-#' @details The function builds on functions out of Roger Bivand and collaborators ’rgeos’ package.
 #' @references Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitized Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
+#' @export
 #' @importFrom rgeos gCentroid gDistance
 #' @importFrom rmapshaper ms_simplify
 #' @importFrom methods as
@@ -21,7 +21,7 @@
 #' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
 
-euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit = "m",
+euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
                                 keep = NULL, threshold = NULL, edgeParallel = FALSE,
                                 pairwise = TRUE, write_table = NULL){
   if(missing(id)){
@@ -41,11 +41,11 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
     }
   }
 
-  if (type_distance ==  "centroid"){
+  if (isTRUE(centroid)){
     centroid_1 <- gCentroid(x, byid = TRUE)
     distance <- gDistance(centroid_1, byid = TRUE)
 
-  } else if (type_distance == "edge"){
+  } else {
     if(isFALSE(edgeParallel)){
       if(!is.null(keep)){
         x_id <- x@data[,which(colnames(x@data) == id)]
@@ -88,10 +88,6 @@ euclidean_distances <- function(x, id, type_distance = "centroid", distance_unit
       close_multiprocess(works)
       distance <- do.call(cbind, distance)
     }
-  } else if (type_distance == "hausdorff-edge"){
-    distance <- gDistance(x, byid = TRUE, hausdorff = TRUE)
-  } else {
-    stop("Error, you have to choose a type_distance option")
   }
 
   if (distance_unit != "m"){

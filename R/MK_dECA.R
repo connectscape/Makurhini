@@ -54,6 +54,7 @@
 #'                   probability = 0.05, distance_thresholds = 5000,
 #'                   LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))
 #' dECA_test
+#'
 #' }
 #' @export
 #' @importFrom magrittr %>%
@@ -160,7 +161,7 @@ MK_dECA <- function(nodes,
 
       ECA_metric <-  map_dfr(distance_thresholds, function(y) {
         tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
-                          restauration = NULL,
+                          restoration = NULL,
                           distance = distance, area_unit = area_unit,
                           metric = metric, probability = probability,
                           distance_thresholds = y,
@@ -182,7 +183,7 @@ MK_dECA <- function(nodes,
     ECA <- tryCatch(future_map(listT, function(x) {
       ECA_metric <-  future_map_dfr(distance_thresholds, function(y) {
         tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
-                          restauration = NULL,
+                          restoration = NULL,
                           distance = distance, area_unit = area_unit,
                           metric = metric, probability = probability,
                           distance_thresholds = y,

@@ -13,19 +13,20 @@ MK_ProtConn(
   distance_thresholds,
   probability,
   transboundary = NULL,
+  transboundary_type = "nodes",
   protconn_bound = FALSE,
   LA = NULL,
   geom_simplify = FALSE,
   plot = FALSE,
   write = NULL,
-  parallel = FALSE,
+  parallel = NULL,
   intern = TRUE
 )
 }
 \arguments{
-\item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. Example, Protected areas shapefile.}
+\item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.}
 
-\item{region}{object of class sf, sfc, sfg or SpatialPolygons. Region shapefile.}
+\item{region}{object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.}
 
 \item{thintersect}{numeric. Threshold of intersection in percentage allowed to select or not a target geometry.
 Example, if thintersect is equal to 90 then a node will be selected only if the intersection between the node and
@@ -42,7 +43,10 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
  that is 50 percentage of probability connection. If probability = NULL, then it will be the inverse of the mean dispersal distance
 for the species (1/α; Hanski and Ovaskainen 2000).}
 
-\item{transboundary}{numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017. You can set one transboundary value or one per each threshold distance.}
+\item{transboundary}{numeric. Buffer to select polygons in a second round, their attribute value = 0, see Saura et al. 2017. You can set one transboundary value or one per each threshold distance.}
+
+\item{transboundary_type}{character. Two options: "nodes" or "region". If it is "nodes" the transboundary is built from the limits of the nodes present in the region (default),
+if "region" is selected the transboundary is built from the limits of the region.}
 
 \item{protconn_bound}{logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.}
 
@@ -54,8 +58,8 @@ for the species (1/α; Hanski and Ovaskainen 2000).}
 
 \item{write}{character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".}
 
-\item{parallel}{logical. Parallelize the function using furrr package and multiprocess
-plan when there are more than ONE transboundary, default = FALSE.}
+\item{parallel}{logical. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
+plan when there are more than ONE transboundary.}
 
 \item{intern}{logical. Show the progress of the process, default = TRUE.}
 }
@@ -83,6 +87,31 @@ plot(region, col="blue")
 test <- MK_ProtConn(nodes = Protected_areas, region = region,
                     area_unit = "ha",
                     distance = list(type= "centroid"),
+                    distance_thresholds = c(50000, 10000),
+                    probability = 0.5, transboundary = c(50000, 10000),
+                    LA = NULL, plot = TRUE, parallel = NULL,
+                    write = NULL, intern = FALSE)
+test
+
+#Least-cost distances
+data("HFP_Mexico", package = "Makurhini")
+mask_1 <- as(extent(Protected_areas), 'SpatialPolygons')
+crs(mask_1) <- crs(Protected_areas)
+mask_1 <- buffer(mask_1, 20000)
+HFP_Mexico <- crop(HFP_Mexico, mask_1)
+
+#Penalizing 100 times the distance of a pixel (1 km) is too much
+#so we will rescale the values from 1 to 10
+HFP_Mexico <- HFP_Mexico/10
+
+# we have values less than 1 and that could underestimate the least cost distance,
+# then we substitute the values less than 1 for 1
+HFP_Mexico[HFP_Mexico < 1] <- 1
+plot(HFP_Mexico)
+
+test <- MK_ProtConn(nodes = Protected_areas, region = region,
+                    area_unit = "ha",
+                    distance = list(type= "least-cost", resistance = HFP_Mexico),
                     distance_thresholds = c(50000, 10000),
                     probability = 0.5, transboundary = 50000,
                     LA = NULL, plot = TRUE,

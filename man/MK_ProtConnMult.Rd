@@ -13,19 +13,20 @@ MK_ProtConnMult(
   distance_thresholds,
   probability,
   transboundary = NULL,
+  transboundary_type = "nodes",
   protconn_bound = FALSE,
   geom_simplify = FALSE,
   CI = "all",
   plot = FALSE,
   write = NULL,
   intern = TRUE,
-  parallel = FALSE
+  parallel = NULL
 )
 }
 \arguments{
-\item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. Protected areas (PAs) shapefile.}
+\item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.}
 
-\item{regions}{object of class sf, sfc, sfg or SpatialPolygons. Ecoregions shapefile.}
+\item{regions}{object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.}
 
 \item{thintersect}{numeric.Threshold of intersection in percentage allowed to select or not a target geometry. Default = 90, if intersection >=90 percentage, the geometry will be selected.}
 
@@ -39,7 +40,10 @@ distance_threshold = c(30000, 50000); sequence distances: distance_threshold = s
 \item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. numeric.
 If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).}
 
-\item{transboundary}{numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017.}
+\item{transboundary}{numeric. Buffer to select polygons in a second round, their attribute value = 0, see Saura et al. 2017.}
+
+\item{transboundary_type}{character. Two options: "nodes" or "region". If it is "nodes" the transboundary is built from the limits of the nodes present in the region (default),
+if "region" is selected the transboundary is built from the limits of the region.}
 
 \item{protconn_bound}{logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.}
 
@@ -53,7 +57,8 @@ If probability = NULL, then it will be the inverse of the mean dispersal distanc
 
 \item{intern}{logical. Show the progress of the process, default = TRUE.}
 
-\item{parallel}{logical. Parallelize the function using furrr package and multiprocess plan, default = FALSE.}
+\item{parallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL.
+Parallelize the function using furrr package and multiprocess plan.}
 }
 \value{
 Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
@@ -77,12 +82,15 @@ plot(Protected_areas, col="green")
 data("regions", package = "Makurhini")
 plot(regions, col=c("blue", "red", "green"))
 
-test <- MK_ProtConnMult(nodes = Protected_areas, regions = regions,
+test <- MK_ProtConnMult(nodes = Protected_areas,
+                        regions = regions,
                         area_unit = "ha",
                         distance = list(type= "centroid"),
-                        distance_thresholds = 10000,
+                        distance_thresholds = c(10000, 50000),
                         probability = 0.5, transboundary = 50000,
-                        plot = TRUE)
+                        transboundary_type = "region",
+                        plot = TRUE, write = NULL,
+                        parallel = NULL, intern = FALSE)
 test
 }
 }

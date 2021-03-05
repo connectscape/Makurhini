@@ -3,17 +3,20 @@
 #' @param x object of class sf, sfc, sfg or SpatialPolygons
 #' @param y object of class sf, sfc, sfg or SpatialPolygons
 #' @param buff numeric
+#' @param method character
 #' @param xsimplify logical
 #' @param metrunit character
 #' @param protconn logical. If FALSE then only PC and EC
 #' @param protconn_bound logical
+#' @export
 #' @importFrom sf st_sf st_cast st_buffer st_difference st_area st_geometry
 #' @importFrom magrittr %>%
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip
-Protconn_nodes <- function(x, y, buff = NULL, xsimplify = FALSE,  metrunit = "ha", protconn = TRUE, protconn_bound = FALSE){
+Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALSE,
+                           metrunit = "ha", protconn = TRUE, protconn_bound = FALSE){
   options(warn = -1)
   if(isTRUE(xsimplify)){
-    x.0 <- ms_simplify(x, keep = 0.1,  method = "vis",
+    x.0 <- rmapshaper::ms_simplify(x, keep = 0.1,  method = "vis",
                        keep_shapes = TRUE, explode = TRUE)
     x.1 <- st_buffer(x.0, 0) %>%  ms_dissolve(.)
   } else {
@@ -34,15 +37,25 @@ Protconn_nodes <- function(x, y, buff = NULL, xsimplify = FALSE,  metrunit = "ha
     f1 <- ms_clip(y.1, x.1)
     f1 <- f1[!st_is_empty(f1), ]
     f2 <- ms_dissolve(st_geometry(f1)) %>% st_buffer(., 0) %>% st_cast("POLYGON") %>% st_sf()
+
     if(isTRUE(protconn)){
       if(nrow(f2) > 1){
         f2$type <- "Non-Transboundary"
         f2$attribute <- as.numeric(st_area(f2)) %>% unit_convert(., "m2", metrunit)
 
-        #
+        #Transboundary
         y.2 <- y[which(y$PROTIDT %!in% y.1$PROTIDT),]
-        mask1 <- ms_simplify(y.1, method = "vis", keep_shapes = TRUE)%>% st_buffer(., buff)
         f3 <- st_difference(y.1, x.1)
+
+        #Dos metodos
+        if(method == "nodes"){
+          mask1 <- rmapshaper::ms_simplify(y.1, method = "vis", keep_shapes = TRUE)%>%
+            st_buffer(., buff)
+
+        } else {
+          mask1 <- rmapshaper::ms_simplify(x.1, method = "vis", keep_shapes = TRUE)%>%
+            st_buffer(., buff)
+        }
 
         f4 <- over_poly(y.2, mask1, geometry = TRUE) %>% ms_clip(., mask1)#
         f5 <- rbind(f3[,"geometry"], f4[,"geometry"])

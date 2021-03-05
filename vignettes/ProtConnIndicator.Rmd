@@ -39,11 +39,16 @@ plot(Protected_areas, col = "#00B050", add=TRUE)
 ```
 
 ## ProtConn estimation for a single ecoregion
-In the following example, we will estimate the ProtConn indicator and fractions in one ecoregion using two dispersal distances (10 and 30 km) and a connection probability of 0.5. Also, we will use a Transboundary buffer of 50 km (50000 meters), the distance between protected areas will be using centroids.
+In the following example, we will estimate the ProtConn indicator and fractions in one ecoregion using two dispersal distances (10 and 30 km) and a connection probability of 0.5. Also, we will use a Transboundary buffer of 50 km (50000 meters) from the edge of the region (transboundary_type = "region", ?MK_ProtConn), the distance between protected areas will be using centroids.
 
 ```{r message=FALSE, warning=FALSE}
 region <- regions[1,]
-test.1 <- MK_ProtConn(nodes = Protected_areas, region = region, attribute = "Intersected area", area_unit = "ha", distance = list(type= "centroid"), distance_thresholds = c(10000, 30000), probability = 0.5, transboundary = 50000, LA = NULL, plot = TRUE, dPC = FALSE, write = NULL, SAGA = FALSE, intern = FALSE)
+test.1 <- MK_ProtConn(nodes = Protected_areas, region = region, 
+                      area_unit = "ha", distance = list(type= "centroid"), 
+                      distance_thresholds = c(10000, 30000), probability = 0.5, 
+                      transboundary = 50000, transboundary_type = "region",
+                      LA = NULL, plot = TRUE, write = NULL,
+                      intern = FALSE)
 ```
 
 ### Exploring the results for a single ecoregion
@@ -68,7 +73,12 @@ test.1$d30000
 Now, we will use the three ecoregions. The processing time will be longer when using more regions, although we can reduce it using the parallel argument.
 
 ```{r message=FALSE, warning=FALSE}
-test.2 <- MK_ProtConnMult(nodes = Protected_areas, regions = regions, attribute = "Intersected area", area_unit = "ha", distance = list(type= "centroid"), distance_thresholds = c(10000, 30000), probability = 0.5, transboundary = 50000, plot = FALSE, write = NULL, parallel = FALSE, intern = FALSE)
+test.2 <- MK_ProtConnMult(nodes = Protected_areas, regions = regions, 
+                          area_unit = "ha", distance = list(type= "centroid"), 
+                          distance_thresholds = c(10000, 30000), probability = 0.5, 
+                          transboundary = 50000, transboundary_type = "region",
+                          plot = FALSE, write = NULL, 
+                          parallel = NULL, intern = FALSE)
 ```
 
 ### Exploring some results
@@ -96,7 +106,7 @@ Euclidean distances:
 * distance = list(type= "centroid")
 * distance = list(type= "edge")
 
-Least cost distances:
+Least cost distances, you need a raster with resistance values, it is recommended that the range of values be from 1 to 10:
 * distance = list(type= "least-cost", resistance = "resistance raster")
 * distance = list(type= "commute-time", resistance = "resistance raster")
 

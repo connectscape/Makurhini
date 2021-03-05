@@ -9,9 +9,7 @@ nodesfile(
   id,
   attribute = NULL,
   area_unit = "m2",
-  restauration = NULL,
-  multiple = NULL,
-  prefix = NULL,
+  restoration = NULL,
   write = NULL
 )
 }
@@ -30,14 +28,10 @@ a numeric vector with the node's attribute. The length of the vector must be equ
 \item{area_unit}{character. If attribute is NULL you can set an area unit, ?unit_covert
 compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to "m2".}
 
-\item{restauration}{character or vector. If nodes is a shappefile then you must specify the name of the column
-with restauration value. If nodes is a raster layer then must be a numeric vector with restauration values
+\item{restoration}{character or vector. If nodes is a shappefile then you must specify the name of the column
+with restoration value. If nodes is a raster layer then must be a numeric vector with restoration values
 to each node in the raster. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node
  to add to the initial landscape (restored).}
-
-\item{multiple}{character. Name of the column with the regions names. Use in case of processing nodes of several independent sites at the same time.}
-
-\item{prefix}{character. Initial prefix, use in case of processing several sites at the same time in CONEFOR command line.}
 
 \item{write}{character. Output folder path if you use the name option, otherwise, place the output path, with the name and extension ".txt"}
 }

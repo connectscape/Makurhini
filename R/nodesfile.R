@@ -11,12 +11,10 @@
 #'   If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
 #' @param area_unit character. If attribute is NULL you can set an area unit, ?unit_covert
 #' compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to "m2".
-#' @param restauration character or vector. If nodes is a shappefile then you must specify the name of the column
-#' with restauration value. If nodes is a raster layer then must be a numeric vector with restauration values
+#' @param restoration character or vector. If nodes is a shappefile then you must specify the name of the column
+#' with restoration value. If nodes is a raster layer then must be a numeric vector with restoration values
 #' to each node in the raster. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node
 #'  to add to the initial landscape (restored).
-#' @param multiple character. Name of the column with the regions names. Use in case of processing nodes of several independent sites at the same time.
-#' @param prefix character. Initial prefix, use in case of processing several sites at the same time in CONEFOR command line.
 #' @param write character. Output folder path if you use the name option, otherwise, place the output path, with the name and extension ".txt"
 #' @return nodo file in .txt format
 #' @export
@@ -25,8 +23,9 @@
 #' @importFrom rgeos gArea
 #' @importFrom methods as
 #' @importFrom utils write.table
-nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauration = NULL, multiple = NULL,
-                      prefix = NULL, write = NULL) {
+nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2",
+                      restoration = NULL,
+                      write = NULL) {
   if (missing(nodes)) {
     stop("error missing file of nodes")
   } else {
@@ -62,18 +61,13 @@ nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauratio
       }
     }
 
-    if (is.null(restauration)) {
+    if (is.null(restoration)) {
       colvalues <- c(which(names(nodes) == id),
                      which(names(nodes) == attribute))
     } else {
       colvalues <- c(which(names(nodes) == id),
                      which(names(nodes) == attribute),
-                     which(names(nodes) == restauration))
-    }
-
-    if (!is.null(multiple)) {
-      colvalues <- c(colvalues[1], which(colnames(nodes) == multiple),
-                     colvalues[2:length(colvalues)])
+                     which(names(nodes) == restoration))
     }
 
     nodes <- nodes@data[ ,colvalues]
@@ -87,27 +81,16 @@ nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauratio
       nodes$Freq <- nodes$Freq * attribute
     }
 
-    if(is.null(restauration)){
+    if(is.null(restoration)){
       names(nodes) <- c("Id", "attribute")
-      if (!is.null(multiple)) {
-        nodes$mult <- multiple
-        colvalues <- c(1, 3, 2)
-      } else{
-        colvalues <- 1:2
-      }
+      colvalues <- 1:2
     } else {
-      nodes$restauration <- restauration
-      names(nodes) <- c("Id", "attribute", "restauration")
-      if (!is.null(multiple)) {
-        nodes$mult <- multiple
-        colvalues <- c(1, 4, 2:3)
-      } else{
-        colvalues <- 1:3
-      }
-
+      nodes$restoration <- restoration
+      names(nodes) <- c("Id", "attribute", "restoration")
+      colvalues <- 1:3
     }
 
-    nodes <- nodes[ ,colvalues]
+    nodes <- nodes[ , colvalues]
 
   } else {
     stop("error missing file of nodes. Check the nodes class")
@@ -117,40 +100,15 @@ nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2", restauratio
     nodes[,1] <- as.numeric(as.character(nodes$Id))
   }
 
-
-
-  if(is.null(multiple)){
-    if(is.null(write)){
+  if(!is.null(write)){
+    if (dim(nodes)[1] > 1){
+      write.table(nodes, write, sep="\t", row.names = FALSE, col.names = FALSE)
       return(nodes)
     } else {
-      if (dim(nodes)[1] > 1){
-        write.table(nodes, write, sep="\t", row.names = FALSE, col.names = FALSE)
-        return(nodes)
-      } else {
-        stop("Error only one node")
-      }
-    }
-  } else {
-    x <- unique(nodes[,2])
-    for(i in x) {
-      multiple_1 <- nodes[nodes[2] == i,]
-      if (dim(multiple_1)[1] > 1){
-        if (is.null(restauration)) {
-          multiple_2 <- c(multiple_1[1], multiple_1[3])
-        } else {
-          multiple_2 <- c(multiple_1[1], multiple_1[3], multiple_1[4])
-        }
-        if (!is.null(prefix)) {
-          write.table(multiple_2, paste0(write, paste(prefix, i, sep = "_"), ".txt", sep = "."),
-                      sep = "\t", row.names = FALSE, col.names = FALSE)
-        } else {
-          write.table(multiple_2, paste0(write, paste(i, sep = "_"), ".txt", sep = "."),
-                      sep = "\t", row.names = FALSE, col.names = FALSE)
-        }
-      } else {
-        stop("Error only one node")
-      }
+      stop("Error only one node")
     }
   }
+
+  return(nodes)
 }
 

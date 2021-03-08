@@ -62,6 +62,7 @@
 #'                 overall = TRUE,
 #'                 distance_thresholds = 40000) # 40 km
 #' PC
+#'
 #' @importFrom dplyr progress_estimated
 #' @importFrom methods as
 #' @importFrom utils write.table
@@ -183,6 +184,8 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                          bounding_circles = distance$bounding_circles,
                          parallel = distance$parallel,
                          edgeParallel = distance$edgeParallel,
+                         least_cost.java = distance$least_cost.java,
+                         cores.java = distance$cores.java, ram.java = distance$ram.java,
                          pairwise = FALSE,
                          write = NULL)
   }

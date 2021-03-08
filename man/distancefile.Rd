@@ -19,6 +19,9 @@ distancefile(
   bounding_circles = NULL,
   parallel = FALSE,
   edgeParallel = FALSE,
+  least_cost.java = FALSE,
+  cores.java = 1,
+  ram.java = NULL,
   pairwise = TRUE,
   write = NULL
 )
@@ -72,6 +75,14 @@ Buffer distances are entered in map units. Also, the function is parallelized us
 \item{parallel}{logical. If nodes is a raster then you can use this argument for larges RasterLayer.}
 
 \item{edgeParallel}{logical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.}
+
+\item{least_cost.java}{logical. If TRUE then the programming language and computing platform 'java' will be used
+to estimate the least-cost distance USING only the FORMULA: function(x) 1/mean(x). It is necessary to have java installed. This option use
+the package 'graph4lg' to reduce computation times.}
+
+\item{cores.java}{numeric. Computer cores used to run the .jar file (see, graph4lg), default = 1.}
+
+\item{ram.java}{numeric. RAM gigabytes to run the .jar file (see, graph4lg), default = NULL.}
 
 \item{pairwise}{logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.}
 

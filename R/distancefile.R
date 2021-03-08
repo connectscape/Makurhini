@@ -36,6 +36,11 @@
 #'  (recommended for speed, large resistance rasters or pixel resolution < 150 m).
 #'  Buffer distances are entered in map units. Also, the function is parallelized using
 #'   and furrr package and multiprocess plan, default = NULL.
+#' @param least_cost.java logical. If TRUE then the programming language and computing platform 'java' will be used
+#' to estimate the least-cost distance USING only the FORMULA: function(x) 1/mean(x). It is necessary to have java installed. This option use
+#' the package 'graph4lg' to reduce computation times.
+#' @param cores.java numeric. Computer cores used to run the .jar file (see, graph4lg), default = 1.
+#' @param ram.java numeric. RAM gigabytes to run the .jar file (see, graph4lg), default = NULL.
 #' @param pairwise logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.
 #' @param write character. Output path, with name and extension ".txt".
 #' @return Exports a euclidean or cost distance table between pairs of nodes.
@@ -58,6 +63,8 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
                          resistance = NULL, CostFun = NULL, ngh = NULL, mask = NULL,
                          threshold = NULL, geometry_out = NULL, bounding_circles = NULL,
                          parallel = FALSE, edgeParallel = FALSE,
+                         least_cost.java = FALSE,
+                         cores.java = 1, ram.java = NULL,
                          pairwise = TRUE,
                          write = NULL){
 
@@ -186,6 +193,8 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
                                CostFun = CostFun, ngh = ngh, bounding_circles = bounding_circles ,
                                threshold = threshold, mask = mask, geometry_out = geometry_out,
                                pairwise = pairwise,
+                               least_cost.java = least_cost.java,
+                               cores.java = cores.java, ram.java = ram.java,
                                write_table = write)
 
   } else {

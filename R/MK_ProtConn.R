@@ -55,7 +55,7 @@
 #' test
 #'
 #' #Least-cost distances
-#' data("HFP_Mexico", package = "Makurhini")
+#' HFP_Mexico <- raster(system.file("extdata", "HFP_Mexico.tif", package = "Makurhini", mustWork = TRUE))
 #' mask_1 <- as(extent(Protected_areas), 'SpatialPolygons')
 #' crs(mask_1) <- crs(Protected_areas)
 #' mask_1 <- buffer(mask_1, 20000)
@@ -79,6 +79,22 @@
 #'                     write = NULL, intern = FALSE)
 #' test$d50000
 #' test$d10000
+#' #Using java script
+#' #Transform resistance to integer
+#' HFP_Mexico <- round(HFP_Mexico)
+#'
+#' test2 <- MK_ProtConn(nodes = Protected_areas, region = region,
+#'                     area_unit = "ha",
+#'                     distance = list(type= "least-cost", resistance = HFP_Mexico,
+#'                     least_cost.java = TRUE,
+#'                     cores.java = 4, ram.java = NULL),
+#'                     distance_thresholds = c(50000, 10000),
+#'                     probability = 0.5, transboundary = 50000,
+#'                     LA = NULL, plot = TRUE,
+#'                     write = NULL, intern = FALSE)
+#' test2$d50000
+#' test2$d10000
+#'
 #' }
 #' @importFrom sf st_as_sf st_cast st_zm st_simplify st_buffer write_sf st_intersection st_difference st_area
 #' @importFrom magrittr %>%
@@ -224,7 +240,7 @@ MK_ProtConn <- function(nodes,
           nodes.2 <- nodes.1
         }
 
-        distance.1 <- tryCatch(protconn_dist(nodes.2[[1]], id = "OBJECTID",
+        distance.1 <- tryCatch(protconn_dist(x = nodes.2[[1]], id = "OBJECTID",
                                              y = base_param3[[2]]@distance,
                                              r = base_param3[[1]]@region,
                                              resistance = base_param3[[4]]),
@@ -233,61 +249,61 @@ MK_ProtConn <- function(nodes,
           stop("error distance. Check topology errors or resistance raster")
         }
 
-        result <- lapply(base_param3[[2]]@distance_threshold, function(d){
-          DataProtconn <- get_protconn_grid(x = nodes.2,
-                                            y = distance.1,
-                                            p = base_param3[[2]]@probability,
-                                            pmedian = TRUE,
-                                            d = d,
-                                            LA = base_param3[[5]], bound = protconn_bound)
-          DataProtconn <- round(DataProtconn, 4)
+          result <- lapply(base_param3[[2]]@distance_threshold, function(d){
+            DataProtconn <- get_protconn_grid(x = nodes.2,
+                                              y = distance.1,
+                                              p = base_param3[[2]]@probability,
+                                              pmedian = TRUE,
+                                              d = d,
+                                              LA = base_param3[[5]], bound = protconn_bound)
+            DataProtconn <- round(DataProtconn, 4)
 
-          if(length(which(DataProtconn[5:ncol(DataProtconn)] > 100)) > 0){
-            DataProtconn[1,which(DataProtconn[5:ncol(DataProtconn)] > 100) + 5] <- 100
-          }
-          ##
-          DataProtconn_2 <- t(DataProtconn) %>% as.data.frame()
-          DataProtconn_2$Indicator <- row.names(DataProtconn_2)
-          DataProtconn_2$Indicator[1] <- "EC(PC)"
-          DataProtconn_2$Indicator[3] <- "Maximum landscape attribute"
-          DataProtconn_2$Indicator[4] <- "Protected surface"
-          DataProtconn_2$Index <- rep(DataProtconn_2[c(1:4),2], 8)[1:nrow(DataProtconn_2)]
+            if(length(which(DataProtconn[5:ncol(DataProtconn)] > 100)) > 0){
+              DataProtconn[1,which(DataProtconn[5:ncol(DataProtconn)] > 100) + 5] <- 100
+            }
+            ##
+            DataProtconn_2 <- t(DataProtconn) %>% as.data.frame()
+            DataProtconn_2$Indicator <- row.names(DataProtconn_2)
+            DataProtconn_2$Indicator[1] <- "EC(PC)"
+            DataProtconn_2$Indicator[3] <- "Maximum landscape attribute"
+            DataProtconn_2$Indicator[4] <- "Protected surface"
+            DataProtconn_2$Index <- rep(DataProtconn_2[c(1:4),2], 8)[1:nrow(DataProtconn_2)]
 
-          Value <- DataProtconn_2[c(1:4), 1]
+            Value <- DataProtconn_2[c(1:4), 1]
 
-          if(Value[1]%%1 == 0){
-            Value <- c(formatC(as.numeric(Value[1]), format="d"),
-                       formatC(as.numeric(Value[2]), format="e"),
-                       formatC(as.numeric(Value[3]), format="d"),
-                       formatC(as.numeric(Value[4]), format="d"))
-          } else {
-            Value <- c(formatC(as.numeric(Value[1]), format="f", digits = 2),
-                       formatC(as.numeric(Value[2]), format="e"),
-                       formatC(as.numeric(Value[3]), format="f", digits = 2),
-                       formatC(as.numeric(Value[4]), format="f", digits = 2))
-          }
+            if(Value[1]%%1 == 0){
+              Value <- c(formatC(as.numeric(Value[1]), format="d"),
+                         formatC(as.numeric(Value[2]), format="e"),
+                         formatC(as.numeric(Value[3]), format="d"),
+                         formatC(as.numeric(Value[4]), format="d"))
+            } else {
+              Value <- c(formatC(as.numeric(Value[1]), format="f", digits = 2),
+                         formatC(as.numeric(Value[2]), format="e"),
+                         formatC(as.numeric(Value[3]), format="f", digits = 2),
+                         formatC(as.numeric(Value[4]), format="f", digits = 2))
+            }
 
-          DataProtconn_2$Value <- rep(Value, 8)[1:nrow(DataProtconn_2)]
-          rownames(DataProtconn_2) <- NULL
-          #
-          DataProtconn_3 <- DataProtconn_2[5:nrow(DataProtconn_2),c(3:4, 2, 1)]
-          names(DataProtconn_3)[3:4] <- c("ProtConn indicator", "Percentage")
-          DataProtconn_3[5:nrow(DataProtconn_3), 1:2] <- " "
-          rownames(DataProtconn_3) <- NULL
+            DataProtconn_2$Value <- rep(Value, 8)[1:nrow(DataProtconn_2)]
+            rownames(DataProtconn_2) <- NULL
+            #
+            DataProtconn_3 <- DataProtconn_2[5:nrow(DataProtconn_2),c(3:4, 2, 1)]
+            names(DataProtconn_3)[3:4] <- c("ProtConn indicator", "Percentage")
+            DataProtconn_3[5:nrow(DataProtconn_3), 1:2] <- " "
+            rownames(DataProtconn_3) <- NULL
 
-          DataProtconn_4 <- formattable(DataProtconn_3, align = c("l","c"),
-                                        list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
-                                             `ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
-                                             `Percentage` = color_tile("white", "orange")))
-          if(isTRUE(plot)){
-            DataProtconn_plot <- plotprotconn(DataProtconn, d)
-            result_lista <- list( "Protected Connected (Viewer Panel)" = DataProtconn_4,
-                                  "ProtConn Plot" = DataProtconn_plot)
-          } else {
-            result_lista <- DataProtconn_4
-          }
-          return(result_lista)
-        })
+            DataProtconn_4 <- formattable(DataProtconn_3, align = c("l","c"),
+                                          list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
+                                               `ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
+                                               `Percentage` = color_tile("white", "orange")))
+            if(isTRUE(plot)){
+              DataProtconn_plot <- plotprotconn(DataProtconn, d)
+              result_lista <- list( "Protected Connected (Viewer Panel)" = DataProtconn_4,
+                                    "ProtConn Plot" = DataProtconn_plot)
+            } else {
+              result_lista <- DataProtconn_4
+            }
+            return(result_lista)
+          })
 
         names(result) <- paste0("d", distance_thresholds)
 
@@ -454,7 +470,7 @@ MK_ProtConn <- function(nodes,
           nodes.2 <- nodes.1
         }
 
-        distance.1 <- tryCatch(protconn_dist(nodes.2[[1]], id = "OBJECTID",
+        distance.1 <- tryCatch(protconn_dist(x = nodes.2[[1]], id = "OBJECTID",
                                              y = base_param3[[2]]@distance,
                                              r = base_param3[[1]]@region,
                                              resistance = base_param3[[4]]),

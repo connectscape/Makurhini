@@ -17,28 +17,42 @@
 #'  (recommended for speed, large resistance rasters or pixel resolution < 150 m).
 #'  Buffer distances are entered in map units. Also, the function is parallelized using
 #'   and furrr package and multiprocess plan, default = NULL.
+#' @param least_cost.java logical. If TRUE then the programming language and computing platform 'java' will be used
+#' to estimate the least-cost distance USING only the FORMULA: function(x) 1/mean(x). It is necessary to have java installed. This option use
+#' the package 'graph4lg' to reduce computation times. WARNING: This function only works with
+#' integer type resistance raster (it does not accept decimals or floating point resistance).
+#' @param cores.java numeric. Computer cores used to run the .jar file (see, graph4lg), default = 1.
+#' @param ram.java numeric. RAM gigabytes to run the .jar file (see, graph4lg), default = NULL.
 #' @param pairwise logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.
 #' @param write_table character. "" indicates output to the console.
 #' @return cost distance matrix
 #' @details The function builds on functions out of Jacob van Etten’s ’gdistance’ package.
 #' @references Jacob van Etten. 2017. R Package gdistance: Distances and Routes on Geographical Grids.
 #' 	Journal of Statistical Software. \url{10.18637/jss.v076.i13}
+#'
+#' 	Paul Savary. 2020. R Package graph4lg: Build Graphs for Landscape Genetics Analysis.
+#'  \url{https://cran.r-project.org/web/packages/graph4lg/index.html}
 #' @importFrom magrittr %>%
 #' @importFrom sf st_as_sf st_geometry st_geometry<-
 #' @importFrom purrr map_dbl
 #' @importFrom rgeos gTouches gCentroid
 #' @importFrom dismo voronoi
-#' @importFrom raster crop mask extend buffer raster
+#' @importFrom raster crop mask extend buffer raster res
 #' @importFrom gdistance transition geoCorrection costDistance commuteDistance
 #' @importFrom methods as new
 #' @importFrom stats na.omit
 #' @importFrom utils combn write.table
 #' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
-cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL, CostFun = NULL,
+#' @importFrom graph4lg mat_cost_dist
+#' @export
+cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL,
+                           CostFun = NULL,
                            ngh = NULL, mask = NULL, threshold = NULL,
                            geometry_out = NULL,
                            bounding_circles = NULL,
+                           least_cost.java = FALSE,
+                           cores.java = 1, ram.java = NULL,
                            pairwise = TRUE,
                            write_table = NULL){
   if(missing(id)){
@@ -86,20 +100,25 @@ cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL, CostFun
 
   resistance_1@crs@projargs <- "+proj=merc +units=m"
 
-  if(is.null(bounding_circles)){
-    st_geometry(coordenates_1) <- NULL
-    coordenates_1 <- cbind(coordenates_1$lon, coordenates_1$lat)
-    rownames(coordenates_1) <- NULL
+  if(isTRUE(least_cost.java)){
+    pts_1 <- data.frame(ID = x[[id]],
+                        x = coordenates_1$lon,
+                        y = coordenates_1$lat)
 
-    if(isTRUE(LCD)){
-      Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
-        geoCorrection(., scl = FALSE)
-      distance_result <- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
-    } else {
-      Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
-        geoCorrection(., type = "r")
-      distance_result <- commuteDistance(Iso_conductance, coordenates_1)
+    val <- raster::values(resistance_1)
+    cost <- data.frame(code = unique(val),
+                       cost = unique(val))
+
+    if(length(which(is.na(cost$cost))) >0){
+      cost <- cost[-which(is.na(cost$cost)),]
     }
+
+    distance_result <- mat_cost_dist(raster = resistance_1,
+                           pts = pts_1,
+                           cost = cost,
+                           method = "java",
+                           parallel.java = cores.java, alloc_ram = ram.java)
+    distance_result <- distance_result * res(resistance_1)[1]
 
     distance_result <- as.matrix(distance_result)
     rownames(distance_result)<- x[[id]]
@@ -142,18 +161,18 @@ cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL, CostFun
         }
 
       } else {
-        Iso_conductance <- raster(Iso_conductance)
-        Iso_conductance <- extend(Iso_conductance, as(x, 'Spatial'))
+        resistance_1 <- extend(resistance_1, as(x, 'Spatial'))
+        resistance_1[is.na(resistance_1[])] <- geometry_out
+        cost <- data.frame(code = geometry_out,
+                           cost = geometry_out)
 
-        Iso_conductance[is.na(Iso_conductance[])] <- geometry_out
-        Iso_conductance <- new("TransitionLayer", Iso_conductance)
 
         #Get new distances
-        if(isTRUE(LCD)){
-          distance_result<- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
-        } else {
-          distance_result <- commuteDistance(Iso_conductance, coordenates_1)
-        }
+        distance_result <- mat_cost_dist(raster = resistance_1,
+                                         pts = pts_1,
+                                         cost = cost,
+                                         method = "java",
+                                         parallel.java = cores.java, alloc_ram = ram.java)
 
         distance_result <- as.matrix(distance_result)
         rownames(distance_result)<- x[[id]]
@@ -170,168 +189,252 @@ cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL, CostFun
       }
     }
   } else {
-    ####voronoi
-    voronoi_adj <- voronoi(gCentroid(as(x, 'Spatial'), byid = T)) %>%
-      gTouches(., byid = T)
-    colnames(voronoi_adj) <- x[[id]]
-    rownames(voronoi_adj) <- x[[id]]
+    if(is.null(bounding_circles)){
+      st_geometry(coordenates_1) <- NULL
+      coordenates_1 <- cbind(coordenates_1$lon, coordenates_1$lat)
+      rownames(coordenates_1) <- NULL
 
-    works <- as.numeric(availableCores())-1
-    plan(strategy = multiprocess, gc = TRUE, workers = works)
-    distance <- future_map(as.list(colnames(voronoi_adj)), function(i){
-      ##
-      foc_adj <- rbind(x[which(x[[id]] == i),],
-                       x[as.vector(which(voronoi_adj[, which(x[[id]] == i)])),]) %>%
-        as(., 'Spatial')
+      if(isTRUE(LCD)){
+        Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
+          geoCorrection(., scl = FALSE)
+        distance_result <- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
+      } else {
+        Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
+          geoCorrection(., type = "r")
+        distance_result <- commuteDistance(Iso_conductance, coordenates_1)
+      }
 
-      dist <- euclidean_distances(foc_adj, id, threshold = bounding_circles, distance_unit = "m" )
-      foc_adj <- foc_adj[which(foc_adj[[id]] %in% c(unique(dist$From), unique(dist$To))),]
+      distance_result <- as.matrix(distance_result)
+      rownames(distance_result)<- x[[id]]
+      colnames(distance_result)<- x[[id]]
 
-      if(nrow(foc_adj) > 1){
-        r2 <- gCentroid(foc_adj, byid = TRUE) %>% buffer(., width = bounding_circles)
-        r2 <- crop(resistance_1, r2) %>% raster::mask(., r2)
+      distance_result_matrix <- distance_result
+      distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
+      distance_result <- as.data.frame(as.table(distance_result))
+      distance_result <- na.omit(distance_result)
+      distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
+      distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
+      names(distance_result)<-c("From", "To", "Distance")
 
-        ##
-        coordenates_2 <- coordenates_1[which(coordenates_1[[id]] %in% foc_adj[[id]]),]
-        st_geometry(coordenates_2) <- NULL
-        coordenates_2 <- cbind(coordenates_2$lon, coordenates_2$lat)
-        rownames(coordenates_2) <- NULL
-        ##
+      #Inf
+      x2 <- distance_result[which(is.infinite(distance_result[,3])),]
 
-        if(isTRUE(LCD)){
-          Iso_conductance <- transition(r2, CostFun, directions = ngh)%>%
-            geoCorrection(., scl = FALSE)
-          distance_result <- costDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
+      if(nrow(x2) >= 1){
+        Infinitos <- paste0(x2$From, "_", x2$To)
+        distance_result2 <- distance_result[which(!is.infinite(distance_result[,3])),]
+
+        error <- unique(x2$To)
+        min_dist <- euclidean_distances(x, id, centroid = TRUE, distance_unit = "m")
+        #
+        if (is.null(geometry_out)){
+          distance2 <- min_dist
+          distance2$idn <- paste0(distance2$From, "_", distance2$To)
+          #Filter distances
+          distance2 <- distance2[which(distance2$idn %in% Infinitos),]
+          distance2$idn <- NULL
+          names(distance_result2)[3] <- "Distance"
+          distance_result <- rbind(distance_result2, distance2)
+
+
+          for(i in 1:nrow(distance2)){
+            distance_result_matrix[which(rownames(distance_result_matrix) == distance2$From[i]),
+                                   which(colnames(distance_result_matrix) == distance2$To[i])] <- distance2[i,3]
+
+            distance_result_matrix[which(rownames(distance_result_matrix) == distance2$To[i]),
+                                   which(colnames(distance_result_matrix) == distance2$From[i])] <- distance2[i,3]
+          }
+
         } else {
-          Iso_conductance <- transition(r2, CostFun, directions = ngh)%>%
-            geoCorrection(., type = "r")
-          distance_result <- commuteDistance(Iso_conductance, coordenates_2)
-        }
+          Iso_conductance <- raster(Iso_conductance)
+          Iso_conductance <- extend(Iso_conductance, as(x, 'Spatial'))
 
-        distance_result <- as.matrix(distance_result)
-        rownames(distance_result)<- foc_adj[[id]]
-        colnames(distance_result)<- foc_adj[[id]]
+          Iso_conductance[is.na(Iso_conductance[])] <- geometry_out
+          Iso_conductance <- new("TransitionLayer", Iso_conductance)
 
-        distance_result_matrix <- distance_result
-
-        distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
-        distance_result <- as.data.frame(as.table(distance_result))
-        distance_result <- na.omit(distance_result)
-        distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
-        distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
-        names(distance_result)<-c("From", "To", "Distance")
-
-        #Inf
-        x2 <- distance_result[which(is.infinite(distance_result[,3])),]
-
-        if(nrow(x2) >= 1){
-          Infinitos <- paste0(x2$From, "_", x2$To)
-          distance_result2 <- distance_result[which(!is.infinite(distance_result[,3])),]
-
-          error <- unique(x2$To)
-          min_dist <- euclidean_distances(foc_adj, id, centroid = TRUE, distance_unit = "m")
-
-          if (is.null(geometry_out)){
-            distance2 <- min_dist
-            distance2$idn <- paste0(distance2$From, "_", distance2$To)
-            #Filter distances
-            distance2 <- distance2[which(distance2$idn %in% Infinitos),]
-            distance2$idn <- NULL
-            names(distance_result2)[3] <- "Distance"
-            distance_result <- rbind(distance_result2, distance2)
-
-            for(i in 1:nrow(distance2)){
-              distance_result_matrix[which(rownames(distance_result_matrix) == distance2$From[i]),
-                                     which(colnames(distance_result_matrix) == distance2$To[i])] <- distance2[i,3]
-
-              distance_result_matrix[which(rownames(distance_result_matrix) == distance2$To[i]),
-                                     which(colnames(distance_result_matrix) == distance2$From[i])] <- distance2[i,3]
-            }
-
+          #Get new distances
+          if(isTRUE(LCD)){
+            distance_result<- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
           } else {
-            Iso_conductance <- raster(Iso_conductance)
-            Iso_conductance <- extend(Iso_conductance, as(x, 'Spatial'))
-
-            Iso_conductance[is.na(Iso_conductance[])] <- geometry_out
-            Iso_conductance <- new("TransitionLayer", Iso_conductance)
-
-            #Get new distances
-            if(isTRUE(LCD)){
-              distance_result<- costDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
-            } else {
-              distance_result <- commuteDistance(Iso_conductance, coordenates_2)
-            }
-            rm(Iso_conductance)
-
-            distance_result <- as.matrix(distance_result)
-            rownames(distance_result)<- foc_adj[[id]]
-            colnames(distance_result)<- foc_adj[[id]]
-
-            distance_result_matrix <- distance_result
-
-            distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
-            distance_result <- as.data.frame(as.table(distance_result))
-            distance_result <- na.omit(distance_result)
-            distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
-            distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
-            names(distance_result)<-c("From", "To", "Distance")
+            distance_result <- commuteDistance(Iso_conductance, coordenates_1)
           }
-        }
-        if(isFALSE(pairwise)){
-          distance_result <- distance_result_matrix
-        }
 
-        return(distance_result)
-      } }, .progress = TRUE)
-    close_multiprocess(works)
-    distance <- purrr::compact(distance)
+          distance_result <- as.matrix(distance_result)
+          rownames(distance_result)<- x[[id]]
+          colnames(distance_result)<- x[[id]]
 
-    if(isFALSE(pairwise)){
-      uno <- list()
-      for(i in 1:length(distance)){
-        dos <- rownames(distance[[i]])
-        uno[[i]] <- dos
-      }
-      uno <- do.call(c, uno)
-      uno <- unique(uno)
+          distance_result_matrix <- distance_result
 
-      mm <- matrix(nrow = length(uno), ncol = length(uno))
-      rownames(mm) <- uno
-      colnames(mm) <- uno
-
-      for(i in uno){
-        mm2 <- mm[,i] %>% as.matrix()
-
-        for(j in rownames(mm2)){
-          if(j != i){
-            mm2[j,] <- min(map(distance, function(x){
-              x2 <- x[which(rownames(x)==i),which(rownames(x)==j)]
-              if(length(x2) == 0){
-                x2 = NULL
-              }
-              return(x2)})%>% purrr::compact(.) %>% unlist())
-          } else {
-            mm2[j,] <- 0
-          }
-          mm[,i] <- mm2
+          distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
+          distance_result <- as.data.frame(as.table(distance_result))
+          distance_result <- na.omit(distance_result)
+          distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
+          distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
+          names(distance_result)<-c("From", "To", "Distance")
         }
       }
-      distance_result_matrix <- mm
     } else {
-      distance_result <- do.call(rbind, distance)
-      distance_result$dn <- paste0(distance_result$From, "_",distance_result$To)
+      ####voronoi
+      voronoi_adj <- voronoi(gCentroid(as(x, 'Spatial'), byid = T)) %>%
+        gTouches(., byid = T)
+      colnames(voronoi_adj) <- x[[id]]
+      rownames(voronoi_adj) <- x[[id]]
 
-      distance_result <- map(unique(distance_result$dn), function(i){
-        d1 <- distance_result[which(distance_result$dn == i),]
-        d1 <- d1[which(d1$Distance == min(d1$Distance)),1:3]
-        if(nrow(d1)>1){
-          d1 <- d1[1,]
+      works <- as.numeric(availableCores())-1
+      plan(strategy = multiprocess, gc = TRUE, workers = works)
+      distance <- future_map(as.list(colnames(voronoi_adj)), function(i){
+        ##
+        foc_adj <- rbind(x[which(x[[id]] == i),],
+                         x[as.vector(which(voronoi_adj[, which(x[[id]] == i)])),]) %>%
+          as(., 'Spatial')
+
+        dist <- euclidean_distances(foc_adj, id, threshold = bounding_circles, distance_unit = "m" )
+        foc_adj <- foc_adj[which(foc_adj[[id]] %in% c(unique(dist$From), unique(dist$To))),]
+
+        if(nrow(foc_adj) > 1){
+          r2 <- gCentroid(foc_adj, byid = TRUE) %>% buffer(., width = bounding_circles)
+          r2 <- crop(resistance_1, r2) %>% raster::mask(., r2)
+
+          ##
+          coordenates_2 <- coordenates_1[which(coordenates_1[[id]] %in% foc_adj[[id]]),]
+          st_geometry(coordenates_2) <- NULL
+          coordenates_2 <- cbind(coordenates_2$lon, coordenates_2$lat)
+          rownames(coordenates_2) <- NULL
+          ##
+
+          if(isTRUE(LCD)){
+            Iso_conductance <- transition(r2, CostFun, directions = ngh)%>%
+              geoCorrection(., scl = FALSE)
+            distance_result <- costDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
+          } else {
+            Iso_conductance <- transition(r2, CostFun, directions = ngh)%>%
+              geoCorrection(., type = "r")
+            distance_result <- commuteDistance(Iso_conductance, coordenates_2)
+          }
+
+          distance_result <- as.matrix(distance_result)
+          rownames(distance_result)<- foc_adj[[id]]
+          colnames(distance_result)<- foc_adj[[id]]
+
+          distance_result_matrix <- distance_result
+
+          distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
+          distance_result <- as.data.frame(as.table(distance_result))
+          distance_result <- na.omit(distance_result)
+          distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
+          distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
+          names(distance_result)<-c("From", "To", "Distance")
+
+          #Inf
+          x2 <- distance_result[which(is.infinite(distance_result[,3])),]
+
+          if(nrow(x2) >= 1){
+            Infinitos <- paste0(x2$From, "_", x2$To)
+            distance_result2 <- distance_result[which(!is.infinite(distance_result[,3])),]
+
+            error <- unique(x2$To)
+            min_dist <- euclidean_distances(foc_adj, id, centroid = TRUE, distance_unit = "m")
+
+            if (is.null(geometry_out)){
+              distance2 <- min_dist
+              distance2$idn <- paste0(distance2$From, "_", distance2$To)
+              #Filter distances
+              distance2 <- distance2[which(distance2$idn %in% Infinitos),]
+              distance2$idn <- NULL
+              names(distance_result2)[3] <- "Distance"
+              distance_result <- rbind(distance_result2, distance2)
+
+              for(i in 1:nrow(distance2)){
+                distance_result_matrix[which(rownames(distance_result_matrix) == distance2$From[i]),
+                                       which(colnames(distance_result_matrix) == distance2$To[i])] <- distance2[i,3]
+
+                distance_result_matrix[which(rownames(distance_result_matrix) == distance2$To[i]),
+                                       which(colnames(distance_result_matrix) == distance2$From[i])] <- distance2[i,3]
+              }
+
+            } else {
+              Iso_conductance <- raster(Iso_conductance)
+              Iso_conductance <- extend(Iso_conductance, as(x, 'Spatial'))
+
+              Iso_conductance[is.na(Iso_conductance[])] <- geometry_out
+              Iso_conductance <- new("TransitionLayer", Iso_conductance)
+
+              #Get new distances
+              if(isTRUE(LCD)){
+                distance_result<- costDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
+              } else {
+                distance_result <- commuteDistance(Iso_conductance, coordenates_2)
+              }
+              rm(Iso_conductance)
+
+              distance_result <- as.matrix(distance_result)
+              rownames(distance_result)<- foc_adj[[id]]
+              colnames(distance_result)<- foc_adj[[id]]
+
+              distance_result_matrix <- distance_result
+
+              distance_result[lower.tri(distance_result, diag = TRUE)] <- NA
+              distance_result <- as.data.frame(as.table(distance_result))
+              distance_result <- na.omit(distance_result)
+              distance_result[,1] <- as.numeric(as.character(distance_result[,1]))
+              distance_result[,2]<-as.numeric(as.character(distance_result[,2]))
+              names(distance_result)<-c("From", "To", "Distance")
+            }
+          }
+          if(isFALSE(pairwise)){
+            distance_result <- distance_result_matrix
+          }
+
+          return(distance_result)
+        } }, .progress = TRUE)
+      close_multiprocess(works)
+      distance <- purrr::compact(distance)
+
+      if(isFALSE(pairwise)){
+        uno <- list()
+        for(i in 1:length(distance)){
+          dos <- rownames(distance[[i]])
+          uno[[i]] <- dos
         }
-        return(d1)}) %>% do.call(rbind,.)
-      rownames(distance_result) <- NULL
+        uno <- do.call(c, uno)
+        uno <- unique(uno)
+
+        mm <- matrix(nrow = length(uno), ncol = length(uno))
+        rownames(mm) <- uno
+        colnames(mm) <- uno
+
+        for(i in uno){
+          mm2 <- mm[,i] %>% as.matrix()
+
+          for(j in rownames(mm2)){
+            if(j != i){
+              mm2[j,] <- min(map(distance, function(x){
+                x2 <- x[which(rownames(x)==i),which(rownames(x)==j)]
+                if(length(x2) == 0){
+                  x2 = NULL
+                }
+                return(x2)})%>% purrr::compact(.) %>% unlist())
+            } else {
+              mm2[j,] <- 0
+            }
+            mm[,i] <- mm2
+          }
+        }
+        distance_result_matrix <- mm
+      } else {
+        distance_result <- do.call(rbind, distance)
+        distance_result$dn <- paste0(distance_result$From, "_",distance_result$To)
+
+        distance_result <- map(unique(distance_result$dn), function(i){
+          d1 <- distance_result[which(distance_result$dn == i),]
+          d1 <- d1[which(d1$Distance == min(d1$Distance)),1:3]
+          if(nrow(d1)>1){
+            d1 <- d1[1,]
+          }
+          return(d1)}) %>% do.call(rbind,.)
+        rownames(distance_result) <- NULL
+      }
     }
   }
-
 
   if(isTRUE(pairwise)){
     if (!is.null(threshold)){

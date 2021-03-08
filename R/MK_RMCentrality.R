@@ -97,6 +97,8 @@ MK_RMCentrality <- function(nodes,
                        bounding_circles = distance$bounding_circles,
                        parallel = distance$parallel,
                        edgeParallel = distance$edgeParallel,
+                       least_cost.java = distance$least_cost.java,
+                       cores.java = distance$cores.java, ram.java = distance$ram.java,
                        pairwise = FALSE,
                        write = NULL)
   if(!is.null(idT)){

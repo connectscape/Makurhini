@@ -8,6 +8,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom sf st_centroid st_within st_point_on_surface
 #' @return
+#' @export
 
 st_centroid_within_poly <- function(poly){
   centroid <- poly %>% st_centroid()

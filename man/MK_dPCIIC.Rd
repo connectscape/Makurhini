@@ -93,6 +93,7 @@ PC <- MK_dPCIIC(nodes = raster_vegetation_patches, attribute = NULL,
                 overall = TRUE,
                 distance_thresholds = 40000) # 40 km
 PC
+
 }
 \references{
 Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at \url{www.conefor.org}.\cr

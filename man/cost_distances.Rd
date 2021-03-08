@@ -15,6 +15,9 @@ cost_distances(
   threshold = NULL,
   geometry_out = NULL,
   bounding_circles = NULL,
+  least_cost.java = FALSE,
+  cores.java = 1,
+  ram.java = NULL,
   pairwise = TRUE,
   write_table = NULL
 )
@@ -47,6 +50,15 @@ using this argument, so that it is possible to calculate cost distances for all 
 Buffer distances are entered in map units. Also, the function is parallelized using
  and furrr package and multiprocess plan, default = NULL.}
 
+\item{least_cost.java}{logical. If TRUE then the programming language and computing platform 'java' will be used
+to estimate the least-cost distance USING only the FORMULA: function(x) 1/mean(x). It is necessary to have java installed. This option use
+the package 'graph4lg' to reduce computation times. WARNING: This function only works with
+integer type resistance raster (it does not accept decimals or floating point resistance).}
+
+\item{cores.java}{numeric. Computer cores used to run the .jar file (see, graph4lg), default = 1.}
+
+\item{ram.java}{numeric. RAM gigabytes to run the .jar file (see, graph4lg), default = NULL.}
+
 \item{pairwise}{logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.}
 
 \item{write_table}{character. "" indicates output to the console.}
@@ -63,4 +75,7 @@ The function builds on functions out of Jacob van Etten’s ’gdistance’ pack
 \references{
 Jacob van Etten. 2017. R Package gdistance: Distances and Routes on Geographical Grids.
 	Journal of Statistical Software. \url{10.18637/jss.v076.i13}
+
+	Paul Savary. 2020. R Package graph4lg: Build Graphs for Landscape Genetics Analysis.
+ \url{https://cran.r-project.org/web/packages/graph4lg/index.html}
 }

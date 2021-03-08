@@ -3,5 +3,5 @@
 .RData
 .Ruserdata
 .travis.yml
-inst/doc
-vignettes
+
+

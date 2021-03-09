@@ -4,7 +4,7 @@
 \alias{protconn_dist}
 \title{Estimates nodes distances to ProtConn}
 \usage{
-protconn_dist(x, id, y, r = NULL, resistance = NULL)
+protconn_dist(x, id, y, r = NULL, resistance = NULL, resist.units = FALSE)
 }
 \arguments{
 \item{x}{object of class sf, sfc, sfg or SpatialPolygons.}
@@ -16,6 +16,9 @@ protconn_dist(x, id, y, r = NULL, resistance = NULL)
 \item{r}{object of class sf, sfc, sfg or SpatialPolygons.}
 
 \item{resistance}{raster}
+
+\item{resist.units}{logical. Transform cost units to geographic units by multiplying the
+cost by the resolution of the raster}
 }
 \description{
 Estimates nodes distances to ProtConn

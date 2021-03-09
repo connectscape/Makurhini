@@ -176,6 +176,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                          distance_unit = distance$distance_unit,
                          keep = distance$keep,
                          resistance = distance$resistance,
+                         resist.units = distance$resist.units,
                          CostFun = distance$CostFun,
                          ngh = distance$ngh,
                          mask = distance$mask,
@@ -381,6 +382,10 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
         }
 
       } else {
+        names(metric_conn)[2:ncol(metric_conn)] <- c(paste0("d", metric),
+                                                     paste0("d", metric, "intra"),
+                                                     paste0("d", metric, "flux"),
+                                                     paste0("d", metric, "connector"))
         if(class(nodes) == "data.frame"){
           nodes.2 <- cbind(nodes, metric_conn)
           nodes.2$Id <- NULL

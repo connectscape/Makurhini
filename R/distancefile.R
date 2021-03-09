@@ -10,12 +10,14 @@
 #' "commute-time" that is analogous to the resistance distance of circuitscape. The commute-time distance is
 #' based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).
 #' If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
-#' @param distance_unit character. If Euclidean distance is selected you can set a distance unit, "Makurhini::unit_covert()"
+#' @param distance_unit character. If Euclidean distance is selected or resist.units is TRUE then you can set a distance unit, "Makurhini::unit_covert()"
 #' compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".
 #' @param keep numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
 #'  number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to NULL). The higher the value,
 #'   the higher the speed but less precision.
 #' @param resistance raster. Raster object with resistance values.
+#' @param resist.units logical. If type = "least-cost" then yo can transform cost units to geographic
+#'  units by multiplying the cost by the resolution of the raster.
 #' @param CostFun A function to compute the cost to move between cells. Available only if you you have selected
 #' the "least-cost" or "commute-time" distance. The default is the mean (isotropic cost distance):
 #' function(x) mean(x). If resistance is a conductance raster then you can use: function(x) 1/mean(x)
@@ -60,7 +62,8 @@
 #' @importFrom dplyr group_by summarize
 #' @importFrom rlang .data
 distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, keep = NULL,
-                         resistance = NULL, CostFun = NULL, ngh = NULL, mask = NULL,
+                         resistance = NULL, resist.units = FALSE,
+                         CostFun = NULL, ngh = NULL, mask = NULL,
                          threshold = NULL, geometry_out = NULL, bounding_circles = NULL,
                          parallel = FALSE, edgeParallel = FALSE,
                          least_cost.java = FALSE,
@@ -197,7 +200,12 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
                                least_cost.java = least_cost.java,
                                cores.java = cores.java, ram.java = ram.java,
                                write_table = write)
-
+    if(isTRUE(resist.units)){
+      distance <- distance * res(resistance)
+      if(!is.null(distance_unit)){
+        distance <- unit_convert(distance, "m", distance_unit)
+      }
+    }
   } else {
     stop("Error, you have to choose a type option")
   }

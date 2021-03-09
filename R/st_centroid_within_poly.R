@@ -11,6 +11,7 @@
 #' @export
 
 st_centroid_within_poly <- function(poly){
+  options(warn = -1)
   cl <- class(poly)[1]
   if(cl != "sf"){
     poly <- st_as_sf(poly)
@@ -23,9 +24,5 @@ st_centroid_within_poly <- function(poly){
     st_geometry(centroid[which(in_poly == FALSE),]) <- st_geometry(st_point_on_surface(poly[which(in_poly == FALSE),]))
   }
   #
-  if(cl != "sf"){
-  centroid <- as(centroid, 'Spatial')
-  }
-
   return(centroid)
   }

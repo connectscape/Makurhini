@@ -11,6 +11,7 @@ distancefile(
   distance_unit = NULL,
   keep = NULL,
   resistance = NULL,
+  resist.units = FALSE,
   CostFun = NULL,
   ngh = NULL,
   mask = NULL,
@@ -39,7 +40,7 @@ calculated from feature centroid; "edge", where Euclidean distance is calculated
 based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).
 If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.}
 
-\item{distance_unit}{character. If Euclidean distance is selected you can set a distance unit, "Makurhini::unit_covert()"
+\item{distance_unit}{character. If Euclidean distance is selected or resist.units is TRUE then you can set a distance unit, "Makurhini::unit_covert()"
 compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".}
 
 \item{keep}{numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
@@ -47,6 +48,9 @@ number of vertices. The value can range from 0 to 1 and is the proportion of poi
  the higher the speed but less precision.}
 
 \item{resistance}{raster. Raster object with resistance values.}
+
+\item{resist.units}{logical. If type = "least-cost" then yo can transform cost units to geographic
+units by multiplying the cost by the resolution of the raster.}
 
 \item{CostFun}{A function to compute the cost to move between cells. Available only if you you have selected
 the "least-cost" or "commute-time" distance. The default is the mean (isotropic cost distance):

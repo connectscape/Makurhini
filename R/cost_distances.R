@@ -77,9 +77,12 @@ cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL,
     stop("Error, you need a resistance raster")
   }
 
+
+
+  cord <- st_centroid_within_poly(x) %>% st_coordinates()
   coordenates_1 <- x
-  coordenates_1$lon <- map_dbl(x$geometry, ~ st_centroid_within_poly(.x)[[1]])
-  coordenates_1$lat <- map_dbl(x$geometry, ~ st_centroid_within_poly(.x)[[2]])
+  coordenates_1$lon <- cord[,1]
+  coordenates_1$lat <- cord[,2]
 
   if (!is.null(mask)){
     if(class(mask)[1] == "sf"){

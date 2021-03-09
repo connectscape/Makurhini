@@ -181,6 +181,7 @@ test_metric_distance <- function(nodes,
   #Id
   nodes@data$IdTemp <- 1:nrow(nodes)
   pb <- progress_estimated(length(distances_test), 0)
+
   conn_metric <- map_dfr(distances_test, function(x){
     ECA_metric <-  map_dfr(distance_thresholds, function(y) {
       tab1 <- tryCatch(MK_dPCIIC(nodes = nodes, attribute = attribute,

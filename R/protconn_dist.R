@@ -5,12 +5,14 @@
 #' @param y list. Distance list.
 #' @param r object of class sf, sfc, sfg or SpatialPolygons.
 #' @param resistance raster
+#' @param resist.units logical. Transform cost units to geographic units by multiplying the
+#'  cost by the resolution of the raster
 #' @export
 #' @importFrom sf st_buffer
 #' @importFrom raster crop
 #' @importFrom rmapshaper ms_simplify
 
-protconn_dist <- function(x, id, y, r = NULL, resistance = NULL){
+protconn_dist <- function(x, id, y, r = NULL, resistance = NULL, resist.units = FALSE){
   '%!in%' <- function(x,y)!('%in%'(x,y))
   if(y$type %in% c("least-cost", "commute-time")){
     if(is.null(resistance)){
@@ -23,6 +25,7 @@ protconn_dist <- function(x, id, y, r = NULL, resistance = NULL){
     distance_base <- tryCatch(distancefile(nodes = x,  id = id, type = y$type,
                                            distance_unit = y$distance_unit, keep = y$keep,
                                            resistance = resistance,
+                                           resist.units = y$resist.units,
                                            CostFun = y$CostFun, ngh = y$ngh,
                                            mask = y$mask,
                                            threshold = y$threshold,
@@ -39,6 +42,7 @@ protconn_dist <- function(x, id, y, r = NULL, resistance = NULL){
       distance_base <- tryCatch(distancefile(nodes = x,  id = id, type = y$type,
                                              distance_unit = y$distance_unit, keep = y$keep,
                                              resistance = y$resistance,
+                                             resist.units = y$resist.units,
                                              CostFun = y$CostFun, ngh = y$ngh,
                                              mask = y$mask,
                                              threshold = y$threshold,

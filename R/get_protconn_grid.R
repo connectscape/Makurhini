@@ -11,14 +11,17 @@
 #' @importFrom igraph graph.adjacency shortest.paths E
 #' @importFrom sf st_sf st_as_sf st_geometry
 get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FALSE){
-  #Remove region x.1
+  #Remove "region" x.1
   x.1 <- x[[1]][which(x[[1]]$type != "Region"),]
   st_geometry(x.1) <- NULL
-  #area non transb.
+
+  #Area non transb.
   area1 <- x.1[["attribute"]][which(x.1[["type"]] == "Non-Transboundary")]
+
+  #Matrix probability
   Adj_matr <- y * 0
 
-  #negative kernel density
+  #Negative kernel density
   if(is.null(d)){
     d <- mean(y)
   }
@@ -55,7 +58,7 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
   } else {
     pij.mat <- exp(-pij.mat)
   }
-
+##
   t <- which(x.1$type == "Transboundary")
   x.1$attribute[t] <- 1 #If it is multiplied by 0 it is 0, if we replace the 0 by 1 then the contribution will be only pij
 
@@ -69,7 +72,7 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
     PC <- PCnum / (LA^2)
     PC_EC <- sqrt(PCnum)
     DataProtconn <- data.frame(cbind(ECA = PC_EC, PC = PC, LA,
-                                     Protected.surface = sum(x.1[which(x.1$type != "Transboundary"),"attribute"])))
+                                     Protected.surface = sum(area1)))
   } else {
     stop("error LA is NULL")
   }
@@ -124,8 +127,11 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
 
   #ProtConn_Prot fractions
   ########ProtConn[Prot] fractions
-  pwithin <- 100 * ((sqrt(sum(x[[2]]^2))) / LA) * sqrt(DataProtconn$Protected.surface / sum(x[[2]]))
-  DataProtconn$ProtConn_Within <- 100 * (pwithin/DataProtconn$ProtConn)
+  within1 <- ((sqrt(sum(x[[2]]^2))) / LA) * 100
+  within2 <- sqrt(DataProtconn$Protected.surface / sum(x[[2]]))
+  within3 <- within1 * within2
+  DataProtconn$ProtConn_Within <- 100 * (within3/DataProtconn$ProtConn)
+
   DataProtconn$ProtConn_Contig <- 100 - DataProtconn$ProtConn_Within
 
   if(DataProtconn$ProtConn_Contig < 0){

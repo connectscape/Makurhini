@@ -90,6 +90,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
     if(class(nodes)[1] == "sf" ){
       nodes <- as(nodes, 'Spatial')
     }
+
     if(nrow(nodes) < 2){
       stop("error, you need more than 2 nodes")
     }

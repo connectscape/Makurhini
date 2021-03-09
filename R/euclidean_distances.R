@@ -31,7 +31,7 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
     stop("missing x object")
   }
 
-  if(class(x)[1] == "sf") {
+  if(class(x)[1] == "sf" & isFALSE(centroid)) {
     x <- as(x, 'Spatial')
   }
 
@@ -42,7 +42,7 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
   }
 
   if (isTRUE(centroid)){
-    centroid_1 <- gCentroid(x, byid = TRUE)
+    centroid_1 <- st_centroid_within_poly(x)
     distance <- gDistance(centroid_1, byid = TRUE)
 
   } else {

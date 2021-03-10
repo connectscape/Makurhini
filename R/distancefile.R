@@ -200,7 +200,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
                                least_cost.java = least_cost.java,
                                cores.java = cores.java, ram.java = ram.java,
                                write_table = write)
-    if(isTRUE(resist.units)){
+    if(isTRUE(resist.units) & type == "least-cost"){
       distance <- distance * res(resistance)
       if(!is.null(distance_unit)){
         distance <- unit_convert(distance, "m", distance_unit)

@@ -58,7 +58,7 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
   } else {
     pij.mat <- exp(-pij.mat)
   }
-##
+
   t <- which(x.1$type == "Transboundary")
   x.1$attribute[t] <- 1 #If it is multiplied by 0 it is 0, if we replace the 0 by 1 then the contribution will be only pij
 
@@ -131,6 +131,10 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
   within2 <- sqrt(DataProtconn$Protected.surface / sum(x[[2]]))
   within3 <- within1 * within2
   DataProtconn$ProtConn_Within <- 100 * (within3/DataProtconn$ProtConn)
+
+  if(DataProtconn$ProtConn_Within > 100){
+    DataProtconn$ProtConn_Within <- 100
+  }
 
   DataProtconn$ProtConn_Contig <- 100 - DataProtconn$ProtConn_Within
 

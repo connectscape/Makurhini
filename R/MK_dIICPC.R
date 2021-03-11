@@ -220,8 +220,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
         k = (1 / x)
         Adj_matr <- exp(-k * dist)
       } else {
-        k = log(probability)/x
-        Adj_matr <- exp(k * dist)
+        Adj_matr <- exp((dist * log(probability))/x)
       }
     }
 

@@ -126,8 +126,7 @@ MK_RMCentrality <- function(nodes,
         k =(1 / x)
         Adj_matr <- exp(-k * dist)
       } else {
-        k = log(probability)/x
-        Adj_matr <- exp(k * dist)
+        Adj_matr <- exp((dist * log(probability))/x)
       }
       diag(Adj_matr) <- 0
       graph_nodes <- tryCatch(graph.adjacency(Adj_matr, mode = "undirected", weighted = TRUE), error = function(err) err)

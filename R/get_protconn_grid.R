@@ -30,8 +30,7 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
     k = (1 / d)
     Adj_matr <- exp(-k * y)
   } else {
-    k = log(p)/d
-    Adj_matr <- exp(k * y)
+    Adj_matr <- exp((y * log(p))/d)
   }
 
   diag(Adj_matr) <- 0

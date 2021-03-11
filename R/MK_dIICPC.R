@@ -12,7 +12,7 @@
 #'   If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
 #'   If nodes is a data frame then it must have two columns where second column is the attribute.
 #' @param area_unit character. If attribute is NULL you can set an area unit (e.g., "km2", "cm2", "ha";
-#'  see Makurhini::unit_convert). Default equal to hectares "ha".
+#'  see Makurhini::unit_convert). Default equal to hectares "m2".
 #' @param restoration character or vector. If nodes is a shappefile then you must specify the name of the column
 #' with restoration value. If nodes is a raster layer then must be a numeric vector with restoration values
 #' to each node in the raster. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node
@@ -47,6 +47,7 @@
 #' nrow(vegetation_patches) # Number of patches
 #' #Two distance threshold,
 #' IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
+#'                 area_unit = "m2",
 #'                 distance = list(type = "centroid"),
 #'                 metric = "IIC", distance_thresholds = c(5000, 10000)) # 5 and 10 km
 #' IIC
@@ -75,7 +76,7 @@
 #' @importFrom sf write_sf st_as_sf st_zm
 
 MK_dPCIIC <- function(nodes, attribute  = NULL,
-                      area_unit = "ha", restoration = NULL,
+                      area_unit = "m2", restoration = NULL,
                       distance = list(type= "centroid", resistance = NULL),
                       metric = c("IIC", "PC"),
                       probability = NULL, distance_thresholds = NULL,

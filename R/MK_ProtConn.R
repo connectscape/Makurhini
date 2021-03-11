@@ -6,7 +6,7 @@
 #' @param thintersect numeric. Threshold of intersection in percentage allowed to select or not a target geometry.
 #'  Example, if thintersect is equal to 90 then a node will be selected only if the intersection between the node and
 #'   the region is >= 90 percentage. If NULL, thintersect will be 0 (default)
-#' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".
+#' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "m2".
 #' @param distance list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).
 #' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
 #'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).
@@ -112,7 +112,7 @@
 MK_ProtConn <- function(nodes,
                         region,
                         thintersect = NULL,
-                        area_unit = "ha",
+                        area_unit = "m2",
                         distance = list(type= "centroid", resistance = NULL),
                         distance_thresholds,
                         probability,

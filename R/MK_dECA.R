@@ -8,7 +8,7 @@
 #'   The numeric vector is multiplied by the area of each node to obtain a weighted habitat index.
 #'   If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
 #' @param area_unit character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
-#' compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".
+#' compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "m2".
 #' @param distance list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the
 #'  distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost"
 #'  or "commute-time", then you have to use the "resistance" argument. To See more arguments consult
@@ -73,7 +73,7 @@
 
 MK_dECA <- function(nodes,
                     attribute = NULL,
-                    area_unit = "ha",
+                    area_unit = "m2",
                     distance = list(type = "centroid", resistance = NULL),
                     metric = "IIC",
                     probability = NULL,

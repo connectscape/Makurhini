@@ -4,7 +4,7 @@
 #' @param nodes object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
 #' @param regions object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
 #' @param thintersect numeric.Threshold of intersection in percentage allowed to select or not a target geometry. Default = 90, if intersection >=90 percentage, the geometry will be selected.
-#' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".
+#' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "m2".
 #' @param distance list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).
 #' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
 #'  distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).
@@ -49,7 +49,7 @@
 #'                         distance_thresholds = c(10000, 50000),
 #'                         probability = 0.5, transboundary = 50000,
 #'                         transboundary_type = "region",
-#'                         plot = TRUE, write = NULL,
+#'                         plot = TRUE, write = "./Test",
 #'                         parallel = NULL, intern = FALSE)
 #' test
 #' }
@@ -67,7 +67,7 @@
 #' @importFrom grDevices dev.off tiff
 MK_ProtConnMult <- function(nodes, regions,
                             thintersect = NULL,
-                            area_unit = "ha",
+                            area_unit = "m2",
                             distance = list(type= "centroid", resistance = NULL),
                             distance_thresholds, probability,
                             transboundary = NULL,

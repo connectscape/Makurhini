@@ -7,7 +7,7 @@
 MK_dPCIIC(
   nodes,
   attribute = NULL,
-  area_unit = "ha",
+  area_unit = "m2",
   restoration = NULL,
   distance = list(type = "centroid", resistance = NULL),
   metric = c("IIC", "PC"),
@@ -34,7 +34,7 @@ a numeric vector with the node's attribute. The length of the vector must be equ
  If nodes is a data frame then it must have two columns where second column is the attribute.}
 
 \item{area_unit}{character. If attribute is NULL you can set an area unit (e.g., "km2", "cm2", "ha";
-see Makurhini::unit_convert). Default equal to hectares "ha".}
+see Makurhini::unit_convert). Default equal to hectares "m2".}
 
 \item{restoration}{character or vector. If nodes is a shappefile then you must specify the name of the column
 with restoration value. If nodes is a raster layer then must be a numeric vector with restoration values
@@ -78,6 +78,7 @@ data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) # Number of patches
 #Two distance threshold,
 IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
+                area_unit = "m2",
                 distance = list(type = "centroid"),
                 metric = "IIC", distance_thresholds = c(5000, 10000)) # 5 and 10 km
 IIC

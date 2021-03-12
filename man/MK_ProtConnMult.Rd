@@ -8,7 +8,7 @@ MK_ProtConnMult(
   nodes,
   regions,
   thintersect = NULL,
-  area_unit = "ha",
+  area_unit = "m2",
   distance = list(type = "centroid", resistance = NULL),
   distance_thresholds,
   probability,
@@ -30,7 +30,7 @@ MK_ProtConnMult(
 
 \item{thintersect}{numeric.Threshold of intersection in percentage allowed to select or not a target geometry. Default = 90, if intersection >=90 percentage, the geometry will be selected.}
 
-\item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".}
+\item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "m2".}
 
 \item{distance}{list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).}
 

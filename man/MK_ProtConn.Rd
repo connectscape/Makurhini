@@ -8,7 +8,7 @@ MK_ProtConn(
   nodes,
   region,
   thintersect = NULL,
-  area_unit = "ha",
+  area_unit = "m2",
   distance = list(type = "centroid", resistance = NULL),
   distance_thresholds,
   probability,
@@ -32,7 +32,7 @@ MK_ProtConn(
 Example, if thintersect is equal to 90 then a node will be selected only if the intersection between the node and
  the region is >= 90 percentage. If NULL, thintersect will be 0 (default)}
 
-\item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".}
+\item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "m2".}
 
 \item{distance}{list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).}
 

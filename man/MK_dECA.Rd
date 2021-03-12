@@ -7,7 +7,7 @@
 MK_dECA(
   nodes,
   attribute = NULL,
-  area_unit = "ha",
+  area_unit = "m2",
   distance = list(type = "centroid", resistance = NULL),
   metric = "IIC",
   probability = NULL,
@@ -28,7 +28,7 @@ a numeric vector with the node's attribute. The length of the vector must be equ
  If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.}
 
 \item{area_unit}{character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
-compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".}
+compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "m2".}
 
 \item{distance}{list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the
 distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost"

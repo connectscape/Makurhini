@@ -173,7 +173,7 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
       PCnum <- sum(PCmat)
       ECAdesign <- sqrt(PCnum)
 
-      DataProtconn$ProtUnconn_Design <- (100 * (ECAdesign/LA)) - (100 * (ECAn/LA))
+      DataProtconn$ProtUnconn_Design <- (100 * (ECAdesign/LA)) - (100 * (DataProtconn$ECA/LA))
       DataProtconn$ProtConn_Bound <- DataProtconn$Prot - DataProtconn$ProtUnconn_Design
     } else {
       DataProtconn$ProtUnconn_Design <- NA

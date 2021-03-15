@@ -192,11 +192,6 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                          write = NULL)
   }
 
-  if(!is.null(idT)){
-    rownames(dist) <- nodes$IdTemp
-    colnames(dist) <- nodes$IdTemp
-  }
-
   pb <- progress_estimated(length(distance_thresholds), 0)
 
   result <- map(distance_thresholds, function(x){

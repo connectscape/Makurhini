@@ -1,7 +1,9 @@
 #' Topological error correction
 #'
 #' @param x Object of class sf, sfc, sfg or SpatialPolygons
+#' @param xsimplify logical.
 #' @importFrom sf st_as_sf st_is_valid st_is_empty st_zm st_buffer
+#' @importFrom rmapshaper ms_simplify
 #' @export
 
 TopoClean <- function(x, xsimplify = FALSE) {
@@ -11,8 +13,9 @@ TopoClean <- function(x, xsimplify = FALSE) {
 
   x2 <- st_zm(x, drop = TRUE)
 
-  if(isTRUE(xsimplify)){
-    x2 <- ms_simplify(x2, 0.9, method = "vis", keep_shapes = TRUE)
+  if(isTRUE(xsimplify) | !is.null(xsimplify)){
+    x2 <- ms_simplify(x2, keep = if(isTRUE(xsimplify)){0.9} else {xsimplify},
+                      method = "vis", keep_shapes = TRUE)
   }
 
   x2 <- st_buffer(x2, 0)

@@ -263,6 +263,10 @@ MK_ProtConn <- function(nodes,
               DataProtconn[1, which(DataProtconn[5:ncol(DataProtconn)] > 100) + 5] <- 100
             }
 
+            if(length(which(DataProtconn[5:ncol(DataProtconn)] < 0)) > 0){
+              DataProtconn[1, which(DataProtconn[5:ncol(DataProtconn)] < 0) + 5] <- 0
+            }
+
             ##
             DataProtconn_2 <- t(DataProtconn) %>% as.data.frame()
             DataProtconn_2$Indicator <- row.names(DataProtconn_2)

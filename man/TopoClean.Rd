@@ -8,6 +8,8 @@ TopoClean(x, xsimplify = FALSE)
 }
 \arguments{
 \item{x}{Object of class sf, sfc, sfg or SpatialPolygons}
+
+\item{xsimplify}{logical.}
 }
 \description{
 Topological error correction

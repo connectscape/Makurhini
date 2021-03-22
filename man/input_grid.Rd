@@ -21,7 +21,7 @@ input_grid(
 
 \item{bdist}{numeric}
 
-\item{xsimplify}{logical}
+\item{xsimplify}{logical or numeric}
 }
 \description{
 ProtConn: input files

@@ -89,7 +89,7 @@ test <- MK_ProtConnMult(nodes = Protected_areas,
                         distance_thresholds = c(10000, 50000),
                         probability = 0.5, transboundary = 50000,
                         transboundary_type = "region",
-                        plot = TRUE, write = NULL,
+                        plot = TRUE, write = "./Test",
                         parallel = NULL, intern = FALSE)
 test
 }

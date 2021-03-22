@@ -13,7 +13,7 @@ TopoClean <- function(x, xsimplify = FALSE) {
 
   x2 <- st_zm(x, drop = TRUE)
 
-  if(isTRUE(xsimplify) | !is.null(xsimplify)){
+  if(isTRUE(xsimplify) | !is.numeric(xsimplify)){
     x2 <- ms_simplify(x2, keep = if(isTRUE(xsimplify)){0.9} else {xsimplify},
                       method = "vis", keep_shapes = TRUE)
   }

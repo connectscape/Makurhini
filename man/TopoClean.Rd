@@ -9,7 +9,7 @@ TopoClean(x, xsimplify = FALSE)
 \arguments{
 \item{x}{Object of class sf, sfc, sfg or SpatialPolygons}
 
-\item{xsimplify}{logical.}
+\item{xsimplify}{logical or numeric.}
 }
 \description{
 Topological error correction

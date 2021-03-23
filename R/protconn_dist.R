@@ -72,7 +72,8 @@ protconn_dist <- function(x, id, y, r = NULL, resistance = NULL, resist.units = 
           r <- ms_simplify(r, keep = 0.1,  method = "vis", keep_shapes = TRUE, explode = TRUE)
 
           for(i in 1:nrow(r)){
-            over_nodes <- over_poly(x[which(x$type == "Non-Transboundary"),], y = r[i,], geometry = TRUE)
+            over_nodes <- over_poly(x[which(x$type == "Non-Transboundary"),], y = r[i,],
+                                    geometry = TRUE)
             distance_base[which(row.names(distance_base) %in% as.character(bn[i])),
                           which(colnames(distance_base) %in% as.character(over_nodes[[id]]))] <- 0
 

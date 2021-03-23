@@ -15,12 +15,13 @@
 Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALSE,
                            metrunit = "ha", protconn = TRUE, protconn_bound = FALSE){
   options(warn = -1)
+
   if(isTRUE(xsimplify)){
     x.0 <- rmapshaper::ms_simplify(x, keep = 0.1,  method = "vis",
                        keep_shapes = TRUE, explode = TRUE)
     x.1 <- st_buffer(x.0, 0) %>%  ms_dissolve(.)
   } else {
-    x.0 <- x
+    x.0 <- st_cast(x, "POLYGON")
     x.1 <- x
   }
 

@@ -60,7 +60,7 @@ distance between nodes will be estimated and used.}
 
 \item{onlyoverall}{logical. If TRUE, then only overall metrics will be calculated.}
 
-\item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).}
+\item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to m2).}
 
 \item{rasterparallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL.
 If nodes is "raster" then you can use this argument to assign the metrics values to the nodes

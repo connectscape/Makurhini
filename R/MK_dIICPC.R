@@ -30,7 +30,7 @@
 #'  distance between nodes will be estimated and used.
 #' @param overall logical. If TRUE, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE
 #' @param onlyoverall logical. If TRUE, then only overall metrics will be calculated.
-#' @param LA numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).
+#' @param LA numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to m2).
 #' @param rasterparallel numeric. Specify the number of cores to use for parallel processing, default = NULL.
 #' If nodes is "raster" then you can use this argument to assign the metrics values to the nodes
 #'  raster. It is useful when raster resolution is less than 100 m2.

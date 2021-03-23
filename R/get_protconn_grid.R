@@ -59,10 +59,11 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
   }
 
   t <- which(x.1$type == "Transboundary")
-  x.1$attribute[t] <- 1 #If it is multiplied by 0 it is 0, if we replace the 0 by 1 then the contribution will be only pij
 
-  PCmat <- outer(x.1$attribute, x.1$attribute) * pij.mat
-
+  aiaj <- outer(x.1$attribute, x.1$attribute, FUN = "*")
+  aiaj[t,] <- 1
+  aiaj[,t] <- 1
+  PCmat <- aiaj * pij.mat
   #p1
   PCnum <- sum(PCmat)
 
@@ -167,9 +168,10 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
 
       x.3 <- x[[1]]$attribute
       t <- which(x[[1]]$type != "Non-Transboundary")
-      x.3[t] <- 1
-      PCmat <- outer(x.3, x.3) * pij.mat
-
+      aiaj <- outer(x.3, x.3, FUN = "*")
+      aiaj[t,] <- 1
+      aiaj[,t] <- 1
+      PCmat <- aiaj * pij.mat
       PCnum <- sum(PCmat)
       ECAdesign <- sqrt(PCnum)
 

@@ -178,7 +178,7 @@ MK_ProtConn <- function(nodes,
                                      y = base_param1@nodes,
                                      buff = max(transboundary),
                                      method = transboundary_type,
-                                     xsimplify = TRUE,
+                                     xsimplify = geom_simplify,
                                      metrunit = base_param1@area_unit,
                                      protconn_bound = protconn_bound), error = function(err)err)
   if(inherits(nodes.1, "error")){
@@ -241,6 +241,7 @@ MK_ProtConn <- function(nodes,
           nodes.2 <- nodes.1
         }
 
+        #####
         distance.1 <- tryCatch(protconn_dist(x = nodes.2[[1]], id = "OBJECTID",
                                              y = base_param3[[2]]@distance,
                                              r = base_param3[[1]]@region,

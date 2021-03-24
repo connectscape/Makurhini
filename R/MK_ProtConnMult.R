@@ -3,7 +3,6 @@
 #' Estimate Protected Connected (ProtConn) indicator and fractions for multiple regions.
 #' @param nodes object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
 #' @param regions object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
-#' @param thintersect numeric.Threshold of intersection in percentage allowed to select or not a target geometry. Default = 90, if intersection >=90 percentage, the geometry will be selected.
 #' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "m2".
 #' @param distance list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).
 #' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
@@ -15,6 +14,7 @@
 #' if "region" is selected the transboundary is built from the limits of the region.
 #' @param protconn_bound logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.
 #' @param geom_simplify logical. Slightly simplify the region and nodes geometries.
+#' @param delta logical. Estimate the contribution of each node to the ProtConn value in the regions.
 #' @param CI character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, \link[boot]{boot.ci})
 #' @param plot logical. Plot the main ProtConn indicators and fractions with their standard deviation, default = FALSE.
 #' @param write character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".
@@ -66,7 +66,6 @@
 #' @importFrom rlang .data
 #' @importFrom grDevices dev.off tiff
 MK_ProtConnMult <- function(nodes, regions,
-                            thintersect = NULL,
                             area_unit = "m2",
                             distance = list(type= "centroid", resistance = NULL),
                             distance_thresholds, probability,
@@ -74,6 +73,7 @@ MK_ProtConnMult <- function(nodes, regions,
                             transboundary_type = "nodes",
                             protconn_bound = FALSE,
                             geom_simplify = FALSE,
+                            delta = FALSE,
                             CI = "all",
                             plot = FALSE,
                             write = NULL, intern = TRUE,
@@ -124,7 +124,6 @@ MK_ProtConnMult <- function(nodes, regions,
 
       protconn <- tryCatch(MK_ProtConn(nodes = nodes,
                                        region = Ecoreg_sel,
-                                       thintersect = thintersect,
                                        area_unit = area_unit,
                                        distance = distance,
                                        transboundary = transboundary,
@@ -133,6 +132,7 @@ MK_ProtConnMult <- function(nodes, regions,
                                        distance_thresholds = distance_thresholds,
                                        probability = probability,
                                        geom_simplify = geom_simplify,
+                                       delta = delta,
                                        plot = FALSE,
                                        intern = FALSE),  error = function(err)err)
 
@@ -207,7 +207,6 @@ MK_ProtConnMult <- function(nodes, regions,
       Ecoreg_sel <- regions[regions$ID_Temp == unique(regions$ID_Temp)[x],]
       protconn <- tryCatch(MK_ProtConn(nodes = nodes,
                                        region = Ecoreg_sel,
-                                       thintersect = thintersect,
                                        area_unit = area_unit,
                                        distance = distance,
                                        transboundary = transboundary,
@@ -215,6 +214,7 @@ MK_ProtConnMult <- function(nodes, regions,
                                        distance_thresholds = distance_thresholds,
                                        probability = probability,
                                        geom_simplify = geom_simplify,
+                                       delta = delta,
                                        plot = FALSE,
                                        intern = FALSE),  error = function(err)err)
 

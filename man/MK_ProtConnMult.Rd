@@ -7,7 +7,6 @@
 MK_ProtConnMult(
   nodes,
   regions,
-  thintersect = NULL,
   area_unit = "m2",
   distance = list(type = "centroid", resistance = NULL),
   distance_thresholds,
@@ -16,6 +15,7 @@ MK_ProtConnMult(
   transboundary_type = "nodes",
   protconn_bound = FALSE,
   geom_simplify = FALSE,
+  delta = FALSE,
   CI = "all",
   plot = FALSE,
   write = NULL,
@@ -27,8 +27,6 @@ MK_ProtConnMult(
 \item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.}
 
 \item{regions}{object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.}
-
-\item{thintersect}{numeric.Threshold of intersection in percentage allowed to select or not a target geometry. Default = 90, if intersection >=90 percentage, the geometry will be selected.}
 
 \item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "m2".}
 
@@ -48,6 +46,8 @@ if "region" is selected the transboundary is built from the limits of the region
 \item{protconn_bound}{logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.}
 
 \item{geom_simplify}{logical. Slightly simplify the region and nodes geometries.}
+
+\item{delta}{logical. Estimate the contribution of each node to the ProtConn value in the regions.}
 
 \item{CI}{character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, \link[boot]{boot.ci})}
 

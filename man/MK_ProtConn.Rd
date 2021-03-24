@@ -7,7 +7,6 @@
 MK_ProtConn(
   nodes,
   region,
-  thintersect = NULL,
   area_unit = "m2",
   distance = list(type = "centroid", resistance = NULL),
   distance_thresholds,
@@ -17,6 +16,7 @@ MK_ProtConn(
   protconn_bound = FALSE,
   LA = NULL,
   geom_simplify = FALSE,
+  delta = FALSE,
   plot = FALSE,
   write = NULL,
   parallel = NULL,
@@ -27,10 +27,6 @@ MK_ProtConn(
 \item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.}
 
 \item{region}{object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.}
-
-\item{thintersect}{numeric. Threshold of intersection in percentage allowed to select or not a target geometry.
-Example, if thintersect is equal to 90 then a node will be selected only if the intersection between the node and
- the region is >= 90 percentage. If NULL, thintersect will be 0 (default)}
 
 \item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "m2".}
 
@@ -53,6 +49,8 @@ if "region" is selected the transboundary is built from the limits of the region
 \item{LA}{numeric. Maximum Landscape Attribute.}
 
 \item{geom_simplify}{logical. Slightly simplify the region and nodes geometries.}
+
+\item{delta}{logical. Estimate the contribution of each node to the ProtConn value in the region.}
 
 \item{plot}{logical. Plot the main ProtConn indicators and fractions, default = FALSE.}
 

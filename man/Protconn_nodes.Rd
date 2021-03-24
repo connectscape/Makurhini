@@ -12,7 +12,8 @@ Protconn_nodes(
   xsimplify = FALSE,
   metrunit = "ha",
   protconn = TRUE,
-  protconn_bound = FALSE
+  protconn_bound = FALSE,
+  delta = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ Protconn_nodes(
 \item{protconn}{logical. If FALSE then only PC and EC}
 
 \item{protconn_bound}{logical}
+
+\item{delta_protconn}{logical}
 }
 \description{
 Generates ProtConn nodes files

@@ -3,9 +3,6 @@
 #' Estimate Protected Connected (ProtConn) indicator and fractions for one region.
 #' @param nodes object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
 #' @param region object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
-#' @param thintersect numeric. Threshold of intersection in percentage allowed to select or not a target geometry.
-#'  Example, if thintersect is equal to 90 then a node will be selected only if the intersection between the node and
-#'   the region is >= 90 percentage. If NULL, thintersect will be 0 (default)
 #' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "m2".
 #' @param distance list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).
 #' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
@@ -19,6 +16,7 @@
 #' @param protconn_bound logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.
 #' @param LA numeric. Maximum Landscape Attribute.
 #' @param geom_simplify logical. Slightly simplify the region and nodes geometries.
+#' @param delta logical. Estimate the contribution of each node to the ProtConn value in the region.
 #' @param plot logical. Plot the main ProtConn indicators and fractions, default = FALSE.
 #' @param write character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".
 #' @param parallel logical. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
@@ -112,7 +110,6 @@
 #' @importFrom rlang .data
 MK_ProtConn <- function(nodes,
                         region,
-                        thintersect = NULL,
                         area_unit = "m2",
                         distance = list(type= "centroid", resistance = NULL),
                         distance_thresholds,
@@ -122,6 +119,7 @@ MK_ProtConn <- function(nodes,
                         protconn_bound = FALSE,
                         LA = NULL,
                         geom_simplify = FALSE,
+                        delta = FALSE,
                         plot = FALSE,
                         write = NULL,
                         parallel = NULL,
@@ -164,7 +162,6 @@ MK_ProtConn <- function(nodes,
   }
 
   base_param2 <- metric_class(metric = "ProtConn",
-                              thintersect = thintersect,
                               distance_threshold = distance_thresholds,
                               probability = probability,
                               transboundary = transboundary,
@@ -180,7 +177,8 @@ MK_ProtConn <- function(nodes,
                                      method = transboundary_type,
                                      xsimplify = geom_simplify,
                                      metrunit = base_param1@area_unit,
-                                     protconn_bound = protconn_bound), error = function(err)err)
+                                     protconn_bound = protconn_bound,
+                                     delta = delta), error = function(err)err)
   if(inherits(nodes.1, "error")){
     stop(paste0("error first nodes selection, please check topology errors and you could simplify polygon"))
   }
@@ -220,20 +218,18 @@ MK_ProtConn <- function(nodes,
   }
 
   if (is.null(parallel)) {
-    ProtConn_res <- tryCatch(lapply(base_param3[[2]]@transboundary, function(n){
-      if (isTRUE(intern) & length(base_param3[[2]]@transboundary) > 1) {
-        pb$tick()$print()
-      }
 
+    ProtConn_res <- tryCatch(lapply(base_param3[[2]]@transboundary, function(n){
       if(is.list(nodes.1)){
         if(n != max(transboundary)){
           nodes.2 <- tryCatch(Protconn_nodes(x = base_param3[[1]]@region,
-                                             y = nodes.1[[1]][which(nodes.1[[1]]$type != "Region"),],
+                                             y = base_param1@nodes,
                                              buff = n,
                                              method = transboundary_type,
                                              xsimplify = TRUE,
                                              metrunit = base_param3[[1]]@area_unit,
-                                             protconn_bound = protconn_bound), error = function(err)err)
+                                             protconn_bound = protconn_bound,
+                                             delta = delta), error = function(err)err)
           if(inherits(nodes.2, "error")){
             stop(paste0("error first nodes selection, please check topology errors and you could simplify polygon"))
           }
@@ -251,84 +247,82 @@ MK_ProtConn <- function(nodes,
           stop("error distance. Check topology errors or resistance raster")
         }
 
-          result <- lapply(base_param3[[2]]@distance_threshold, function(d){
-            DataProtconn <- get_protconn_grid(x = nodes.2,
-                                              y = distance.1,
-                                              p = base_param3[[2]]@probability,
-                                              pmedian = TRUE,
-                                              d = d,
-                                              LA = base_param3[[5]], bound = protconn_bound)
-            DataProtconn <- round(DataProtconn, 4)
+        result <- lapply(base_param3[[2]]@distance_threshold, function(d){
+          DataProtconn <- get_protconn_grid(x = nodes.2,
+                                            y = distance.1,
+                                            p = base_param3[[2]]@probability,
+                                            pmedian = TRUE,
+                                            d = d,
+                                            LA = base_param3[[5]], bound = protconn_bound)
+          DataProtconn <- round(DataProtconn, 4)
 
-            if(length(which(DataProtconn[5:ncol(DataProtconn)] > 100)) > 0){
-              DataProtconn[1, which(DataProtconn[5:ncol(DataProtconn)] > 100) + 5] <- 100
-            }
+          if(length(which(DataProtconn[5:ncol(DataProtconn)] > 100)) > 0){
+            DataProtconn[1, which(DataProtconn[5:ncol(DataProtconn)] > 100) + 5] <- 100
+          }
 
-            if(length(which(DataProtconn[5:ncol(DataProtconn)] < 0)) > 0){
-              DataProtconn[1, which(DataProtconn[5:ncol(DataProtconn)] < 0) + 5] <- 0
-            }
+          if(length(which(DataProtconn[5:ncol(DataProtconn)] < 0)) > 0){
+            DataProtconn[1, which(DataProtconn[5:ncol(DataProtconn)] < 0) + 5] <- 0
+          }
 
-            ##
-            DataProtconn_2 <- t(DataProtconn) %>% as.data.frame()
-            DataProtconn_2$Indicator <- row.names(DataProtconn_2)
-            DataProtconn_2$Indicator[1] <- "EC(PC)"
-            DataProtconn_2$Indicator[3] <- "Maximum landscape attribute"
-            DataProtconn_2$Indicator[4] <- "Protected surface"
-            DataProtconn_2$Index <- rep(DataProtconn_2[c(1:4),2], 8)[1:nrow(DataProtconn_2)]
+          ##
+          DataProtconn_2 <- t(DataProtconn) %>% as.data.frame()
+          DataProtconn_2$Indicator <- row.names(DataProtconn_2)
+          DataProtconn_2$Indicator[1] <- "EC(PC)"
+          DataProtconn_2$Indicator[3] <- "Maximum landscape attribute"
+          DataProtconn_2$Indicator[4] <- "Protected surface"
+          DataProtconn_2$Index <- rep(DataProtconn_2[c(1:4),2], 8)[1:nrow(DataProtconn_2)]
 
-            Value <- DataProtconn_2[c(1:4), 1]
+          Value <- DataProtconn_2[c(1:4), 1]
 
-            if(Value[1]%%1 == 0){
-              Value <- c(formatC(as.numeric(Value[1]), format="d"),
-                         formatC(as.numeric(Value[2]), format="e"),
-                         formatC(as.numeric(Value[3]), format="d"),
-                         formatC(as.numeric(Value[4]), format="d"))
-            } else {
-              Value <- c(formatC(as.numeric(Value[1]), format="f", digits = 2),
-                         formatC(as.numeric(Value[2]), format="e"),
-                         formatC(as.numeric(Value[3]), format="f", digits = 2),
-                         formatC(as.numeric(Value[4]), format="f", digits = 2))
-            }
+          if(Value[1]%%1 == 0){
+            Value <- c(formatC(as.numeric(Value[1]), format="d"),
+                       formatC(as.numeric(Value[2]), format="e"),
+                       formatC(as.numeric(Value[3]), format="d"),
+                       formatC(as.numeric(Value[4]), format="d"))
+          } else {
+            Value <- c(formatC(as.numeric(Value[1]), format="f", digits = 2),
+                       formatC(as.numeric(Value[2]), format="e"),
+                       formatC(as.numeric(Value[3]), format="f", digits = 2),
+                       formatC(as.numeric(Value[4]), format="f", digits = 2))
+          }
 
-            DataProtconn_2$Value <- rep(Value, 8)[1:nrow(DataProtconn_2)]
-            rownames(DataProtconn_2) <- NULL
-            #
-            DataProtconn_3 <- DataProtconn_2[5:nrow(DataProtconn_2),c(3:4, 2, 1)]
-            names(DataProtconn_3)[3:4] <- c("ProtConn indicator", "Percentage")
-            DataProtconn_3[5:nrow(DataProtconn_3), 1:2] <- " "
-            rownames(DataProtconn_3) <- NULL
+          DataProtconn_2$Value <- rep(Value, 8)[1:nrow(DataProtconn_2)]
+          rownames(DataProtconn_2) <- NULL
+          #
+          DataProtconn_3 <- DataProtconn_2[5:nrow(DataProtconn_2),c(3:4, 2, 1)]
+          names(DataProtconn_3)[3:4] <- c("ProtConn indicator", "Percentage")
+          DataProtconn_3[5:nrow(DataProtconn_3), 1:2] <- " "
+          rownames(DataProtconn_3) <- NULL
 
-            DataProtconn_4 <- formattable(DataProtconn_3, align = c("l","c"),
-                                          list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
-                                               `ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
-                                               `Percentage` = color_tile("white", "orange")))
-            if(isTRUE(plot)){
-              DataProtconn_plot <- plotprotconn(DataProtconn, d)
-              result_lista <- list( "Protected Connected (Viewer Panel)" = DataProtconn_4,
-                                    "ProtConn Plot" = DataProtconn_plot)
-            } else {
-              result_lista <- DataProtconn_4
-            }
-            return(result_lista)
-          })
-
-        names(result) <- paste0("d", distance_thresholds)
-
+          DataProtconn_4 <- formattable(DataProtconn_3, align = c("l","c"),
+                                        list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
+                                             `ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
+                                             `Percentage` = color_tile("white", "orange")))
+          #####
+          if(isTRUE(plot)){
+            DataProtconn_plot <- plotprotconn(DataProtconn, d)
+            result_lista <- list( "Protected Connected (Viewer Panel)" = DataProtconn_4,
+                                  "ProtConn Plot" = DataProtconn_plot)
+          } else {
+            result_lista <- DataProtconn_4
+          }
+          return(result_lista)
+        })
       } else if(is.numeric(nodes.1)){ #Just exist only one node in the region
         if(n != max(transboundary)){
           nodes.2 <- tryCatch(Protconn_nodes(x = base_param3[[1]]@region,
-                                             y = nodes.1[[1]][which(nodes.1[[1]]$type != "Region"),],
+                                             y = base_param1@nodes,
                                              buff = n,
                                              xsimplify = TRUE,
                                              metrunit = base_param3[[1]]@area_unit,
-                                             protconn_bound = protconn_bound), error = function(err)err)
+                                             protconn_bound = protconn_bound,
+                                             delta = delta), error = function(err)err)
           if(inherits(nodes.2, "error")){
             stop(paste0("error first nodes selection, please check topology errors and you could simplify polygon"))
           }
         } else {
           nodes.2 <- nodes.1
         }
-
         result <- lapply(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = if(nodes.2 > LA){LA}else{nodes.2},
                                      PC = NA,
@@ -387,8 +381,6 @@ MK_ProtConn <- function(nodes,
                                              `Percentage` = color_tile("white", "orange")))
           return(DataProtconn_4)
         })
-
-        names(result) <- paste0("d", distance_thresholds)
       } else {
         result <- lapply(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = NA,
@@ -437,6 +429,20 @@ MK_ProtConn <- function(nodes,
         names(result) <- paste0("d", distance_thresholds)
       }
 
+
+      if(isTRUE(delta)){
+        deltaProtConn <- delta_ProtConn(x=nodes.2$delta, y=nodes.2$nodes_diss,
+                                        base_param3)
+        for(i in 1:length(result)){
+          result[[i]]$'ProtConn_Delta' <- deltaProtConn[[i]]
+        }
+      }
+
+      if (isTRUE(intern) & length(base_param3[[2]]@transboundary) > 1) {
+        pb$tick()$print()
+      }
+
+      names(result) <- paste0("d", distance_thresholds)
       result <- compact(result)
 
       if(!is.null(write)){
@@ -464,12 +470,13 @@ MK_ProtConn <- function(nodes,
       if(is.list(nodes.1)){
         if(n != max(transboundary)){
           nodes.2 <- tryCatch(Protconn_nodes(x = base_param3[[1]]@region,
-                                             y = nodes.1[[1]][which(nodes.1[[1]]$type != "Region"),],
+                                             y = base_param1@nodes,
                                              buff = n,
                                              method = transboundary_type,
                                              xsimplify = TRUE,
                                              metrunit = base_param3[[1]]@area_unit,
-                                             protconn_bound = protconn_bound), error = function(err)err)
+                                             protconn_bound = protconn_bound,
+                                             delta = delta), error = function(err)err)
           if(inherits(nodes.2, "error")){
             stop(paste0("error first nodes selection, please check topology errors and you could simplify polygon"))
           }
@@ -541,16 +548,16 @@ MK_ProtConn <- function(nodes,
           }
           return(result_lista)
         })
-        names(result) <- paste0("d", distance_thresholds)
 
       } else if(is.numeric(nodes.1)){
         if(n != max(transboundary)){
           nodes.2 <- tryCatch(Protconn_nodes(x = base_param3[[1]]@region,
-                                             y = nodes.1[[1]][which(nodes.1[[1]]$type != "Region"),],
+                                             y = base_param1@nodes,
                                              buff = n,
                                              xsimplify = TRUE,
                                              metrunit = base_param3[[1]]@area_unit,
-                                             protconn_bound = protconn_bound), error = function(err)err)
+                                             protconn_bound = protconn_bound,
+                                             delta = delta), error = function(err)err)
           if(inherits(nodes.2, "error")){
             stop(paste0("error first nodes selection, please check topology errors and you could simplify polygon"))
           }
@@ -616,7 +623,6 @@ MK_ProtConn <- function(nodes,
           return(DataProtconn_4)
         })
 
-        names(result) <- paste0("d", distance_thresholds)
       } else {
         result <- future_map(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = NA,
@@ -662,10 +668,23 @@ MK_ProtConn <- function(nodes,
                                              `Percentage` = color_tile("white", "orange")))
           return(DataProtconn_4)
         })
-        names(result) <- paste0("d", distance_thresholds)
       }
 
+      if(isTRUE(delta)){
+        if (isTRUE(intern)){
+          message("Step 3. Processing Delta ProtConn")
+        }
+
+        deltaProtConn <- delta_ProtConn(x=nodes.2$delta, y=nodes.2$nodes_diss,
+                                        base_param3)
+        for(i in 1:length(result)){
+          result[[i]]$'ProtConn_Delta' <- deltaProtConn[[i]]
+        }
+      }
+
+      names(result) <- paste0("d", distance_thresholds)
       result <- compact(result)
+
 
       if(!is.null(write)){
         for (i in 1:length(base_param3[[2]]@distance_threshold)) {

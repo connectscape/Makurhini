@@ -8,12 +8,14 @@
 #' @param metrunit character
 #' @param protconn logical. If FALSE then only PC and EC
 #' @param protconn_bound logical
+#' @param delta_protconn logical
 #' @export
 #' @importFrom sf st_sf st_cast st_buffer st_difference st_area st_geometry
 #' @importFrom magrittr %>%
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip
 Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALSE,
-                           metrunit = "ha", protconn = TRUE, protconn_bound = FALSE){
+                           metrunit = "ha", protconn = TRUE, protconn_bound = FALSE,
+                           delta = FALSE){
   options(warn = -1)
 
   if(isTRUE(xsimplify)){
@@ -27,7 +29,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
 
 
   y$PROTIDT <- 1:nrow(y)
-  y <- y[,"PROTIDT"]
+
 
   '%!in%' <- function(x,y)!('%in%'(x,y))
   #
@@ -41,11 +43,13 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
 
     if(isTRUE(protconn)){
       if(nrow(f2) > 1){
+        y.1 <- y.1[,"PROTIDT"]
         f2$type <- "Non-Transboundary"
         f2$attribute <- as.numeric(st_area(f2)) %>% unit_convert(., "m2", metrunit)
 
         #Transboundary
         y.2 <- y[which(y$PROTIDT %!in% y.1$PROTIDT),]
+
         f3 <- st_difference(y.1, x.1)
 
         #Dos metodos
@@ -88,10 +92,17 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
         f7 <- f1[,c("attribute")]
         st_geometry(f7) <- NULL
 
-        f8 <- list(nodes_diss = f6, nodes_nondiss = f7)
+        if(isTRUE(delta)){
+          f1$PROTIDT <- NULL
+          f8 <- list(nodes_diss = f6, nodes_nondiss = f7, delta = f1)
+        } else {
+          f8 <- list(nodes_diss = f6, nodes_nondiss = f7)
+        }
+
       } else {
         f8 <- as.numeric(st_area(f2)) %>% unit_convert(., "m2", metrunit)
       }
+
     } else {
       if(nrow(f2) > 1){
         f2$attribute <- as.numeric(st_area(f2)) %>% unit_convert(., "m2", metrunit)
@@ -102,6 +113,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
         f8 <- as.numeric(st_area(f2)) %>% unit_convert(., "m2", metrunit)
       }
     }
+
   } else if (nrow(y.1) == 1){
     f1 <- ms_clip(y.1, x.1)
     f1 <- f1[!st_is_empty(f1), ]

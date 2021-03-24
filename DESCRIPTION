@@ -1,7 +1,7 @@
 Package: Makurhini
 Type: Package
 Title: Makurhini: Analyzing landscape connectivity
-Version: 2.0.0
+Version: 2.0.1
 Authors@R: c(person(given = "Oscar",
               family = "Godínez-Gómez",
               role = c("aut", "cre"),
@@ -57,7 +57,6 @@ Imports:
     fasterize (>= 1.0.3),
     boot,
     dismo (>= 1.1.4),
-    igraph (>= 1.2.6),
     tools (>= 4.0.2),
     ps (>= 1.4.0),
     rlang (>= 0.4.8),
@@ -68,4 +67,5 @@ Depends:
     methods,
     utils,
     stats,
-    R (>= 4.0.2)
+    R (>= 4.0.2),
+    igraph

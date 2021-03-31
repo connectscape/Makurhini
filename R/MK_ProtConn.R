@@ -231,7 +231,6 @@ MK_ProtConn <- function(nodes,
   }
 
   if (is.null(parallel)) {
-
     ProtConn_res <- tryCatch(lapply(base_param3[[2]]@transboundary, function(n){
       if(is.list(nodes.1)){
         if(n != max(transboundary)){
@@ -310,7 +309,7 @@ MK_ProtConn <- function(nodes,
                                         list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
                                              `ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
                                              `Percentage` = color_tile("white", "orange")))
-          #####
+
           if(isTRUE(plot)){
             DataProtconn_plot <- plotprotconn(DataProtconn, d)
             result_lista <- list( "Protected Connected (Viewer Panel)" = DataProtconn_4,
@@ -320,8 +319,7 @@ MK_ProtConn <- function(nodes,
           }
           return(result_lista)
         })
-      } else if(is.numeric(nodes.1))
-        { #Just exist only one node in the region
+      } else if(is.numeric(nodes.1)) { #Just exist only one node in the region
         if(n != max(transboundary)){
           nodes.2 <- tryCatch(Protconn_nodes(x = base_param3[[1]]@region,
                                              y = base_param1@nodes,
@@ -452,21 +450,33 @@ MK_ProtConn <- function(nodes,
         message(paste0("Warning message: No nodes found in the region, transboundary "), n)
       }
 
-
       if(isTRUE(delta)){
+        if (isTRUE(intern)){
+          message("Step 3. Processing Delta ProtConn")
+        }
+
         deltaProtConn <- delta_ProtConn(x=nodes.2$delta, y=nodes.2$nodes_diss,
                                         base_param3)
-        for(i in 1:length(result)){
-          result[[i]]$'ProtConn_Delta' <- deltaProtConn[[i]]
+        if(isTRUE(plot)){
+          for(i in 1:length(result)){
+            result[[i]]$'ProtConn_Delta' <- deltaProtConn[[i]]
+          }
+        } else {
+          result <- lapply(1:length(result), function(l){
+            l.1 <- list("Protected Connected (Viewer Panel)" = result[[l]],
+                        "ProtConn_Delta" = deltaProtConn[[l]])
+            return(l.1) })
         }
       }
+
+      names(result) <- paste0("d", distance_thresholds)
+      result <- purrr::compact(result)
 
       if (isTRUE(intern) & length(base_param3[[2]]@transboundary) > 1) {
         pb$tick()$print()
       }
 
-      names(result) <- paste0("d", distance_thresholds)
-      result <- compact(result)
+
 
       if(!is.null(write)){
         for (i in 1:length(base_param3[[2]]@distance_threshold)) {
@@ -713,14 +723,20 @@ MK_ProtConn <- function(nodes,
 
         deltaProtConn <- delta_ProtConn(x=nodes.2$delta, y=nodes.2$nodes_diss,
                                         base_param3)
-        for(i in 1:length(result)){
-          result[[i]]$'ProtConn_Delta' <- deltaProtConn[[i]]
+        if(isTRUE(plot)){
+          for(i in 1:length(result)){
+            result[[i]]$'ProtConn_Delta' <- deltaProtConn[[i]]
+          }
+        } else {
+          result <- lapply(1:length(result), function(l){
+            l.1 <- list("Protected Connected (Viewer Panel)" = result[[l]],
+                        "ProtConn_Delta" = deltaProtConn[[l]])
+            return(l.1) })
         }
       }
 
       names(result) <- paste0("d", distance_thresholds)
       result <- compact(result)
-
 
       if(!is.null(write)){
         for (i in 1:length(base_param3[[2]]@distance_threshold)) {

@@ -11,6 +11,7 @@
 #' @importFrom igraph graph.adjacency shortest.paths E
 #' @importFrom sf st_sf st_as_sf st_geometry
 get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FALSE){
+
   #Remove "region" x.1
   x.1 <- x[[1]][which(x[[1]]$type != "Region"),]
   st_geometry(x.1) <- NULL

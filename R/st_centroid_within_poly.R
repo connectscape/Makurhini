@@ -9,7 +9,6 @@
 #' @importFrom sf st_centroid st_within st_point_on_surface st_as_sf
 #' @return
 #' @export
-
 st_centroid_within_poly <- function(poly){
   options(warn = -1)
   cl <- class(poly)[1]

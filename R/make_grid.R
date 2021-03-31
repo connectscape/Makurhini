@@ -7,7 +7,7 @@
 #' If it is a region with many vertices use the argument **tolerance**.
 #' @param tolerance numeric. If Reduces the number of vertices in the region polygon.
 #' @param grid_boundary logical.If TRUE, the "hexagons" or "squares" in the boundaries will be removed.
-#' @importFrom sf st_as_sf st_sf st_cast st_zm st_simplify st_buffer st_intersection st_area st_make_grid st_crop
+#' @importFrom sf st_as_sf st_sf st_cast st_zm st_simplify st_buffer st_intersection st_area st_make_grid st_crop st_transform st_crs
 #' @importFrom magrittr %>%
 #' @importFrom methods as
 #' @importFrom raster extent projection raster projection<-

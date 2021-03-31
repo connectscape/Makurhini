@@ -56,10 +56,10 @@ if "region" is selected the transboundary is built from the limits of the region
 
 \item{write}{character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".}
 
-\item{parallel}{logical. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
+\item{parallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
 plan when there are more than ONE transboundary.}
 
-\item{intern}{logical. Show the progress of the process, default = TRUE.}
+\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100% when operations are carried out very quickly}
 }
 \value{
 Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
@@ -113,7 +113,7 @@ test <- MK_ProtConn(nodes = Protected_areas, region = region,
                     distance = list(type= "least-cost", resistance = HFP_Mexico),
                     distance_thresholds = c(50000, 10000),
                     probability = 0.5, transboundary = 50000,
-                    LA = NULL, plot = TRUE,
+                    LA = NULL, plot = NULL,
                     write = NULL, intern = FALSE)
 test$d50000
 test$d10000

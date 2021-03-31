@@ -33,7 +33,7 @@ Protconn_nodes(
 
 \item{protconn_bound}{logical}
 
-\item{delta_protconn}{logical}
+\item{delta}{logical}
 }
 \description{
 Generates ProtConn nodes files

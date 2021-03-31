@@ -2,6 +2,7 @@
 #'
 #' @param x Object of class sf, sfc, sfg or SpatialPolygons
 #' @param y Object of class sf, sfc, sfg or SpatialPolygons
+#' @param geometry logical
 #' @importFrom sf st_as_sf st_intersects st_geometry
 #' @export
 

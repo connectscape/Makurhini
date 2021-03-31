@@ -12,7 +12,6 @@
 "vegetation_patches"
 
 
-
 #' @title List of vegetation patches
 #' @description A list with 4 shapefiles. Each shapefile correspond to vegetation patches with
 #' less alteration or degradation  in the region of the Biosphere Reserve Mariposa Monarca for

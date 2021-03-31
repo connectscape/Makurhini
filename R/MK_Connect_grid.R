@@ -3,10 +3,6 @@
 #' Use the function to compute the Protected Connected (ProtConn), EC, PC or IIC indexes in a regular grid.
 #' @param nodes object of class sf, sfc, sfg or SpatialPolygons. Nodes shapefile, the shapefile must be
 #'  in a projected coordinate system.
-#' @param attribute character. Select the nodes attribute: "Intersected area" = Available if the metric argument
-#' is equal to ProtConn, it corresponds to intersected Protected areas (default); or
-#' another specific column name with the nodes attribute, ideally this attribute mus be an area-weighted index,
-#'  otherwise the interpretation of the ProtConn or PC metric may change.
 #' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit
 #' ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".
 #' @param region object of class sf, sfc, sfg or SpatialPolygons. Region shapefile, the shapefile must be
@@ -20,10 +16,10 @@
 #' @param probability numeric. Probability of direct dispersal between nodes, Default, 0.5,
 #'  that is 50 percentage of probability connection. If probability = NULL, then it will be the inverse of the mean dispersal distance
 #' for the species (1/α; Hanski and Ovaskainen 2000).
-#' @param transboundary numeric. Buffer to select transboundary polygones, see  \link[Makurhini]{MK_ProtConn}.
-#' @param intern logical. Show the progress of the process, default = TRUE.
-#' @param parallel logical. Parallelize the function using furrr package and multiprocess
-#' plan, default = FALSE.
+#' @param transboundary numeric. Buffer to select transboundary polygones, see \link[Makurhini]{MK_ProtConn}.
+#' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100% when operations are carried out very quickly
+#' @param parallel numeric. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
+#' plan when there are more than ONE transboundary.
 #' @references
 #' Matt Strimas-Mackey. \url{http://strimas.com/spatial/hexagonal-grids/}.\cr
 #' Saura, S., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2017). Protected areas in the
@@ -59,7 +55,7 @@
 #'                                     transboundary = 6000,
 #'                                     distance = list(type = "centroid"),
 #'                                     intern = TRUE,
-#'                                     parallel = FALSE)
+#'                                     parallel = NULL)
 #' hexagons_priority
 #' plot(hexagons_priority["ProtConn"])
 #'
@@ -75,7 +71,7 @@
 #'                                     probability = 0.5,
 #'                                     distance = list(type = "centroid"),
 #'                                     intern = TRUE,
-#'                                     parallel = FALSE)
+#'                                     parallel = NULL)
 #' hexagons_priority
 #' plot(hexagons_priority["PC"])
 #' }
@@ -88,7 +84,6 @@
 #' @importFrom purrr map_df
 #' @import methods
 MK_Connect_grid <- function(nodes,
-                            attribute = NULL,
                             area_unit = "ha",
                             region = NULL,
                             grid_param = list(grid_pol = NULL, grid_id = NULL, hexagonal = TRUE,
@@ -99,8 +94,15 @@ MK_Connect_grid <- function(nodes,
                             probability = NULL,
                             transboundary = NULL,
                             distance = list(type = "centroid"),
-                            intern = TRUE, parallel = FALSE){
+                            intern = TRUE, parallel = NULL){
   options(warn = -1)
+
+  if(!is.null(parallel)){
+    if(!is.numeric(parallel)){
+      stop("if you use parallel argument then you need a numeric value")
+    }
+  }
+
   message("Step 1. Reviewing parameters")
   base_param1 <- input_grid(node = nodes, landscape = region, unit = area_unit,
                                bdist = if(is.null(transboundary)){0} else{transboundary})
@@ -140,20 +142,25 @@ MK_Connect_grid <- function(nodes,
   LA <- as.numeric(st_area(base_param4[[3]]@grid[1,])) %>%
     unit_convert(., "m2", base_param4[[1]]@area_unit)
 
+  if(nrow(base_param4[[1]]@nodes) == 0){
+    warning("No nodes found in the region")
+  }
+
   if (isTRUE(protconn)) {
-    if (isTRUE(parallel)) {
+    if (!is.null(parallel)) {
       if (isTRUE(intern)) {
-        message("Step 3. Processing ProtConn metrics on the grid. Progress estimated:")
+        message("Step 3. Processing ProtConn metrics on the grid")
+        message("When using the parallel argument the progress bar cannot be displayed")
       } else {
         message("Step 3. Processing ProtConn metrics on the grid")
       }
 
       works <- as.numeric(availableCores())-1
+      works <-  if(parallel > works){works}else{parallel}
       plan(strategy = multiprocess, gc = TRUE, workers = works)
       result_1 <- tryCatch(future_map_dfr(1:nrow(base_param4[[3]]@grid), function(x){
 
         #nodes and distances,
-        # si se localiza solo un nodo  o 0 mandar un objeto tipo protconn
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
                                            y = base_param4[[1]]@nodes,
                                            buff = base_param4[[2]]@transboundary,
@@ -205,7 +212,7 @@ MK_Connect_grid <- function(nodes,
                                       Prot = if((100 * (nodes.1 / LA)) > 100){100}else{100 * (nodes.1/LA)},
                                       Unprotected = if((100 - (100 * (nodes.1 / LA))) < 0){0}else{100 - (100 * (nodes.1 / LA))},
                                       ProtConn = if((100 * (nodes.1 / LA)) > 100){100}else{100 * (nodes.1 / LA)},
-                                      ProtUnconn = NA,
+                                      ProtUnconn = 0,
                                       RelConn = NA,
                                       ProtConn_Prot = 100,
                                       ProtConn_Trans = NA,
@@ -249,20 +256,18 @@ MK_Connect_grid <- function(nodes,
         }
 
         #nodes and distances,
-        # si se localiza solo un nodo  o 0 mandar un objeto tipo protconn
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
-                                           y = base_param4[[1]]@nodes,
-                                           buff = base_param4[[2]]@transboundary,
-                                           xsimplify = FALSE,
-                                           metrunit = base_param4[[1]]@area_unit,
-                                           protconn = TRUE,
-                                           protconn_bound = FALSE), error = function(err)err)
+                                             y = base_param4[[1]]@nodes,
+                                             buff = base_param4[[2]]@transboundary,
+                                             xsimplify = FALSE,
+                                             metrunit = base_param4[[1]]@area_unit,
+                                             protconn = TRUE,
+                                             protconn_bound = FALSE), error = function(err)err)
 
         if(inherits(nodes.1, "error")){
-          stop(paste0("error first nodes selection. Check grid: ", x))
+            stop(paste0("error first nodes selection. Check grid: ", x))
         }
 
-        #Tiene 2 o más nodos dentro de la region
         if(is.list(nodes.1)){
           if(base_param4[[2]]@distance$type %in% c("least-cost", "commute-time")){
             if(is.null(base_param4[[2]]@distance$resistance)){
@@ -302,7 +307,7 @@ MK_Connect_grid <- function(nodes,
                                       Prot = if((100 * (nodes.1 / LA)) > 100){100}else{100 * (nodes.1/LA)},
                                       Unprotected = if((100 - (100 * (nodes.1 / LA))) < 0){0}else{100 - (100 * (nodes.1 / LA))},
                                       ProtConn = if((100 * (nodes.1 / LA)) > 100){100}else{100 * (nodes.1 / LA)},
-                                      ProtUnconn = NA,
+                                      ProtUnconn = 0,
                                       RelConn = NA,
                                       ProtConn_Prot = 100,
                                       ProtConn_Trans = NA,
@@ -336,13 +341,15 @@ MK_Connect_grid <- function(nodes,
   }
 
   } else {
-    if (isTRUE(parallel)) {
+    if (!is.null(parallel)) {
       if (isTRUE(intern)) {
-        message("Step 3. Processing ProtConn metrics on the grid. Progress estimated:")
+        message("Step 3. Processing ProtConn metrics on the grid")
+        message("When using the parallel argument the progress bar cannot be displayed")
       } else {
         message("Step 3. Processing ProtConn metrics on the grid")
       }
       works <- as.numeric(availableCores())-1
+      works <-  if(parallel > works){works}else{parallel}
       plan(strategy = multiprocess, gc = TRUE, workers = works)
       result_1 <- tryCatch(future_map_dfr(1:nrow(base_param4[[3]]@grid), function(x) {
         #nodes and distances,
@@ -359,7 +366,7 @@ MK_Connect_grid <- function(nodes,
           stop(paste0("error first nodes selection. Check grid: ", x))
         }
 
-        #Tiene 2 o más nodos dentro de la region
+
         if(is.list(nodes.1)){
           if(base_param4[[2]]@distance$type %in% c("least-cost", "commute-time")){
             if(is.null(base_param4[[2]]@distance$resistance)){
@@ -384,20 +391,20 @@ MK_Connect_grid <- function(nodes,
           }
 
           PC_grid <- get_pc_grid(x = nodes.1[[1]],
-                                     y = distance.1,
-                                     p = base_param4[[2]]@probability,
-                                     pmedian = TRUE,
-                                     d = base_param4[[2]]@distance_threshold,
-                                     LA = LA)
+                                 y = distance.1,
+                                 p = base_param4[[2]]@probability,
+                                 pmedian = TRUE,
+                                 d = base_param4[[2]]@distance_threshold,
+                                 LA = LA)
 
           PC_grid <- round(PC_grid, 5)
 
         } else if(is.numeric(nodes.1)){
           PC_grid <- data.frame(Protected.surface = nodes.1,
-                                    LA = LA,
-                                    ECA = if(nodes.1 > LA){LA}else{nodes.1},
-                                    ECA.Normalized = if(nodes.1 > LA){100}else{(nodes.1*100)/LA},
-                                    PC = NA)
+                                LA = LA,
+                                ECA = if(nodes.1 > LA){LA}else{nodes.1},
+                                ECA.Normalized = if(nodes.1 > LA){100}else{(nodes.1*100)/LA},
+                                PC = NA)
           PC_grid[,c(1:4)] <- round(PC_grid[,c(1:4)], 5)
         } else {
           PC_grid <- data.frame(Protected.surface = 0,
@@ -487,7 +494,7 @@ MK_Connect_grid <- function(nodes,
   }
 
   if(inherits(result_1, "error")){
-    stop("error, check your input files")
+    stop("error, check your input files, there may be no nodes in the region")
   }
   result_2 <- cbind(base_param4[[3]]@grid, result_1)
   return(result_2)

@@ -116,7 +116,6 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
     }
   }
 
-  #############################
   if(class(nodes)[1] == "RasterLayer"){
     if(isTRUE(parallel)){
       rp <- unique(values(nodes))

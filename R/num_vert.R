@@ -3,7 +3,6 @@
 #' @param poly Object of class sf, sfc, sfg or SpatialPolygons
 #' @importFrom sf st_cast st_as_sf
 #' @export
-
 num_vert <- function(poly){
   if(class(poly)[1] == "SpatialPolygonsDataFrame") {
     poly <- st_as_sf(poly)

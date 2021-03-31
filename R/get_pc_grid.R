@@ -17,27 +17,33 @@ get_pc_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL){
     k = (1 / d)
     Adj_matr <- exp(-k * y)
   } else {
-    k = log(p)/d
-    Adj_matr <- exp(k * y)
+    Adj_matr <- exp((y * log(p))/d)
   }
 
   diag(Adj_matr) <- 0
 
+  mode(Adj_matr) <- "numeric"
+
   #adjacency
-  graph_nodes <- tryCatch(graph.adjacency(Adj_matr, mode = "undirected", weighted = TRUE), error = function(err) err)
+  graph_nodes <- tryCatch(graph.adjacency(Adj_matr, mode = "undirected",
+                                          weighted = TRUE), error = function(err) err)
 
   if (inherits(graph_nodes, "error")) {
     stop("graph adjacency error")
   }
 
   #product of shortest paths
-  pij.mat <- tryCatch(shortest.paths(graph_nodes, weights = -log(E(graph_nodes)$weight)), error = function(err) err)
+  pij.mat <- tryCatch(shortest.paths(graph_nodes,
+                                     weights = -log(E(graph_nodes)$weight)), error = function(err) err)
 
   if(inherits(pij.mat, "error")) {
     stop("graph shortest.paths error")
   } else {
     pij.mat <- exp(-pij.mat)
   }
+
+  pij.mat[is.infinite(pij.mat)] <- 1000
+
   PCmat <- outer(x$attribute, x$attribute) * pij.mat
 
   #p1

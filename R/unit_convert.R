@@ -56,8 +56,21 @@ unit_convert <- function(data_unit,
     stop("Select a correct unit area")
   }
 
+  if(is.matrix(data_unit)){
+    data_unit <- apply(data_unit, 2, as.numeric)
+  }
+
+  if(is.vector(data_unit)){
+    data_unit <- as.numeric(data_unit)
+  }
+
+  if(class(data_unit) == "units"){
+    data_unit <- as.numeric(data_unit)
+  }
+
   x1 <- data_unit * uconv[[unit_2]]
 
   return(x1)
 }
+
 

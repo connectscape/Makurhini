@@ -33,7 +33,7 @@
 #' 	Paul Savary. 2020. R Package graph4lg: Build Graphs for Landscape Genetics Analysis.
 #'  \url{https://cran.r-project.org/web/packages/graph4lg/index.html}
 #' @importFrom magrittr %>%
-#' @importFrom sf st_as_sf st_geometry st_geometry<-
+#' @importFrom sf st_as_sf st_geometry st_geometry<- st_coordinates
 #' @importFrom purrr map_dbl
 #' @importFrom rgeos gTouches gCentroid
 #' @importFrom dismo voronoi

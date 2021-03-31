@@ -10,6 +10,8 @@ over_poly(x, y, geometry = FALSE)
 \item{x}{Object of class sf, sfc, sfg or SpatialPolygons}
 
 \item{y}{Object of class sf, sfc, sfg or SpatialPolygons}
+
+\item{geometry}{logical}
 }
 \description{
 over sf

@@ -63,7 +63,7 @@
 #'                 overall = TRUE,
 #'                 distance_thresholds = 40000) # 40 km
 #' PC
-#'
+#' @note Sometimes the advance process does not reach 100% when operations are carried out very quickly.
 #' @importFrom dplyr progress_estimated
 #' @importFrom methods as
 #' @importFrom utils write.table
@@ -74,7 +74,6 @@
 #' @importFrom igraph graph.adjacency shortest.paths E
 #' @importFrom data.table data.table fwrite
 #' @importFrom sf write_sf st_as_sf st_zm
-
 MK_dPCIIC <- function(nodes, attribute  = NULL,
                       area_unit = "m2", restoration = NULL,
                       distance = list(type= "centroid", resistance = NULL),

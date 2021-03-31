@@ -19,9 +19,9 @@
 #' @param delta logical. Estimate the contribution of each node to the ProtConn value in the region.
 #' @param plot logical. Plot the main ProtConn indicators and fractions, default = FALSE.
 #' @param write character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".
-#' @param parallel logical. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
+#' @param parallel numeric. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
 #' plan when there are more than ONE transboundary.
-#' @param intern logical. Show the progress of the process, default = TRUE.
+#' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100% when operations are carried out very quickly
 #' @return
 #' Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
 #'  ProtConn[Contig], ProtConn[Trans], ProtConn[Unprot], ProtConn[Within][land], ProtConn[Contig][land],
@@ -74,7 +74,7 @@
 #'                     distance = list(type= "least-cost", resistance = HFP_Mexico),
 #'                     distance_thresholds = c(50000, 10000),
 #'                     probability = 0.5, transboundary = 50000,
-#'                     LA = NULL, plot = TRUE,
+#'                     LA = NULL, plot = NULL,
 #'                     write = NULL, intern = FALSE)
 #' test$d50000
 #' test$d10000
@@ -149,6 +149,12 @@ MK_ProtConn <- function(nodes,
     }
   }
 
+  if(!is.null(parallel)){
+    if(!is.numeric(parallel)){
+      stop("if you use parallel argument then you need a numeric value")
+    }
+  }
+
   if(isTRUE(intern)){
     message("Step 1. Reviewing parameters")
   }
@@ -171,17 +177,24 @@ MK_ProtConn <- function(nodes,
     stop("error in metric parameters")
   }
 
-  nodes.1 <- tryCatch(Protconn_nodes(x = base_param1@region,
-                                     y = base_param1@nodes,
-                                     buff = max(transboundary),
-                                     method = transboundary_type,
-                                     xsimplify = geom_simplify,
-                                     metrunit = base_param1@area_unit,
-                                     protconn_bound = protconn_bound,
-                                     delta = delta), error = function(err)err)
-  if(inherits(nodes.1, "error")){
-    stop(paste0("error first nodes selection, please check topology errors and you could simplify polygon"))
+  if(nrow(base_param1@nodes) > 0){
+    nodes.1 <- tryCatch(Protconn_nodes(x = base_param1@region,
+                                       y = base_param1@nodes,
+                                       buff = max(transboundary),
+                                       method = transboundary_type,
+                                       xsimplify = geom_simplify,
+                                       metrunit = base_param1@area_unit,
+                                       protconn_bound = protconn_bound,
+                                       delta = delta), error = function(err)err)
+
+    if(inherits(nodes.1, "error")){
+      stop(paste0("error first nodes selection, please check topology errors and you could simplify polygon"))
+    }
+  } else {
+    nodes.1 <- "No nodes"
   }
+
+
 
   if(is.list(nodes.1)){
     if(base_param2@distance$type %in% c("least-cost", "commute-time")){
@@ -237,7 +250,6 @@ MK_ProtConn <- function(nodes,
           nodes.2 <- nodes.1
         }
 
-        #####
         distance.1 <- tryCatch(protconn_dist(x = nodes.2[[1]], id = "OBJECTID",
                                              y = base_param3[[2]]@distance,
                                              r = base_param3[[1]]@region,
@@ -308,7 +320,8 @@ MK_ProtConn <- function(nodes,
           }
           return(result_lista)
         })
-      } else if(is.numeric(nodes.1)){ #Just exist only one node in the region
+      } else if(is.numeric(nodes.1))
+        { #Just exist only one node in the region
         if(n != max(transboundary)){
           nodes.2 <- tryCatch(Protconn_nodes(x = base_param3[[1]]@region,
                                              y = base_param1@nodes,
@@ -335,10 +348,10 @@ MK_ProtConn <- function(nodes,
                                      ProtUnconn_Design = 0,
                                      ProtConn_Bound = if((100 * (nodes.2 / LA)) > 100){100}else{100 * (nodes.2 / LA)},
                                      RelConn = NA,
-                                     ProtConn_Prot = NA,
+                                     ProtConn_Prot = 100,
                                      ProtConn_Trans = NA,
                                      ProtConn_Unprot = NA,
-                                     ProtConn_Within = NA,
+                                     ProtConn_Within = 100,
                                      ProtConn_Contig = NA,
                                      ProtConn_Within_land = NA, ProtConn_Contig_land = NA,
                                      ProtConn_Unprot_land = NA, ProtConn_Trans_land = NA)
@@ -375,6 +388,10 @@ MK_ProtConn <- function(nodes,
           DataProtconn_3[5:nrow(DataProtconn_3), 1:2] <- " "
           rownames(DataProtconn_3) <- NULL
 
+          if(isFALSE(protconn_bound)){
+            DataProtconn_3 <- DataProtconn_3[-which(DataProtconn_3[,3] %in% c("ProtUnconn_Design", "ProtConn_Bound")),]
+          }
+
           DataProtconn_4 <- formattable(DataProtconn_3, align = c("l","c"),
                                         list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
                                              `ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
@@ -382,6 +399,7 @@ MK_ProtConn <- function(nodes,
           return(DataProtconn_4)
         })
       } else {
+        warning("No nodes found in the region")
         result <- lapply(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = NA,
                                      PC = NA,
@@ -419,6 +437,11 @@ MK_ProtConn <- function(nodes,
           names(DataProtconn_3)[3:4] <- c("ProtConn indicator", "Percentage")
           DataProtconn_3[5:nrow(DataProtconn_3), 1:2] <- " "
           rownames(DataProtconn_3) <- NULL
+
+          if(isFALSE(protconn_bound)){
+            DataProtconn_3 <- DataProtconn_3[-c(5:6),]
+          }
+
 
           DataProtconn_4 <- formattable(DataProtconn_3, align = c("l","c"),
                                         list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
@@ -535,6 +558,10 @@ MK_ProtConn <- function(nodes,
           DataProtconn_3[5:nrow(DataProtconn_3), 1:2] <- " "
           rownames(DataProtconn_3) <- NULL
 
+          if(isFALSE(protconn_bound)){
+            DataProtconn_3 <- DataProtconn_3[-which(DataProtconn_3[,3] %in% c("ProtUnconn_Design", "ProtConn_Bound")),]
+          }
+
           DataProtconn_4 <- formattable(DataProtconn_3, align = c("l","c"),
                                         list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
                                              `ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
@@ -616,6 +643,10 @@ MK_ProtConn <- function(nodes,
           DataProtconn_3[5:nrow(DataProtconn_3), 1:2] <- " "
           rownames(DataProtconn_3) <- NULL
 
+          if(isFALSE(protconn_bound)){
+            DataProtconn_3 <- DataProtconn_3[-which(DataProtconn_3[,3] %in% c("ProtUnconn_Design", "ProtConn_Bound")),]
+          }
+
           DataProtconn_4 <- formattable(DataProtconn_3, align = c("l","c"),
                                         list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
                                              `ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
@@ -624,6 +655,7 @@ MK_ProtConn <- function(nodes,
         })
 
       } else {
+        warning("No nodes found in the region")
         result <- future_map(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = NA,
                                      PC = NA,
@@ -661,6 +693,10 @@ MK_ProtConn <- function(nodes,
           names(DataProtconn_3)[3:4] <- c("ProtConn indicator", "Percentage")
           DataProtconn_3[5:nrow(DataProtconn_3), 1:2] <- " "
           rownames(DataProtconn_3) <- NULL
+
+          if(isFALSE(protconn_bound)){
+            DataProtconn_3 <- DataProtconn_3[-which(DataProtconn_3[,3] %in% c("ProtUnconn_Design", "ProtConn_Bound")),]
+          }
 
           DataProtconn_4 <- formattable(DataProtconn_3, align = c("l","c"),
                                         list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),

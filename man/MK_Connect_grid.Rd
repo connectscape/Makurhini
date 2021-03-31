@@ -6,7 +6,6 @@
 \usage{
 MK_Connect_grid(
   nodes,
-  attribute = NULL,
   area_unit = "ha",
   region = NULL,
   grid_param = list(grid_pol = NULL, grid_id = NULL, hexagonal = TRUE, cellsize = NULL,
@@ -17,17 +16,12 @@ MK_Connect_grid(
   transboundary = NULL,
   distance = list(type = "centroid"),
   intern = TRUE,
-  parallel = FALSE
+  parallel = NULL
 )
 }
 \arguments{
 \item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. Nodes shapefile, the shapefile must be
 in a projected coordinate system.}
-
-\item{attribute}{character. Select the nodes attribute: "Intersected area" = Available if the metric argument
-is equal to ProtConn, it corresponds to intersected Protected areas (default); or
-another specific column name with the nodes attribute, ideally this attribute mus be an area-weighted index,
- otherwise the interpretation of the ProtConn or PC metric may change.}
 
 \item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit
 ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".}
@@ -47,14 +41,14 @@ grid_boundary = FALSE, clip = FALSE, tolerance = NULL).}
  that is 50 percentage of probability connection. If probability = NULL, then it will be the inverse of the mean dispersal distance
 for the species (1/α; Hanski and Ovaskainen 2000).}
 
-\item{transboundary}{numeric. Buffer to select transboundary polygones, see  \link[Makurhini]{MK_ProtConn}.}
+\item{transboundary}{numeric. Buffer to select transboundary polygones, see \link[Makurhini]{MK_ProtConn}.}
 
 \item{distance}{list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).}
 
-\item{intern}{logical. Show the progress of the process, default = TRUE.}
+\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100% when operations are carried out very quickly}
 
-\item{parallel}{logical. Parallelize the function using furrr package and multiprocess
-plan, default = FALSE.}
+\item{parallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
+plan when there are more than ONE transboundary.}
 }
 \description{
 Use the function to compute the Protected Connected (ProtConn), EC, PC or IIC indexes in a regular grid.
@@ -81,7 +75,7 @@ hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
                                     transboundary = 6000,
                                     distance = list(type = "centroid"),
                                     intern = TRUE,
-                                    parallel = FALSE)
+                                    parallel = NULL)
 hexagons_priority
 plot(hexagons_priority["ProtConn"])
 
@@ -97,7 +91,7 @@ hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
                                     probability = 0.5,
                                     distance = list(type = "centroid"),
                                     intern = TRUE,
-                                    parallel = FALSE)
+                                    parallel = NULL)
 hexagons_priority
 plot(hexagons_priority["PC"])
 }

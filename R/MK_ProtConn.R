@@ -21,7 +21,7 @@
 #' @param write character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".
 #' @param parallel numeric. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
 #' plan when there are more than ONE transboundary.
-#' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100% when operations are carried out very quickly
+#' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @return
 #' Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
 #'  ProtConn[Contig], ProtConn[Trans], ProtConn[Unprot], ProtConn[Within][land], ProtConn[Contig][land],
@@ -399,7 +399,6 @@ MK_ProtConn <- function(nodes,
           return(DataProtconn_4)
         })
       } else {
-        warning("No nodes found in the region")
         result <- lapply(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = NA,
                                      PC = NA,
@@ -450,6 +449,7 @@ MK_ProtConn <- function(nodes,
           return(DataProtconn_4)
         })
         names(result) <- paste0("d", distance_thresholds)
+        message(paste0("Warning message: No nodes found in the region, transboundary "), n)
       }
 
 
@@ -655,7 +655,6 @@ MK_ProtConn <- function(nodes,
         })
 
       } else {
-        warning("No nodes found in the region")
         result <- future_map(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = NA,
                                      PC = NA,
@@ -704,6 +703,7 @@ MK_ProtConn <- function(nodes,
                                              `Percentage` = color_tile("white", "orange")))
           return(DataProtconn_4)
         })
+        message(paste0("Warning message: No nodes found in the region, transboundary "), n)
       }
 
       if(isTRUE(delta)){

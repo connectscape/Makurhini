@@ -59,7 +59,7 @@ if "region" is selected the transboundary is built from the limits of the region
 \item{parallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
 plan when there are more than ONE transboundary.}
 
-\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100% when operations are carried out very quickly}
+\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 }
 \value{
 Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],

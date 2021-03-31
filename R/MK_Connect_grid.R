@@ -17,9 +17,9 @@
 #'  that is 50 percentage of probability connection. If probability = NULL, then it will be the inverse of the mean dispersal distance
 #' for the species (1/α; Hanski and Ovaskainen 2000).
 #' @param transboundary numeric. Buffer to select transboundary polygones, see \link[Makurhini]{MK_ProtConn}.
-#' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100% when operations are carried out very quickly
+#' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @param parallel numeric. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
-#' plan when there are more than ONE transboundary.
+#'  plan when there are more than ONE transboundary.
 #' @references
 #' Matt Strimas-Mackey. \url{http://strimas.com/spatial/hexagonal-grids/}.\cr
 #' Saura, S., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2017). Protected areas in the
@@ -32,7 +32,6 @@
 #' Saura, S. & Pascual-Hortal, L. (2007). A new habitat availability index to integrate connectivity
 #' in landscape conservation planning: comparison with existing indices and application to a case study.
 #' Landscape and Urban Planning, 83(2-3): 91-103.
-#' @export
 #' @examples
 #' \dontrun{
 #' library(Makurhini)
@@ -75,6 +74,7 @@
 #' hexagons_priority
 #' plot(hexagons_priority["PC"])
 #' }
+#' @export
 #' @importFrom magrittr %>%
 #' @importFrom raster crop raster
 #' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_intersection st_convex_hull
@@ -83,6 +83,7 @@
 #' @importFrom dplyr progress_estimated
 #' @importFrom purrr map_df
 #' @import methods
+
 MK_Connect_grid <- function(nodes,
                             area_unit = "ha",
                             region = NULL,
@@ -139,11 +140,12 @@ MK_Connect_grid <- function(nodes,
 
 
   base_param4 <- list(base_param1, base_param2, base_param3)
+
   LA <- as.numeric(st_area(base_param4[[3]]@grid[1,])) %>%
     unit_convert(., "m2", base_param4[[1]]@area_unit)
 
   if(nrow(base_param4[[1]]@nodes) == 0){
-    warning("No nodes found in the region")
+    message("Warning message: No nodes found in the region")
   }
 
   if (isTRUE(protconn)) {

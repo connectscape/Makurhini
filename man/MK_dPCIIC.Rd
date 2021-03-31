@@ -73,7 +73,7 @@ It is necessary to specify the "Folder direction" + "Initial prefix",  for examp
 Use this function to calculate the PC and IIC indexes under one or several distance thresholds.
 }
 \note{
-Sometimes the advance process does not reach 100% when operations are carried out very quickly.
+Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 }
 \examples{
 library(Makurhini)

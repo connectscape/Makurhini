@@ -55,7 +55,7 @@ if "region" is selected the transboundary is built from the limits of the region
 
 \item{write}{character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".}
 
-\item{intern}{logical. Show the progress of the process, default = TRUE.}
+\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 
 \item{parallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL.
 Parallelize the function using furrr package and multiprocess plan.}

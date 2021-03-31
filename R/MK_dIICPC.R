@@ -63,7 +63,7 @@
 #'                 overall = TRUE,
 #'                 distance_thresholds = 40000) # 40 km
 #' PC
-#' @note Sometimes the advance process does not reach 100% when operations are carried out very quickly.
+#' @note Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @importFrom dplyr progress_estimated
 #' @importFrom methods as
 #' @importFrom utils write.table

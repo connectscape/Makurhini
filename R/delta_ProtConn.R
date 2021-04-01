@@ -10,14 +10,18 @@
 
 delta_ProtConn <- function(x = NULL, y=NULL, base_param3 = NULL){
   x.1 <- x
-  x.m <- base_param3[[1]]@nodes[which(base_param3[[1]]@nodes$IdTemp %in% x.1$IdTemp),]
-
   if(nrow(x.1)>1){
+    x.m <- base_param3[[1]]@nodes[which(base_param3[[1]]@nodes$IdTemp %in% x.1$IdTemp),]
     x.1$IdTemp <- 1:nrow(x.1)
     x.1$type <- "Non-Transboundary"
-    x.2 <- y[which(y$type == "Transboundary"),]
-    x.2$IdTemp <- 1:nrow(x.2)+ nrow(x.1)
-    x.2 <- rbind(x.1[,c("IdTemp", "attribute", "type")], x.2[,c("IdTemp", "attribute", "type")])
+
+    if(length(which(y$type == "Transboundary")) > 0){
+      x.2 <- y[which(y$type == "Transboundary"),]
+      x.2$IdTemp <- 1:nrow(x.2)+ nrow(x.1)
+      x.2 <- rbind(x.1[,c("IdTemp", "attribute", "type")], x.2[,c("IdTemp", "attribute", "type")])
+    } else {
+      x.2 <- x.1[,c("IdTemp", "attribute", "type")]
+    }
 
     distance.d <- tryCatch(protconn_dist(x = x.2, id = "IdTemp",
                                          y = base_param3[[2]]@distance,
@@ -113,6 +117,7 @@ delta_ProtConn <- function(x = NULL, y=NULL, base_param3 = NULL){
       delta <- data.frame("dProt" = 100,
                           "dProtConn" = 100,
                           "varProtConn" = 100)
+      delta <- cbind(x.1, delta)
       return(delta)
     })
   } else {

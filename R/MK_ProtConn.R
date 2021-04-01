@@ -190,11 +190,12 @@ MK_ProtConn <- function(nodes,
     if(inherits(nodes.1, "error")){
       stop(paste0("error first nodes selection, please check topology errors and you could simplify polygon"))
     }
+    if(is.numeric(nodes.1)){
+      nodes.delta <- over_poly(base_param1@nodes, base_param1@region, geometry = TRUE)
+    }
   } else {
     nodes.1 <- "No nodes"
   }
-
-
 
   if(is.list(nodes.1)){
     if(base_param2@distance$type %in% c("least-cost", "commute-time")){
@@ -397,6 +398,7 @@ MK_ProtConn <- function(nodes,
           return(DataProtconn_4)
         })
       } else {
+        nodes.2 <- nodes.1
         result <- lapply(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = NA,
                                      PC = NA,
@@ -455,19 +457,26 @@ MK_ProtConn <- function(nodes,
           message("Step 3. Processing Delta ProtConn")
         }
 
-        deltaProtConn <- delta_ProtConn(x=nodes.2$delta, y=nodes.2$nodes_diss,
-                                        base_param3)
-        if(isTRUE(plot)){
+        if(is.character(nodes.2)){
+          deltaProtConn <- message(paste0("Analysis cannot be completed, no nodes in the region, transboundary "), n)
+        } else {
+          deltaProtConn <- delta_ProtConn(x= if(is.numeric(nodes.2)){nodes.delta} else {nodes.2$delta},
+                                          y= if(is.numeric(nodes.2)){NULL} else {nodes.2$nodes_diss},
+                                          base_param3)
+        }
+
+        if(isTRUE(plot) & !is.numeric(nodes.2) & !is.character(nodes.2)){
           for(i in 1:length(result)){
             result[[i]]$'ProtConn_Delta' <- deltaProtConn[[i]]
           }
         } else {
           result <- lapply(1:length(result), function(l){
             l.1 <- list("Protected Connected (Viewer Panel)" = result[[l]],
-                        "ProtConn_Delta" = deltaProtConn[[l]])
+                        "ProtConn_Delta" = if(is.character(nodes.2)){deltaProtConn} else{deltaProtConn[[l]]})
             return(l.1) })
         }
       }
+
 
       names(result) <- paste0("d", distance_thresholds)
       result <- purrr::compact(result)

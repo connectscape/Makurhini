@@ -12,7 +12,7 @@
 #' @export
 #' @importFrom sf st_sf st_cast st_buffer st_difference st_area st_geometry
 #' @importFrom magrittr %>%
-#' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip
+#' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip ms_explode
 Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALSE,
                            metrunit = "ha", protconn = TRUE, protconn_bound = FALSE,
                            delta = FALSE){
@@ -23,11 +23,10 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
                                      keep_shapes = TRUE, explode = TRUE)
       x.1 <- st_buffer(x.0, 0) %>%  ms_dissolve(.)
     } else {
-      x.0 <- st_cast(x, "POLYGON")
+      x.0 <- ms_explode(x)
       x.1 <- x
     }
     y$PROTIDT <- 1:nrow(y)
-
 
     '%!in%' <- function(x,y)!('%in%'(x,y))
     #
@@ -37,7 +36,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
     if(nrow(y.1) > 1){
       f1 <- ms_clip(y.1, x.1)
       f1 <- f1[!st_is_empty(f1), ]
-      f2 <- ms_dissolve(st_geometry(f1)) %>% st_buffer(., 0) %>% st_cast("POLYGON") %>% st_sf()
+      f2 <- ms_dissolve(st_geometry(f1)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf()
 
       if(isTRUE(protconn)){
         if(nrow(f2) > 1){
@@ -65,7 +64,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
           f5 <- f5[!st_is_empty(f5), ]
 
           if(nrow(f5)>=1){
-            f5 <- ms_dissolve(st_geometry(f5)) %>% st_buffer(., 0) %>% st_cast("POLYGON") %>% st_sf()
+            f5 <- ms_dissolve(st_geometry(f5)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf()
             f5$attribute <- 0
             f5$type <- "Transboundary"
 
@@ -86,11 +85,13 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
           f6 <- f6[,c("OBJECTID", "type", "attribute")]
 
           #N2
-          f1$attribute <- as.numeric(st_area(f1)) %>% unit_convert(., "m2", metrunit)
-          f7 <- f1[,c("attribute")]
+          f1b <- f1 %>% ms_explode(f1)
+          f1b$attribute <- as.numeric(st_area(f1b)) %>% unit_convert(., "m2", metrunit)
+          f7 <- f1b[,c("attribute")]
           st_geometry(f7) <- NULL
 
           if(isTRUE(delta)){
+            f1$attribute <- as.numeric(st_area(f1)) %>% unit_convert(., "m2", metrunit)
             f1$PROTIDT <- NULL
             f8 <- list(nodes_diss = f6, nodes_nondiss = f7, delta = f1)
           } else {
@@ -115,7 +116,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
     } else if (nrow(y.1) == 1){
       f1 <- ms_clip(y.1, x.1)
       f1 <- f1[!st_is_empty(f1), ]
-      f2 <- ms_dissolve(st_geometry(f1)) %>% st_buffer(., 0) %>% st_cast("POLYGON") %>% st_sf()
+      f2 <- ms_dissolve(st_geometry(f1)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf()
       f8 <- sum(as.numeric(st_area(f2)) %>% unit_convert(., "m2", metrunit))
     } else {
       f8 <- "NA"

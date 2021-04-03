@@ -95,7 +95,7 @@
 #' test2$d10000
 #'
 #' }
-#' @importFrom sf st_as_sf st_cast st_zm st_simplify st_buffer write_sf st_intersection st_difference st_area
+#' @importFrom sf st_as_sf st_zm st_simplify st_buffer write_sf st_intersection st_difference st_area
 #' @importFrom magrittr %>%
 #' @importFrom rmapshaper ms_dissolve ms_simplify
 #' @importFrom dplyr progress_estimated
@@ -190,8 +190,9 @@ MK_ProtConn <- function(nodes,
     if(inherits(nodes.1, "error")){
       stop(paste0("error first nodes selection, please check topology errors and you could simplify polygon"))
     }
+
     if(is.numeric(nodes.1)){
-      nodes.delta <- over_poly(base_param1@nodes, base_param1@region, geometry = TRUE)
+      nodes.delta <- over_poly(x = base_param1@nodes, y = base_param1@region, geometry = TRUE)
     }
   } else {
     nodes.1 <- "No nodes"

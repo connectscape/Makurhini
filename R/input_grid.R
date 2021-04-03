@@ -30,7 +30,6 @@ input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimpl
   if (class(node)[1] == "SpatialPolygonsDataFrame" | class(node)[1] == "sf"){
     if(nrow(node)>0){
       node <- TopoClean(node, xsimplify = xsimplify)
-      node <- st_cast(node, "POLYGON")
       node$IdTemp <- 1:nrow(node)
       node <- node[,which(names(node) != "geometry")]
     }
@@ -46,6 +45,3 @@ input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimpl
 
   return(MK_result)
 }
-
-
-

@@ -141,7 +141,7 @@ MK_Connect_grid <- function(nodes,
 
   base_param4 <- list(base_param1, base_param2, base_param3)
 
-  LA <- as.numeric(st_area(base_param4[[3]]@grid[1,])) %>%
+  LA <- grid_param$cellsize %>%
     unit_convert(., "m2", base_param4[[1]]@area_unit)
 
   if(nrow(base_param4[[1]]@nodes) == 0){
@@ -406,7 +406,7 @@ MK_Connect_grid <- function(nodes,
                                 LA = LA,
                                 ECA = if(nodes.1 > LA){LA}else{nodes.1},
                                 ECA.Normalized = if(nodes.1 > LA){100}else{(nodes.1*100)/LA},
-                                PC = NA)
+                                PC = if(nodes.1 > LA){1}else{nodes.1/LA})
           PC_grid[,c(1:4)] <- round(PC_grid[,c(1:4)], 5)
         } else {
           PC_grid <- data.frame(Protected.surface = 0,
@@ -414,6 +414,7 @@ MK_Connect_grid <- function(nodes,
                                     ECA = NA,
                                     ECA.Normalized = NA,
                                     PC = NA)
+          PC_grid[,c(1:2)] <- round(PC_grid[,c(1:2)], 5)
         }
 
         return(PC_grid)}, .progress = intern), error = function(err) err)
@@ -481,7 +482,7 @@ MK_Connect_grid <- function(nodes,
                                     LA = LA,
                                     ECA = if(nodes.1 > LA){LA}else{nodes.1},
                                     ECA.Normalized = if(nodes.1 > LA){100}else{(nodes.1*100)/LA},
-                                    PC = NA)
+                                    PC = if(nodes.1 > LA){1}else{nodes.1/LA})
           PC_grid[,c(1:4)] <- round(PC_grid[,c(1:4)], 5)
         } else {
           PC_grid <- data.frame(Protected.surface = 0,
@@ -489,6 +490,7 @@ MK_Connect_grid <- function(nodes,
                                     ECA = NA,
                                     ECA.Normalized = NA,
                                     PC = NA)
+          PC_grid[,c(1:2)] <- round(PC_grid[,c(1:2)], 5)
         }
 
         return(PC_grid)}), error = function(err) err)

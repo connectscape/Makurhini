@@ -406,14 +406,14 @@ MK_Connect_grid <- function(nodes,
                                 LA = LA,
                                 ECA = if(nodes.1 > LA){LA}else{nodes.1},
                                 ECA.Normalized = if(nodes.1 > LA){100}else{(nodes.1*100)/LA},
-                                PC = if(nodes.1 > LA){1}else{nodes.1/LA})
+                                PC = NA)
           PC_grid[,c(1:4)] <- round(PC_grid[,c(1:4)], 5)
         } else {
           PC_grid <- data.frame(Protected.surface = 0,
-                                    LA = LA,
-                                    ECA = NA,
-                                    ECA.Normalized = NA,
-                                    PC = NA)
+                                LA = LA,
+                                ECA = NA,
+                                ECA.Normalized = NA,
+                                PC = NA)
           PC_grid[,c(1:2)] <- round(PC_grid[,c(1:2)], 5)
         }
 
@@ -469,27 +469,27 @@ MK_Connect_grid <- function(nodes,
           }
 
           PC_grid <- get_pc_grid(x = nodes.1[[1]],
-                                     y = distance.1,
-                                     p = base_param4[[2]]@probability,
-                                     pmedian = TRUE,
-                                     d = base_param4[[2]]@distance_threshold,
-                                     LA = LA)
+                                 y = distance.1,
+                                 p = base_param4[[2]]@probability,
+                                 pmedian = TRUE,
+                                 d = base_param4[[2]]@distance_threshold,
+                                 LA = LA)
 
           PC_grid <- round(PC_grid, 5)
 
         } else if(is.numeric(nodes.1)){
           PC_grid <- data.frame(Protected.surface = nodes.1,
-                                    LA = LA,
-                                    ECA = if(nodes.1 > LA){LA}else{nodes.1},
-                                    ECA.Normalized = if(nodes.1 > LA){100}else{(nodes.1*100)/LA},
-                                    PC = if(nodes.1 > LA){1}else{nodes.1/LA})
+                                LA = LA,
+                                ECA = if(nodes.1 > LA){LA}else{nodes.1},
+                                ECA.Normalized = if(nodes.1 > LA){100}else{(nodes.1*100)/LA},
+                                PC = NA)
           PC_grid[,c(1:4)] <- round(PC_grid[,c(1:4)], 5)
         } else {
           PC_grid <- data.frame(Protected.surface = 0,
-                                    LA = LA,
-                                    ECA = NA,
-                                    ECA.Normalized = NA,
-                                    PC = NA)
+                                LA = LA,
+                                ECA = NA,
+                                ECA.Normalized = NA,
+                                PC = NA)
           PC_grid[,c(1:2)] <- round(PC_grid[,c(1:2)], 5)
         }
 

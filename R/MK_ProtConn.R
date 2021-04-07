@@ -338,7 +338,7 @@ MK_ProtConn <- function(nodes,
         }
         result <- lapply(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = if(nodes.2 >= LA){LA}else{nodes.2},
-                                     PC = if(nodes.2 >= LA){1}else{nodes.2/LA},
+                                     PC = if(nodes.2 >= LA){1}else{nodes.2/LA^2},
                                      LA = LA,
                                      Protected.surface = nodes.2,
                                      Prot = if((100 * (nodes.2 / LA)) > 100){100}else{100 * (nodes.2/LA)},
@@ -613,7 +613,7 @@ MK_ProtConn <- function(nodes,
         }
         result <- future_map(base_param3[[2]]@distance_threshold, function(d){
           DataProtconn <- data.frame(ECA = if(nodes.2 >= LA){LA}else{nodes.2},
-                                     PC = if(nodes.2 >= LA){LA}else{nodes.2/LA},
+                                     PC = if(nodes.2 >= LA){LA}else{nodes.2/LA^2},
                                      LA = LA,
                                      Protected.surface = nodes.2,
                                      Prot = if((100 * (nodes.2 / LA)) > 100){100}else{100 * (nodes.2/LA)},

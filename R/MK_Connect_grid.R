@@ -404,9 +404,9 @@ MK_Connect_grid <- function(nodes,
         } else if(is.numeric(nodes.1)){
           PC_grid <- data.frame(Protected.surface = nodes.1,
                                 LA = LA,
-                                ECA = if(nodes.1 > LA){LA}else{nodes.1},
-                                ECA.Normalized = if(nodes.1 > LA){100}else{(nodes.1*100)/LA},
-                                PC = NA)
+                                ECA = if(nodes.1 >= LA){LA}else{nodes.1},
+                                ECA.Normalized = if(nodes.1 >= LA){100}else{(nodes.1*100)/LA},
+                                PC = if(nodes.1 >= LA){1}else{0})
           PC_grid[,c(1:4)] <- round(PC_grid[,c(1:4)], 5)
         } else {
           PC_grid <- data.frame(Protected.surface = 0,
@@ -480,9 +480,9 @@ MK_Connect_grid <- function(nodes,
         } else if(is.numeric(nodes.1)){
           PC_grid <- data.frame(Protected.surface = nodes.1,
                                 LA = LA,
-                                ECA = if(nodes.1 > LA){LA}else{nodes.1},
-                                ECA.Normalized = if(nodes.1 > LA){100}else{(nodes.1*100)/LA},
-                                PC = NA)
+                                ECA = if(nodes.1 >= LA){LA}else{nodes.1},
+                                ECA.Normalized = if(nodes.1 >= LA){100}else{(nodes.1*100)/LA},
+                                PC = if(nodes.1 >= LA){1}else{(0})
           PC_grid[,c(1:4)] <- round(PC_grid[,c(1:4)], 5)
         } else {
           PC_grid <- data.frame(Protected.surface = 0,

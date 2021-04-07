@@ -208,7 +208,7 @@ MK_Connect_grid <- function(nodes,
 
         } else if(is.numeric(nodes.1)){
           ProtConn_grid <- data.frame(ECA = if(nodes.1 > LA){LA}else{nodes.1},
-                                      PC = NA,
+                                      PC = if(nodes.1 >= LA){1}else{nodes.1/LA},
                                       LA = LA,
                                       Protected.surface = nodes.1,
                                       Prot = if((100 * (nodes.1 / LA)) > 100){100}else{100 * (nodes.1/LA)},
@@ -302,8 +302,8 @@ MK_Connect_grid <- function(nodes,
           ProtConn_grid <- round(ProtConn_grid, 5)
 
         } else if(is.numeric(nodes.1)){
-          ProtConn_grid <- data.frame(ECA = if(nodes.1 > LA){LA}else{nodes.1},
-                                      PC = NA,
+          ProtConn_grid <- data.frame(ECA = if(nodes.1 >= LA){LA}else{nodes.1},
+                                      PC = if(nodes.1 >= LA){1}else{nodes.1/LA},
                                       LA = LA,
                                       Protected.surface = nodes.1,
                                       Prot = if((100 * (nodes.1 / LA)) > 100){100}else{100 * (nodes.1/LA)},
@@ -406,7 +406,7 @@ MK_Connect_grid <- function(nodes,
                                 LA = LA,
                                 ECA = if(nodes.1 >= LA){LA}else{nodes.1},
                                 ECA.Normalized = if(nodes.1 >= LA){100}else{(nodes.1*100)/LA},
-                                PC = if(nodes.1 >= LA){1}else{0})
+                                PC = if(nodes.1 >= LA){1}else{nodes.1/LA})
           PC_grid[,c(1:4)] <- round(PC_grid[,c(1:4)], 5)
         } else {
           PC_grid <- data.frame(Protected.surface = 0,
@@ -482,7 +482,7 @@ MK_Connect_grid <- function(nodes,
                                 LA = LA,
                                 ECA = if(nodes.1 >= LA){LA}else{nodes.1},
                                 ECA.Normalized = if(nodes.1 >= LA){100}else{(nodes.1*100)/LA},
-                                PC = if(nodes.1 >= LA){1}else{0})
+                                PC = if(nodes.1 >= LA){1}else{nodes.1/LA})
           PC_grid[,c(1:4)] <- round(PC_grid[,c(1:4)], 5)
         } else {
           PC_grid <- data.frame(Protected.surface = 0,

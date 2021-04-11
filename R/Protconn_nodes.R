@@ -10,9 +10,9 @@
 #' @param protconn_bound logical
 #' @param delta logical
 #' @export
-#' @importFrom sf st_sf st_cast st_buffer st_difference st_area st_geometry
+#' @importFrom sf st_sf st_cast st_buffer st_difference st_area st_geometry st_intersection
 #' @importFrom magrittr %>%
-#' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip ms_explode
+#' @importFrom rmapshaper ms_dissolve ms_simplify ms_explode
 Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALSE,
                            metrunit = "ha", protconn = TRUE, protconn_bound = FALSE,
                            delta = FALSE){
@@ -26,6 +26,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
       x.0 <- ms_explode(x)
       x.1 <- x
     }
+
     y$PROTIDT <- 1:nrow(y)
 
     '%!in%' <- function(x,y)!('%in%'(x,y))
@@ -34,7 +35,12 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
     y.1 <- st_buffer(y.1, 0)
 
     if(nrow(y.1) > 1){
-      f1 <- ms_clip(y.1, x.1)
+      if(isTRUE(xsimplify)){
+        x.0 <- ms_explode(x)
+        x.1 <- x
+      }
+
+      f1 <- st_intersection(y.1, x.1)
       f1 <- f1[!st_is_empty(f1), ]
       f2 <- ms_dissolve(st_geometry(f1)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf()
 
@@ -59,7 +65,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
               st_buffer(., buff)
           }
 
-          f4 <- over_poly(y.2, mask1, geometry = TRUE) %>% ms_clip(., mask1)#
+          f4 <- over_poly(y.2, mask1, geometry = TRUE) %>% st_intersection(., mask1)#
           f5 <- rbind(f3[,"geometry"], f4[,"geometry"])
           f5 <- f5[!st_is_empty(f5), ]
 
@@ -99,7 +105,13 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
           }
 
         } else {
-          f8 <- as.numeric(st_area(f2)) %>% unit_convert(., "m2", metrunit)
+          a1 <- st_area(f2) %>% as.numeric()
+          a2 <- st_area(x.1) %>% as.numeric()
+          if(a1 >= a2){
+            f8 <- unit_convert(a2, "m2", metrunit)
+          } else {
+            f8 <- as.numeric(st_area(f2)) %>% unit_convert(., "m2", metrunit)
+          }
         }
 
       } else {
@@ -109,15 +121,25 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
           f2$type <- "Non-Transboundary"
           f8 <- list(f2[,c("OBJECTID", "attribute", "type")])
         } else {
-          f8 <- as.numeric(st_area(f2)) %>% unit_convert(., "m2", metrunit)
+          a1 <- st_area(f2) %>% as.numeric()
+          a2 <- st_area(x.1) %>% as.numeric()
+          if(a1 >= a2){
+            f8 <- unit_convert(a2, "m2", metrunit)
+          } else {
+            f8 <- as.numeric(st_area(f2)) %>% unit_convert(., "m2", metrunit)
+          }
         }
       }
-
     } else if (nrow(y.1) == 1){
-      f1 <- ms_clip(y.1, x.1)
-      f1 <- f1[!st_is_empty(f1), ]
-      f2 <- ms_dissolve(st_geometry(f1)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf()
-      f8 <- sum(as.numeric(st_area(f2)) %>% unit_convert(., "m2", metrunit))
+      f1 <- st_intersection(y.1, x.1)
+      a1 <- f1 %>% st_area(.) %>% as.numeric(.)
+      a2 <- st_area(x.1) %>% as.numeric(.)
+      if(a1 >= a2){
+        f8 <- unit_convert(a2, "m2", metrunit)
+      } else {
+        f1 <- TopoClean(f1)
+        f8 <- as.numeric(st_area(f1)) %>% unit_convert(., "m2", metrunit)
+      }
     } else {
       f8 <- "NA"
     }

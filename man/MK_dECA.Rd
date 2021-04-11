@@ -14,12 +14,12 @@ MK_dECA(
   distance_thresholds = NULL,
   LA = NULL,
   plot = FALSE,
-  parallel = FALSE,
+  parallel = NULL,
   write = NULL
 )
 }
 \arguments{
-\item{nodes}{list of objects of class sf, SpatialPolygonsDataFrame or raster. Nodes of each period of time to analyze.}
+\item{nodes}{list of objects of class sf, SpatialPolygonsDataFrame or raster. Nodes of each time to analyze.}
 
 \item{attribute}{character or vector. If nodes is a shappefile then you must specify the column name
 with the attribute in the data table selected for the nodes. If nodes is a raster layer then it must be
@@ -51,7 +51,8 @@ distance_threshold = c(30000, 50000); sequence distances: distance_threshold = s
 \item{plot}{logical. Also, you can provide the corresponding year for each period of
 time analyzed, e.g., c("2011", "2014", "2017")}
 
-\item{parallel}{logical. Parallelize the function using furrr package and multiprocess plan, default = FALSE.}
+\item{parallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL.
+Parallelize the function using furrr package and multiprocess plan.}
 
 \item{write}{character. Path and name of the output ".csv" file}
 }

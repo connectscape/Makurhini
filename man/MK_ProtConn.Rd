@@ -86,10 +86,10 @@ test <- MK_ProtConn(nodes = Protected_areas, region = region,
                     area_unit = "ha",
                     distance = list(type= "centroid"),
                     distance_thresholds = c(50000, 10000),
-                    probability = 0.5, transboundary = c(50000, 10000),
+                    probability = 0.5, transboundary = 500000,
                     LA = NULL, plot = TRUE, parallel = NULL,
                     protconn_bound=TRUE,
-                    write = NULL, intern = FALSE)
+                    write = NULL, intern = TRUE)
 test
 
 #Least-cost distances

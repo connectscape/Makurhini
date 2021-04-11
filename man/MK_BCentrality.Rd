@@ -2,7 +2,7 @@
 % Please edit documentation in R/MK_BCentrality.R
 \name{MK_BCentrality}
 \alias{MK_BCentrality}
-\title{Betweenness Centrality metrics}
+\title{Betweenness Centrality metrics using Conefor command line}
 \usage{
 MK_BCentrality(
   nodes,
@@ -59,7 +59,8 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
 
 \item{dvars}{logical. If TRUE, then the absolute variation will be added to the node's importance result.}
 
-\item{parallel}{lofical. Parallelize the function using furrr package and multiprocess plan, default = FALSE.}
+\item{parallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL.
+Parallelize the function using furrr package and multiprocess plan.}
 
 \item{rasterparallel}{logical. If parallel is FALSE and nodes is a raster then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.}
 
@@ -97,7 +98,7 @@ BCPC_parallel <- MK_BCentrality(nodes = raster_vegetation_patches,
                     distance = list(type = "centroid"),
                     metric = "BCPC", LA = NULL, probability = 0.5,
                     distance_thresholds = c(40000, 60000),
-                    parallel = TRUE) #40 and 60 km
+                    parallel = 4) #40 and 60 km
 }
 }
 \references{

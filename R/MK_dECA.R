@@ -1,7 +1,7 @@
 #' ECA, dA and dECA.
 #'
 #' Equivalent Connected Area (ECA; if the area is used as attribute) or Equivalent Connectivity index (EC)
-#' @param nodes list of objects of class sf, SpatialPolygonsDataFrame or raster. Nodes of each period of time to analyze.
+#' @param nodes list of objects of class sf, SpatialPolygonsDataFrame or raster. Nodes of each time to analyze.
 #' @param attribute character or vector. If nodes is a shappefile then you must specify the column name
 #'  with the attribute in the data table selected for the nodes. If nodes is a raster layer then it must be
 #'  a numeric vector with the node's attribute. The length of the vector must be equal to the number of nodes.
@@ -24,7 +24,8 @@
 #' @param LA numeric. Maximum landscape attribute ("units" equal to "area_unit", default equal to "ha").
 #' @param plot logical. Also, you can provide the corresponding year for each period of
 #' time analyzed, e.g., c("2011", "2014", "2017")
-#' @param parallel logical. Parallelize the function using furrr package and multiprocess plan, default = FALSE.
+#' @param parallel numeric. Specify the number of cores to use for parallel processing, default = NULL.
+#' Parallelize the function using furrr package and multiprocess plan.
 #' @param write character. Path and name of the output ".csv" file
 #' @return Table with:\cr
 #' A: Area in km2\cr
@@ -61,7 +62,9 @@
 #' @importFrom purrr compact map map_dfr
 #' @importFrom methods as
 #' @importFrom rgeos gArea
-#' @importFrom dplyr progress_estimated summarize
+#' @importFrom dplyr summarize
+#' @importFrom progressr handlers handler_pbcol progressor
+#' @importFrom crayon bgWhite white bgCyan
 #' @importFrom plyr ddply .
 #' @importFrom formattable formattable color_bar proportion formatter percent style
 #' @importFrom reshape2 melt
@@ -79,7 +82,7 @@ MK_dECA <- function(nodes,
                     probability = NULL,
                     distance_thresholds = NULL,
                     LA = NULL,
-                    plot = FALSE, parallel = FALSE,
+                    plot = FALSE, parallel = NULL,
                     write = NULL){
   if (missing(nodes)) {
     stop("error missing file of nodes")
@@ -132,32 +135,45 @@ MK_dECA <- function(nodes,
   }
 
   #
-  scenary <- as.vector(1:length(listT)) %>% as.character()
+  time <- as.vector(1:length(listT)) %>% as.character()
   #
   if(class(listT[[1]])[1] == "SpatialPolygonsDataFrame"){
-    DECA <- map_dfr(listT, function(x){unit_convert(sum(gArea(x, byid = T)), "m2", area_unit) %>% as.data.frame()})
+    DECA <- map_dfr(listT, function(x){
+      x.1 <- unit_convert(sum(gArea(x, byid = T)), "m2", area_unit) %>%
+        as.data.frame()
+      return(x.1)
+      })
     id = "IdTemp"
   } else {
     nres <- unit_convert(res(listT[[1]])[1]^2, "m2", area_unit)
     DECA <- map(listT, function(x){
       x1 <- as.data.frame(table(x[]))
-      sum(x1$Freq * nres)})
+      x2 <- sum(x1$Freq * nres)
+      return(x2)})
     DECA <- do.call(rbind, DECA) %>% as.data.frame(as.numeric(.))
     id = NULL
   }
 
-  #DECA <- do.call(rbind, DECA) %>% as.data.frame(as.numeric(.))
-  DECA <- cbind(scenary, DECA)
+  DECA <- cbind(time, LA, DECA)
   rownames(DECA) <- NULL
-  colnames(DECA)[2]<-"Area"
+  colnames(DECA)[3]<-"Area"
 
   #ECA
   x = NULL
   y = NULL
-  if(isFALSE(parallel)){
-    pb <- progress_estimated(length(listT), 0)
-    ECA <- tryCatch(map(listT, function(x){
-      pb$tick()$print()
+
+  loop <- 1:length(listT)
+
+  if(is.null(parallel)){
+    handlers(global = T)
+    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
+                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
+                           intrusive = 2))
+    pb <- progressor(along = loop)
+
+    ECA <- tryCatch(lapply(loop, function(x){
+      x <- listT[[x]]
+      pb()
 
       ECA_metric <-  map_dfr(distance_thresholds, function(y) {
         tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
@@ -178,9 +194,18 @@ MK_dECA <- function(nodes,
       return(ECA_metric2)
     }), error = function(err) err)
   } else {
-    works = as.numeric(availableCores())-
-      plan(strategy = multiprocess, gc = TRUE, workers = works)
-    ECA <- tryCatch(future_map(listT, function(x) {
+    handlers(global = T)
+    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
+                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
+                           intrusive = 2))
+    pb <- progressor(along = loop)
+
+    works <- as.numeric(availableCores())-1
+    works <- if(parallel > works){works}else{parallel}
+    plan(strategy = multiprocess, gc = TRUE, workers = works)
+    ECA <- tryCatch(future_map(loop, function(x) {
+      x <- listT[[x]]
+      pb()
       ECA_metric <-  future_map_dfr(distance_thresholds, function(y) {
         tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
                           restoration = NULL,
@@ -196,7 +221,7 @@ MK_dECA <- function(nodes,
       ECA_metric2 <- as.data.frame(ECA_metric2)
       names(ECA_metric2) <- c("ECA", "Distance")
       return(ECA_metric2)
-    }, .progress = TRUE),  error = function(err) err)
+    }),  error = function(err) err)
     close_multiprocess(works)
   }
 
@@ -204,19 +229,22 @@ MK_dECA <- function(nodes,
     stop("review ECA parameters: nodes, distance file or LA")
   } else {
 
-    ECA2 <- map(distance_thresholds, function(x){
-      Tab_ECA <- map(ECA, function(y){ y[which(y$Distance == x),] })
-      Tab_ECA <- do.call(rbind, Tab_ECA)
+    ECA2 <- lapply(distance_thresholds, function(x){
+      Tab_ECA <- map_dfr(ECA, function(y){ y[which(y$Distance == x),] })
       Tab_ECA <- cbind(DECA, Tab_ECA)
       return(Tab_ECA)})
 
-    ECA3 <- map(ECA2, function(x){
+    ECA3 <- lapply(ECA2, function(x){
       DECA.2 <- x
       AO <- LA
 
-      DECA.2$Normalized_ECA <- (DECA.2$ECA*100)/DECA.2$Area
+      dArea <- (DECA.2$Area *100)/LA
+
+      DECA.2$Normalized_ECA1 <- (DECA.2$ECA* dArea)/DECA.2$Area
+      DECA.2$Normalized_ECA2 <- (DECA.2$ECA*100)/DECA.2$Area
+
       AO.2 <- DECA.2$Area
-      ECA.2 <- cbind(DECA.2[1:nrow(DECA.2), 3])
+      ECA.2 <- cbind(DECA.2[, 4])
 
       DECA.2$dA[1] <- (((DECA.2$Area[1] - AO)/AO) * 100)
       DECA.2$dA[2:nrow(DECA.2)] <- ((DECA.2$Area[2:nrow(DECA.2)] - AO.2)/AO.2) *100
@@ -226,28 +254,36 @@ MK_dECA <- function(nodes,
 
       DECA.2[,2:ncol(DECA.2)] <- round(DECA.2[,2:ncol(DECA.2)], 3)
 
-      DECA.3 <- ddply(DECA.2, .(scenary), dplyr::summarize,
+      DECA.3 <- ddply(DECA.2, .(time), dplyr::summarize,
                       Type_Change = dECAfun(.data$dECA, .data$dA))
-      DECA.3$Type <- ddply(DECA.2, .(scenary), dplyr::summarize,
+      DECA.3$Type <- ddply(DECA.2, .(time), dplyr::summarize,
                            Type = dECAfun2(.data$dECA, .data$dA))[[2]]
       names(DECA.3)[2:3] <- c("dA/dECA comparisons", "Type of change")
+      DECA.2 <- DECA.2[,c(1:3, 5, 4, 6:ncol(DECA.2))]
       DECA.4 <- cbind(DECA.2, DECA.3)
-      DECA.4[8] <- NULL
+      DECA.4[10] <- NULL
 
-      names(DECA.4)[c(1:3,5)] <- c("Scenary", paste0("Area (",area_unit,")"),
-                                   paste0("ECA (",area_unit,")"), "Normalized ECA")
+      names(DECA.4)[c(1:7)] <- c("Time",
+                                 paste0("Max. Landscape attribute (",area_unit,")"),
+                                 paste0("Habitat area (",area_unit,")"),
+                                 "Distance threshold",
+                                 paste0("ECA (",area_unit,")"),
+                                 "Normalized ECA (% of LA)",
+                                 "Normalized ECA (% of habitat area)"                                 )
 
       if(is.character(plot) & length(plot) == nrow(DECA.4)){
-        DECA.4$Scenary <- plot
+        DECA.4$Time <- plot
       } else {
-        DECA.4$Scenary <- rownames(DECA.4)
+        DECA.4$Time <- rownames(DECA.4)
       }
 
       rownames(DECA.4) <- NULL
 
       DECA.4 <- formattable(DECA.4, align = c("l", rep("r", NCOL(DECA.4) - 1)),
-                            list(`Area (ha)`= color_bar("#94D8B1", proportion),
-                                 `Normalized ECA` = formatter("span", x ~ percent(x / 100)),
+                            list(`Habitat area (ha)`= color_bar("#94D8B1", proportion),
+                                 `ECA (ha)` = color_tile("#E8878A", "#FAE9EA"),
+                                 `Normalized ECA (% of LA)` = color_tile("orange", "#FFEDCC"),
+                                 `Normalized ECA (% of habitat area)` = color_tile("orange", "#FFEDCC"),
                                  `dA` = formatter("span",style = ~ style(color = ifelse(`dA` > 0, "green", "red"))),
                                  `dECA` = formatter("span",style = ~ style(color = ifelse(`dECA` > 0, "green", "red")))))
       return(DECA.4)
@@ -257,17 +293,19 @@ MK_dECA <- function(nodes,
     if (!is.null(write)){
       write.csv(do.call(rbind, ECA3), write, row.names = FALSE)
     }
+
     ###plot
     if(isTRUE(plot) | is.character(plot)){
       if(isTRUE(plot)){
         plot = paste0("Time", 1:length(nodes))
       }
 
-      ECAplot <- map(ECA3, function(x){
-        ECA4 <- (x[2] * 100)/ LA
-        names(ECA4) <- "Habitat"
-        ECA4$Loss <- 100 - ECA4$Habitat
-        ECA4$"Connected habitat" <- x[[5]]
+      ECAplot <- lapply(ECA3, function(x){
+        ECA4 <- (x[[3]] * 100)/ LA
+        Loss <- 100 - ECA4
+        ECA4 <- cbind(ECA4, Loss) %>% as.data.frame()
+        names(ECA4)[1] <- "Habitat"
+        ECA4$"Connected habitat" <- x[[7]]
         ECA4$Year <- plot
 
         #Table 1
@@ -311,8 +349,8 @@ MK_dECA <- function(nodes,
           theme(legend.position = "bottom", legend.direction = "horizontal",
                 legend.title = element_blank(),
                 legend.text = element_text(size = 11)) +
-          labs(x = "Year", y = "Percentage (%)") +
-          ggtitle(paste0("Equivalent Connected Area: Dispersal distance = ", dp_text)) +
+          labs(x = "Time", y = "% of landscape") +
+          ggtitle(paste0("ECA: Dispersal distance = ", dp_text)) +
           scale_fill_manual(values = pcolors) +
           theme(axis.line = element_line(size = 1, colour = "black"),
                 panel.grid.major = element_line(colour = "#d3d3d3"),

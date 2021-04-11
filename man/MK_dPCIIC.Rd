@@ -83,11 +83,11 @@ nrow(vegetation_patches) # Number of patches
 IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
                 area_unit = "m2",
                 distance = list(type = "centroid"),
-                metric = "IIC", distance_thresholds = c(5000, 10000)) # 5 and 10 km
+                metric = "IIC", distance_thresholds = c(2000, 4000, 6000, 8000, 10000)) #1:10 km
 IIC
-plot(IIC$d5000["dIIC"], breaks = "jenks")
-plot(IIC$d5000["dIICflux"], breaks = "jenks")
-plot(IIC$d5000["dIICconnector"])
+plot(IIC$d2000["dIIC"], breaks = "jenks")
+plot(IIC$d2000["dIICflux"], breaks = "jenks")
+plot(IIC$d2000["dIICconnector"])
 
 #Using raster
 data("raster_vegetation_patches", package = "Makurhini")

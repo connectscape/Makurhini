@@ -41,12 +41,22 @@ metric_class <- function(metric = NULL,
                                                transboundary = "numeric",
                                                distance = "list"),
                      where = class_cache)
+
+
+
+    if(is.null(transboundary)){
+      tr <- 100
+    } else {
+      tr <- transboundary
+      tr[which(tr == 0)] <- 100
+      }
+
     metr.2 <- new("MK_Metric", metric = metric,
                   attribute = attribute,
                   thintersect = thintersect,
                   distance_threshold = distance_threshold,
                   probability = if(is.null(probability)){2} else {probability},
-                  transboundary = if(is.null(transboundary)){100} else if(transboundary == 0){100} else {transboundary},
+                  transboundary = tr,
                   distance = distance)
 
 

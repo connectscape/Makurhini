@@ -49,11 +49,11 @@
 #' IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
 #'                 area_unit = "m2",
 #'                 distance = list(type = "centroid"),
-#'                 metric = "IIC", distance_thresholds = c(5000, 10000)) # 5 and 10 km
+#'                 metric = "IIC", distance_thresholds = c(2000, 4000, 6000, 8000, 10000)) #1:10 km
 #' IIC
-#' plot(IIC$d5000["dIIC"], breaks = "jenks")
-#' plot(IIC$d5000["dIICflux"], breaks = "jenks")
-#' plot(IIC$d5000["dIICconnector"])
+#' plot(IIC$d2000["dIIC"], breaks = "jenks")
+#' plot(IIC$d2000["dIICflux"], breaks = "jenks")
+#' plot(IIC$d2000["dIICconnector"])
 #'
 #' #Using raster
 #' data("raster_vegetation_patches", package = "Makurhini")
@@ -64,7 +64,8 @@
 #'                 distance_thresholds = 40000) # 40 km
 #' PC
 #' @note Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
-#' @importFrom dplyr progress_estimated
+#' @importFrom progressr handlers handler_pbcol progressor
+#' @importFrom crayon bgWhite white bgCyan
 #' @importFrom methods as
 #' @importFrom utils write.table
 #' @importFrom purrr map map_dbl
@@ -191,20 +192,29 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                          write = NULL)
   }
 
-  pb <- progress_estimated(length(distance_thresholds), 0)
+  if(is.null(distance_thresholds)){
+    distance_thresholds <- mean(dist)
+  }
 
-  result <- map(distance_thresholds, function(x){
+  loop <- 1:length(distance_thresholds)
+
+  if(length(distance_thresholds)>1){
+    handlers(global = T)
+    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
+                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
+                           intrusive = 2))
+    pb <- progressor(along = loop)
+  }
+
+  result <- map(loop, function(x){
+    x <- distance_thresholds[x]
 
     if(length(distance_thresholds)>1){
-      pb$tick()$print()
+      pb()
     }
 
     nodes.2 <- nodes
     Adj_matr <- dist * 0
-
-    if(is.null(x)){
-      x <- mean(dist)
-    }
 
     if(metric == "IIC"){
       Adj_matr[dist < x] <- 1

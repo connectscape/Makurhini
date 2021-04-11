@@ -57,10 +57,10 @@ centrality_test <- MK_RMCentrality(nodes = vegetation_patches,
                                  probability = 0.05,
                                  write = NULL)
 centrality_test
-plot(centrality_test$d10000["degree"])
-plot(centrality_test$d10000["BWC"])
-plot(centrality_test$d10000["cluster"])
-plot(centrality_test$d10000["modules"])
+plot(centrality_test$d10000["degree"], breaks = "jenks")
+plot(centrality_test$d10000["BWC"], breaks = "jenks")
+plot(centrality_test$d10000["cluster"], breaks = "jenks")
+plot(centrality_test$d10000["modules"], breaks = "jenks")
 }
 \references{
 Borgatti, S. P., & Everett, M. G. (2006). A Graph-theoretic perspective on centrality. Social Networks, 28(4), 466–484. https://doi.org/10.1016/j.socnet.2005.11.005

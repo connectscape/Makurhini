@@ -80,7 +80,8 @@
 #' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_intersection st_convex_hull
 #' @importFrom future plan multiprocess availableCores
 #' @importFrom furrr future_map_dfr
-#' @importFrom dplyr progress_estimated
+#' @importFrom progressr handlers handler_pbcol progressor
+#' @importFrom crayon bgWhite white bgCyan
 #' @importFrom purrr map_df
 #' @import methods
 
@@ -106,11 +107,12 @@ MK_Connect_grid <- function(nodes,
 
   message("Step 1. Reviewing parameters")
   base_param1 <- input_grid(node = nodes, landscape = region, unit = area_unit,
-                               bdist = if(is.null(transboundary)){0} else{transboundary})
+                            bdist = if(is.null(transboundary)){0} else{transboundary})
 
   if(class(base_param1)[1] != "input_grid"){
     stop("error in nodes or region shapefile")
   }
+
   base_param2 <- metric_class(metric = if(isTRUE(protconn)){"ProtConn"} else {"PC"},
                               distance_threshold = distance_threshold,
                               probability = probability,
@@ -141,26 +143,35 @@ MK_Connect_grid <- function(nodes,
 
   base_param4 <- list(base_param1, base_param2, base_param3)
 
-  LA <- grid_param$cellsize %>%
-    unit_convert(., "m2", base_param4[[1]]@area_unit)
-
   if(nrow(base_param4[[1]]@nodes) == 0){
     message("Warning message: No nodes found in the region")
   }
 
-  if (isTRUE(protconn)) {
-    if (!is.null(parallel)) {
-      if (isTRUE(intern)) {
-        message("Step 3. Processing ProtConn metrics on the grid")
-        message("When using the parallel argument the progress bar cannot be displayed")
-      } else {
-        message("Step 3. Processing ProtConn metrics on the grid")
-      }
+  loop <- 1:nrow(base_param4[[3]]@grid)
 
+  if (isTRUE(protconn)) {
+    if (isTRUE(intern)) {
+      message("Step 3. Processing ProtConn metric on the grid. Progress estimated:")
+      handlers(global = T)
+      handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
+                             incomplete = function(s) crayon::bgWhite(crayon::black(s)),
+                             intrusive = 2))
+      pb <- progressor(along = loop)
+    } else {
+      message("Step 3. Processing ProtConn metric on the grid")
+    }
+
+    if (!is.null(parallel)){
       works <- as.numeric(availableCores())-1
       works <-  if(parallel > works){works}else{parallel}
       plan(strategy = multiprocess, gc = TRUE, workers = works)
-      result_1 <- tryCatch(future_map_dfr(1:nrow(base_param4[[3]]@grid), function(x){
+      result_1 <- tryCatch(future_map_dfr(loop, function(x){
+        if (isTRUE(intern)) {
+          pb()
+        }
+
+        LA <- st_area(base_param4[[3]]@grid[x,]) %>%
+            unit_convert(., "m2", base_param4[[1]]@area_unit)
 
         #nodes and distances,
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
@@ -173,7 +184,6 @@ MK_Connect_grid <- function(nodes,
         if(inherits(nodes.1, "error")){
           stop(paste0("error first nodes selection. Check grid: ", x))
         }
-
         #Tiene 2 o más nodos dentro de la region
         if(is.list(nodes.1)){
           if(base_param4[[2]]@distance$type %in% c("least-cost", "commute-time")){
@@ -242,32 +252,29 @@ MK_Connect_grid <- function(nodes,
                                       ProtConn_Within_land = NA, ProtConn_Contig_land = NA,
                                       ProtConn_Unprot_land = NA, ProtConn_Trans_land = NA)
         }
+
         return(ProtConn_grid) }, .progress = intern), error = function(err) err)
       close_multiprocess(works)
     } else {
-      pb <- progress_estimated(nrow(base_param4[[3]]@grid), 0)
-      if (isTRUE(intern)) {
-        message("Step 3. Processing ProtConn metrics on the grid. Progress estimated:")
-      } else {
-        message("Step 3. Processing ProtConn metrics on the grid")
-      }
-
-      result_1 <- tryCatch(map_df(1:nrow(base_param4[[3]]@grid), function(x) {
+      result_1 <- tryCatch(map_df(loop, function(x) {
         if (isTRUE(intern)) {
-          pb$tick()$print()
+          pb()
         }
+
+        LA <- st_area(base_param4[[3]]@grid[x,]) %>%
+          unit_convert(., "m2", base_param4[[1]]@area_unit)
 
         #nodes and distances,
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
-                                             y = base_param4[[1]]@nodes,
-                                             buff = base_param4[[2]]@transboundary,
-                                             xsimplify = FALSE,
-                                             metrunit = base_param4[[1]]@area_unit,
-                                             protconn = TRUE,
-                                             protconn_bound = FALSE), error = function(err)err)
+                                           y = base_param4[[1]]@nodes,
+                                           buff = base_param4[[2]]@transboundary,
+                                           xsimplify = FALSE,
+                                           metrunit = base_param4[[1]]@area_unit,
+                                           protconn = TRUE,
+                                           protconn_bound = FALSE), error = function(err)err)
 
         if(inherits(nodes.1, "error")){
-            stop(paste0("error first nodes selection. Check grid: ", x))
+          stop(paste0("error first nodes selection. Check grid: ", x))
         }
 
         if(is.list(nodes.1)){
@@ -340,22 +347,32 @@ MK_Connect_grid <- function(nodes,
         }
         return(ProtConn_grid)
       }), error = function(err) err)
-  }
-
+    }
   } else {
+    if (isTRUE(intern)) {
+      message("Step 3. Processing PC and ECA metrics on the grid. Progress estimated:")
+      handlers(global = T)
+      handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
+                             incomplete = function(s) crayon::bgWhite(crayon::black(s)),
+                             intrusive = 2))
+      pb <- progressor(along = loop)
+    } else {
+      message("Step 3. Processing PC and ECA metrics on the grid")
+    }
+
     if (!is.null(parallel)) {
-      if (isTRUE(intern)) {
-        message("Step 3. Processing ProtConn metrics on the grid")
-        message("When using the parallel argument the progress bar cannot be displayed")
-      } else {
-        message("Step 3. Processing ProtConn metrics on the grid")
-      }
       works <- as.numeric(availableCores())-1
       works <-  if(parallel > works){works}else{parallel}
       plan(strategy = multiprocess, gc = TRUE, workers = works)
-      result_1 <- tryCatch(future_map_dfr(1:nrow(base_param4[[3]]@grid), function(x) {
+      result_1 <- tryCatch(future_map_dfr(loop, function(x) {
+        if (isTRUE(intern)) {
+          pb()
+        }
+
+        LA <- st_area(base_param4[[3]]@grid[x,]) %>%
+          unit_convert(., "m2", base_param4[[1]]@area_unit)
+
         #nodes and distances,
-        # si se localiza solo un nodo  o 0 mandar un objeto tipo protconn
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
                                            y = base_param4[[1]]@nodes,
                                            buff = base_param4[[2]]@transboundary,
@@ -367,7 +384,6 @@ MK_Connect_grid <- function(nodes,
         if(inherits(nodes.1, "error")){
           stop(paste0("error first nodes selection. Check grid: ", x))
         }
-
 
         if(is.list(nodes.1)){
           if(base_param4[[2]]@distance$type %in% c("least-cost", "commute-time")){
@@ -420,18 +436,15 @@ MK_Connect_grid <- function(nodes,
         return(PC_grid)}, .progress = intern), error = function(err) err)
       close_multiprocess(works)
     } else {
-      pb <- progress_estimated(nrow(base_param4[[3]]@grid), 0)
-      if (isTRUE(intern)) {
-        message("Step 3. Processing ProtConn metrics on the grid. Progress estimated:")
-      } else {
-        message("Step 3. Processing ProtConn metrics on the grid")
-      }
-      result_1 <- tryCatch(map_df(1:nrow(base_param4[[3]]@grid), function(x) {
+      result_1 <- tryCatch(map_df(loop, function(x) {
         if (isTRUE(intern)) {
-          pb$tick()$print()
+          pb()
         }
+
+        LA <- st_area(base_param4[[3]]@grid[x,]) %>%
+          unit_convert(., "m2", base_param4[[1]]@area_unit)
+
         #nodes and distances,
-        # si se localiza solo un nodo  o 0 mandar un objeto tipo protconn
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
                                            y = base_param4[[1]]@nodes,
                                            buff = NULL,
@@ -444,7 +457,6 @@ MK_Connect_grid <- function(nodes,
           stop(paste0("error first nodes selection. Check grid: ", x))
         }
 
-        #Tiene 2 o más nodos dentro de la region
         if(is.list(nodes.1)){
           if(base_param4[[2]]@distance$type %in% c("least-cost", "commute-time")){
             if(is.null(base_param4[[2]]@distance$resistance)){
@@ -482,7 +494,7 @@ MK_Connect_grid <- function(nodes,
                                 LA = LA,
                                 ECA = if(nodes.1 >= LA){LA}else{nodes.1},
                                 ECA.Normalized = if(nodes.1 >= LA){100}else{(nodes.1*100)/LA},
-                                PC = if(nodes.1 >= LA){1}else{nodes.1/LA^2})
+                                PC = if(nodes.1 >= LA){1}else{nodes.1/(LA^2)})
           PC_grid[,c(1:4)] <- round(PC_grid[,c(1:4)], 5)
         } else {
           PC_grid <- data.frame(Protected.surface = 0,
@@ -500,6 +512,8 @@ MK_Connect_grid <- function(nodes,
   if(inherits(result_1, "error")){
     stop("error, check your input files, there may be no nodes in the region")
   }
+
   result_2 <- cbind(base_param4[[3]]@grid, result_1)
+  result_2$IdTemp  <- NULL
   return(result_2)
 }

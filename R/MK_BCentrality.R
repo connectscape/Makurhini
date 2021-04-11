@@ -1,4 +1,4 @@
-#' Betweenness Centrality metrics
+#' Betweenness Centrality metrics using Conefor command line
 #'
 #' Use this function to calculate the BC, BCIIC and BCPC indexes under one or several distance thresholds.
 #' @param nodes Object of class sf, SpatialPolygonsDataFrame or raster.
@@ -25,7 +25,8 @@
 #' (\url{http://www.conefor.org/coneforsensinode.html}). Example, "C:/Users/coneforWin64.exe".
 #' @param dA logical. If TRUE, then the delta attribute will be added to the node's importance result.
 #' @param dvars logical. If TRUE, then the absolute variation will be added to the node's importance result.
-#' @param parallel lofical. Parallelize the function using furrr package and multiprocess plan, default = FALSE.
+#' @param parallel numeric. Specify the number of cores to use for parallel processing, default = NULL.
+#' Parallelize the function using furrr package and multiprocess plan.
 #' @param rasterparallel logical. If parallel is FALSE and nodes is a raster then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.
 #' @param write character. Write output shapefile, example, "C:/ejemplo.shp".
 #' @references Saura, S. and Torne, J. (2012). Conefor 2.6. Universidad Politecnica de Madrid. Available at \url{www.conefor.org}.\cr
@@ -61,10 +62,11 @@
 #'                     distance = list(type = "centroid"),
 #'                     metric = "BCPC", LA = NULL, probability = 0.5,
 #'                     distance_thresholds = c(40000, 60000),
-#'                     parallel = TRUE) #40 and 60 km
+#'                     parallel = 4) #40 and 60 km
 #' }
 #' @importFrom sf st_as_sf
-#' @importFrom dplyr progress_estimated
+#' @importFrom progressr handlers handler_pbcol progressor
+#' @importFrom crayon bgWhite white bgCyan
 #' @importFrom purrr map
 #' @importFrom utils write.table
 #' @importFrom raster values as.matrix extent raster stack extent<- writeRaster reclassify crs crs<-
@@ -155,6 +157,8 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
                bounding_circles = distance$bounding_circles,
                parallel = distance$parallel,
                edgeParallel = distance$edgeParallel, pairwise = TRUE,
+               least_cost.java = distance$least_cost.java,
+               cores.java = distance$cores.java, ram.java = distance$ram.java,
                write = paste0(temp.1,"/Dist.txt"))
 
   setwd(temp.1)
@@ -165,13 +169,23 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
   }
 
   x = NULL
-  if(isFALSE(parallel)){
-    pb <- progress_estimated(length(distance_thresholds), 0)
-    BC_metric <- tryCatch(map(distance_thresholds, function(x){
+  loop <- 1:length(distance_thresholds)
 
-        if (length(distance_thresholds) > 1) {
-          pb$tick()$print()
-        }
+  if(length(distance_thresholds)>1){
+    handlers(global = T)
+    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
+                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
+                           intrusive = 2))
+    pb <- progressor(along = loop)
+  }
+
+  if(isFALSE(parallel)){
+    BC_metric <- tryCatch(map(loop, function(x){
+      x <- distance_thresholds[x]
+
+      if(length(distance_thresholds)>1){
+        pb()
+      }
         dMetric <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
                               coneforpath = coneforpath,
                               typeconnection = "dist", typepairs = pairs, index = metric,
@@ -252,8 +266,14 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
       }), error = function(err) err)
   } else {
     works <- as.numeric(availableCores())-1
+    works <- if(parallel > works){works}else{parallel}
     plan(strategy = multiprocess, gc = TRUE, workers = works)
-    BC_metric <- tryCatch(future_map(distance_thresholds, function(x) {
+    BC_metric <- tryCatch(future_map(loop, function(x) {
+      x <- distance_thresholds[x]
+
+      if(length(distance_thresholds)>1){
+        pb()
+      }
       dMetric <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
                             coneforpath = coneforpath,
                             typeconnection = "dist", typepairs = pairs, index = metric,
@@ -316,7 +336,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
         }
       }
       return(result_interm)
-    }, .progress = TRUE), error = function(err) err)
+    }), error = function(err) err)
     close_multiprocess(works)
     }
 

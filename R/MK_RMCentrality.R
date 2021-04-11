@@ -35,11 +35,12 @@
 #'                                  probability = 0.05,
 #'                                  write = NULL)
 #' centrality_test
-#' plot(centrality_test$d10000["degree"])
-#' plot(centrality_test$d10000["BWC"])
-#' plot(centrality_test$d10000["cluster"])
-#' plot(centrality_test$d10000["modules"])
-#' @importFrom dplyr progress_estimated
+#' plot(centrality_test$d10000["degree"], breaks = "jenks")
+#' plot(centrality_test$d10000["BWC"], breaks = "jenks")
+#' plot(centrality_test$d10000["cluster"], breaks = "jenks")
+#' plot(centrality_test$d10000["modules"], breaks = "jenks")
+#' @importFrom progressr handlers handler_pbcol progressor
+#' @importFrom crayon bgWhite white bgCyan
 #' @importFrom magrittr %>%
 #' @importFrom sf write_sf st_as_sf
 #' @importFrom purrr map map_dbl
@@ -90,6 +91,7 @@ MK_RMCentrality <- function(nodes,
   dist <- distancefile(nodes = nodes,  id = idT, type = distance$type,
                        distance_unit = distance$distance_unit, keep = distance$keep,
                        resistance = distance$resistance,
+                       resist.units = distance$resist.units,
                        CostFun = distance$CostFun, ngh = distance$ngh,
                        mask = distance$mask,
                        threshold = distance$threshold,
@@ -106,12 +108,20 @@ MK_RMCentrality <- function(nodes,
     colnames(dist) <- nodes$IdTemp
   }
 
-  pb <- progress_estimated(length(distance_thresholds), 0)
+  loop <- 1:length(distance_thresholds)
 
-  centrality_result <- map(as.list(distance_thresholds), function(x){
+  if(length(distance_thresholds)>1){
+    handlers(global = T)
+    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
+                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
+                           intrusive = 2))
+    pb <- progressor(along = loop)
+  }
 
+  centrality_result <- map(loop, function(x){
+    x <- distance_thresholds[x]
     if(length(distance_thresholds) > 1){
-      pb$tick()$print()
+      pb()
     }
     nodes.2 <- nodes
 

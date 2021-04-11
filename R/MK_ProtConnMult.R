@@ -48,20 +48,20 @@
 #'                         distance = list(type= "centroid"),
 #'                         distance_thresholds = c(10000, 50000),
 #'                         probability = 0.5, transboundary = 50000,
-#'                         transboundary_type = "region",
-#'                         plot = TRUE, write = "./Test",
-#'                         parallel = NULL, intern = FALSE)
+#'                         plot = TRUE, write = NULL,
+#'                         parallel = NULL, intern = TRUE)
 #' test
 #' }
 #' @importFrom magrittr %>%
 #' @importFrom sf st_as_sf st_zm st_geometry st_geometry<- write_sf
-#' @importFrom dplyr progress_estimated
+#' @importFrom progressr handlers handler_pbcol progressor
+#' @importFrom crayon bgWhite white bgCyan
 #' @importFrom future multiprocess plan availableCores
-#' @importFrom furrr future_map
+#' @importFrom furrr future_map future_map_dfr
 #' @importFrom formattable color_tile area style formattable formatter
 #' @importFrom utils write.csv
 #' @importFrom ggplot2 ggplot geom_bar aes position_dodge labs rel theme_bw theme element_blank element_text scale_fill_manual geom_hline scale_linetype_manual guide_legend margin geom_errorbar
-#' @importFrom purrr compact
+#' @importFrom purrr compact map_df
 #' @importFrom ggpubr ggarrange
 #' @importFrom rlang .data
 #' @importFrom grDevices dev.off tiff
@@ -106,20 +106,25 @@ MK_ProtConnMult <- function(nodes, regions,
     regions$ID_Temp <- 1:nrow(regions)
   }
 
-  regions <- TopoClean(regions)
+  regions <- TopoClean(regions, xsimplify = geom_simplify)
+  loop <- 1:nrow(regions)
+
+  if (isTRUE(intern)){
+    handlers(global = T)
+    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
+                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
+                           intrusive = 2))
+    pb <- progressor(along = loop)
+    message("Step 1. ProtConn estimation")
+  }
+
 
   if(is.null(parallel)){
-    if (isTRUE(intern)){
-      pb <- dplyr::progress_estimated(length(regions$ID_Temp), 0)
-      message("Step 1. ProtConn estimation")
-    }
-
-    protconn_result <- tryCatch(lapply(1:length(regions$ID_Temp), function(x){
-
-      Ecoreg_sel <- regions[regions$ID_Temp == unique(regions$ID_Temp)[x],]
+    protconn_result <- tryCatch(lapply(loop, function(x){
+      Ecoreg_sel <- regions[x,]
 
       if (isTRUE(intern)){
-        pb$tick()$print()
+        pb()
       }
 
       protconn <- tryCatch(MK_ProtConn(nodes = nodes,
@@ -148,7 +153,7 @@ MK_ProtConnMult <- function(nodes, regions,
     }
 
     if(length(distance_thresholds)>1){
-      Ecoreglist <- tryCatch(map(1:length(distance_thresholds), function(x){
+      Ecoreglist <- tryCatch(lapply(1:length(distance_thresholds), function(x){
         x.1 <- map_df(protconn_result, function(y){
           y.1 <- y[[x]]
           y.2 <- y.1[[3]]
@@ -159,7 +164,7 @@ MK_ProtConnMult <- function(nodes, regions,
         return(x.1)
       }), error = function(err)err)
 
-      ECAlist <- tryCatch(map(1:length(distance_thresholds), function(x){
+      ECAlist <- tryCatch(lapply(1:length(distance_thresholds), function(x){
         x.1 <- map_df(protconn_result, function(y){
           y.1 <- y[[x]]
           y.2 <- as.vector(y.1[[1]][1:2])
@@ -196,14 +201,13 @@ MK_ProtConnMult <- function(nodes, regions,
     }
 
   } else {
-    if (isTRUE(intern)){
-      message("Step 1. ProtConn estimation")
-    }
-
     works <- as.numeric(availableCores())-1
     works <- if(parallel > works){works}else{parallel}
     plan(strategy = multiprocess, gc = TRUE, workers = works)
-    protconn_result <- tryCatch(future_map(1:length(regions$ID_Temp), function(x){
+    protconn_result <- tryCatch(future_map(loop, function(x){
+      if (isTRUE(intern)){
+        pb()
+      }
       Ecoreg_sel <- regions[regions$ID_Temp == unique(regions$ID_Temp)[x],]
       protconn <- tryCatch(MK_ProtConn(nodes = nodes,
                                        region = Ecoreg_sel,
@@ -223,7 +227,7 @@ MK_ProtConnMult <- function(nodes, regions,
         stop(protconn)
       }
 
-      return(protconn)}, .progress = intern), error = function(err)err)
+      return(protconn)}), error = function(err)err)
 
     if(inherits(protconn_result, "error")){
       stop("Error, please review your input shapefiles")
@@ -304,9 +308,16 @@ MK_ProtConnMult <- function(nodes, regions,
       x.0 <- x.3
       x.0[is.na(x.0)] <- 0
 
-      nn <- c("EC", "PC", "Prot", "Unprot", "ProtConn", "ProtUnconn",
-              "Design", "Bound", "RelConn", "P_Prot",
-              "P_Trans", "P_Unprot", "P_Within", "P_Contig", "P_WithinL", "P_ContigL", "P_UnprotL", "P_TransL")
+      if(isTRUE(protconn_bound)){
+        nn <- c("EC", "PC", "Prot", "Unprot", "ProtConn", "ProtUnconn",
+                "Design", "Bound", "RelConn", "P_Prot",
+                "P_Trans", "P_Unprot", "P_Within", "P_Contig", "P_WithinL", "P_ContigL", "P_UnprotL", "P_TransL")
+      } else {
+        nn <- c("EC", "PC", "Prot", "Unprot", "ProtConn", "ProtUnconn",
+                "RelConn", "P_Prot", "P_Trans", "P_Unprot", "P_Within", "P_Contig", "P_WithinL", "P_ContigL",
+                "P_UnprotL", "P_TransL")
+      }
+
       names(x.0)[which(names(x.0)=="EC(PC)"):(ncol(x.0)-1)] <- nn
 
       write_sf(x.0, paste0(write, "ProtConn_", distance_thresholds[x], ".shp"), delete_layer = T)

@@ -16,6 +16,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip
 #' @import methods
+
 get_grid <- function(region = NULL, grid_pol = NULL, grid_id = NULL,
                      hexagonal = TRUE,
                      cellsize = NULL, grid_boundary = FALSE,
@@ -41,13 +42,7 @@ get_grid <- function(region = NULL, grid_pol = NULL, grid_id = NULL,
                         tolerance = tolerance, grid_boundary = grid_boundary)
 
   } else {
-    x_grid <- TopoClean(grid_pol) %>% st_cast("POLYGON")
-
-    if(!is.null(grid_id)){
-      x_grid$col <- grid_pol[[grid_id]]
-      names(x_grid)[which(names(x_grid) == grid_id)] <- grid_id
-    }
-
+    x_grid <- TopoClean(grid_pol)
     x_grid$IdTemp <- 1:nrow(x_grid)
   }
 

@@ -1,7 +1,7 @@
 Package: Makurhini
 Type: Package
 Title: Makurhini: Analyzing landscape connectivity
-Version: 2.0.1
+Version: 2.0.2
 Authors@R: c(person(given = "Oscar",
               family = "Godínez-Gómez",
               role = c("aut", "cre"),
@@ -61,7 +61,9 @@ Imports:
     ps (>= 1.4.0),
     rlang (>= 0.4.8),
     graph4lg (>= 1.0.1),
-    parallel (>= 4.0.2)
+    parallel (>= 4.0.2),
+    crayon,
+    progressr
 Depends: 
     methods,
     utils,

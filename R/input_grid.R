@@ -26,7 +26,6 @@ input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimpl
   mask1 <- rmapshaper::ms_simplify(landscape, method = "vis", keep_shapes = TRUE)%>% st_buffer(., bdist)
   node <- over_poly(node, mask1, geometry = TRUE)
 
-
   if (class(node)[1] == "SpatialPolygonsDataFrame" | class(node)[1] == "sf"){
     if(nrow(node)>0){
       node <- TopoClean(node, xsimplify = xsimplify)

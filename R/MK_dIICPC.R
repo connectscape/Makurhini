@@ -270,7 +270,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
 
     #p2
     last <- if(metric == "IIC"){"IIC"} else {"PC"}
-    if(isTRUE(overall)){
+    if(isTRUE(overall) | isTRUE(onlyoverall)){
       if(!is.null(LA)){
         if(LA > sum(attribute_2)){
           Ind <- num / (LA^2)

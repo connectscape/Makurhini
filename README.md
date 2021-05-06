@@ -41,9 +41,7 @@ published, please use the something like the following to cite if you
 use it in your work:
 
 <code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini:
-Analyzing landscape connectivity.
-  
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3771605.svg)](https://doi.org/10.5281/zenodo.3771605)
+Analyzing landscape connectivity. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3771605.svg)](https://doi.org/10.5281/zenodo.3771605)
 </code> </i>
 
 ## Installation

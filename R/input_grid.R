@@ -6,9 +6,8 @@
 #' @param bdist numeric
 #' @param xsimplify logical or numeric
 #' @importFrom sf st_sf st_cast st_buffer st_difference st_area st_geometry st_zm
-#' @importFrom magrittr %>%
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip
-#' @import methods
+#' @importFrom methods setClass new
 #' @export
 input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimplify = FALSE){
   class_cache <- new.env(parent = emptyenv())
@@ -23,7 +22,8 @@ input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimpl
   }
 
   #
-  mask1 <- rmapshaper::ms_simplify(landscape, method = "vis", keep_shapes = TRUE)%>% st_buffer(., bdist)
+  mask1 <- rmapshaper::ms_simplify(landscape, method = "vis", keep_shapes = TRUE)
+  mask1 <- st_buffer(mask1, bdist)
   node <- over_poly(node, mask1, geometry = TRUE)
 
   if (class(node)[1] == "SpatialPolygonsDataFrame" | class(node)[1] == "sf"){

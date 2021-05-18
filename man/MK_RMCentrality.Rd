@@ -11,7 +11,8 @@ MK_RMCentrality(
   binary = TRUE,
   probability = NULL,
   rasterparallel = FALSE,
-  write = NULL
+  write = NULL,
+  intern = TRUE
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ If probability = NULL, then it will be the inverse of the mean dispersal distanc
 
 \item{write}{character. Write output shapefile. It is necessary to specify the "Folder direction"
 + "Initial prefix",  for example, "C:/ejemplo".}
+
+\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 }
 \description{
 Use this function to calculate centrality measures. under one or several distance thresholds.

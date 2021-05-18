@@ -17,8 +17,6 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(Makurhini)
 library(sf)
-library(mapview)
-library(tmap)
 library(ggplot2)
 ```
 
@@ -31,12 +29,7 @@ We loaded the "vegetation_patches" database with 142 patches of old-growth veget
 ```{r polygons}
 data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) # Number of patches
-```
-
-```{r someplot}
-vegetation_patches$Legend <- "Old-growth vegetation fragments"
-mapview(vegetation_patches, zcol ="Legend", col.regions= "#00B050")
-vegetation_patches$Legend <- NULL
+plot(st_geometry(vegetation_patches), col = "#00B050")
 ```
 
 ## MK_Fragmentation()
@@ -71,32 +64,31 @@ We can visualize the static at the patch level using the default *plot()* functi
 * Core area (%):
 
 ```{r echo=FALSE}
-tmap_mode("plot")
-tm_shape(Fragmentation_test[[2]]) + tm_fill("CAPercent", palette = c( "#762A83", "#AF8DC3", "#E7D4E8", "#D9F0D3", "#7FBF7B", "#1B7837"))+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+plot(Fragmentation_test[[2]]["CAPercent"])
 ```
 
 * Edge (%)
 
 ```{r echo=FALSE}
-tm_shape(Fragmentation_test[[2]]) + tm_fill("EdgePercent", palette = c("#542788", "#998EC3", "#D8DAEB", "#FEE0B6", "#F1A340", "#B35806"))+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+plot(Fragmentation_test[[2]]["EdgePercent"])
 ```
 
 * Perimeter-area ratio (PARA)
 
 ```{r echo=FALSE}
-tm_shape(Fragmentation_test[[2]]) + tm_fill("PARA", palette = c("#542788", "#998EC3", "#D8DAEB", "#FEE0B6", "#F1A340", "#B35806"))+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+plot(Fragmentation_test[[2]]["PARA"])
 ```
 
 * Shape Index
 
 ```{r echo=FALSE}
-tm_shape(Fragmentation_test[[2]]) + tm_fill("ShapeIndex", palette = c("#542788", "#998EC3", "#D8DAEB", "#FEE0B6", "#F1A340", "#B35806"))+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+plot(Fragmentation_test[[2]]["ShapeIndex"])
 ```
 
 * Fractal Dimension Index
 
 ```{r echo=FALSE}
-tm_shape(Fragmentation_test[[2]]) + tm_fill("FRAC", palette = c("#542788", "#998EC3", "#D8DAEB", "#FEE0B6", "#F1A340", "#B35806"))+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+plot(Fragmentation_test[[2]]["FRAC"])
 ```
 
 ### Exploring other edge depths

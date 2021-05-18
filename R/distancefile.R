@@ -59,8 +59,6 @@
 #' @importFrom spex qm_rasterToPolygons
 #' @importFrom raster rasterToPoints crs values raster
 #' @importFrom magrittr %>%
-#' @importFrom dplyr group_by summarize
-#' @importFrom rlang .data
 distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, keep = NULL,
                          resistance = NULL, resist.units = FALSE,
                          CostFun = NULL, ngh = NULL, mask = NULL,
@@ -70,7 +68,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
                          cores.java = 1, ram.java = NULL,
                          pairwise = TRUE,
                          write = NULL){
-
+  . = NULL
   if (missing(nodes)) {
     stop("error missing file of nodes")
   } else {
@@ -127,7 +125,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
 
       if(type == "centroid"){
         cr <- crs(nodes)
-        nodes <- future_map(rp, function(x){
+        nodes <- tryCatch(future_map(rp, function(x){
           r <- nodes
           r[r %!in% x] <- NA
           p <- data.frame(rasterToPoints(r))
@@ -141,16 +139,26 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
 
           coords1 <- st_as_sf(coords1, coords = c("x", "y"),
                               crs = cr, stringsAsFactors = FALSE)
-          return(coords1) },.progress = TRUE) %>% do.call(rbind, .)
+          return(coords1) },.progress = TRUE), error = function(err)err)
+        if(inherits(nodes, "error")) {
+          close_multiprocess(works)
+          stop(nodes)
+        }
+        nodes <- do.call(rbind, nodes)
       } else {
-        nodes <- future_map(rp, function(x){
+        nodes <- tryCatch(future_map(rp, function(x){
           r <- nodes
           r[r %!in% x] <- NA
           pn <- qm_rasterToPolygons(r)
           names(pn)[1] <- "Id"
-          pn <- pn %>% group_by(.data$Id) %>% summarize() %>% st_cast(.)
+          pn <- ms_dissolve(pn, "Id")
           return(pn)
-        }, .progress = TRUE) %>% do.call(rbind, .)
+        }, .progress = TRUE), error = function(err)err)
+        if(inherits(nodes, "error")) {
+          close_multiprocess(works)
+          stop(nodes)
+        }
+        nodes <- do.call(rbind, nodes)
       }
       close_multiprocess(works)
 

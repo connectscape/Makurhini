@@ -4,7 +4,7 @@
 #' @param x object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
 #' @param y object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
 #' @param base_param3 list
-#' @import igraph
+#' @importFrom igraph graph.adjacency shortest.paths E
 #' @importFrom purrr map_df
 #' @export
 

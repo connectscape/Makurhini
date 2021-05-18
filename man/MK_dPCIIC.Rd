@@ -17,7 +17,8 @@ MK_dPCIIC(
   onlyoverall = FALSE,
   LA = NULL,
   rasterparallel = NULL,
-  write = NULL
+  write = NULL,
+  intern = TRUE
 )
 }
 \arguments{
@@ -68,6 +69,8 @@ If nodes is "raster" then you can use this argument to assign the metrics values
 
 \item{write}{character. Write output shapefile and overall table (if TRUE overall argument).
 It is necessary to specify the "Folder direction" + "Initial prefix",  for example, "C:/ejemplo".}
+
+\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 }
 \description{
 Use this function to calculate the PC and IIC indexes under one or several distance thresholds.

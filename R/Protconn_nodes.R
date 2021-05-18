@@ -17,6 +17,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
                            metrunit = "ha", protconn = TRUE, protconn_bound = FALSE,
                            delta = FALSE){
   options(warn = -1)
+  . = NULL
   if(nrow(y) > 0){
     if(isTRUE(xsimplify)){
       x.0 <- rmapshaper::ms_simplify(x, keep = 0.1,  method = "vis",

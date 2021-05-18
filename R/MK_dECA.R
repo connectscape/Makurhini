@@ -27,6 +27,7 @@
 #' @param parallel numeric. Specify the number of cores to use for parallel processing, default = NULL.
 #' Parallelize the function using furrr package and multiprocess plan.
 #' @param write character. Path and name of the output ".csv" file
+#' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @return Table with:\cr
 #' A: Area in km2\cr
 #' ECA: ECA value\cr
@@ -53,7 +54,8 @@
 #' dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
 #'                   distance = list(type= "centroid"), metric = "PC",
 #'                   probability = 0.05, distance_thresholds = 5000,
-#'                   LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))
+#'                   LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"),
+#'                   intern = TRUE)
 #' dECA_test
 #'
 #' }
@@ -62,17 +64,14 @@
 #' @importFrom purrr compact map map_dfr
 #' @importFrom methods as
 #' @importFrom rgeos gArea
-#' @importFrom dplyr summarize
 #' @importFrom progressr handlers handler_pbcol progressor
 #' @importFrom crayon bgWhite white bgCyan
-#' @importFrom plyr ddply .
 #' @importFrom formattable formattable color_bar proportion formatter percent style
-#' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot geom_bar aes geom_text theme element_blank element_text labs ggtitle scale_fill_manual element_line ggsave
 #' @importFrom utils write.csv
 #' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map future_map_dfr
-#' @importFrom rlang .data
+
 
 MK_dECA <- function(nodes,
                     attribute = NULL,
@@ -83,7 +82,8 @@ MK_dECA <- function(nodes,
                     distance_thresholds = NULL,
                     LA = NULL,
                     plot = FALSE, parallel = NULL,
-                    write = NULL){
+                    write = NULL, intern = TRUE){
+  . = NULL
   if (missing(nodes)) {
     stop("error missing file of nodes")
   } else {
@@ -164,16 +164,20 @@ MK_dECA <- function(nodes,
 
   loop <- 1:length(listT)
 
-  if(is.null(parallel)){
+  if(isTRUE(intern)){
     handlers(global = T)
     handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
                            incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusive = 2))
+                           intrusiveness = 2))
     pb <- progressor(along = loop)
+  }
 
+  if(is.null(parallel)){
     ECA <- tryCatch(lapply(loop, function(x){
       x <- listT[[x]]
+      if(isTRUE(intern)){
       pb()
+        }
 
       ECA_metric <-  map_dfr(distance_thresholds, function(y) {
         tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
@@ -194,18 +198,15 @@ MK_dECA <- function(nodes,
       return(ECA_metric2)
     }), error = function(err) err)
   } else {
-    handlers(global = T)
-    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
-                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusive = 2))
-    pb <- progressor(along = loop)
-
     works <- as.numeric(availableCores())-1
     works <- if(parallel > works){works}else{parallel}
     plan(strategy = multiprocess, gc = TRUE, workers = works)
     ECA <- tryCatch(future_map(loop, function(x) {
       x <- listT[[x]]
-      pb()
+      if(isTRUE(intern)){
+        pb()
+      }
+
       ECA_metric <-  future_map_dfr(distance_thresholds, function(y) {
         tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
                           restoration = NULL,
@@ -254,10 +255,13 @@ MK_dECA <- function(nodes,
 
       DECA.2[,2:ncol(DECA.2)] <- round(DECA.2[,2:ncol(DECA.2)], 3)
 
-      DECA.3 <- ddply(DECA.2, .(time), dplyr::summarize,
-                      Type_Change = dECAfun(.data$dECA, .data$dA))
-      DECA.3$Type <- ddply(DECA.2, .(time), dplyr::summarize,
-                           Type = dECAfun2(.data$dECA, .data$dA))[[2]]
+      DECA.3 <- data.frame(time = DECA.2$time, Type_Change = "", Type ="")
+
+      for(i in 1:nrow(DECA.2)){
+        DECA.3[i,2] <- dECAfun(DECA.2$dECA[i], DECA.2$dA[i])
+        DECA.3[i,3] <- dECAfun2(DECA.2$dECA[i], DECA.2$dA[i])
+      }
+
       names(DECA.3)[2:3] <- c("dA/dECA comparisons", "Type of change")
       DECA.2 <- DECA.2[,c(1:3, 5, 4, 6:ncol(DECA.2))]
       DECA.4 <- cbind(DECA.2, DECA.3)
@@ -310,14 +314,26 @@ MK_dECA <- function(nodes,
 
         #Table 1
         ECA5 <- ECA4
-        ECA4 <- melt(ECA4, id="Year")
+        ECA4 <- data.frame(Year = rep(ECA4$Year,3),
+                           variable = c(rep("Habitat", length(ECA4$Year)),
+                                        rep("Loss", length(ECA4$Year)),
+                                        rep("Connected habitat", length(ECA4$Year))),
+                           value = c(ECA4$Habitat, ECA4$Loss, ECA4$`Connected habitat`))
+
         names(ECA4)[3] <- "percentage"
         ECA4$variable <- factor(ECA4$variable, levels = c("Loss", "Habitat", "Connected habitat"))
 
         #Table 2
         ECA5$`Connected habitat` <- (ECA5$`Connected habitat` * ECA5$Habitat)/100
         ECA5$Habitat <- ECA5$Habitat - ECA5$`Connected habitat`
-        ECA5 <- melt(ECA5, id="Year")
+
+        ECA5 <- data.frame(Year = rep(ECA5$Year,3),
+                           variable = c(rep("Habitat", length(ECA5$Year)),
+                                        rep("Loss", length(ECA5$Year)),
+                                        rep("Connected habitat", length(ECA5$Year))),
+                           value = c(ECA5$Habitat, ECA5$Loss, ECA5$`Connected habitat`))
+
+
         names(ECA5)[3] <- "percentage"
 
         ECA5$variable <- factor(ECA5$variable, levels = c("Loss", "Habitat", "Connected habitat"))

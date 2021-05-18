@@ -76,49 +76,28 @@ Estimate Protected Connected (ProtConn) indicator and fractions for one region.
 library(Makurhini)
 library(raster)
 data("Protected_areas", package = "Makurhini")
-#plot(Protected_areas, col="green")
-
 data("regions", package = "Makurhini")
 region <- regions[2,]
-plot(region, col="blue")
 
 test <- MK_ProtConn(nodes = Protected_areas, region = region,
                     area_unit = "ha",
                     distance = list(type= "centroid"),
                     distance_thresholds = c(50000, 10000),
-                    probability = 0.5, transboundary = 500000,
+                    probability = 0.5, transboundary = 50000,
                     LA = NULL, plot = TRUE, parallel = NULL,
                     protconn_bound=TRUE,
                     write = NULL, intern = TRUE)
 test
 
 #Least-cost distances
-HFP_Mexico <- raster(system.file("extdata", "HFP_Mexico.tif", package = "Makurhini", mustWork = TRUE))
+HFP_Mexico <- raster(system.file("extdata", "HFP_Mexico.tif",
+                    package = "Makurhini", mustWork = TRUE))
 mask_1 <- as(extent(Protected_areas), 'SpatialPolygons')
 crs(mask_1) <- crs(Protected_areas)
 mask_1 <- buffer(mask_1, 20000)
 HFP_Mexico <- crop(HFP_Mexico, mask_1)
-
-#Penalizing 100 times the distance of a pixel (1 km) is too much
-#so we will rescale the values from 1 to 10
 HFP_Mexico <- HFP_Mexico/10
-
-# we have values less than 1 and that could underestimate the least cost distance,
-# then we substitute the values less than 1 for 1
 HFP_Mexico[HFP_Mexico < 1] <- 1
-plot(HFP_Mexico)
-
-test <- MK_ProtConn(nodes = Protected_areas, region = region,
-                    area_unit = "ha",
-                    distance = list(type= "least-cost", resistance = HFP_Mexico),
-                    distance_thresholds = c(50000, 10000),
-                    probability = 0.5, transboundary = 50000,
-                    LA = NULL, plot = NULL,
-                    write = NULL, intern = FALSE)
-test$d50000
-test$d10000
-#Using java script
-#Transform resistance to integer
 HFP_Mexico <- round(HFP_Mexico)
 
 test2 <- MK_ProtConn(nodes = Protected_areas, region = region,

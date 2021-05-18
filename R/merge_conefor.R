@@ -10,6 +10,7 @@
 #' @export
 #' @importFrom data.table rbindlist
 #' @importFrom sf st_write st_as_sf
+#' @importFrom utils read.csv
 merge_conefor <- function(datat = NULL,
                       pattern = NULL, merge_shape = NULL,
                       id = NULL, dA = FALSE, var = FALSE,
@@ -23,7 +24,7 @@ merge_conefor <- function(datat = NULL,
 
   if (is.character(datat) | !is.null(pattern)){
       filenames <-list.files(datat, pattern = paste0(pattern), full.names = TRUE)
-      data <- rbindlist(lapply(filenames,fread), fill=T)
+      data <- rbindlist(lapply(filenames,read.csv), fill=T)
       data <- as.data.frame(data)
       } else {
         data <- as.data.frame(datat)

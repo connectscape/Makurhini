@@ -16,7 +16,7 @@ PIntercsect<-function(p1,p2){
    listIZ <- split(p1, p1@data[,ncol(p1)])
   #
   cl <- makeCluster(detectCores()-1)
-  listIZ <- parLapply(cl, listIZ, intersect, y=p2)
+  listIZ <- tryCatch(parLapply(cl, listIZ, intersect, y=p2), error = function(err) err)
   stopCluster(cl)
   p3 <- do.call(rbind,listIZ)
   return(p3)

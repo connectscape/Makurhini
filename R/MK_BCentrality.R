@@ -67,7 +67,6 @@
 #' @importFrom sf st_as_sf
 #' @importFrom progressr handlers handler_pbcol progressor
 #' @importFrom crayon bgWhite white bgCyan
-#' @importFrom purrr map
 #' @importFrom utils write.table
 #' @importFrom raster values as.matrix extent raster stack extent<- writeRaster reclassify crs crs<-
 #' @importFrom future multiprocess plan availableCores
@@ -175,12 +174,12 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
     handlers(global = T)
     handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
                            incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusive = 2))
+                           intrusiveness = 2))
     pb <- progressor(along = loop)
   }
 
   if(isFALSE(parallel)){
-    BC_metric <- tryCatch(map(loop, function(x){
+    BC_metric <- tryCatch(lapply(loop, function(x){
       x <- distance_thresholds[x]
 
       if(length(distance_thresholds)>1){
@@ -194,14 +193,15 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
                               prefix = NULL, write = NULL)
 
         if(class(nodes)[1] == "sf"){
-          result_interm <- merge_conefor(datat = dMetric[[which(map(dMetric, function(x) ncol(x)) >= 11)]], pattern = NULL,
+          result_interm <- merge_conefor(datat = dMetric[[which(lapply(dMetric, function(x) ncol(x)) >= 11)]], pattern = NULL,
                                          merge_shape = nodes, id = "IdTemp",
                                          write = if (!is.null(write)) paste0(write, "_d", x,".shp"),
                                          dA = dA, var = dvars)
           result_interm$"IdTemp" <- NULL
 
         } else {
-          datat <- dMetric[[which(map(dMetric, function(x) ncol(x)) >= 11)]] %>% as.data.frame(.)
+          datat <- dMetric[[which(lapply(dMetric, function(x) ncol(x)) >= 11)]]
+          datat <- as.data.frame(datat)
           datat <- datat[, as.numeric(which(colSums(!is.na(datat)) > 0))]
           if(isFALSE(dA)){
             datat$dA <- NULL
@@ -223,18 +223,18 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
             m[,1] <- datat[,1]
             works <- as.numeric(availableCores())-1
             plan(strategy = multiprocess, gc=TRUE, workers = works)
-            r_metric <- future_map(2:ncol(datat), function(c){
+            r_metric <- tryCatch(future_map(2:ncol(datat), function(c){
               x1 <- datat[,c(1, c)]
               for(i in rp){
                 m[which(m == i),2] <- x1[which(x1[,1]== i),2]
               }
               x1 <- reclassify(nodes, rcl = m)
-              return(x1)}, .progress = TRUE)
+              return(x1)}, .progress = TRUE), error = function(err) err)
             close_multiprocess(works)
           } else {
             m <- matrix(nrow = nrow(datat), ncol = 2)
             m[,1] <- datat[,1]
-            r_metric <- map(2:ncol(datat), function(c){
+            r_metric <- lapply(2:ncol(datat), function(c){
               x1 <- datat[,c(1, c)]
               for(i in rp){
                 m[which(m == i),2] <- x1[which(x1[,1]== i),2]
@@ -255,7 +255,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
 
           if (!is.null(write)){
             n <- names(datat[,1:ncol(datat)])
-            n <- map(as.list(2:length(n)), function(w){
+            n <- lapply(as.list(2:length(n)), function(w){
               x1 <- result_interm[[w]]
               crs(x1) <- crs(result_interm)
               writeRaster(x1, filename = paste0(write, "_", n[w], "_",  x, ".tif"), overwrite = TRUE, options = c("COMPRESS=LZW", "TFW=YES"))
@@ -282,14 +282,15 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
                             prefix = NULL, write = NULL)
 
       if(class(nodes)[1] == "sf"){
-        result_interm <- merge_conefor(datat = dMetric[[which(map(dMetric, function(x) ncol(x)) >= 11)]], pattern = NULL,
+        result_interm <- merge_conefor(datat = dMetric[[which(lapply(dMetric, function(x) ncol(x)) >= 11)]], pattern = NULL,
                                        merge_shape = nodes, id = "IdTemp",
                                        write = if (!is.null(write)) paste0(write, "_d", x,".shp"),
                                        dA = dA, var = dvars)
         result_interm$"IdTemp" <- NULL
 
       } else {
-        datat <- dMetric[[which(map(dMetric, function(x) ncol(x)) >= 11)]] %>% as.data.frame(.)
+        datat <- dMetric[[which(lapply(dMetric, function(x) ncol(x)) >= 11)]]
+        datat <- as.data.frame(datat)
         datat <- datat[, as.numeric(which(colSums(!is.na(datat)) > 0))]
         if(isFALSE(dA)){
           datat$dA <- NULL
@@ -308,7 +309,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
 
         m <- matrix(nrow = nrow(datat), ncol = 2)
         m[,1] <- datat[,1]
-        r_metric <- map(2:ncol(datat), function(c){
+        r_metric <- lapply(2:ncol(datat), function(c){
           x1 <- datat[,c(1, c)]
           for(i in rp){
             m[which(m == i),2] <- x1[which(x1[,1]== i),2]
@@ -328,7 +329,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
 
         if (!is.null(write)){
           n <- names(datat[,1:ncol(datat)])
-          n <- map(as.list(2:length(n)), function(w){
+          n <- lapply(as.list(2:length(n)), function(w){
             x1 <- result_interm[[w]]
             crs(x1) <- crs(result_interm)
             writeRaster(x1, filename = paste0(write, "_", n[w], "_",  x, ".tif"), overwrite = TRUE, options = c("COMPRESS=LZW", "TFW=YES"))

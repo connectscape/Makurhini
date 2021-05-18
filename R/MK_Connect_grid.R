@@ -43,11 +43,10 @@
 #' plot(ecoregion, col="blue")
 #' #ProtConn
 #' hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
-#'                                      region = ecoregion,
-#'                                      area_unit = "ha",
-#'                                      grid_param = list(grid_pol = NULL, hexagonal = TRUE,
-#'                                                        grid_id = NULL, cellsize = unit_convert(1000, "km2", "m2"),
-#'                                                        grid_boundary = FALSE, clip = FALSE, tolerance = NULL),
+#'                                     region = ecoregion,
+#'                                     area_unit = "ha",
+#'                                     grid_param = list(hexagonal = TRUE,
+#'                                                       cellsize = unit_convert(1000, "km2", "m2")),
 #'                                     protconn = TRUE,
 #'                                     distance_threshold = 3000,
 #'                                     probability = 0.5,
@@ -57,23 +56,7 @@
 #'                                     parallel = NULL)
 #' hexagons_priority
 #' plot(hexagons_priority["ProtConn"])
-#'
-#' #PC
-#' hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
-#'                                      region = ecoregion,
-#'                                      area_unit = "ha",
-#'                                      grid_param = list(grid_pol = NULL, hexagonal = TRUE,
-#'                                                        grid_id = NULL, cellsize = unit_convert(1000, "km2", "m2"),
-#'                                                        grid_boundary = FALSE, clip = FALSE, tolerance = NULL),
-#'                                     protconn = FALSE,
-#'                                     distance_threshold = 3000,
-#'                                     probability = 0.5,
-#'                                     distance = list(type = "centroid"),
-#'                                     intern = TRUE,
-#'                                     parallel = NULL)
-#' hexagons_priority
-#' plot(hexagons_priority["PC"])
-#' }
+#'}
 #' @export
 #' @importFrom magrittr %>%
 #' @importFrom raster crop raster
@@ -83,7 +66,7 @@
 #' @importFrom progressr handlers handler_pbcol progressor
 #' @importFrom crayon bgWhite white bgCyan
 #' @importFrom purrr map_df
-#' @import methods
+#' @importFrom methods as
 
 MK_Connect_grid <- function(nodes,
                             area_unit = "ha",
@@ -155,7 +138,7 @@ MK_Connect_grid <- function(nodes,
       handlers(global = T)
       handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
                              incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                             intrusive = 2))
+                             intrusiveness = 2))
       pb <- progressor(along = loop)
     } else {
       message("Step 3. Processing ProtConn metric on the grid")
@@ -170,8 +153,8 @@ MK_Connect_grid <- function(nodes,
           pb()
         }
 
-        LA <- st_area(base_param4[[3]]@grid[x,]) %>%
-            unit_convert(., "m2", base_param4[[1]]@area_unit)
+        LA <- st_area(base_param4[[3]]@grid[x,])
+        LA <- unit_convert(LA, "m2", base_param4[[1]]@area_unit)
 
         #nodes and distances,
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
@@ -261,8 +244,8 @@ MK_Connect_grid <- function(nodes,
           pb()
         }
 
-        LA <- st_area(base_param4[[3]]@grid[x,]) %>%
-          unit_convert(., "m2", base_param4[[1]]@area_unit)
+        LA <- st_area(base_param4[[3]]@grid[x,])
+        LA <- unit_convert(LA, "m2", base_param4[[1]]@area_unit)
 
         #nodes and distances,
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
@@ -354,7 +337,7 @@ MK_Connect_grid <- function(nodes,
       handlers(global = T)
       handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
                              incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                             intrusive = 2))
+                             intrusiveness = 2))
       pb <- progressor(along = loop)
     } else {
       message("Step 3. Processing PC and ECA metrics on the grid")
@@ -369,8 +352,8 @@ MK_Connect_grid <- function(nodes,
           pb()
         }
 
-        LA <- st_area(base_param4[[3]]@grid[x,]) %>%
-          unit_convert(., "m2", base_param4[[1]]@area_unit)
+        LA <- st_area(base_param4[[3]]@grid[x,])
+        LA <- unit_convert(LA, "m2", base_param4[[1]]@area_unit)
 
         #nodes and distances,
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
@@ -441,8 +424,8 @@ MK_Connect_grid <- function(nodes,
           pb()
         }
 
-        LA <- st_area(base_param4[[3]]@grid[x,]) %>%
-          unit_convert(., "m2", base_param4[[1]]@area_unit)
+        LA <- st_area(base_param4[[3]]@grid[x,])
+        LA <- unit_convert(LA, "m2", base_param4[[1]]@area_unit)
 
         #nodes and distances,
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],

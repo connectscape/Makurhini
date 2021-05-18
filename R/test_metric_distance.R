@@ -22,6 +22,7 @@
 #' @param area_unit character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
 #' compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".
 #' @param write character. Folder path and prefix, for example: "C:/Folder/test".
+#' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @references Correa Ayram, C. A., Mendoza, M. E., Etter, A., & Pérez Salicrup, D. R. (2017). Anthropogenic impact on habitat connectivity: A multidimensional human footprint index evaluated in a highly biodiverse landscape of Mexico. Ecological Indicators, 72, 895–909. https://doi.org/10.1016/j.ecolind.2016.09.007
 #' @export
 #' @examples
@@ -51,14 +52,15 @@
 #'                      distance1 =list(type= "centroid"),
 #'                      distance2 =list(type= "edge", keep = 0.05),
 #'                      metric = "ProtConn", probability = 0.5,
-#'                      attribute = "Intersected area", area_unit = "ha",
+#'                      area_unit = "ha",
 #'                      region = region, transboundary = 50000,
 #'                      distance_thresholds = seq(10000,100000, 10000))
 #'}
 #' @importFrom magrittr %>%
+#' @importFrom progressr handlers handler_pbcol progressor
+#' @importFrom crayon bgWhite white bgCyan
 #' @importFrom ggplot2 ggplot geom_line geom_point aes theme scale_x_continuous scale_y_continuous element_blank labs scale_colour_manual element_line element_text element_rect
 #' @importFrom purrr compact map_dfr
-#' @importFrom dplyr progress_estimated
 #' @importFrom methods as
 #' @importFrom utils tail
 #' @importFrom sf st_as_sf st_zm st_buffer st_cast st_intersection st_geometry st_difference st_area
@@ -74,12 +76,13 @@ test_metric_distance <- function(nodes,
                               LA = NULL,
                               transboundary = NULL,
                               area_unit = "ha",
-                              groups = 3, write = NULL){
+                              groups = 3, write = NULL,
+                              intern = TRUE){
   if(class(nodes)[1] == "sf") {
     nodes <- as(nodes, 'Spatial')
   }
   options(warn = -1)
-
+  . = NULL
   distances_test <- list(distance1, distance2, distance3, distance4)
   distances_test <- compact(distances_test)
 
@@ -113,60 +116,21 @@ test_metric_distance <- function(nodes,
     nodes$IDTemp <- 1:nrow(nodes)
     nodes <- nodes[, "IDTemp"]
 
-    if(is.null(attribute)){
-      attribute = "Intersected area"
-    }
-
-    nodes.2 <- MK_selectbyloc(target = nodes, sourcelyr = region,
-                              selreg = "M2", thintersect = 0,
-                              area_unit = area_unit,
-                              transboundary = if(is.null(transboundary)){100}else{transboundary})
-
-    if(is.null(transboundary)){
-      nodes.2 <- nodes.2[nodes.2$transboundary == 1,]
-    }
-
-    if(nrow(nodes.2) > 0){
-      if(!is.null(transboundary) & attribute == "Intersected area"){
-        nodes.2t1 <- st_intersection(nodes.2[nodes.2$transboundary==1,], st_geometry(region)) %>%
-          st_cast("POLYGON")
-
-        nodes.2t1$rmapshaperid <- NULL
-        nodes.2t1$TempID <- NULL
-        nodes.2t1$Area2 <- unit_convert(as.numeric(st_area(nodes.2t1)), "m2", area_unit)
-        nodes.2t2 <- st_difference(nodes.2[nodes.2$transboundary==1,], st_geometry(region)) %>%
-          st_cast("POLYGON")
-
-        if(nrow(nodes.2t2) > 0){
-          nodes.2t2$rmapshaperid <- NULL
-          nodes.2t2$TempID <- NULL
-          nodes.2t2$transboundary <- 0
-          names(nodes.2t2)
-          nodes.2t2 <- rbind(nodes.2[nodes.2$transboundary==0,], nodes.2t2)
-          nodes.2 <- rbind(nodes.2t1, nodes.2t2)
-        }
-      }
-    }
-
-    if (is.null(LA) & isTRUE(attribute %in% c("Area", "Intersected area"))){
+    nodes.2 <- tryCatch(Protconn_nodes(x = region,
+                                       y = nodes,
+                                       buff = transboundary,
+                                       method = "nodes",
+                                       xsimplify = FALSE,
+                                       metrunit = area_unit,
+                                       protconn_bound = FALSE,
+                                       delta = FALSE), error = function(err)err)
+    if(is.null(LA)){
       LA <- sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit))
-    } else {
-      if(is.null(LA) & isFALSE(attribute %in% c("Area", "Intersected area"))){
-        stop("misssing LA, LA is necessary when you choose attribute a different to Area and Intersected area")
-      } else {
-        LA <- LA
-      }
     }
 
-    if (attribute == "Intersected area"){
-      nodes.2$AreaTemp <- nodes.2$Area2 * nodes.2$transboundary
-    } else if (attribute == "Area"){
-      nodes.2$AreaTemp <- nodes.2$Area1 * nodes.2$transboundary
+    nodes <- as(nodes.2[[1]], 'Spatial')
+    attribute <- "attribute"
     }
-
-    nodes <- as(nodes.2, 'Spatial')
-    attribute <- "AreaTemp"
-  }
 
   if (metric=="PC"){
     if (is.null(probability) | !is.numeric(probability)) {
@@ -180,9 +144,19 @@ test_metric_distance <- function(nodes,
 
   #Id
   nodes@data$IdTemp <- 1:nrow(nodes)
-  pb <- progress_estimated(length(distances_test), 0)
 
-  conn_metric <- map_dfr(distances_test, function(x){
+  loop <- 1:length(distances_test)
+
+  if(isTRUE(intern)){
+    handlers(global = T)
+    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
+                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
+                           intrusiveness = 2))
+    pb <- progressor(along = loop)
+  }
+
+  conn_metric <- map_dfr(loop, function(x){
+    x <- distances_test[[x]]
     ECA_metric <-  map_dfr(distance_thresholds, function(y) {
       tab1 <- tryCatch(MK_dPCIIC(nodes = nodes, attribute = attribute,
                                  restoration = NULL,
@@ -204,8 +178,8 @@ test_metric_distance <- function(nodes,
       return(tab1)
     })
 
-    if(length(distances_test)>1){
-      pb$tick()$print()
+    if(length(distances_test)>1 & isTRUE(intern)){
+      pb()
     }
     conn_metric2 <- cbind(ECA_metric, distance_thresholds)
     conn_metric2 <- as.data.frame(conn_metric2)

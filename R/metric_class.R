@@ -11,7 +11,7 @@
 #' @importFrom sf st_sf st_cast st_buffer st_difference st_area st_geometry
 #' @importFrom magrittr %>%
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip
-#' @import methods
+#' @importFrom methods setClass new
 
 metric_class <- function(metric = NULL,
                          attribute = NULL,
@@ -84,6 +84,5 @@ metric_class <- function(metric = NULL,
   }
 
   return(metr.2)
-
 }
 

@@ -80,14 +80,18 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
 
       works <- as.numeric(availableCores())-1
       plan(strategy = multiprocess, gc = TRUE, workers = works)
-      distance <- future_map(x2, function(d){
+      distance <- tryCatch(future_map(x2, function(d){
         if(!is.null(keep)){
           d <- ms_simplify(input = d, keep = keep, keep_shapes = TRUE, explode = FALSE)
         }
         distance2 <- gDistance(d, x, byid = TRUE)
         return(distance2)
-      })
+      }), error = function(err)err)
       close_multiprocess(works)
+
+      if(inherits(distance, "error")) {
+        stop(distance)
+      }
       distance <- do.call(cbind, distance)
     }
   }

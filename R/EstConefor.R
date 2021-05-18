@@ -35,7 +35,7 @@
 #' Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid.
 #' Available at \url{www.conefor.org}.
 #' @export
-#' @importFrom data.table fread
+#' @importFrom utils read.table
 EstConefor <- function(nodeFile,
                        coneforpath= NULL,
                        connectionFile,
@@ -165,12 +165,12 @@ EstConefor <- function(nodeFile,
     df <- df[removefile]
   }
 
-  result_2 <- tryCatch(lapply(df, fread), error = function(err)err)
+  result_2 <- tryCatch(lapply(df, read.table), error = function(err)err)
 
   if (inherits(result_2, "error")){
     removefile <- which(basename(df) != "overall_indices.txt")
     df <- df[removefile]
-    result_2 <- lapply(df, fread)
+    result_2 <- lapply(df, read.table)
     names(result_2) <- basename(df) %>% gsub(".txt","")
   } else {
     names(result_2) <- basename(df) %>% gsub(".txt","")

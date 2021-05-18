@@ -6,7 +6,6 @@
 #' @references Carpenter, J., & Bithell, J. (2000). Bootstrap con " dence intervals : when , which , what ? A practical guide for medical statisticians. Statist. Med., 19, 1141–1164.
 #' @export
 #' @importFrom boot boot boot.ci
-#' @importFrom purrr map
 #' @importFrom stats sd
 
 ProtConnStat <- function(ProtConn, ci= "all", nr=500){
@@ -28,7 +27,7 @@ ProtConnStat <- function(ProtConn, ci= "all", nr=500){
 
   #IC
   if(!is.null(ci)){
-    ICBoot <- map(as.list(ProtConn) , function(n){
+    ICBoot <- lapply(as.list(ProtConn) , function(n){
       if(length(unique(n)) > 1){
         set.seed(626)
         bootcorr <- boot(n, mean.fun, R = nr)
@@ -48,7 +47,7 @@ ProtConnStat <- function(ProtConn, ci= "all", nr=500){
         err2 <- rep(unique(n), 8)
         names(err2) <- c("normal.lower", "normal.upper", "basic.lower", "basic.upper",
                          "percent.lower", "percent.upper", "bca.lower", "bca.upper")
-        err2 <- map(as.list(ci), function(x){
+        err2 <- lapply(as.list(ci), function(x){
           x2 <- err2[which(startsWith(names(err2), x))]
           x2 <- as.data.frame(x2)
           return(x2)})

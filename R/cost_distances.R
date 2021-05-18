@@ -32,11 +32,8 @@
 #'
 #' 	Paul Savary. 2020. R Package graph4lg: Build Graphs for Landscape Genetics Analysis.
 #'  \url{https://cran.r-project.org/web/packages/graph4lg/index.html}
-#' @importFrom magrittr %>%
-#' @importFrom sf st_as_sf st_geometry st_geometry<- st_coordinates
-#' @importFrom purrr map_dbl
+#' @importFrom sf st_as_sf st_geometry st_geometry<- st_coordinates st_centroid st_combine st_voronoi st_touches st_collection_extract
 #' @importFrom rgeos gTouches gCentroid
-#' @importFrom dismo voronoi
 #' @importFrom raster crop mask extend buffer raster res
 #' @importFrom gdistance transition geoCorrection costDistance commuteDistance
 #' @importFrom methods as new
@@ -79,7 +76,8 @@ cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL,
 
 
 
-  cord <- st_centroid_within_poly(x) %>% st_coordinates()
+  cord <- st_centroid_within_poly(x)
+  cord <- st_coordinates(cord)
   coordenates_1 <- x
   coordenates_1$lon <- cord[,1]
   coordenates_1$lat <- cord[,2]
@@ -198,12 +196,12 @@ cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL,
       rownames(coordenates_1) <- NULL
 
       if(isTRUE(LCD)){
-        Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
-          geoCorrection(., scl = FALSE)
+        Iso_conductance <- transition(resistance_1, CostFun, directions = ngh)
+        Iso_conductance <- geoCorrection(Iso_conductance, scl = FALSE)
         distance_result <- costDistance(Iso_conductance, coordenates_1) #reciprocal of conductance, works with resistance
       } else {
-        Iso_conductance <- transition(resistance_1, CostFun, directions = ngh) %>%
-          geoCorrection(., type = "r")
+        Iso_conductance <- transition(resistance_1, CostFun, directions = ngh)
+        Iso_conductance <- geoCorrection(Iso_conductance, type = "r")
         distance_result <- commuteDistance(Iso_conductance, coordenates_1)
       }
 
@@ -277,25 +275,33 @@ cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL,
       }
     } else {
       ####voronoi
-      voronoi_adj <- voronoi(gCentroid(as(x, 'Spatial'), byid = T)) %>%
-        gTouches(., byid = T)
+      points_1 <- st_centroid(x)
+      points_2 <- st_combine(st_geometry(points_1))
+      voronoi_adj <- st_voronoi(points_2)
+      voronoi_adj = st_collection_extract(voronoi_adj)
+      voronoi_adj <- voronoi_adj[unlist(st_intersects(points_1, voronoi_adj))]
+      voronoi_adj <- st_touches(voronoi_adj, sparse = FALSE)
+      voronoi_adj <- as.matrix(voronoi_adj)
       colnames(voronoi_adj) <- x[[id]]
       rownames(voronoi_adj) <- x[[id]]
 
-      works <- as.numeric(availableCores())-1
+      works <- as.numeric(availableCores())/2
       plan(strategy = multiprocess, gc = TRUE, workers = works)
-      distance <- future_map(as.list(colnames(voronoi_adj)), function(i){
+
+      distance <- tryCatch(future_map(as.list(colnames(voronoi_adj)), function(i){
         ##
         foc_adj <- rbind(x[which(x[[id]] == i),],
-                         x[as.vector(which(voronoi_adj[, which(x[[id]] == i)])),]) %>%
-          as(., 'Spatial')
+                         x[as.vector(which(voronoi_adj[, which(x[[id]] == i)])),])
+        foc_adj <- as(foc_adj, 'Spatial')
 
         dist <- euclidean_distances(foc_adj, id, threshold = bounding_circles, distance_unit = "m" )
         foc_adj <- foc_adj[which(foc_adj[[id]] %in% c(unique(dist$From), unique(dist$To))),]
 
         if(nrow(foc_adj) > 1){
-          r2 <- gCentroid(foc_adj, byid = TRUE) %>% buffer(., width = bounding_circles)
-          r2 <- crop(resistance_1, r2) %>% raster::mask(., r2)
+          r2 <- gCentroid(foc_adj, byid = TRUE)
+          r2 <- buffer(r2, width = bounding_circles)
+          r2 <- crop(resistance_1, r2)
+          r2 <- raster::mask(r2, r2)
 
           ##
           coordenates_2 <- coordenates_1[which(coordenates_1[[id]] %in% foc_adj[[id]]),]
@@ -305,12 +311,12 @@ cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL,
           ##
 
           if(isTRUE(LCD)){
-            Iso_conductance <- transition(r2, CostFun, directions = ngh)%>%
-              geoCorrection(., scl = FALSE)
+            Iso_conductance <- transition(r2, CostFun, directions = ngh)
+            Iso_conductance <- geoCorrection(Iso_conductance, scl = FALSE)
             distance_result <- costDistance(Iso_conductance, coordenates_2) #reciprocal of conductance, works with resistance
           } else {
-            Iso_conductance <- transition(r2, CostFun, directions = ngh)%>%
-              geoCorrection(., type = "r")
+            Iso_conductance <- transition(r2, CostFun, directions = ngh)
+            Iso_conductance <- geoCorrection(Iso_conductance, type = "r")
             distance_result <- commuteDistance(Iso_conductance, coordenates_2)
           }
 
@@ -388,8 +394,14 @@ cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL,
           }
 
           return(distance_result)
-        } }, .progress = TRUE)
+          }
+        }, .progress = TRUE), error = function(err) err)
       close_multiprocess(works)
+
+      if (inherits(distance, "error")) {
+        stop(distance)
+      }
+
       distance <- purrr::compact(distance)
 
       if(isFALSE(pairwise)){
@@ -406,16 +418,21 @@ cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL,
         colnames(mm) <- uno
 
         for(i in uno){
-          mm2 <- mm[,i] %>% as.matrix()
+          mm2 <- mm[,i]
+          mm2 <- as.matrix(mm2)
 
           for(j in rownames(mm2)){
             if(j != i){
-              mm2[j,] <- min(map(distance, function(x){
+              mmj <- lapply(distance, function(x){
                 x2 <- x[which(rownames(x)==i),which(rownames(x)==j)]
                 if(length(x2) == 0){
                   x2 = NULL
                 }
-                return(x2)})%>% purrr::compact(.) %>% unlist())
+                return(x2)})
+              mmj <- purrr::compact(mmj)
+              mmj <- unlist(mmj)
+              mm2[j,] <- min(mmj)
+
             } else {
               mm2[j,] <- 0
             }
@@ -427,13 +444,15 @@ cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL,
         distance_result <- do.call(rbind, distance)
         distance_result$dn <- paste0(distance_result$From, "_",distance_result$To)
 
-        distance_result <- map(unique(distance_result$dn), function(i){
+        distance_result <- lapply(unique(distance_result$dn), function(i){
           d1 <- distance_result[which(distance_result$dn == i),]
           d1 <- d1[which(d1$Distance == min(d1$Distance)),1:3]
           if(nrow(d1)>1){
             d1 <- d1[1,]
           }
-          return(d1)}) %>% do.call(rbind,.)
+          return(d1)})
+
+        distance_result <- do.call(rbind, distance_result)
         rownames(distance_result) <- NULL
       }
     }

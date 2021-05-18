@@ -15,7 +15,7 @@
 #' @importFrom sf st_sf st_cast st_buffer st_difference st_area st_geometry st_zm
 #' @importFrom magrittr %>%
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip
-#' @import methods
+#' @importFrom methods setClass new
 
 get_grid <- function(region = NULL, grid_pol = NULL, grid_id = NULL,
                      hexagonal = TRUE,

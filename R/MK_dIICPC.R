@@ -36,6 +36,7 @@
 #'  raster. It is useful when raster resolution is less than 100 m2.
 #' @param write character. Write output shapefile and overall table (if TRUE overall argument).
 #'   It is necessary to specify the "Folder direction" + "Initial prefix",  for example, "C:/ejemplo".
+#' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @references Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at \url{www.conefor.org}.\cr
 #' Pascual-Hortal, L. & Saura, S. 2006. Comparison and development of new graph-based landscape connectivity indices: towards the priorization of habitat patches and corridors for conservation. Landscape Ecology 21 (7): 959-967.\cr
 #' Saura, S. & Pascual-Hortal, L. 2007. A new habitat availability index to integrate connectivity in landscape conservation planning: comparison with existing indices and application to a case study. Landscape and Urban Planning 83 (2-3): 91-103.
@@ -81,7 +82,8 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                       metric = c("IIC", "PC"),
                       probability = NULL, distance_thresholds = NULL,
                       overall = FALSE, onlyoverall=FALSE,
-                      LA = NULL, rasterparallel = NULL, write = NULL) {
+                      LA = NULL, rasterparallel = NULL, write = NULL,
+                      intern = TRUE) {
   if (missing(nodes)) {
     stop("error missing file of nodes")
   } else {
@@ -198,18 +200,18 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
 
   loop <- 1:length(distance_thresholds)
 
-  if(length(distance_thresholds)>1){
+  if(length(distance_thresholds)>1 & isTRUE(intern)){
     handlers(global = T)
     handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
                            incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusive = 2))
+                           intrusiveness = 2))
     pb <- progressor(along = loop)
   }
 
   result <- map(loop, function(x){
     x <- distance_thresholds[x]
 
-    if(length(distance_thresholds)>1){
+    if(length(distance_thresholds)>1 & isTRUE(intern)){
       pb()
     }
 
@@ -410,13 +412,13 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
             works <- as.numeric(availableCores())-1
             works <-  if(rasterparallel > works){works}else{rasterparallel}
             plan(strategy = multiprocess, gc = TRUE, workers = works)
-            r_metric <- future_map(2:ncol(metric_conn), function(c){
+            r_metric <- tryCatch(future_map(2:ncol(metric_conn), function(c){
               x1 <- metric_conn[,c(1, c)]
               for(i in rp){
                 m[which(m == i),2] <- x1[which(x1[,1]== i),2]
               }
               x1 <- reclassify(nodes, rcl = m)
-              return(x1)}, .progress = TRUE)
+              return(x1)}, .progress = TRUE), error = function(err) err)
             close_multiprocess(works)
 
           } else {

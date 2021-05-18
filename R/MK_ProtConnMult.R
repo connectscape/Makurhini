@@ -63,7 +63,6 @@
 #' @importFrom ggplot2 ggplot geom_bar aes position_dodge labs rel theme_bw theme element_blank element_text scale_fill_manual geom_hline scale_linetype_manual guide_legend margin geom_errorbar
 #' @importFrom purrr compact map_df
 #' @importFrom ggpubr ggarrange
-#' @importFrom rlang .data
 #' @importFrom grDevices dev.off tiff
 MK_ProtConnMult <- function(nodes, regions,
                             area_unit = "m2",
@@ -113,7 +112,7 @@ MK_ProtConnMult <- function(nodes, regions,
     handlers(global = T)
     handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
                            incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusive = 2))
+                           intrusiveness = 2))
     pb <- progressor(along = loop)
     message("Step 1. ProtConn estimation")
   }
@@ -230,6 +229,7 @@ MK_ProtConnMult <- function(nodes, regions,
       return(protconn)}), error = function(err)err)
 
     if(inherits(protconn_result, "error")){
+      close_multiprocess(works)
       stop("Error, please review your input shapefiles")
     }
 
@@ -256,6 +256,7 @@ MK_ProtConnMult <- function(nodes, regions,
         return(x.1)}), error = function(err)err)
 
       if (inherits(Ecoreglist, "error")|inherits(ECAlist, "error")){
+        close_multiprocess(works)
         stop("Error in table construction")
       }
     } else {
@@ -274,6 +275,7 @@ MK_ProtConnMult <- function(nodes, regions,
       }), error = function(err)err)
 
       if (inherits(Ecoreglist, "error")|inherits(ECAlist, "error")){
+        close_multiprocess(works)
         stop("Error in table construction")
       } else {
         Ecoreglist <- list(Ecoreglist)

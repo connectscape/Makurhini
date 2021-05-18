@@ -37,49 +37,28 @@
 #' library(Makurhini)
 #' library(raster)
 #' data("Protected_areas", package = "Makurhini")
-#' #plot(Protected_areas, col="green")
-#'
 #' data("regions", package = "Makurhini")
 #' region <- regions[2,]
-#' plot(region, col="blue")
 #'
 #' test <- MK_ProtConn(nodes = Protected_areas, region = region,
 #'                     area_unit = "ha",
 #'                     distance = list(type= "centroid"),
 #'                     distance_thresholds = c(50000, 10000),
-#'                     probability = 0.5, transboundary = 500000,
+#'                     probability = 0.5, transboundary = 50000,
 #'                     LA = NULL, plot = TRUE, parallel = NULL,
 #'                     protconn_bound=TRUE,
 #'                     write = NULL, intern = TRUE)
 #' test
 #'
 #' #Least-cost distances
-#' HFP_Mexico <- raster(system.file("extdata", "HFP_Mexico.tif", package = "Makurhini", mustWork = TRUE))
+#' HFP_Mexico <- raster(system.file("extdata", "HFP_Mexico.tif",
+#'                     package = "Makurhini", mustWork = TRUE))
 #' mask_1 <- as(extent(Protected_areas), 'SpatialPolygons')
 #' crs(mask_1) <- crs(Protected_areas)
 #' mask_1 <- buffer(mask_1, 20000)
 #' HFP_Mexico <- crop(HFP_Mexico, mask_1)
-#'
-#' #Penalizing 100 times the distance of a pixel (1 km) is too much
-#' #so we will rescale the values from 1 to 10
 #' HFP_Mexico <- HFP_Mexico/10
-#'
-#' # we have values less than 1 and that could underestimate the least cost distance,
-#' # then we substitute the values less than 1 for 1
 #' HFP_Mexico[HFP_Mexico < 1] <- 1
-#' plot(HFP_Mexico)
-#'
-#' test <- MK_ProtConn(nodes = Protected_areas, region = region,
-#'                     area_unit = "ha",
-#'                     distance = list(type= "least-cost", resistance = HFP_Mexico),
-#'                     distance_thresholds = c(50000, 10000),
-#'                     probability = 0.5, transboundary = 50000,
-#'                     LA = NULL, plot = NULL,
-#'                     write = NULL, intern = FALSE)
-#' test$d50000
-#' test$d10000
-#' #Using java script
-#' #Transform resistance to integer
 #' HFP_Mexico <- round(HFP_Mexico)
 #'
 #' test2 <- MK_ProtConn(nodes = Protected_areas, region = region,
@@ -99,14 +78,11 @@
 #' @importFrom magrittr %>%
 #' @importFrom rmapshaper ms_dissolve ms_simplify
 #' @importFrom raster raster crop
-#' @importFrom fasterize fasterize
-#' @importFrom tibble as_tibble
 #' @importFrom purrr compact map
 #' @importFrom future plan multiprocess availableCores
 #' @importFrom furrr future_map
 #' @importFrom formattable formattable formatter style color_tile as.htmlwidget
 #' @importFrom methods as
-#' @importFrom rlang .data
 #' @importFrom progressr handlers handler_pbcol progressor
 #' @importFrom crayon bgWhite white bgCyan
 MK_ProtConn <- function(nodes,
@@ -126,6 +102,7 @@ MK_ProtConn <- function(nodes,
                         parallel = NULL,
                         intern = TRUE){
   options(warn = -1)
+  . = NULL
   err <- tryCatch(detach("package:plyr", unload = TRUE), error = function(err)err)
 
   if (missing(nodes)) {
@@ -234,7 +211,7 @@ MK_ProtConn <- function(nodes,
     handlers(global = T, append = TRUE)
     handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
                            incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusive = 2))
+                           intrusiveness = 2))
     if(length(base_param3[[2]]@transboundary)>1 | length(base_param3[[2]]@distance_threshold) > 1){
       message("Step 2. Processing ProtConn metric. Progress estimated:")
     } else {
@@ -568,14 +545,14 @@ MK_ProtConn <- function(nodes,
       works <- as.numeric(availableCores())-1
       works <-  if(parallel > works){works}else{parallel}
       plan(strategy = multiprocess, gc = TRUE, workers = works)
-      y <- future_map(xs, function(x){
+      y <- tryCatch(future_map(xs, function(x){
         x.1 <- ProtConn_Estimation(base_param3, n = base_param3[[2]]@transboundary[x],
                                    write = write)
         if (isTRUE(intern) & length(base_param3[[2]]@transboundary) > 1) {
           p()
         }
         return(x.1)
-      })
+      }), error = function(err) err)
       close_multiprocess(works)
     }
     return(y)

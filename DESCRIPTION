@@ -1,7 +1,7 @@
 Package: Makurhini
 Type: Package
 Title: Makurhini: Analyzing landscape connectivity
-Version: 2.0.2
+Version: 2.0.3
 Authors@R: c(person(given = "Oscar",
               family = "Godínez-Gómez",
               role = c("aut", "cre"),
@@ -27,46 +27,34 @@ URL: https://github.com/connectscape/Makurhini
 BugReports: https://github.com/connectscape/Makurhini/issues
 Suggests: 
     knitr,
-    rmarkdown,
-    deldir,
-    mapview,
-    tmap
+    rmarkdown
 VignetteBuilder: knitr
 Imports: 
-    sf (>= 0.9.6),
-    purrr (>= 0.3.4),
-    dplyr (>= 1.0.2),
-    raster (>= 3.3.13),
-    sp (>= 1.4.4),
-    rmapshaper (>= 0.4.4),
-    future (>= 1.19.1),
-    furrr (>= 0.2.0),
+    sf,
+    purrr,
+    raster,
+    rmapshaper,
+    future,
+    furrr,
     magrittr,
     gdistance (>= 1.3.6),
-    rgeos (>= 0.5.5),
+    rgeos,
     data.table,
-    formattable (>= 0.2.0.1),
-    ggplot2 (>= 3.3.2),
-    plyr (>= 1.8.6),
-    reshape2,
-    tibble (>= 2.1.3),
-    ggpubr (>= 0.4.0),
-    spex (>= 0.7.1),
-    stringr,
-    RSAGA (>= 1.3.0),
-    fasterize (>= 1.0.3),
+    formattable,
+    ggplot2,
+    ggpubr,
+    spex,
     boot,
-    dismo (>= 1.1.4),
-    tools (>= 4.0.2),
-    ps (>= 1.4.0),
-    rlang (>= 0.4.8),
+    tools,
+    ps,
+    rlang,
     graph4lg (>= 1.0.1),
-    parallel (>= 4.0.2),
+    parallel,
     crayon,
     progressr
 Depends: 
     methods,
     utils,
     stats,
-    R (>= 4.0.2),
-    igraph
+    R (>= 4.0.0),
+    igraph (>= 1.2.6)

@@ -9,9 +9,6 @@ st_centroid_within_poly(poly)
 \arguments{
 \item{poly}{object of class sf, sfc, sfg or SpatialPolygons}
 }
-\value{
-
-}
 \description{
 Polygon centroid
 }

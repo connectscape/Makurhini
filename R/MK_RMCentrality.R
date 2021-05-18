@@ -15,6 +15,7 @@
 #' @param rasterparallel logical. If nodes is "raster" then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.
 #' @param write character. Write output shapefile. It is necessary to specify the "Folder direction"
 #'  + "Initial prefix",  for example, "C:/ejemplo".
+#' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @details This function implements Patch-Scale Connectivity or Centrality Measures. Radial measures: degree, strength (using probability argument, for weighted graphs),
 #' eigenvector centrality (eigen), and closeness centrality (close). Medial measures: betweenness centrality (BWC),
 #' node memberships (cluster), and modularity (modules, using probability argument).
@@ -43,19 +44,17 @@
 #' @importFrom crayon bgWhite white bgCyan
 #' @importFrom magrittr %>%
 #' @importFrom sf write_sf st_as_sf
-#' @importFrom purrr map map_dbl
 #' @importFrom igraph graph.adjacency strength evcent closeness betweenness clusters cluster_louvain degree
 #' @importFrom raster as.matrix extent raster stack extent<- writeRaster reclassify crs crs<- unique
 #' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
-
 MK_RMCentrality <- function(nodes,
                             distance = list(type = "centroid"),
                             distance_thresholds = NULL,
                             binary = TRUE,
                             probability = NULL,
                             rasterparallel = FALSE,
-                            write = NULL){
+                            write = NULL, intern = TRUE){
   if (missing(nodes)) {
     stop("error missing file of nodes")
   } else {
@@ -110,17 +109,17 @@ MK_RMCentrality <- function(nodes,
 
   loop <- 1:length(distance_thresholds)
 
-  if(length(distance_thresholds)>1){
+  if(length(distance_thresholds)>1 & isTRUE(intern)){
     handlers(global = T)
     handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
                            incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusive = 2))
+                           intrusiveness = 2))
     pb <- progressor(along = loop)
   }
 
-  centrality_result <- map(loop, function(x){
+  centrality_result <- lapply(loop, function(x){
     x <- distance_thresholds[x]
-    if(length(distance_thresholds) > 1){
+    if(length(distance_thresholds) > 1 & isTRUE(intern)){
       pb()
     }
     nodes.2 <- nodes
@@ -225,21 +224,21 @@ MK_RMCentrality <- function(nodes,
 
         works <- as.numeric(availableCores())-1
         plan(strategy = multiprocess, gc = TRUE, workers = works)
-        r_metric <- future_map(2:ncol(metric_conn), function(c){
+        r_metric <- tryCatch(future_map(2:ncol(metric_conn), function(c){
           x1 <- metric_conn[, c(1, c)]
           for(i in rp){
             n <- x1[[which(x1[,1]== i), 2]] %>% as.character() %>% as.numeric()
             m[which(m == i),2] <- n
           }
           x1 <- reclassify(nodes, rcl = m)
-          return(x1)}, .progress = TRUE)
+          return(x1)}, .progress = TRUE), error = function(err) err)
         close_multiprocess(works)
 
       } else {
         m <- matrix(nrow = nrow(dist), ncol = 2)
         m[,1] <- rownames(dist) %>% as.numeric()
 
-        r_metric <- map(2:ncol(metric_conn), function(c){
+        r_metric <- lapply(2:ncol(metric_conn), function(c){
           x1 <- metric_conn[, c(1, c)]
           for(i in rp){
             n <- x1[[which(x1[,1]== i), 2]] %>% as.character() %>% as.numeric()
@@ -261,7 +260,7 @@ MK_RMCentrality <- function(nodes,
 
       if (!is.null(write)){
         n <- names(metric_conn)
-        n <- map(as.list(2:length(n)), function(w){
+        n <- lapply(as.list(2:length(n)), function(w){
           x1 <- nodes.2[[w]]
           crs(x1) <- crs(nodes.2)
           writeRaster(x1, filename = paste0(write, "_", n[w], "_",  x, ".tif"), overwrite = TRUE, options = c("COMPRESS=LZW", "TFW=YES"))

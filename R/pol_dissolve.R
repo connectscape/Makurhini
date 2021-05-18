@@ -5,6 +5,7 @@
 #' @importFrom sf st_as_sf st_cast st_union
 #' @importFrom methods as
 pol_dissolve<-function(polygone, attribute){
+  . = NULL
   if(class(polygone)[1]!="sf"){
     polygone <- st_as_sf(polygone)
     polygone$Atrib <- polygone[[attribute]]

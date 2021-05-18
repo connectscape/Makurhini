@@ -19,7 +19,8 @@ test_metric_distance(
   transboundary = NULL,
   area_unit = "ha",
   groups = 3,
-  write = NULL
+  write = NULL,
+  intern = TRUE
 )
 }
 \arguments{
@@ -59,6 +60,8 @@ compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".}
 \item{groups}{Selected representative threshold distances (distance just before the biggest changes in connectivity metric)}
 
 \item{write}{character. Folder path and prefix, for example: "C:/Folder/test".}
+
+\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 }
 \description{
 Test the ECA or ProtConn metrics using multiple dispersal distances
@@ -90,7 +93,7 @@ test_metric_distance(nodes = Protected_areas,
                      distance1 =list(type= "centroid"),
                      distance2 =list(type= "edge", keep = 0.05),
                      metric = "ProtConn", probability = 0.5,
-                     attribute = "Intersected area", area_unit = "ha",
+                     area_unit = "ha",
                      region = region, transboundary = 50000,
                      distance_thresholds = seq(10000,100000, 10000))
 }

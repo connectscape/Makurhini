@@ -16,6 +16,8 @@
 make_grid <- function(x, hexagonal = TRUE, cell_area,
                       clip = FALSE, tolerance = NULL, grid_boundary = FALSE) {
 
+  . = NULL
+
   if(isTRUE(clip) & isTRUE(grid_boundary)){
     stop("Select just one, clip or grid_boundary")
   }
@@ -65,8 +67,7 @@ make_grid <- function(x, hexagonal = TRUE, cell_area,
     g3 <- tryCatch(st_crop(g2, x) %>% ms_clip(., clip = x), error = function(err) err)
 
     if (inherits(g3, "error")) {
-      g3 <- tryCatch(st_intersection(g2, y = st_buffer(x, dist = 0)) %>%
-                       st_cast("POLYGON"), error = function(err) err)
+      g3 <- tryCatch(st_intersection(g2, y = st_buffer(x, dist = 0)), error = function(err) err)
 
       if (inherits(g3, "error")) {
         stop("clip error, check geometry errors")
@@ -76,16 +77,16 @@ make_grid <- function(x, hexagonal = TRUE, cell_area,
     g3$rmapshaperid <- NULL
 
   } else if (isTRUE(grid_boundary)){
-    a <- unique(format(round(as.numeric(st_area(g2)), 0), scientific = F))
+    a <- round(as.numeric(st_area(g2[1,])), 0)
 
-    g4 <- tryCatch(MK_selectbyloc(g2, x, selreg = "M2", transboundary = 0, area_unit = "m2"), error = function(err) err)
+    g4 <- tryCatch(st_intersection(g2, y = st_buffer(x, dist = 0)), error = function(err) err)
+    g4$Area2 <- round(as.numeric(st_area(g4)),0)
 
     if (inherits(g4, "error")) {
       stop("error MK_selectbyloc")
     }
+    g3 <- g4[which(g4$Area2 >= a),]
 
-    a2 <- format(round(g4$Area2,0), scientific = F)
-    g3 <- g2[which(a2 == a),]
   } else {
       g3 <- g2
     }

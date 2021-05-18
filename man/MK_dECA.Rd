@@ -15,7 +15,8 @@ MK_dECA(
   LA = NULL,
   plot = FALSE,
   parallel = NULL,
-  write = NULL
+  write = NULL,
+  intern = TRUE
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ time analyzed, e.g., c("2011", "2014", "2017")}
 Parallelize the function using furrr package and multiprocess plan.}
 
 \item{write}{character. Path and name of the output ".csv" file}
+
+\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 }
 \value{
 Table with:\cr
@@ -82,7 +85,8 @@ Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
 dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
                   distance = list(type= "centroid"), metric = "PC",
                   probability = 0.05, distance_thresholds = 5000,
-                  LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))
+                  LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"),
+                  intern = TRUE)
 dECA_test
 
 }

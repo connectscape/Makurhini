@@ -70,7 +70,7 @@
 #' @importFrom ggplot2 ggplot geom_bar aes geom_text theme element_blank element_text labs ggtitle scale_fill_manual element_line ggsave
 #' @importFrom utils write.csv
 #' @importFrom future multiprocess plan availableCores
-#' @importFrom furrr future_map future_map_dfr
+#' @importFrom furrr future_map
 
 
 MK_dECA <- function(nodes,
@@ -176,20 +176,28 @@ MK_dECA <- function(nodes,
     ECA <- tryCatch(lapply(loop, function(x){
       x <- listT[[x]]
       if(isTRUE(intern)){
-      pb()
-        }
+        pb()
+      }
 
-      ECA_metric <-  map_dfr(distance_thresholds, function(y) {
-        tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
-                          restoration = NULL,
-                          distance = distance, area_unit = area_unit,
-                          metric = metric, probability = probability,
-                          distance_thresholds = y,
-                          overall = TRUE, onlyoverall = TRUE,
-                          LA = LA, rasterparallel = FALSE, write = NULL)
-        tab1 <- tab1[2,2]
-        return(tab1)
-      })
+      if(nrow(x) < 2){
+        x.1 <- unit_convert(sum(gArea(x, byid = T)), "m2", area_unit)
+        ECA_metric <- map_dfr(distance_thresholds, function(y) {
+          tab1 <- if((100 * (x.1 / LA)) >= 100){100}else{100 * (x.1 / LA)}
+          tab1 <- data.frame(Value = tab1)
+          return(tab1)})
+      } else {
+        ECA_metric <- map_dfr(distance_thresholds, function(y) {
+          tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
+                            restoration = NULL,
+                            distance = distance, area_unit = area_unit,
+                            metric = metric, probability = probability,
+                            distance_thresholds = y,
+                            overall = TRUE, onlyoverall = TRUE,
+                            LA = LA, rasterparallel = FALSE, write = NULL)
+          tab1 <- tab1[2,2]
+          return(tab1)
+        })
+      }
 
       #ECA_metric2 <- do.call(rbind,  ECA_metric)
       ECA_metric2 <- cbind(ECA_metric, distance_thresholds)
@@ -207,17 +215,26 @@ MK_dECA <- function(nodes,
         pb()
       }
 
-      ECA_metric <-  future_map_dfr(distance_thresholds, function(y) {
-        tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
-                          restoration = NULL,
-                          distance = distance, area_unit = area_unit,
-                          metric = metric, probability = probability,
-                          distance_thresholds = y,
-                          overall = TRUE, onlyoverall = TRUE,
-                          LA = LA, rasterparallel = FALSE, write = NULL)
-        tab1 <- tab1[2,2]
-        return(tab1)
-      })
+      if(nrow(x) < 2){
+        x.1 <- unit_convert(sum(gArea(x, byid = T)), "m2", area_unit)
+        ECA_metric <- map_dfr(distance_thresholds, function(y) {
+          tab1 <- if((100 * (x.1 / LA)) >= 100){100}else{100 * (x.1 / LA)}
+          tab1 <- data.frame(Value = tab1)
+          return(tab1)})
+      } else {
+        ECA_metric <- map_dfr(distance_thresholds, function(y) {
+          tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
+                            restoration = NULL,
+                            distance = distance, area_unit = area_unit,
+                            metric = metric, probability = probability,
+                            distance_thresholds = y,
+                            overall = TRUE, onlyoverall = TRUE,
+                            LA = LA, rasterparallel = FALSE, write = NULL)
+          tab1 <- tab1[2,2]
+          return(tab1)
+        })
+      }
+
       ECA_metric2 <- cbind(ECA_metric, distance_thresholds)
       ECA_metric2 <- as.data.frame(ECA_metric2)
       names(ECA_metric2) <- c("ECA", "Distance")
@@ -229,7 +246,6 @@ MK_dECA <- function(nodes,
   if(inherits(ECA, "error")){
     stop("review ECA parameters: nodes, distance file or LA")
   } else {
-
     ECA2 <- lapply(distance_thresholds, function(x){
       Tab_ECA <- map_dfr(ECA, function(y){ y[which(y$Distance == x),] })
       Tab_ECA <- cbind(DECA, Tab_ECA)
@@ -292,7 +308,6 @@ MK_dECA <- function(nodes,
                                  `dECA` = formatter("span",style = ~ style(color = ifelse(`dECA` > 0, "green", "red")))))
       return(DECA.4)
     })
-
     #
     if (!is.null(write)){
       write.csv(do.call(rbind, ECA3), write, row.names = FALSE)

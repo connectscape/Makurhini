@@ -103,8 +103,6 @@ MK_ProtConn <- function(nodes,
                         intern = TRUE){
   options(warn = -1)
   . = NULL
-  err <- tryCatch(detach("package:plyr", unload = TRUE), error = function(err)err)
-
   if (missing(nodes)) {
     stop("error missing file of nodes")
   } else {

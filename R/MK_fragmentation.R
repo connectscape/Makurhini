@@ -43,12 +43,12 @@
 #' @importFrom magrittr %>%
 #' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_length st_boundary st_geometry st_geometry<- write_sf st_is_empty
 #' @importFrom raster plot
-#' @importFrom graphics par plot axis box lines legend grid
-#' @importFrom grDevices dev.off tiff
-#' @importFrom ggplot2 ggplot aes geom_histogram theme element_blank element_text labs ggsave
+#' @importFrom ggplot2 ggplot aes geom_histogram theme element_blank element_text labs ggsave geom_sf theme_bw scale_fill_manual
 #' @importFrom formattable formattable formatter style
 #' @importFrom ggpubr ggarrange
-MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100, landscape_area = NULL, area_unit = "km2", perimeter_unit = "km", plot = FALSE, write = NULL){
+MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
+                             landscape_area = NULL, area_unit = "km2", perimeter_unit = "km",
+                             plot = FALSE, write = NULL){
   if (missing(patches)) {
     stop("error missing shapefile file of patches")
     } else {
@@ -67,53 +67,50 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
     patches <- st_as_sf(patches) %>% st_cast("POLYGON")
   }
 
+  colors <- c("Core" = "#1a9641", "Edge" = "Red")
   vcol <- c("#440154FF", "#482878FF", "#3E4A89FF", "#31688EFF", "#26828EFF", "#1F9E89FF", "#35B779FF", "#6DCD59FF", "#B4DE2CFF", "#FDE725FF")
 
   patches$IdTemp <- 1:nrow(patches)
 
-  data <- patches[,which(colnames(patches) == "IdTemp")]
-  st_geometry(data) <- NULL
-
   ###Patch metrics
   CoreA <- st_buffer(patches, dist = -(edge_distance))
-  data <- cbind(data, data.frame(Area = cbind(round(unit_convert(st_area(patches, byid = T), "m2", area_unit), 3)),
-              CA = cbind(round(unit_convert(st_area(CoreA), "m2", area_unit), 3))))
-  data$CAPercent <- round((data$CA * 100) / data$Area, 3)
+  data <- data.frame(IdTemp = patches$IdTemp,
+                     Area = cbind(round(unit_convert(st_area(patches, byid = T), "m2", area_unit), 4)),
+                     CA = cbind(round(unit_convert(st_area(CoreA), "m2", area_unit), 4)))
+  data$CAPercent <- round((data$CA * 100) / data$Area, 4)
   data$Perimeter <- round(unit_convert(st_length(st_boundary(patches)), "m", perimeter_unit), 3) %>% as.numeric()
-  data$EdgePercent <- round((100 - data$CAPercent), 3)
-  data$PARA <- round(data$Area / data$Perimeter, 3)
-  data$ShapeIndex <- round((data$Perimeter / (2 * pi * sqrt(data$Area/pi))), 3)
-  data$FRAC <- round((2 * (log(0.25 * data$Perimeter))) / log(data$Area), 3)
+  data$EdgePercent <- round((100 - data$CAPercent), 4)
+  data$PARA <- round(data$Area / data$Perimeter, 4)
+  data$ShapeIndex <- round(( (data$Perimeter / (2 * pi)) * sqrt(data$Area/pi) ), 4)
+  data$FRAC <- round((2 * (log(0.25 * data$Perimeter)) ) / log(data$Area), 4)
   patches <- base::merge(patches, data, by = "IdTemp", all = T)
   patches$IdTemp <- NULL
 
   ###Landscape metrics
-  LM <- data.frame(a = round(sum(data$Area), 3),
+  LM <- data.frame(a = round(sum(data$Area, na.rm = TRUE), 4),
                  b = nrow(data),
-                 c = round(mean.default(data$Area), 3),
+                 c = round(mean.default(data$Area, na.rm = TRUE), 4),
                  d = length(which(data$Area < min_patch_area)),
-                 e = round(sum(data[which(data$Area < min_patch_area),]$Area) * 100 / sum(data$Area), 3),
-                 f = round(sum(data$Perimeter), 3),
-                 g = round(sum(data$Perimeter) / sum(data$Area), 3),
-                 h = round(sum(data$CA), 3),
-                 i = round((nrow(data) - sum(data$CA == 0, na.rm = TRUE)) /
-                                  (sum(data$CA > 0, na.rm = TRUE) +
-                                     sum(data$CA == 0, na.rm = TRUE)), 3),
-                 j = round(mean(data$ShapeIndex), 3),
-                 k = round(mean(data$FRAC), 3))
+                 e = round(sum(data[which(data$Area < min_patch_area),]$Area, na.rm = TRUE) * 100 / sum(data$Area, na.rm = TRUE), 4),
+                 f = round(sum(data$Perimeter, na.rm = TRUE), 4),
+                 g = round(sum(data$Perimeter, na.rm = TRUE) / sum(data$Area, na.rm = TRUE), 4),
+                 h = round(sum(data$CA, na.rm = TRUE), 4),
+                 i = round((nrow(data) - length(which(data$CA == 0))) / nrow(data), 4),
+                 j = round(mean(data$ShapeIndex, na.rm = TRUE), 4),
+                 k = round(mean(data$FRAC, na.rm = TRUE), 4))
 
-  LM_names <- c("Patch area (km2)", "Number of patches", "Size (mean)",
-                   "Patches < minimum patch area", "Patches < minimum patch area (%)",
-                   "Total edge", "Edge density",
-                   "Total Core Area (km2)", "Cority",
-                   "Shape Index (mean)",
-                   "FRAC (mean)", "MESH (km2)")
+  LM_names <- c(paste0("Patch area (", area_unit, ")"), "Number of patches", "Size (mean)",
+                "Patches < minimum patch area", "Patches < minimum patch area (%)",
+                "Total edge", "Edge density",
+                paste0("Total Core Area (", area_unit, ")"), "Cority",
+                "Shape Index (mean)",
+                "FRAC (mean)", paste0("MESH (", area_unit, ")"))
 
   if (is.null(landscape_area)){
     Mesh <- data.frame(Mesh = round((1 / LM[1]) * sum(data$Area^2), 3))
-    } else {
-      Mesh <- data.frame(Mesh = round((1/landscape_area) * sum(data$Area^2), 3))
-      }
+  } else {
+    Mesh <- data.frame(Mesh = round((1/landscape_area) * sum(data$Area^2), 3))
+  }
 
   LM <- t(cbind(LM, Mesh)) %>% as.data.frame()
   LM$Metric <- LM_names
@@ -122,17 +119,16 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
   LM[1] <- NULL
 
   #Plot
-  if(!is.null(write)) {
+  if(!is.null(write) & isTRUE(plot)) {
     par(mfrow = c(1,1))
-    tiff(paste0(write, '_fragmentacion.tif'), width = 1178, height = 882)
-    raster::plot(as(patches, "Spatial"), col = "red")
-    raster::plot(as(CoreA[which(!st_is_empty(CoreA)),], "Spatial"), col = "#1a9641", add = T)
-    axis(1)
-    axis(2)
-    box()
-    grid()
-    legend("topleft",legend = c("Core Area", "Edge"), fill = c("#1a9641", "red"), cex = 2)
-    dev.off()
+    p0 <- ggplot(data = patches) +
+      geom_sf(colour = "Red", aes(fill = "Edge"))+
+      geom_sf(data = CoreA[which(!st_is_empty(CoreA)),], colour = "#1a9641", aes(fill = "Core"))+
+      scale_fill_manual(name = "Legend", values = colors)+
+      theme_bw(base_size = 22)
+
+    ggsave(paste0(write, '_CoreEdge.tif'), plot = p0, device = "tiff", width = 15,
+           height = 11, compression = "lzw")
 
     p1 <- ggplot(data, aes(x = log10(data$Area))) +
       geom_histogram(color = "black", fill = vcol, bins = 10,
@@ -170,14 +166,19 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
       axis.title.y = element_text(size = 20)) +
       theme(text = element_text(size = 20),
             axis.text.x = element_text(hjust = 1))
-    ggarrange(p1, p2, p3, p4)
-    ggsave(paste0(write, '_fragStats.tif'), device = "tiff", width = 15,
+    p5 <- suppressWarnings(ggarrange(p1, p2, p3, p4))
+    ggsave(paste0(write, '_fragStats.tif'),  plot = p5, device = "tiff", width = 15,
            height = 11, compression = "lzw")
-
     }
 
   if (isTRUE(plot)) {
-      p1 <- ggplot(data, aes(x = log10(data$Area))) +
+    p0 <- ggplot(data = patches) +
+      geom_sf(colour = "Red", aes(fill = "Edge"))+
+      geom_sf(data = CoreA[which(!st_is_empty(CoreA)),], colour = "#1a9641", aes(fill = "Core"))+
+      scale_fill_manual(name = "Legend", values = colors)+
+      theme_bw()
+
+    p1 <- ggplot(data, aes(x = log10(data$Area))) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T) +
         labs(x = "log10 (km2)", y = "Frequency", title = "Size") +
@@ -206,7 +207,7 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
               axis.title.x = element_text(size = 14),
               axis.title.y = element_text(size = 14))
 
-      p5 <- ggarrange(p1, p2, p3, p4)
+      p5 <- suppressWarnings(ggarrange(p1, p2, p3, p4))
 
     }
 
@@ -228,6 +229,7 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
                            style = ~ style(color = "grey", font.weight = "bold"))))
 
   if (isTRUE(plot)){
+    base::print(p0)
     base::print(p5)
     return(list("Summary landscape metrics (Viewer Panel)" = LM,
                 "Patch statistics shapefile" = patches))

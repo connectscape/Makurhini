@@ -9,7 +9,9 @@ dECAfun<-function(dECA, dA) {
       TC <- "dA < dECA < 0"
       } else if (dECA == dA & dA < 0) {
         TC <- "dECA = dA < 0"
-        } else {
+        } else if (dECA == dA & dA == 0) {
+          TC <- "dECA = dA = 0"
+          }else {
           TC <- "dECA or dA gain"
         }
   return(TC)
@@ -26,6 +28,8 @@ dECAfun2<-function(dECA, dA) {
     TC <- "+ Habitat loss"
   } else if (dECA == dA & dA < 0) {
     TC <- "Equal loss"
+  } else if (dECA == dA & dA == 0) {
+    TC <- "Habitat or connectivity maintained"
   } else {
     TC <- "Habitat or connectivity gain"
     }

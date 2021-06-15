@@ -20,7 +20,8 @@ MK_dECA(
 )
 }
 \arguments{
-\item{nodes}{list of objects of class sf, SpatialPolygonsDataFrame or raster. Nodes of each time to analyze.}
+\item{nodes}{list of objects class sf, SpatialPolygonsDataFrame or raster. Nodes of each time to analyze.
+The shapefiles must be in a projected coordinate system.}
 
 \item{attribute}{character or vector. If nodes is a shappefile then you must specify the column name
 with the attribute in the data table selected for the nodes. If nodes is a raster layer then it must be

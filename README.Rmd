@@ -110,7 +110,9 @@ Example in the Biosphere Reserve Mariposa Monarca, Mexico, with old-growth veget
 
 ```{r polygons}
 data("list_forest_patches", package = "Makurhini")
+class(list_forest_patches)
 data("study_area", package = "Makurhini")
+class(study_area)
 
 Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
 ```
@@ -148,6 +150,7 @@ Example with 142 old-growth vegetation fragments in southeast Mexico (?vegetatio
 ```{r }
 data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) # Number of patches
+class(vegetation_patches)
 
 IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
                 distance = list(type = "centroid"),

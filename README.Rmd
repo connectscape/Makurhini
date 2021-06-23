@@ -3,6 +3,9 @@ output: github_document
 ---
 
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/OscarGOGO/Makurhini?branch=master&svg=true)](https://ci.appveyor.com/project/OscarGOGO/Makurhini)
+ <!-- badges: start -->
+  [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+  <!-- badges: end -->
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -97,6 +100,7 @@ test_protconn <- MK_ProtConnMult(nodes = Protected_areas, region = ecoregions,
 test_protconn[[1]][[1]]
 ```
 
+
 ![](man/figures/table_protconn.png)
 
 
@@ -108,11 +112,13 @@ ProtConn value:
 
 Example in the Biosphere Reserve Mariposa Monarca, Mexico, with old-growth vegetation fragments of four times (?list_forest_patches).
 
-```{r polygons}
+```{r eval=FALSE}
 data("list_forest_patches", package = "Makurhini")
 class(list_forest_patches)
+#[1] "list"
 data("study_area", package = "Makurhini")
-class(study_area)
+class(study_area)[1]
+#[1] "SpatialPolygonsDataFrame"
 
 Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
 ```
@@ -150,7 +156,8 @@ Example with 142 old-growth vegetation fragments in southeast Mexico (?vegetatio
 ```{r }
 data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) # Number of patches
-class(vegetation_patches)
+class(vegetation_patches)[1]
+#[1] "sf"
 
 IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
                 distance = list(type = "centroid"),

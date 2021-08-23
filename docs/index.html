@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Makurhini: Analyzing landscape connectivity">
-<meta property="og:description" content="Makurhini (connect in Purépecha language) provides functions designed to estimate 
+<meta property="og:description" content="Makurhini (connect in Purépecha language) provides functions designed to estimate
     landscape fragmentation and connectivity metrics and includes the ProtConn indicator that is
     used to report international connectivity targets.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -42,7 +42,7 @@
 <li>
   <a href="index.html">
     <span class="fas fa fas fa-home fa-lg"></span>
-     
+
   </a>
 </li>
 <li>
@@ -51,7 +51,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -68,7 +68,7 @@
 <li>
   <a href="https://github.com/connectscape/Makurhini/">
     <span class="fab fa fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -79,7 +79,7 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="contents col-md-9">
@@ -221,304 +221,14 @@
 <p>In the following example, we will calculate the connectivity of the protected areas network in four ecoregions of the Colombian Amazon  neighboring countries using the ProtConn indicator and its fractions.  We considered a transboundary distance of 50 km..</p>
 <p><img src="reference/figures/Example_PA_Eco.png"></p>
 <div class="sourceCode" id="cb2"><pre class="r"><span class="no">test_protconn</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/MK_ProtConnMult.html">MK_ProtConnMult</a></span>(<span class="kw">nodes</span> <span class="kw">=</span> <span class="no">Protected_areas</span>, <span class="kw">region</span> <span class="kw">=</span> <span class="no">ecoregions</span>,
-                    <span class="kw">attribute</span> <span class="kw">=</span> <span class="st">"Intersected area"</span>, <span class="kw">area_unit</span> <span class="kw">=</span> <span class="st">"ha"</span>,
+                    <span class="kw">area_unit</span> <span class="kw">=</span> <span class="st">"ha"</span>,
                     <span class="kw">distance</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">type</span><span class="kw">=</span> <span class="st">"centroid"</span>),
                     <span class="kw">distance_thresholds</span> <span class="kw">=</span> <span class="fl">10000</span>,
                     <span class="kw">probability</span> <span class="kw">=</span> <span class="fl">0.5</span>, <span class="kw">transboundary</span> <span class="kw">=</span> <span class="fl">50000</span>,
-                    <span class="kw">plot</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">CI</span> <span class="kw">=</span> <span class="kw">NULL</span>, <span class="kw">parallel</span> <span class="kw">=</span> <span class="fl">6</span>, <span class="kw">intern</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
+                    <span class="kw">plot</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">CI</span> <span class="kw">=</span> <span class="kw">NULL</span>, <span class="kw">parallel</span> <span class="kw">=</span> <span class="fl">NULL</span>, <span class="kw">intern</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
 <span class="no">test_protconn</span><span class="kw">[[</span><span class="fl">1</span>]]<span class="kw">[[</span><span class="fl">1</span>]]</pre></div>
-<table class="table table table-condensed">
-<thead><tr>
-<th style="text-align:left;">
-</th>
-<th style="text-align:left;">
-<p>ProtConn indicator</p>
-</th>
-<th style="text-align:right;">
-<p>Values(%)</p>
-</th>
-<th style="text-align:right;">
-<p>SD</p>
-</th>
-<th style="text-align:right;">
-<p>SEM</p>
-</th>
-</tr></thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<p>3</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">Unprotected </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f99e3b">82.720</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #eab9d4">10.256</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f5e0eb">4.587</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>4</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">Prot </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdead6">17.280</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #eab9d4">10.256</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f5e0eb">4.587</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>5</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtConn </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #feefe0">13.027</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ecc0d8">9.205</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e3ed">4.117</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>6</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtUnconn </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefaf4">4.253</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f4ddea">4.955</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf0f5">2.216</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>7</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">RelConn </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f9a345">78.609</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ce5d9b">24.007</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e9b6d2">10.736</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>8</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtConn_design </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefbf6">3.432</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f5deea">4.829</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf0f6">2.160</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>9</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtConn_Bound </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #feeede">13.848</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ecc1d9">9.061</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e3ee">4.052</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>10</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtConn_Prot </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88b13">99.916</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfe">0.189</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.084</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>11</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtConn_Trans </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>12</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtConn_Unprot </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.084</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfe">0.189</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.084</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>13</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtConn_Within </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88c16">98.292</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6ef">3.688</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fbf3f8">1.649</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>14</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtConn_Contig </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfa">1.708</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6ef">3.688</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fbf3f8">1.649</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>15</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtConn_Within_land</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdeedd">14.371</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #eec9dd">7.953</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6f0">3.557</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>16</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtConn_Contig_land</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.219</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefbfd">0.463</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfe">0.207</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>17</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtConn_Unprot_land</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.006</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.014</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.006</span></p>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<p>18</p>
-</td>
-<td style="text-align:left;">
-<p><span style="color: #636363; font-weight: bold">ProtConn_Trans_land </span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span></p>
-</td>
-<td style="text-align:right;">
-<p><span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span></p>
-</td>
-</tr>
-</tbody>
-</table>
+<p><img src="reference/figures/table_protconn.png"></p>
+
 <p><img src="reference/figures/protconn.png"></p>
 </div>
 <div id="equivalent-connectivity-area-eca" class="section level3">
@@ -527,6 +237,7 @@
 <p>Example in the Biosphere Reserve Mariposa Monarca, Mexico, with old-growth vegetation fragments of four times (?list_forest_patches).</p>
 <div class="sourceCode" id="cb3"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"list_forest_patches"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"Makurhini"</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"study_area"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"Makurhini"</span>)
+
 
 <span class="no">Max_attribute</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/unit_convert.html">unit_convert</a></span>(<span class="fu">gArea</span>(<span class="no">study_area</span>), <span class="st">"m2"</span>, <span class="st">"ha"</span>)</pre></div>
 <div class="sourceCode" id="cb4"><pre class="r"><span class="no">dECA_test</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/MK_dECA.html">MK_dECA</a></span>(<span class="kw">nodes</span><span class="kw">=</span> <span class="no">list_forest_patches</span>, <span class="kw">attribute</span> <span class="kw">=</span> <span class="kw">NULL</span>, <span class="kw">area_unit</span> <span class="kw">=</span> <span class="st">"ha"</span>,
@@ -836,7 +547,7 @@ Habitat or connectivity gain
       </footer>
 </div>
 
-  
+
 
 
   </body>

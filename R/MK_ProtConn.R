@@ -206,11 +206,11 @@ MK_ProtConn <- function(nodes,
   base_param3 <- list(base_param1, base_param2, nodes.1, resist, LA)
 
   if (isTRUE(intern)){
-    handlers(global = T, append = TRUE)
-    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
-                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusiveness = 2))
     if(length(base_param3[[2]]@transboundary)>1 | length(base_param3[[2]]@distance_threshold) > 1){
+      handlers(global = TRUE, append = TRUE)
+      handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
+                             incomplete = function(s) crayon::bgWhite(crayon::black(s)),
+                             intrusiveness = 2))
       message("Step 2. Processing ProtConn metric. Progress estimated:")
     } else {
       message("Step 2. Processing ProtConn metric")
@@ -244,7 +244,7 @@ MK_ProtConn <- function(nodes,
         stop("error distance. Check topology errors or resistance raster")
       }
 
-      if (isTRUE(intern) & length(base_param3[[2]]@transboundary) == 1 &
+      if(isTRUE(intern) & length(base_param3[[2]]@transboundary) == 1 &
           length(base_param3[[2]]@distance_threshold ) > 1) {
         p <- progressor(along = 1:length(base_param3[[2]]@distance_threshold))
       }

@@ -224,9 +224,11 @@ MK_dECA_grid <- function(nodes,
       }
       return(x)
     })
+    x=8
     result_1 <- map_dfr(loop, function(x){
       if (isTRUE(intern)) {
-        pb()
+        #pb()
+        print(x)
       }
 
       x.1 <- base_grid@grid[x,]
@@ -239,7 +241,8 @@ MK_dECA_grid <- function(nodes,
 
       LA <- st_area(x.1)
       LA <- unit_convert(LA, "m2", area_unit)
-
+i=nodes[[1]]
+i = st_buffer(i, 0)
       nodes.1 <- lapply(nodes, function(i){
         i.1 <- suppressWarnings(st_intersection(i, x.1))
         if(nrow(i.1) > 0){

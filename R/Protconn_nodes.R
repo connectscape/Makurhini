@@ -43,7 +43,12 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
 
       f1 <- st_intersection(y.1, x.1)
       f1 <- f1[!st_is_empty(f1), ]
-      f2 <- ms_dissolve(st_geometry(f1)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf()
+      f2 <- tryCatch(ms_dissolve(st_geometry(f1)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf(), error = function(err)err)
+
+      if(inherits(f2, "error")){
+        f1 <- st_buffer(f1, 0)
+        f2 <- ms_dissolve(st_geometry(f1)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf()
+      }
 
       if(isTRUE(protconn)){
         if(nrow(f2) > 1){
@@ -71,7 +76,14 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
           f5 <- f5[!st_is_empty(f5), ]
 
           if(nrow(f5)>=1){
-            f5 <- ms_dissolve(st_geometry(f5)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf()
+            f5 <- tryCatch(ms_dissolve(st_geometry(f5)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf(), error = function(err)err)
+
+            if(inherits(f5, "error")){
+              f5 <- st_buffer(f5, 0)
+              f5 <- tryCatch(ms_dissolve(st_geometry(f5)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf(), error = function(err)err)
+            }
+
+
             f5$attribute <- 0
             f5$type <- "Transboundary"
 

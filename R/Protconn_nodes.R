@@ -9,15 +9,17 @@
 #' @param protconn logical. If FALSE then only PC and EC
 #' @param protconn_bound logical
 #' @param delta logical
-#' @export
-#' @importFrom sf st_sf st_cast st_buffer st_difference st_area st_geometry st_intersection
+#' @importFrom sf st_as_sf st_buffer st_difference st_area st_geometry
 #' @importFrom magrittr %>%
+#' @importFrom terra vect intersect na.omit aggregate buffer disaggregate
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_explode
+#' @keywords internal
 Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALSE,
                            metrunit = "ha", protconn = TRUE, protconn_bound = FALSE,
                            delta = FALSE){
   options(warn = -1)
   . = NULL
+
   if(nrow(y) > 0){
     if(isTRUE(xsimplify)){
       x.0 <- rmapshaper::ms_simplify(x, keep = 0.1,  method = "vis",
@@ -36,18 +38,18 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
     y.1 <- st_buffer(y.1, 0)
 
     if(nrow(y.1) > 1){
-      if(isTRUE(xsimplify)){
-        x.0 <- ms_explode(x)
-        x.1 <- x
-      }
+      f1 <- terra::intersect(vect(y.1), vect(x.1))
+      f1 <- terra::na.omit(f1, geom = TRUE)
 
-      f1 <- st_intersection(y.1, x.1)
-      f1 <- f1[!st_is_empty(f1), ]
-      f2 <- tryCatch(ms_dissolve(st_geometry(f1)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf(), error = function(err)err)
+      f2 <- tryCatch(terra::aggregate(f1) %>% terra::buffer(., 0) %>%
+                    terra::disaggregate(.) %>%
+                    st_as_sf(), error = function(err)err)
 
       if(inherits(f2, "error")){
-        f1 <- st_buffer(f1, 0)
-        f2 <- ms_dissolve(st_geometry(f1)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf()
+        f1 <- terra::buffer(f1, 0)
+        f2 <- tryCatch(terra::aggregate(f1) %>% terra::buffer(., 0) %>%
+                         terra::disaggregate(.) %>%
+                         st_as_sf(), error = function(err)err)
       }
 
       if(isTRUE(protconn)){
@@ -59,41 +61,50 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
           #Transboundary
           y.2 <- y[which(y$PROTIDT %!in% y.1$PROTIDT),]
 
-          f3 <- st_difference(y.1, x.1)
+          if(nrow(y.2) > 0){
+            f3 <- st_difference(y.1, x.1)
 
-          #Dos metodos
-          if(method == "nodes"){
-            mask1 <- rmapshaper::ms_simplify(y.1, method = "vis", keep_shapes = TRUE)%>%
-              st_buffer(., buff)
+            #Dos metodos
+            if(method == "nodes"){
+              mask1 <- rmapshaper::ms_simplify(y.1, method = "vis", keep_shapes = TRUE)%>%
+                st_buffer(., buff)
 
-          } else {
-            mask1 <- rmapshaper::ms_simplify(x.1, method = "vis", keep_shapes = TRUE)%>%
-              st_buffer(., buff)
-          }
-
-          f4 <- over_poly(y.2, mask1, geometry = TRUE) %>% st_intersection(., mask1)#
-          f5 <- rbind(f3[,"geometry"], f4[,"geometry"])
-          f5 <- f5[!st_is_empty(f5), ]
-
-          if(nrow(f5)>=1){
-            f5 <- tryCatch(ms_dissolve(st_geometry(f5)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf(), error = function(err)err)
-
-            if(inherits(f5, "error")){
-              f5 <- st_buffer(f5, 0)
-              f5 <- tryCatch(ms_dissolve(st_geometry(f5)) %>% st_buffer(., 0) %>% ms_explode() %>% st_sf(), error = function(err)err)
+            } else {
+              mask1 <- rmapshaper::ms_simplify(x.1, method = "vis", keep_shapes = TRUE)%>%
+                st_buffer(., buff)
             }
 
+            f4 <- over_poly(y.2, mask1, geometry = TRUE)
+            f4 <- terra::intersect(vect(f4), vect(mask1))
+            f4 <- st_as_sf(f4)
+            f5 <- rbind(f3[,"geometry"], f4[,"geometry"])
+            f5 <- f5[!st_is_empty(f5), ]
 
-            f5$attribute <- 0
-            f5$type <- "Transboundary"
+            if(nrow(f5) >= 1){
+              f5 <- tryCatch(terra::aggregate(vect(f5)) %>% terra::buffer(., 0) %>%
+                               terra::disaggregate(.) %>%
+                               st_as_sf(), error = function(err)err)
 
-            if(isTRUE(protconn_bound)){
-              x.0 <- x.0[,"geometry"]
-              x.0$type <- "Region"
-              x.0$attribute <- 0
-              f6 <- rbind(f2, f5, x.0)
+              if(inherits(f5, "error")){
+                f5 <- terra::buffer(vect(f5), 0)
+                f5 <- tryCatch(terra::aggregate(f5) %>% terra::buffer(., 0) %>%
+                                 terra::disaggregate(.) %>%
+                                 st_as_sf(), error = function(err)err)
+              }
+
+              f5$attribute <- 0
+              f5$type <- "Transboundary"
+
+              if(isTRUE(protconn_bound)){
+                x.0 <- x.0[,"geometry"]
+                x.0$type <- "Region"
+                x.0$attribute <- 0
+                f6 <- rbind(f2, f5, x.0)
+              } else {
+                f6 <- rbind(f2, f5)
+              }
             } else {
-              f6 <- rbind(f2, f5)
+              f6 <- f2
             }
           } else {
             f6 <- f2
@@ -104,12 +115,13 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
           f6 <- f6[,c("OBJECTID", "type", "attribute")]
 
           #N2
-          f1b <- f1 %>% ms_explode(f1)
+          f1b <- terra::disaggregate(f1) %>% st_as_sf()
           f1b$attribute <- as.numeric(st_area(f1b)) %>% unit_convert(., "m2", metrunit)
           f7 <- f1b[,c("attribute")]
           st_geometry(f7) <- NULL
 
           if(isTRUE(delta)){
+            f1 <- st_as_sf(f1)
             f1$attribute <- as.numeric(st_area(f1)) %>% unit_convert(., "m2", metrunit)
             f1$PROTIDT <- NULL
             f8 <- list(nodes_diss = f6, nodes_nondiss = f7, delta = f1)
@@ -144,8 +156,10 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
         }
       }
     } else if (nrow(y.1) == 1){
-      f1 <- st_intersection(y.1, x.1)
-      a1 <- f1 %>% st_area(.) %>% as.numeric(.)
+      f1 <- terra::intersect(vect(y.1), vect(x.1))
+      f1 <- terra::na.omit(f1, geom = TRUE)
+      f1 <- st_as_sf(f1)
+      a1 <- st_area(f1) %>% as.numeric(.)
       a2 <- st_area(x.1) %>% as.numeric(.)
       if(a1 >= a2){
         f8 <- unit_convert(a2, "m2", metrunit)

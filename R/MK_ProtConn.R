@@ -74,9 +74,8 @@
 #' test2$d10000
 #'
 #' }
-#' @importFrom sf st_as_sf st_zm st_simplify st_buffer write_sf st_intersection st_difference st_area
+#' @importFrom sf st_buffer write_sf st_area
 #' @importFrom magrittr %>%
-#' @importFrom rmapshaper ms_dissolve ms_simplify
 #' @importFrom raster raster crop
 #' @importFrom purrr compact map
 #' @importFrom future plan multiprocess availableCores

@@ -14,3 +14,4 @@ dECAfun2(dECA, dA)
 \description{
 Function to contrast differences of dA and dECA
 }
+\keyword{internal}

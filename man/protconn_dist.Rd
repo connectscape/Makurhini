@@ -23,3 +23,4 @@ cost by the resolution of the raster}
 \description{
 Estimates nodes distances to ProtConn
 }
+\keyword{internal}

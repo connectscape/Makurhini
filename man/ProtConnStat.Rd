@@ -19,3 +19,4 @@ Multiple ProtConn statistic
 \references{
 Carpenter, J., & Bithell, J. (2000). Bootstrap con " dence intervals : when , which , what ? A practical guide for medical statisticians. Statist. Med., 19, 1141–1164.
 }
+\keyword{internal}

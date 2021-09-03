@@ -13,14 +13,13 @@
 #' @param write_table character. "" indicates output to the console.
 #' @return Pairwise Euclidean distance table
 #' @references Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitized Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
-#' @export
 #' @importFrom rgeos gCentroid gDistance
 #' @importFrom rmapshaper ms_simplify
 #' @importFrom methods as
 #' @importFrom utils combn write.table
 #' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
-
+#' @export
 euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
                                 keep = NULL, threshold = NULL, edgeParallel = FALSE,
                                 pairwise = TRUE, write_table = NULL){

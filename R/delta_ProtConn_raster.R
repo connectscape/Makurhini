@@ -11,7 +11,7 @@
 #' @importFrom igraph graph.adjacency shortest.paths E
 #' @importFrom purrr map_df
 #' @importFrom raster beginCluster endCluster clusterR reclassify rasterTmpFile values
-
+#' @keywords internal
 delta_ProtConn_raster <- function(x = NULL, y=NULL, distance_thresholds = NULL,
                                   probability = 0.5, LA = NULL,
                                   distance = NULL, resist = NULL,

@@ -33,3 +33,4 @@ delta_ProtConn_raster(
 \description{
 Estimate the contribution of each node to the ProtConn value in the region.
 }
+\keyword{internal}

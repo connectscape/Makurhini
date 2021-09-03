@@ -16,7 +16,7 @@ MK_Fragmentation(
 )
 }
 \arguments{
-\item{patches}{Object of class sf, sfc, sfg or SpatialPolygons with individual patches. The shapefile must be in a projected coordinate system.}
+\item{patches}{Object of class sf, sfc, sfg or SpatialPolygons. Individual patches, the shapefile must be in a projected coordinate system.}
 
 \item{edge_distance}{Numeric. Distance to edge in meters. Default equal 500 m (Haddad et al. 2015)}
 
@@ -30,7 +30,8 @@ MK_Fragmentation(
 
 \item{plot}{Logical. Basic histograms and core area - edge map.}
 
-\item{write}{Character. Write the following outputs: Fragmentation.csv, Fragmentation.shp and plots. It's necessary to specify the path and prefix, for example: "C:/Folder/Fragmentation".}
+\item{write}{Character. Write the tables, shapefile and and plots. It's necessary to specify the path and prefix, for example,
+to save in the path "C:/Folder" with the prefix "Fragmentation": "C:/Folder/Fragmentation".}
 }
 \value{
 Patch and landscape statistics:\cr
@@ -57,7 +58,6 @@ Calculate patch and landscape statistics
 data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) # Number of patches
 fragmentation <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 1000, plot = TRUE)
-
 #Table
 fragmentation$`Summary landscape metrics (Viewer Panel)`
 #Shapefile

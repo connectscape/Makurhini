@@ -14,3 +14,4 @@ div(a, b)
 \description{
 Divide two numbers
 }
+\keyword{internal}

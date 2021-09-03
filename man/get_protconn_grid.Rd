@@ -24,3 +24,4 @@ get_protconn_grid(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FALSE)
 \description{
 Estimates ProtConn metric and fractions for a grid
 }
+\keyword{internal}

@@ -16,3 +16,4 @@ delta_ProtConn(x = NULL, y = NULL, base_param3 = NULL)
 \description{
 Estimate the contribution of each node to the ProtConn value in the region.
 }
+\keyword{internal}

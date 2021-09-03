@@ -16,7 +16,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip
 #' @importFrom methods setClass new
-
+#' @keywords internal
 get_grid <- function(region = NULL, grid_pol = NULL, grid_id = NULL,
                      hexagonal = TRUE,
                      cellsize = NULL, grid_boundary = FALSE,

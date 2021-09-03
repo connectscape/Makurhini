@@ -6,8 +6,7 @@
 #' @param base_param3 list
 #' @importFrom igraph graph.adjacency shortest.paths E
 #' @importFrom purrr map_df
-#' @export
-
+#' @keywords internal
 delta_ProtConn <- function(x = NULL, y=NULL, base_param3 = NULL){
   x.1 <- x
   if(nrow(x.1)>1){

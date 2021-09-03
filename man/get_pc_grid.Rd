@@ -22,3 +22,4 @@ get_pc_grid(x, y, p, pmedian = TRUE, d, LA = NULL)
 \description{
 Estimates PC metric
 }
+\keyword{internal}

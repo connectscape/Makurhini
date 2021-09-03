@@ -7,9 +7,9 @@
 #' @param d numeric. Dispersal distance
 #' @param LA numeric. Max. landscape attribute
 #' @param bound logical. If TRUE then ProtConn bound will be estimated
-#' @export
 #' @importFrom igraph graph.adjacency shortest.paths E
 #' @importFrom sf st_sf st_as_sf st_geometry
+#' @keywords internal
 get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FALSE){
 
   #Remove "region" x.1

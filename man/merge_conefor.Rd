@@ -32,3 +32,4 @@ merge_conefor(
 \description{
 Join a connectivity index (dIIC o dPC, and the "intra",  "dflux", "connector") to core areas
 }
+\keyword{internal}

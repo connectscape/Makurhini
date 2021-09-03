@@ -38,3 +38,4 @@ Protconn_nodes(
 \description{
 Generates ProtConn nodes files
 }
+\keyword{internal}

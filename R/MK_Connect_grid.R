@@ -60,7 +60,7 @@
 #' @export
 #' @importFrom magrittr %>%
 #' @importFrom raster crop raster
-#' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_intersection st_convex_hull
+#' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_convex_hull
 #' @importFrom future plan multiprocess availableCores
 #' @importFrom furrr future_map_dfr
 #' @importFrom progressr handlers handler_pbcol progressor

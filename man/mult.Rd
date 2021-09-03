@@ -14,3 +14,4 @@ mult(a, b)
 \description{
 Multiply two numbers
 }
+\keyword{internal}

@@ -7,7 +7,7 @@
 #' @importFrom purrr compact
 #' @importFrom ggpubr ggarrange
 #' @importFrom rlang .data
-#' @export
+#' @keywords internal
 plotprotconn <- function(DataProtconn, d){
   plot_protconn <- list()
   Data_plot <- as.data.frame(t(round(DataProtconn, 3)))

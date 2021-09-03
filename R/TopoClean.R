@@ -2,7 +2,8 @@
 #'
 #' @param x Object of class sf, sfc, sfg or SpatialPolygons
 #' @param xsimplify logical or numeric.
-#' @importFrom sf st_as_sf st_is_valid st_is_empty st_zm st_buffer
+#' @importFrom sf st_as_sf st_is_valid st_is_empty st_zm
+#' @importFrom terra buffer vect
 #' @importFrom rmapshaper ms_simplify
 #' @export
 
@@ -18,7 +19,8 @@ TopoClean <- function(x, xsimplify = FALSE) {
                       method = "vis", keep_shapes = TRUE)
   }
 
-  x2 <- st_buffer(x2, 0)
+  x2 <- terra::buffer(vect(x2), 0)
+  x2 <- st_as_sf(x2)
   x2 <- x2[which(st_is_valid(x2)),]
   x2 <- x2[which(!st_is_empty(x2)),]
 

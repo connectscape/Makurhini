@@ -8,6 +8,7 @@
 #' @param LA numeric. Max. landscape attribute
 #' @importFrom igraph graph.adjacency shortest.paths E
 #' @importFrom sf st_sf st_as_sf st_geometry
+#' @keywords internal
 get_pc_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL){
   st_geometry(x) <- NULL
   Adj_matr <- y * 0

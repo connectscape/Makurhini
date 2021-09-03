@@ -26,3 +26,4 @@ input_grid(
 \description{
 ProtConn: input files
 }
+\keyword{internal}

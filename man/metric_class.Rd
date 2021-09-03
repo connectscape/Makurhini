@@ -32,3 +32,4 @@ metric_class(
 \description{
 Generates metric class
 }
+\keyword{internal}

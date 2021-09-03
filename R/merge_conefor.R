@@ -7,10 +7,10 @@
 #' @param dA logical. If TRUE, the delta attribute and its variance is selected. Default = FALSE.
 #' @param var logical. If TRUE the metric and fractions variance is reteined.
 #' @param write character. Write the shapefile, example, "C:/ejemplo/sahapefile.shp".
-#' @export
 #' @importFrom data.table rbindlist
 #' @importFrom sf st_write st_as_sf
 #' @importFrom utils read.csv
+#' @keywords internal
 merge_conefor <- function(datat = NULL,
                       pattern = NULL, merge_shape = NULL,
                       id = NULL, dA = FALSE, var = FALSE,

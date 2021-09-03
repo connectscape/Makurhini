@@ -1,7 +1,7 @@
 #' Function to contrast differences of dA and dECA
 #' @param dECA dECA
 #' @param dA dA
-
+#' @keywords internal
 dECAfun<-function(dECA, dA) {
   if (dECA < dA & dA < 0){
     TC <- "dECA < dA < 0"
@@ -20,7 +20,7 @@ dECAfun<-function(dECA, dA) {
 #' Function to contrast differences of dA and dECA
 #' @param dECA dECA
 #' @param dA dA
-
+#' @keywords internal
 dECAfun2<-function(dECA, dA) {
   if (dECA < dA & dA < 0){
     TC <- "+ Connectivity loss"

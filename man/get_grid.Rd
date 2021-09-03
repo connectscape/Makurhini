@@ -39,3 +39,4 @@ if it is a region with many vertices use the argument "tolerance".}
 \description{
 ProtConn: input files
 }
+\keyword{internal}

@@ -7,10 +7,10 @@
 #' @param resistance raster
 #' @param resist.units logical. Transform cost units to geographic units by multiplying the
 #'  cost by the resolution of the raster
-#' @export
 #' @importFrom sf st_buffer
 #' @importFrom raster crop
 #' @importFrom rmapshaper ms_simplify
+#' @keywords internal
 
 protconn_dist <- function(x, id, y, r = NULL, resistance = NULL, resist.units = FALSE){
   '%!in%' <- function(x,y)!('%in%'(x,y))

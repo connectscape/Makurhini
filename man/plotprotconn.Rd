@@ -14,3 +14,4 @@ plotprotconn(DataProtconn, d)
 \description{
 Estimate Protected Connected (ProtConn) indicator and fractions for one region.
 }
+\keyword{internal}

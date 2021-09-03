@@ -5,10 +5,10 @@
 #' @param unit character
 #' @param bdist numeric
 #' @param xsimplify logical or numeric
-#' @importFrom sf st_sf st_cast st_buffer st_difference st_area st_geometry st_zm
-#' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip
+#' @importFrom sf st_buffer
+#' @importFrom rmapshaper ms_simplify
 #' @importFrom methods setClass new
-#' @export
+#' @keywords internal
 input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimplify = FALSE){
   class_cache <- new.env(parent = emptyenv())
   setClass("input_grid", slots = list(nodes = "sf", region = "sf",

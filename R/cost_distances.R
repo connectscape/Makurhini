@@ -43,6 +43,7 @@
 #' @importFrom furrr future_map
 #' @importFrom graph4lg mat_cost_dist
 #' @export
+
 cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL,
                            CostFun = NULL,
                            ngh = NULL, mask = NULL, threshold = NULL,

@@ -78,6 +78,11 @@ test_metric_distance <- function(nodes,
                               area_unit = "ha",
                               groups = 3, write = NULL,
                               intern = TRUE){
+  if(isFALSE("ggplot2" %in% rownames(installed.packages())) &
+     isFALSE("ggpubr" %in% rownames(installed.packages()))){
+    stop("To make the plots you need to install the packages ggplot2 and ggpubr")
+  }
+
   if(class(nodes)[1] == "sf") {
     nodes <- as(nodes, 'Spatial')
   }

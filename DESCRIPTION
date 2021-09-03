@@ -27,7 +27,9 @@ URL: https://github.com/connectscape/Makurhini
 BugReports: https://github.com/connectscape/Makurhini/issues
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    ggplot2,
+    ggpubr
 VignetteBuilder: knitr
 Imports: 
     sf (>= 1.0.2),
@@ -41,8 +43,6 @@ Imports:
     rgeos,
     data.table,
     formattable,
-    ggplot2,
-    ggpubr,
     spex,
     boot,
     tools,

@@ -309,9 +309,17 @@ MK_ProtConn <- function(nodes,
                                            `Percentage` = color_tile("#FFF3DD", "orange")))
 
         if(isTRUE(plot)){
-          DataProtconn_plot <- plotprotconn(DataProtconn, d.2)
-          result_lista <- list( "Protected Connected (Viewer Panel)" = DataProtconn_4,
-                                "ProtConn Plot" = DataProtconn_plot)
+          if(isTRUE("ggplot2" %in% rownames(installed.packages())) &
+             isTRUE("ggpubr" %in% rownames(installed.packages()))){
+            DataProtconn_plot <- plotprotconn(DataProtconn, d.2)
+            result_lista <- list( "Protected Connected (Viewer Panel)" = DataProtconn_4,
+                                  "ProtConn Plot" = DataProtconn_plot)
+          } else {
+            message("To make the plots you need to install the packages ggplot2 and ggpubr")
+            result_lista <- DataProtconn_4
+            plot = FALSE
+          }
+
         } else {
           result_lista <- DataProtconn_4
         }

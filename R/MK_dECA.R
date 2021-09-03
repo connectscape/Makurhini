@@ -313,99 +313,103 @@ MK_dECA <- function(nodes,
       write.csv(do.call(rbind, ECA3), write, row.names = FALSE)
     }
 
-    ###plot
-    if(isTRUE(plot) | is.character(plot)){
-      if(isTRUE(plot)){
-        plot = paste0("Time", 1:length(nodes))
-      }
-
-      ECAplot <- lapply(ECA3, function(x){
-        ECA4 <- (x[[3]] * 100)/ LA
-        Loss <- 100 - ECA4
-        ECA4 <- cbind(ECA4, Loss) %>% as.data.frame()
-        names(ECA4)[1] <- "Habitat"
-        ECA4$"Connected habitat" <- x[[7]]
-        ECA4$Year <- plot
-
-        #Table 1
-        ECA5 <- ECA4
-        ECA4 <- data.frame(Year = rep(ECA4$Year,3),
-                           variable = c(rep("Habitat", length(ECA4$Year)),
-                                        rep("Loss", length(ECA4$Year)),
-                                        rep("Connected habitat", length(ECA4$Year))),
-                           value = c(ECA4$Habitat, ECA4$Loss, ECA4$`Connected habitat`))
-
-        names(ECA4)[3] <- "percentage"
-        ECA4$variable <- factor(ECA4$variable, levels = c("Loss", "Habitat", "Connected habitat"))
-
-        #Table 2
-        ECA5$`Connected habitat` <- (ECA5$`Connected habitat` * ECA5$Habitat)/100
-        ECA5$Habitat <- ECA5$Habitat - ECA5$`Connected habitat`
-
-        ECA5 <- data.frame(Year = rep(ECA5$Year,3),
-                           variable = c(rep("Habitat", length(ECA5$Year)),
-                                        rep("Loss", length(ECA5$Year)),
-                                        rep("Connected habitat", length(ECA5$Year))),
-                           value = c(ECA5$Habitat, ECA5$Loss, ECA5$`Connected habitat`))
-
-
-        names(ECA5)[3] <- "percentage"
-
-        ECA5$variable <- factor(ECA5$variable, levels = c("Loss", "Habitat", "Connected habitat"))
-        ECA5$Text <- ECA4$percentage
-        ECA5$Text[which(ECA5$variable == "Connected habitat")] <- ECA5$percentage[which(ECA5$variable == "Connected habitat")]
-
-
-        ECA5$pos <- ECA5$percentage/2
-        ECA5$pos[which(ECA5$variable == "Habitat")] <- (ECA5$percentage[which(ECA5$variable == "Habitat")]/2) + ECA5$percentage[which(ECA5$variable == "Connected habitat")]
-        ECA5$pos[which(ECA5$variable == "Loss")] <- (ECA5$percentage[which(ECA5$variable == "Loss")]/2) + ECA5$Text[which(ECA5$variable == "Habitat")]
-
-        #Plot
-        pcolors <- c("#443A82", "#30678D", "#26AE7F")
-
-        if (distance$type  %in% c("centroid", "edge")){
-          if(is.null(distance$distance_unit)){
-            dp_text <-  paste0(unique(x$Distance), " m")
-          } else {
-            dp_text <-  paste0(unique(x$Distance)," " ,distance$distance_unit)
-          }
-        } else {
-          dp_text <-  paste0(unique(x$Distance), " cost-weighted distance")
+    if(isTRUE("ggplot2" %in% rownames(installed.packages()))){
+      if(isTRUE(plot) | is.character(plot)){
+        if(isTRUE(plot)){
+          plot = paste0("Time", 1:length(nodes))
         }
 
-        p4 <- ggplot() +
-          geom_bar(aes(y = ECA5$percentage, x = ECA5$Year, fill = ECA5$variable), data = ECA5, stat="identity") +
-          geom_text(data = ECA5, aes(x = ECA5$Year, y = ECA5$pos, label = paste0(round(ECA5$Text, 2), "%")),
-                    colour = "white", family = "Tahoma", size = 4, fontface = "bold") +
-          theme(legend.position = "bottom", legend.direction = "horizontal",
-                legend.title = element_blank(),
-                legend.text = element_text(size = 11)) +
-          labs(x = "Time", y = "% of landscape") +
-          ggtitle(paste0("ECA: Dispersal distance = ", dp_text)) +
-          scale_fill_manual(values = pcolors) +
-          theme(axis.line = element_line(size = 1, colour = "black"),
-                panel.grid.major = element_line(colour = "#d3d3d3"),
-                panel.grid.minor = element_blank(),
-                panel.border = element_blank(),
-                panel.background = element_blank()) +
-          theme(plot.title = element_text(size = 14, family = "Tahoma", face = "bold"),
-                text = element_text(family = "Tahoma", size = 12),
-                axis.text.x = element_text(colour = "black", size = 10),
-                axis.text.y = element_text(colour = "black", size = 10))
+        ECAplot <- lapply(ECA3, function(x){
+          ECA4 <- (x[[3]] * 100)/ LA
+          Loss <- 100 - ECA4
+          ECA4 <- cbind(ECA4, Loss) %>% as.data.frame()
+          names(ECA4)[1] <- "Habitat"
+          ECA4$"Connected habitat" <- x[[7]]
+          ECA4$Year <- plot
 
-        if(!is.null(write)){
-          ggsave(paste0(write, "_", unique(x$Distance), '_ECA.tif'), plot = p4, device = "tiff", width = 14,
-                 height = 10, compression = "lzw", dpi = "retina", scale = 0.7)}
-        return(p4)})
-      ECA_result <- list()
-      for (i in 1:length(ECA3)){
-        ECA_result[[i]] <- list(ECA3[[i]], ECAplot[[i]])
+          #Table 1
+          ECA5 <- ECA4
+          ECA4 <- data.frame(Year = rep(ECA4$Year,3),
+                             variable = c(rep("Habitat", length(ECA4$Year)),
+                                          rep("Loss", length(ECA4$Year)),
+                                          rep("Connected habitat", length(ECA4$Year))),
+                             value = c(ECA4$Habitat, ECA4$Loss, ECA4$`Connected habitat`))
+
+          names(ECA4)[3] <- "percentage"
+          ECA4$variable <- factor(ECA4$variable, levels = c("Loss", "Habitat", "Connected habitat"))
+
+          #Table 2
+          ECA5$`Connected habitat` <- (ECA5$`Connected habitat` * ECA5$Habitat)/100
+          ECA5$Habitat <- ECA5$Habitat - ECA5$`Connected habitat`
+
+          ECA5 <- data.frame(Year = rep(ECA5$Year,3),
+                             variable = c(rep("Habitat", length(ECA5$Year)),
+                                          rep("Loss", length(ECA5$Year)),
+                                          rep("Connected habitat", length(ECA5$Year))),
+                             value = c(ECA5$Habitat, ECA5$Loss, ECA5$`Connected habitat`))
+
+
+          names(ECA5)[3] <- "percentage"
+
+          ECA5$variable <- factor(ECA5$variable, levels = c("Loss", "Habitat", "Connected habitat"))
+          ECA5$Text <- ECA4$percentage
+          ECA5$Text[which(ECA5$variable == "Connected habitat")] <- ECA5$percentage[which(ECA5$variable == "Connected habitat")]
+
+
+          ECA5$pos <- ECA5$percentage/2
+          ECA5$pos[which(ECA5$variable == "Habitat")] <- (ECA5$percentage[which(ECA5$variable == "Habitat")]/2) + ECA5$percentage[which(ECA5$variable == "Connected habitat")]
+          ECA5$pos[which(ECA5$variable == "Loss")] <- (ECA5$percentage[which(ECA5$variable == "Loss")]/2) + ECA5$Text[which(ECA5$variable == "Habitat")]
+
+          #Plot
+          pcolors <- c("#443A82", "#30678D", "#26AE7F")
+
+          if (distance$type  %in% c("centroid", "edge")){
+            if(is.null(distance$distance_unit)){
+              dp_text <-  paste0(unique(x$Distance), " m")
+            } else {
+              dp_text <-  paste0(unique(x$Distance)," " ,distance$distance_unit)
+            }
+          } else {
+            dp_text <-  paste0(unique(x$Distance), " cost-weighted distance")
+          }
+
+          p4 <- ggplot() +
+            geom_bar(aes(y = ECA5$percentage, x = ECA5$Year, fill = ECA5$variable), data = ECA5, stat="identity") +
+            geom_text(data = ECA5, aes(x = ECA5$Year, y = ECA5$pos, label = paste0(round(ECA5$Text, 2), "%")),
+                      colour = "white", family = "Tahoma", size = 4, fontface = "bold") +
+            theme(legend.position = "bottom", legend.direction = "horizontal",
+                  legend.title = element_blank(),
+                  legend.text = element_text(size = 11)) +
+            labs(x = "Time", y = "% of landscape") +
+            ggtitle(paste0("ECA: Dispersal distance = ", dp_text)) +
+            scale_fill_manual(values = pcolors) +
+            theme(axis.line = element_line(size = 1, colour = "black"),
+                  panel.grid.major = element_line(colour = "#d3d3d3"),
+                  panel.grid.minor = element_blank(),
+                  panel.border = element_blank(),
+                  panel.background = element_blank()) +
+            theme(plot.title = element_text(size = 14, family = "Tahoma", face = "bold"),
+                  text = element_text(family = "Tahoma", size = 12),
+                  axis.text.x = element_text(colour = "black", size = 10),
+                  axis.text.y = element_text(colour = "black", size = 10))
+
+          if(!is.null(write)){
+            ggsave(paste0(write, "_", unique(x$Distance), '_ECA.tif'), plot = p4, device = "tiff", width = 14,
+                   height = 10, compression = "lzw", dpi = "retina", scale = 0.7)}
+          return(p4)})
+        ECA_result <- list()
+        for (i in 1:length(ECA3)){
+          ECA_result[[i]] <- list(ECA3[[i]], ECAplot[[i]])
+        }
+
+        names(ECA_result) <- paste(distance_thresholds)
+        ECA3 <- ECA_result
       }
-
-      names(ECA_result) <- paste(distance_thresholds)
-      ECA3 <- ECA_result
+    } else {
+      message("You need install ggplot2 to plot dECA")
+      plot = FALSE
     }
-    #
+
     if(length(distance_thresholds) == 1){
       if((isTRUE(plot) | is.character(plot))){
         ECA4 <- ECA3[[1]][[2]]

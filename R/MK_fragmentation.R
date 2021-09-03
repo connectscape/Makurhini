@@ -119,66 +119,68 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
   LM[1] <- NULL
 
   #Plot
-  if(!is.null(write) & isTRUE(plot)) {
-    par(mfrow = c(1,1))
-    p0 <- ggplot(data = patches) +
-      geom_sf(colour = "Red", aes(fill = "Edge"))+
-      geom_sf(data = CoreA[which(!st_is_empty(CoreA)),], colour = "#1a9641", aes(fill = "Core"))+
-      scale_fill_manual(name = "Legend", values = colors)+
-      theme_bw(base_size = 22)
 
-    ggsave(paste0(write, '_CoreEdge.tif'), plot = p0, device = "tiff", width = 15,
-           height = 11, compression = "lzw")
+  if(isTRUE("ggplot2" %in% rownames(installed.packages())) &
+     isTRUE("ggpubr" %in% rownames(installed.packages()))){
+    if(!is.null(write) & isTRUE(plot)) {
+      par(mfrow = c(1,1))
+      p0 <- ggplot(data = patches) +
+        geom_sf(colour = "Red", aes(fill = "Edge"))+
+        geom_sf(data = CoreA[which(!st_is_empty(CoreA)),], colour = "#1a9641", aes(fill = "Core"))+
+        scale_fill_manual(name = "Legend", values = colors)+
+        theme_bw(base_size = 22)
 
-    p1 <- ggplot(data, aes(x = log10(data$Area))) +
-      geom_histogram(color = "black", fill = vcol, bins = 10,
-                     position = "dodge", na.rm = T) +
-      labs(x = "log10 (km2)", y = "Frequency", title = "Size") +
-      theme(plot.title = element_text(size=20, face = "bold"),
-      axis.title.x = element_text(size = 20),
-      axis.title.y = element_text(size = 20))+
-      theme(text = element_text(size = 20),
-            axis.text.x = element_text(hjust = 1))
-    p2 <- ggplot(data, aes(x = log10(data$Perimeter))) +
-      geom_histogram(color = "black", fill = vcol, bins = 10,
-                     position = "dodge", na.rm = T)+
-      labs(x = "log10 (km)", y ="Frequency", title = "Perimeter") +
-      theme(plot.title = element_text(size = 20, face = "bold"),
-      axis.title.x = element_text(size = 20),
-      axis.title.y = element_text(size = 20))+
-      theme(text = element_text(size = 20),
-                     axis.text.x = element_text(hjust = 1))
-    p3 <- ggplot(data, aes(x = data$ShapeIndex)) +
-      geom_histogram(color = "black", fill = vcol, bins = 10,
-                     position = "dodge", na.rm = T) +
-      labs(x = "Shape Index", y = "Frequency", title = "Shape Index") +
-    theme(plot.title = element_text(size = 20, face = "bold"),
-      axis.title.x = element_text(size = 20),
-      axis.title.y = element_text(size = 20))+
-      theme(text = element_text(size = 20),
-            axis.text.x = element_text(hjust = 1))
-    p4 <- ggplot(data, aes(x = log10(data$CA))) +
-      geom_histogram(color = "black", fill = vcol, bins = 10,
-                     position = "dodge", na.rm = T)+
-      labs(x = "log10 (km2)", y = "Frequency", title = "Core Area") +
-      theme(plot.title = element_text(size = 20, face = "bold"),
-      axis.title.x = element_text(size = 20),
-      axis.title.y = element_text(size = 20)) +
-      theme(text = element_text(size = 20),
-            axis.text.x = element_text(hjust = 1))
-    p5 <- suppressWarnings(ggarrange(p1, p2, p3, p4))
-    ggsave(paste0(write, '_fragStats.tif'),  plot = p5, device = "tiff", width = 15,
-           height = 11, compression = "lzw")
+      ggsave(paste0(write, '_CoreEdge.tif'), plot = p0, device = "tiff", width = 15,
+             height = 11, compression = "lzw")
+
+      p1 <- ggplot(data, aes(x = log10(data$Area))) +
+        geom_histogram(color = "black", fill = vcol, bins = 10,
+                       position = "dodge", na.rm = T) +
+        labs(x = "log10 (km2)", y = "Frequency", title = "Size") +
+        theme(plot.title = element_text(size=20, face = "bold"),
+              axis.title.x = element_text(size = 20),
+              axis.title.y = element_text(size = 20))+
+        theme(text = element_text(size = 20),
+              axis.text.x = element_text(hjust = 1))
+      p2 <- ggplot(data, aes(x = log10(data$Perimeter))) +
+        geom_histogram(color = "black", fill = vcol, bins = 10,
+                       position = "dodge", na.rm = T)+
+        labs(x = "log10 (km)", y ="Frequency", title = "Perimeter") +
+        theme(plot.title = element_text(size = 20, face = "bold"),
+              axis.title.x = element_text(size = 20),
+              axis.title.y = element_text(size = 20))+
+        theme(text = element_text(size = 20),
+              axis.text.x = element_text(hjust = 1))
+      p3 <- ggplot(data, aes(x = data$ShapeIndex)) +
+        geom_histogram(color = "black", fill = vcol, bins = 10,
+                       position = "dodge", na.rm = T) +
+        labs(x = "Shape Index", y = "Frequency", title = "Shape Index") +
+        theme(plot.title = element_text(size = 20, face = "bold"),
+              axis.title.x = element_text(size = 20),
+              axis.title.y = element_text(size = 20))+
+        theme(text = element_text(size = 20),
+              axis.text.x = element_text(hjust = 1))
+      p4 <- ggplot(data, aes(x = log10(data$CA))) +
+        geom_histogram(color = "black", fill = vcol, bins = 10,
+                       position = "dodge", na.rm = T)+
+        labs(x = "log10 (km2)", y = "Frequency", title = "Core Area") +
+        theme(plot.title = element_text(size = 20, face = "bold"),
+              axis.title.x = element_text(size = 20),
+              axis.title.y = element_text(size = 20)) +
+        theme(text = element_text(size = 20),
+              axis.text.x = element_text(hjust = 1))
+      p5 <- suppressWarnings(ggarrange(p1, p2, p3, p4))
+      ggsave(paste0(write, '_fragStats.tif'),  plot = p5, device = "tiff", width = 15,
+             height = 11, compression = "lzw")
     }
+    if (isTRUE(plot)) {
+      p0 <- ggplot(data = patches) +
+        geom_sf(colour = "Red", aes(fill = "Edge"))+
+        geom_sf(data = CoreA[which(!st_is_empty(CoreA)),], colour = "#1a9641", aes(fill = "Core"))+
+        scale_fill_manual(name = "Legend", values = colors)+
+        theme_bw()
 
-  if (isTRUE(plot)) {
-    p0 <- ggplot(data = patches) +
-      geom_sf(colour = "Red", aes(fill = "Edge"))+
-      geom_sf(data = CoreA[which(!st_is_empty(CoreA)),], colour = "#1a9641", aes(fill = "Core"))+
-      scale_fill_manual(name = "Legend", values = colors)+
-      theme_bw()
-
-    p1 <- ggplot(data, aes(x = log10(data$Area))) +
+      p1 <- ggplot(data, aes(x = log10(data$Area))) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T) +
         labs(x = "log10 (km2)", y = "Frequency", title = "Size") +
@@ -210,6 +212,10 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
       p5 <- suppressWarnings(ggarrange(p1, p2, p3, p4))
 
     }
+  } else {
+    message("To make the plots you need to install the packages ggplot2 and ggpubr")
+    plot = FALSE
+  }
 
   ###Write outputs
   if (!is.null(write)) {

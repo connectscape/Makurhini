@@ -75,13 +75,13 @@ Equivalent Connected Area (ECA; if the area is used as attribute) or Equivalent 
 \examples{
 \dontrun{
 library(Makurhini)
-library(rgeos)
+library(sf)
 
 data("list_forest_patches", package = "Makurhini")
 data("study_area", package = "Makurhini")
 class(list_forest_patches)
 
-Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
+Max_attribute <- unit_convert(st_area(study_area), "m2", "ha")
 
 dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
                   distance = list(type= "centroid"), metric = "PC",

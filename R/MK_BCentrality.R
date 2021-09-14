@@ -187,13 +187,16 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
       }
         dMetric <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
                               coneforpath = coneforpath,
-                              typeconnection = "dist", typepairs = pairs, index = metric,
+                              typeconnection = "dist",
+                              typepairs = pairs, index = metric,
                               thdist = x, multdist = NULL, conprob = probability,
                               onlyoverall = FALSE, LA = LA, nrestauration = FALSE,
                               prefix = NULL, write = NULL)
 
         if(class(nodes)[1] == "sf"){
-          result_interm <- merge_conefor(datat = dMetric[[which(lapply(dMetric, function(x) ncol(x)) >= 11)]], pattern = NULL,
+
+          result_interm <- merge_conefor(datat = dMetric[[which(lapply(dMetric, function(x) ncol(x)) >= 11)]],
+                                         pattern = NULL,
                                          merge_shape = nodes, id = "IdTemp",
                                          write = if (!is.null(write)) paste0(write, "_d", x,".shp"),
                                          dA = dA, var = dvars)

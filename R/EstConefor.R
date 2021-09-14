@@ -74,7 +74,7 @@ EstConefor <- function(nodeFile,
     p1 <- paste(conefor_exe, "-nodeFile", nodeFile, "-conFile", connectionFile, "-t", typeconnection, typepairs)
     } else {
       p1 <- paste(conefor_exe, "-nodeFile", nodeFile, "-conFile", connectionFile, "-t", typeconnection, typepairs, "-*")
-    }
+  }
 
   binary <- c("CCP", "LCP", "IIC", "BC", "BCIIC", "NC", "NL", "H")
   probab <- c("F", "AWF", "PC", "BCPC")
@@ -165,15 +165,33 @@ EstConefor <- function(nodeFile,
     df <- df[removefile]
   }
 
-  result_2 <- tryCatch(lapply(df, read.table), error = function(err)err)
+  result_2 <- tryCatch(lapply(1:length(df), function(x){
+    x.1 <- df[x]
+    x.1 <- read.table(x.1, header = if(x == 4){FALSE} else {TRUE})
+    if(x == 4){
+      names(x.1) <- c("Index", "Value")
+    }
+    return(x.1)
+  }), error = function(err)err)
 
   if (inherits(result_2, "error")){
     removefile <- which(basename(df) != "overall_indices.txt")
     df <- df[removefile]
-    result_2 <- lapply(df, read.table)
-    names(result_2) <- basename(df) %>% gsub(".txt","")
+    result_2 <- tryCatch(lapply(1:length(df), function(x){
+      x.1 <- df[x]
+      x.1 <- read.table(x.1, header = if(x == 4){FALSE} else {TRUE})
+      if(x == 4){
+        names(x.1) <- c("Index", "Value")
+      }
+      return(x.1)
+    }), error = function(err)err)
+    nom <- basename(df)
+    nom <- gsub(".txt","", nom)
+    names(result_2) <- nom
   } else {
-    names(result_2) <- basename(df) %>% gsub(".txt","")
+    nom <- basename(df)
+    nom <- gsub(".txt","", nom)
+    names(result_2) <- nom
   }
 
   if (!is.null(write)){

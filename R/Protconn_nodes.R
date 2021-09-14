@@ -19,7 +19,6 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
                            delta = FALSE){
   options(warn = -1)
   . = NULL
-
   x$id <- 1
   x <- x[,"id"]
 
@@ -29,14 +28,16 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
                                      keep_shapes = TRUE, explode = TRUE)
       x.1 <- st_buffer(x.0, 0) %>%  ms_dissolve(.)
     } else {
-      x.0 <- ms_explode(x)
+      if(isTRUE(protconn_bound)){
+        x.0 <- ms_explode(x)
+      }
       x.1 <- x
     }
 
     y$PROTIDT <- 1:nrow(y)
 
     '%!in%' <- function(x,y)!('%in%'(x,y))
-    #
+
     y.1 <- over_poly(y, x.1, geometry = TRUE)
     y.1 <- st_buffer(y.1, 0)
 
@@ -73,7 +74,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
             #Dos metodos
             if(method == "nodes"){
               mask1 <- rmapshaper::ms_simplify(y.1, method = "vis", keep_shapes = TRUE)%>%
-                st_buffer(., buff)
+                ms_dissolve() %>% st_buffer(., buff)
 
             } else {
               mask1 <- rmapshaper::ms_simplify(x.1, method = "vis", keep_shapes = TRUE)%>%

@@ -35,7 +35,7 @@
 #' @examples
 #' \dontrun{
 #' library(Makurhini)
-#' library(raster)
+#' library(sf)
 #' data("Protected_areas", package = "Makurhini")
 #' plot(Protected_areas, col="green")
 #'

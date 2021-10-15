@@ -161,12 +161,13 @@ test_metric_distance <- function(nodes,
   }
 
   conn_metric <- map_dfr(loop, function(x){
-    x <- distances_test[[x]]
+    x.1 <- distances_test[[x]]
     ECA_metric <-  map_dfr(distance_thresholds, function(y) {
       tab1 <- tryCatch(MK_dPCIIC(nodes = nodes, attribute = attribute,
                                  restoration = NULL,
-                                 distance = x, area_unit = area_unit,
-                                 metric = if(metric=="ProtConn"){"PC"}else{metric}, probability = probability,
+                                 distance = x.1, area_unit = area_unit,
+                                 metric = if(metric=="ProtConn"){"PC"}else{metric},
+                                 probability = probability,
                                  distance_thresholds = y,
                                  overall = TRUE, onlyoverall = TRUE,
                                  LA = LA, rasterparallel = FALSE, write = NULL), error = function(err)err)
@@ -189,7 +190,7 @@ test_metric_distance <- function(nodes,
     conn_metric2 <- cbind(ECA_metric, distance_thresholds)
     conn_metric2 <- as.data.frame(conn_metric2)
     names(conn_metric2) <- c(if(metric=="ProtConn"){"ProtConn"}else{"ECA"}, "Distance")
-    conn_metric2$Group <- x$type
+    conn_metric2$Group <- x.1$type
     return(conn_metric2)
   })
 

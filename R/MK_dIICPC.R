@@ -174,7 +174,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     }
 
   } else {
-    dist <- distancefile(nodes = nodes,  id = idT,
+    dist <- distancefile(nodes = nodes, id = idT,
                          type = distance$type,
                          distance_unit = distance$distance_unit,
                          keep = distance$keep,
@@ -316,7 +316,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
 
       #p4
       dintra <- attribute_2^2 / num * 100
-      dflux <- 2 * (rowSums(mat2) - attribute_2^2)/ num * 100
+      dflux <- (rowSums(mat2) - attribute_2^2)/ num * 100
       dconnector <- map_dbl(delta - dintra - dflux, function(x){if(x < 0){0} else {x}})
       metric_conn <- as.data.frame(cbind(attribute_1[,1], delta, dintra, dflux, dconnector))
       names(metric_conn)[1] <- c("Id")

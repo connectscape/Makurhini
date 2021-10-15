@@ -56,12 +56,12 @@ Use the function to compute the Protected Connected (ProtConn), EC, PC or IIC in
 \examples{
 \dontrun{
 library(Makurhini)
-library(raster)
+library(sf)
 
 data("Protected_areas", package = "Makurhini")
 data("regions", package = "Makurhini")
 ecoregion <- regions[2,]
-plot(ecoregion, col="blue")
+plot(st_geometry(ecoregion), col="blue")
 #ProtConn
 hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
                                     region = ecoregion,

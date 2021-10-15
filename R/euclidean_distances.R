@@ -50,7 +50,12 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
     if(isFALSE(edgeParallel)){
       if(!is.null(keep)){
         x_id <- x@data[,which(colnames(x@data) == id)]
-        x <- ms_simplify(input = x, keep = keep, keep_shapes = TRUE, explode = FALSE)
+        x.1 <- tryCatch(ms_simplify(input = x, keep = keep, keep_shapes = TRUE, explode = FALSE), error = function(err)err)
+        if(!inherits(x.1, "error")) {
+          if(nrow(x.1) == nrow(x)){
+            x <- x.1
+          }
+        }
         x$id <- x_id
         names(x) <- id
       }
@@ -81,7 +86,14 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
       plan(strategy = multiprocess, gc = TRUE, workers = works)
       distance <- tryCatch(future_map(x2, function(d){
         if(!is.null(keep)){
-          d <- ms_simplify(input = d, keep = keep, keep_shapes = TRUE, explode = FALSE)
+          d.1 <- tryCatch(ms_simplify(input = d, keep = keep, keep_shapes = TRUE, explode = FALSE),
+                        error = function(err)err)
+
+          if(!inherits(d.1, "error")) {
+            if(nrow(d.1) == nrow(d)){
+              d <- d.1
+            }
+          }
         }
         distance2 <- gDistance(d, x, byid = TRUE)
         return(distance2)

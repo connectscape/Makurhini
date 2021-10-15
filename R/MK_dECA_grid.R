@@ -35,7 +35,6 @@
 #' @examples
 #' \dontrun{
 #' library(Makurhini)
-#' library(rgeos)
 #' library(sf)
 #'
 #' # Four times (T1.2, T2.3, T3.4)

@@ -35,7 +35,8 @@
 #' @examples
 #' \dontrun{
 #' library(Makurhini)
-#' library(raster)
+#' library(sf)
+#'
 #' data("Protected_areas", package = "Makurhini")
 #' data("regions", package = "Makurhini")
 #' region <- regions[2,]

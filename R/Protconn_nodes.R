@@ -11,7 +11,8 @@
 #' @param delta logical
 #' @importFrom sf st_as_sf st_buffer st_difference st_area st_geometry
 #' @importFrom magrittr %>%
-#' @importFrom terra vect intersect na.omit aggregate buffer disaggregate
+#' @importFrom sp disaggregate
+#' @importFrom terra vect intersect na.omit aggregate buffer
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_explode
 #' @keywords internal
 Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALSE,
@@ -47,13 +48,13 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
       f1$id <- 1
 
       f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 0) %>%
-                    terra::disaggregate(.) %>%
+                    sp::disaggregate(.) %>%
                     st_as_sf(), error = function(err)err)
 
       if(inherits(f2, "error")){
         f1 <- terra::buffer(f1, 0)
         f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 0) %>%
-                         terra::disaggregate(.) %>%
+                         sp::disaggregate(.) %>%
                          st_as_sf(), error = function(err)err)
       }
 
@@ -90,14 +91,14 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
             if(nrow(f5) >= 1){
               f5$id <- 1
               f5 <- tryCatch(terra::aggregate(vect(f5), "id") %>% terra::buffer(., 0) %>%
-                               terra::disaggregate(.) %>%
+                               sp::disaggregate(.) %>%
                                st_as_sf(), error = function(err)err)
 
               if(inherits(f5, "error")){
                 f5$id <- 1
                 f5 <- terra::buffer(vect(f5), 0)
                 f5 <- tryCatch(terra::aggregate(f5, "id") %>% terra::buffer(., 0) %>%
-                                 terra::disaggregate(.) %>%
+                                 sp::disaggregate(.) %>%
                                  st_as_sf(), error = function(err)err)
               }
 
@@ -126,7 +127,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
           f6 <- f6[,c("OBJECTID", "type", "attribute")]
 
           #N2
-          f1b <- terra::disaggregate(f1) %>% st_as_sf()
+          f1b <- sp::disaggregate(f1) %>% st_as_sf()
           f1b$attribute <- as.numeric(st_area(f1b)) %>% unit_convert(., "m2", metrunit)
           f7 <- f1b[,c("attribute")]
           st_geometry(f7) <- NULL

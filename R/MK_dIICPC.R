@@ -269,7 +269,8 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
 
     #p1
     num <- sum(mat2)
-
+    # sum(2*(rowSums(mat2) - attribute_2^2)/ num * 100)
+    # sum(((rowSums(mat2)+colSums(mat2)) - attribute_2^2))
     #p2
     last <- if(metric == "IIC"){"IIC"} else {"PC"}
     if(isTRUE(overall) | isTRUE(onlyoverall)){
@@ -316,7 +317,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
 
       #p4
       dintra <- attribute_2^2 / num * 100
-      dflux <- (rowSums(mat2) - attribute_2^2)/ num * 100
+      dflux <- 2*(rowSums(mat2) - attribute_2^2)/ num * 100
       dconnector <- map_dbl(delta - dintra - dflux, function(x){if(x < 0){0} else {x}})
       metric_conn <- as.data.frame(cbind(attribute_1[,1], delta, dintra, dflux, dconnector))
       names(metric_conn)[1] <- c("Id")

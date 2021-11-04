@@ -47,13 +47,15 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
       f1 <- terra::na.omit(f1, geom = TRUE)
       f1$id <- 1
 
-      f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 0) %>%
-                    sp::disaggregate(.) %>%
-                    st_as_sf(), error = function(err)err)
+      f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 0) %>% 
+                       as(., 'Spatial') %>%
+                       sp::disaggregate(.) %>%
+                       st_as_sf(), error = function(err)err)
 
       if(inherits(f2, "error")){
         f1 <- terra::buffer(f1, 0)
-        f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 0) %>%
+        f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 1) %>%
+                         as(., 'Spatial') %>%
                          sp::disaggregate(.) %>%
                          st_as_sf(), error = function(err)err)
       }
@@ -90,16 +92,20 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
 
             if(nrow(f5) >= 1){
               f5$id <- 1
-              f5 <- tryCatch(terra::aggregate(vect(f5), "id") %>% terra::buffer(., 0) %>%
+              f5_test <- tryCatch(terra::aggregate(vect(f5), "id") %>% terra::buffer(., 0) %>%
+                               as(., 'Spatial') %>%
                                sp::disaggregate(.) %>%
                                st_as_sf(), error = function(err)err)
 
-              if(inherits(f5, "error")){
+              if(inherits(f5_test, "error")){
                 f5$id <- 1
                 f5 <- terra::buffer(vect(f5), 0)
-                f5 <- tryCatch(terra::aggregate(f5, "id") %>% terra::buffer(., 0) %>%
+                f5 <- tryCatch(terra::aggregate(f5, "id") %>% terra::buffer(., 1) %>%
+                                 as(., 'Spatial') %>%
                                  sp::disaggregate(.) %>%
                                  st_as_sf(), error = function(err)err)
+              } else {
+                f5 <- f5_test
               }
 
               f5 <- f5[,"geometry"]
@@ -127,7 +133,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
           f6 <- f6[,c("OBJECTID", "type", "attribute")]
 
           #N2
-          f1b <- sp::disaggregate(f1) %>% st_as_sf()
+          f1b <- as(f1, 'Spatial') %>% sp::disaggregate(.) %>% st_as_sf(.)
           f1b$attribute <- as.numeric(st_area(f1b)) %>% unit_convert(., "m2", metrunit)
           f7 <- f1b[,c("attribute")]
           st_geometry(f7) <- NULL

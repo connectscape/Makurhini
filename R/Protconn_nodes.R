@@ -47,7 +47,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
       f1 <- terra::na.omit(f1, geom = TRUE)
       f1$id <- 1
 
-      f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 0) %>% 
+      f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 0) %>%
                        as(., 'Spatial') %>%
                        sp::disaggregate(.) %>%
                        st_as_sf(), error = function(err)err)
@@ -176,13 +176,18 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
       f1 <- terra::intersect(vect(y.1[,"geometry"]), vect(x.1[,"geometry"]))
       f1 <- terra::na.omit(f1, geom = TRUE)
       f1 <- st_as_sf(f1)
-      a1 <- st_area(f1) %>% as.numeric(.)
-      a2 <- st_area(x.1) %>% as.numeric(.)
-      if(a1 >= a2){
-        f8 <- unit_convert(a2, "m2", metrunit)
+
+      if(nrow(f1) > 0){
+        a1 <- st_area(f1) %>% as.numeric(.)
+        a2 <- st_area(x.1) %>% as.numeric(.)
+        if(a1 >= a2){
+          f8 <- unit_convert(a2, "m2", metrunit)
+        } else {
+          f1 <- TopoClean(f1)
+          f8 <- as.numeric(st_area(f1)) %>% unit_convert(., "m2", metrunit)
+        }
       } else {
-        f1 <- TopoClean(f1)
-        f8 <- as.numeric(st_area(f1)) %>% unit_convert(., "m2", metrunit)
+        f8 = "NA"
       }
     } else {
       f8 <- "NA"

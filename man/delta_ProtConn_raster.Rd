@@ -6,6 +6,7 @@
 \usage{
 delta_ProtConn_raster(
   x = NULL,
+  x.0 = NULL,
   y = NULL,
   distance_thresholds = NULL,
   probability = 0.5,

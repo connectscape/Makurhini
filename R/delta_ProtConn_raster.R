@@ -10,14 +10,16 @@
 #' @param works numeric
 #' @importFrom igraph graph.adjacency shortest.paths E
 #' @importFrom purrr map_df
-#' @importFrom raster beginCluster endCluster clusterR reclassify rasterTmpFile values
+#' @importFrom raster beginCluster endCluster clusterR reclassify rasterTmpFile values trim
+#' @importFrom terra trim classify rast vect values
 #' @keywords internal
-delta_ProtConn_raster <- function(x = NULL, y=NULL, distance_thresholds = NULL,
+delta_ProtConn_raster <- function(x = NULL, x.0 = NULL, y=NULL,distance_thresholds = NULL,
                                   probability = 0.5, LA = NULL,
                                   distance = NULL, resist = NULL,
                                   works = NULL){
   x.1 <- x
   x.m <- y
+
   if(class(x.1)[1] == "sf"){
     x.1$IdTemp <- 1:nrow(x.1)
     x.1 <- x.1[which(x.1$type != "Region"),]
@@ -80,6 +82,7 @@ delta_ProtConn_raster <- function(x = NULL, y=NULL, distance_thresholds = NULL,
       Prot1 <- 100* sum(x.1$attribute/LA)#No necesariamente coincide con el prot general que tiene un dissolv
 
       #delta
+
       delta.1 <- purrr::map_df(1:max(which(x.1$type == "Non-Transboundary")), function(i){
         mat.i <- Adj_matr[-i,-i]
         n.i <- x.1[-i,]
@@ -109,50 +112,77 @@ delta_ProtConn_raster <- function(x = NULL, y=NULL, distance_thresholds = NULL,
                             "varProtConn" = ProtConn1 - ProtConn.i)
         return(delta)})
       delta.1$id <- x.1$id2[which(x.1$type == "Non-Transboundary")]
+      delta.1 <- delta.1[,c(4, 1:3)]
 
-      v <- unique(raster::values(x.m)) %>% as.numeric()
-      v <-v[!is.na(v)]
-      v <- sort(v)
+      v <- unique(terra::values(rast(x.m))) %>% as.numeric(); v <- sort(v[!is.na(v)])
 
-      m <- matrix(nrow = length(v), ncol=3, byrow=TRUE)
-
-      for(i in 1:length(v)){
-          m[i,1] <- if(i ==1){-Inf} else{v[i-1]}
-          m[i,2] <- if(i == length(v)){Inf} else {v[i]}
-          m[i,3] <- if(v[i] %in% delta.1$id){delta.1$dProtConn[which(delta.1$id == v[i])]} else{NA}
-      }
+      m.2 <- lapply(1:4, function(x){
+        m <- matrix(nrow = length(v), ncol=3, byrow=TRUE)
+        for(i in 1:length(v)){
+          i.1 <- v[i]
+          m[i,1] <- if(i.1 == min(v)){-Inf} else {i.1-1}
+          m[i,2] <- if(i.1 == max(v)){Inf} else {i.1}
+          m[i,3] <- if(i.1 %in% delta.1$id){delta.1[[x]][which(delta.1$id == i.1)]} else{NA}
+        }
+        return(m)
+      })
 
       if(!is.null(works)){
         beginCluster(works)
-        delta.2 <- clusterR(x.m, reclassify, args = list(rcl = m, right = FALSE),
-                            filename = rasterTmpFile(), overwrite=TRUE)
+        delta.p1 <- clusterR(x.m, reclassify, args = list(rcl = m.2[[1]], right = TRUE),
+                             filename = rasterTmpFile(), datatype='FLT4S', overwrite=TRUE)%>% raster::trim();delta.p2 <- clusterR(x.m, reclassify, args = list(rcl = m.2[[2]], right = TRUE),
+                                                                                                                                  filename = rasterTmpFile(), datatype='FLT4S', overwrite=TRUE)%>% raster::trim()
+        delta.p3 <- clusterR(x.m, reclassify, args = list(rcl = m.2[[3]], right = TRUE),
+                             filename = rasterTmpFile(), datatype='FLT4S', overwrite=TRUE)%>% raster::trim();delta.p4 <- clusterR(x.m, reclassify, args = list(rcl = m.2[[4]], right = TRUE),
+                                                                                                                                  filename = rasterTmpFile(), datatype='FLT4S', overwrite=TRUE)%>% raster::trim()
         endCluster()
       } else {
-        delta.2 <- reclassify(x.m, m)
+        delta.p1 <- terra::classify(rast(x.m), m.2[[1]]) %>% terra::trim() %>% raster(); delta.p2 <- terra::classify(rast(x.m), m.2[[2]]) %>% terra::trim() %>% raster()
+        delta.p3 <- terra::classify(rast(x.m), m.2[[3]]) %>% terra::trim()%>% raster(); delta.p4 <- terra::classify(rast(x.m), m.2[[4]]) %>% terra::trim() %>% raster()
       }
-      return(delta.2)
+
+      delta.2 <- stack(delta.p1, delta.p2, delta.p3, delta.p4)
+      rm(delta.p1, delta.p2, delta.p3, delta.p4)
+      names(delta.2) <- c("id", "dProt", "dProtConn", "varProtConn")
+
+      return(list("ProtConnDelta" = delta.1, "raster_ProtConnDelta" = delta.2))
     })
-  } else if(class(x.1)[1] == "data.frame"){
+
+  } else if(is.null(x.1)){
     deltasp <- lapply(distance_thresholds, function(d){
+      delta.1 <- data.frame(id = x.0$id2,
+                            dProt = 100,
+                            dProtConn = 100,
+                            varProtConn = 100)
+
+      m <- c(-Inf, x.0$id2, 100, x.0$id2, Inf, NA)
+      m <- matrix(m, nrow = 2, ncol=3, byrow=TRUE)
+      mid <- c(-Inf, x.0$id2, x.0$id2, x.0$id2, Inf, NA)
+      mid <- matrix(mid, nrow = 2, ncol=3, byrow=TRUE)
+
       if(!is.null(works)){
-        m <- c(-Inf, x.1$id2, 100, x.1$id2, Inf, NA)
-        m <- matrix(m, nrow = 2, ncol=3, byrow=TRUE)
         beginCluster(works)
-        delta <- clusterR(x.m, reclassify, args = list(rcl = m, right = FALSE),
-                            filename = rasterTmpFile(), overwrite=TRUE)
+        delta.id <- clusterR(x.m, reclassify, args = list(rcl = mid, right = TRUE),
+                             filename = rasterTmpFile(), datatype='INT2S', overwrite=TRUE)%>% raster::trim()
+        delta.2 <- clusterR(x.m, reclassify, args = list(rcl = m, right = TRUE),
+                            filename = rasterTmpFile(), datatype='INT2S', overwrite=TRUE)%>% raster::trim()
         endCluster()
       } else {
-        delta <- reclassify(x.m, c(-Inf, x.1$id2, 100, x.1$id2, Inf, NA))
-
+        delta.id <- terra::classify(rast(x.m), mid, datatype='INT2S')%>% terra::trim() %>% raster()
+        delta.2 <- terra::classify(rast(x.m), m, datatype='INT2S')%>% terra::trim() %>% raster()
       }
-      return(delta)
+      delta.2 <- stack(delta.id, delta.2, delta.2, delta.2)
+      names(delta.2) <- c("id", "dProt", "dProtConn", "varProtConn")
+
+      return(list("ProtConnDelta" = delta.1, "raster_ProtConnDelta" = delta.2))
     })
   } else {
     deltasp <- lapply(distance_thresholds, function(d){
-      delta <- data.frame("dProt" = NA,
+      delta <- data.frame("id" = NA,
+                          "dProt" = NA,
                           "dProtConn" = NA,
                           "varProtConn" = NA)
-      return(delta)
+      return(list("ProtConnDelta" = delta, "raster_ProtConnDelta" = NULL))
     })
   }
 

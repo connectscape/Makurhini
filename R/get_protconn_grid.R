@@ -39,8 +39,8 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
   mode(Adj_matr) <- "numeric"
 
   #adjacency
-  Adj_matr.1 <- Adj_matr[which(row.names(y) %in% as.character(x.1[,1])),
-                         which(colnames(y) %in% as.character(x.1[,1]))]
+  Adj_matr.1 <- Adj_matr[which(row.names(y) %in% as.character(x.1[[1]])),
+                         which(colnames(y) %in% as.character(x.1[[1]]))]
 
   graph_nodes <- tryCatch(graph.adjacency(Adj_matr.1, mode = "undirected", weighted = TRUE),
                           error = function(err) err)

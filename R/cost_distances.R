@@ -67,7 +67,7 @@ cost_distances <- function(x, id, LCD = "least-cost", resistance = NULL,
     }
   }
 
-  if(class(x)[1] == "SpatialPolygonsDataFrame") {
+  if(class(x)[1] != "sf") {
     x <- st_as_sf(x)
   }
 

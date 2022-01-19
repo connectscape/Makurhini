@@ -72,6 +72,7 @@
 #' @importFrom utils write.csv
 #' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
+#' @importFrom utils installed.packages
 
 
 MK_dECA <- function(nodes,

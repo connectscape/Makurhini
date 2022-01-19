@@ -52,7 +52,7 @@
 #' }
 #' @importFrom sf st_buffer write_sf st_area
 #' @importFrom magrittr %>%
-#' @importFrom raster raster crop buffer
+#' @importFrom raster raster crop buffer clump res res<-
 #' @importFrom purrr compact map
 #' @importFrom future plan multiprocess availableCores
 #' @importFrom furrr future_map
@@ -150,6 +150,11 @@ MK_ProtConn_raster <- function(nodes,
 
       LA <- sum(unit_convert(LA * res(nodes)[1]^2,
                              "m2", area_unit))
+    }
+
+    if (isTRUE(intern) & length(transboundary) == 1 &
+        length(distance_thresholds) > 1) {
+      p <- progressor(along = 1:length(distance_thresholds))
     }
 
     ProtConn_result <- lapply(loop, function(d){

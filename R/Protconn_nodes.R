@@ -43,7 +43,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
     y.1 <- st_buffer(y.1, 0)
 
     if(nrow(y.1) > 1){
-      f1 <- terra::intersect(vect(y.1[,"geometry"]), vect(x.1[, "geometry"]))
+      f1 <- terra::intersect(vect(y.1[,c("IdTemp", "geometry")]), vect(x.1[, "geometry"]))
       f1 <- terra::na.omit(f1, geom = TRUE)
       f1$id <- 1
 
@@ -142,6 +142,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
             f1 <- st_as_sf(f1)
             f1$attribute <- as.numeric(st_area(f1)) %>% unit_convert(., "m2", metrunit)
             f1$PROTIDT <- NULL
+            f1$id <- NULL
             f8 <- list(nodes_diss = f6, nodes_nondiss = f7, delta = f1)
           } else {
             f8 <- list(nodes_diss = f6, nodes_nondiss = f7)

@@ -64,6 +64,7 @@
 #' @importFrom purrr compact map_df
 #' @importFrom ggpubr ggarrange
 #' @importFrom grDevices dev.off tiff
+#' @importFrom utils installed.packages
 MK_ProtConnMult <- function(nodes, regions,
                             area_unit = "m2",
                             distance = list(type= "centroid", resistance = NULL),

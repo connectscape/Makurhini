@@ -46,6 +46,7 @@
 #' @importFrom ggplot2 ggplot aes geom_histogram theme element_blank element_text labs ggsave geom_sf theme_bw scale_fill_manual
 #' @importFrom formattable formattable formatter style
 #' @importFrom ggpubr ggarrange
+#' @importFrom utils installed.packages
 MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
                              landscape_area = NULL, area_unit = "km2", perimeter_unit = "km",
                              plot = FALSE, write = NULL){

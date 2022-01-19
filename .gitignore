@@ -3,5 +3,5 @@
 .RData
 .Ruserdata
 .travis.yml
-
+config.R
 

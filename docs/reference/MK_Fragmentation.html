@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Makurhini</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -105,8 +105,8 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/OscarGOGO/Makurhini/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/connectscape/Makurhini/">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -124,7 +124,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Fragmentation Statistics</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OscarGOGO/Makurhini/blob/master/R/MK_Fragmentation.R'><code>R/MK_Fragmentation.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/connectscape/Makurhini/blob/master/R/MK_Fragmentation.R'><code>R/MK_Fragmentation.R</code></a></small>
     <div class="hidden name"><code>MK_Fragmentation.Rd</code></div>
     </div>
 
@@ -132,23 +132,23 @@
     <p>Calculate patch and landscape statistics</p>
     </div>
 
-    <pre class="usage"><span class='fu'>MK_Fragmentation</span>(
-  <span class='no'>patches</span>,
-  <span class='kw'>edge_distance</span> <span class='kw'>=</span> <span class='fl'>500</span>,
-  <span class='kw'>min_patch_area</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>landscape_area</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"km2"</span>,
-  <span class='kw'>perimeter_unit</span> <span class='kw'>=</span> <span class='st'>"km"</span>,
-  <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>MK_Fragmentation</span><span class='op'>(</span>
+  <span class='va'>patches</span>,
+  edge_distance <span class='op'>=</span> <span class='fl'>500</span>,
+  min_patch_area <span class='op'>=</span> <span class='fl'>100</span>,
+  landscape_area <span class='op'>=</span> <span class='cn'>NULL</span>,
+  area_unit <span class='op'>=</span> <span class='st'>"km2"</span>,
+  perimeter_unit <span class='op'>=</span> <span class='st'>"km"</span>,
+  plot <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  write <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>patches</th>
-      <td><p>Object of class sf, sfc, sfg or SpatialPolygons with individual patches. The shapefile must be in a projected coordinate system.</p></td>
+      <td><p>Object of class sf, sfc, sfg or SpatialPolygons. Individual patches, the shapefile must be in a projected coordinate system.</p></td>
     </tr>
     <tr>
       <th>edge_distance</th>
@@ -156,7 +156,7 @@
     </tr>
     <tr>
       <th>min_patch_area</th>
-      <td><p>Numeric. Minimum patch area. Default equal 100 km2(Haddad et al. 2015)</p></td>
+      <td><p>Numeric. Minimum patch area. Default equal 100 km2 (Haddad et al. 2015)</p></td>
     </tr>
     <tr>
       <th>landscape_area</th>
@@ -176,7 +176,8 @@
     </tr>
     <tr>
       <th>write</th>
-      <td><p>Character. Write the following outputs: Fragmentation.csv, Fragmentation.shp and plots. It's necessary to specify the path and prefix, for example: "C:/Folder/Fragmentation".</p></td>
+      <td><p>Character. Write the tables, shapefile and and plots. It's necessary to specify the path and prefix, for example,
+to save in the path "C:/Folder" with the prefix "Fragmentation": "C:/Folder/Fragmentation".</p></td>
     </tr>
     </table>
 
@@ -205,39 +206,41 @@
 Haddad et al. (2015). Science Advances 1(2):e1500052. <a href='DOI: 10.1126/sciadv.1500052'>DOI: 10.1126/sciadv.1500052</a>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"vegetation_patches"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Makurhini"</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>vegetation_patches</span>) <span class='co'># Number of patches</span></div><div class='output co'>#&gt; [1] 142</div><div class='input'><span class='no'>fragmentation</span> <span class='kw'>&lt;-</span> <span class='fu'>MK_Fragmentation</span>(<span class='kw'>patches</span> <span class='kw'>=</span> <span class='no'>vegetation_patches</span>, <span class='kw'>edge_distance</span> <span class='kw'>=</span> <span class='fl'>1000</span>, <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Use of `data$Area` is discouraged. Use `Area` instead.</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Use of `data$Perimeter` is discouraged. Use `Perimeter` instead.</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Use of `data$ShapeIndex` is discouraged. Use `ShapeIndex` instead.</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Use of `data$CA` is discouraged. Use `CA` instead.</span></div><div class='img'><img src='MK_Fragmentation-1.png' alt='' width='700' height='433' /></div><div class='input'>
-<span class='co'>#Table</span>
-<span class='no'>fragmentation</span>$<span class='no'>`Summary landscape metrics (Viewer Panel)`</span>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"vegetation_patches"</span>, package <span class='op'>=</span> <span class='st'>"Makurhini"</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>vegetation_patches</span><span class='op'>)</span> <span class='co'># Number of patches</span>
+</div><div class='output co'>#&gt; [1] 142</div><div class='input'><span class='va'>fragmentation</span> <span class='op'>&lt;-</span> <span class='fu'>MK_Fragmentation</span><span class='op'>(</span>patches <span class='op'>=</span> <span class='va'>vegetation_patches</span>, edge_distance <span class='op'>=</span> <span class='fl'>1000</span>, plot <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='img'><img src='MK_Fragmentation-1.png' alt='' width='700' height='433' /></div><div class='img'><img src='MK_Fragmentation-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'>#Table</span>
+<span class='va'>fragmentation</span><span class='op'>$</span><span class='va'>`Summary landscape metrics (Viewer Panel)`</span>
 <span class='co'>#Shapefile</span>
-<span class='no'>fragmentation</span>$<span class='no'>`Patch statistics shapefile`</span></div><div class='output co'>#&gt; Simple feature collection with 142 features and 9 fields
-#&gt; geometry type:  POLYGON
-#&gt; dimension:      XY
-#&gt; bbox:           xmin: 3340120 ymin: 322869.6 xmax: 3739484 ymax: 696540.5
-#&gt; CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+<span class='va'>fragmentation</span><span class='op'>$</span><span class='va'>`Patch statistics shapefile`</span>
+</div><div class='output co'>#&gt; Simple feature collection with 142 features and 9 fields
+#&gt; Geometry type: POLYGON
+#&gt; Dimension:     XY
+#&gt; Bounding box:  xmin: 3340120 ymin: 322869.6 xmax: 3739484 ymax: 696540.5
+#&gt; CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #&gt; First 10 features:
-#&gt;    id     Area       CA CAPercent Perimeter EdgePercent  PARA ShapeIndex  FRAC
-#&gt; 1   1 4195.569 3028.556    72.185  1412.046      27.815 2.971      6.150 1.407
-#&gt; 2   2   60.223    0.358     0.594   167.982      99.406 0.359      6.106 1.824
-#&gt; 3   3   48.866    0.000     0.000   127.049     100.000 0.385      5.127 1.778
-#&gt; 4   4   15.188    2.413    15.888    18.536      84.112 0.819      1.342 1.127
-#&gt; 5   5   33.272    2.326     6.991    55.038      93.009 0.605      2.692 1.496
-#&gt; 6   6   53.134    0.040     0.075   111.123      99.925 0.478      4.300 1.674
-#&gt; 7   7   83.842    6.482     7.731   121.275      92.269 0.691      3.736 1.541
-#&gt; 8   8   17.387    0.046     0.265    33.798      99.735 0.514      2.287 1.495
-#&gt; 9   9   18.037    0.913     5.062    25.755      94.938 0.700      1.711 1.288
-#&gt; 10 10   36.336    7.451    20.506    36.972      79.494 0.983      1.730 1.238
-#&gt;                          geometry
-#&gt; 1  POLYGON ((3676911 589967.3,...
-#&gt; 2  POLYGON ((3558044 696202.5,...
-#&gt; 3  POLYGON ((3569169 687776.4,...
-#&gt; 4  POLYGON ((3547317 685713.2,...
-#&gt; 5  POLYGON ((3567471 684357.4,...
-#&gt; 6  POLYGON ((3590569 672451.7,...
-#&gt; 7  POLYGON ((3570789 670959.4,...
-#&gt; 8  POLYGON ((3440118 666273.2,...
-#&gt; 9  POLYGON ((3451637 671232.4,...
-#&gt; 10 POLYGON ((3444396 671675.7,...</div></pre>
+#&gt;    id      Area        CA CAPercent Perimeter EdgePercent   PARA ShapeIndex
+#&gt; 1   1 4195.5691 3028.5557   72.1846  1412.046     27.8154 2.9713  8212.7666
+#&gt; 2   2   60.2227    0.3580    0.5945   167.982     99.4055 0.3585   117.0545
+#&gt; 3   3   48.8665    0.0000    0.0000   127.049    100.0000 0.3846    79.7484
+#&gt; 4   4   15.1875    2.4127   15.8861    18.536     84.1139 0.8194     6.4864
+#&gt; 5   5   33.2716    2.3258    6.9903    55.038     93.0097 0.6045    28.5066
+#&gt; 6   6   53.1344    0.0403    0.0758   111.123     99.9242 0.4782    72.7339
+#&gt; 7   7   83.8417    6.4824    7.7317   121.275     92.2683 0.6913    99.7118
+#&gt; 8   8   17.3865    0.0463    0.2663    33.798     99.7337 0.5144    12.6544
+#&gt; 9   9   18.0369    0.9129    5.0613    25.755     94.9387 0.7003     9.8217
+#&gt; 10 10   36.3359    7.4507   20.5051    36.972     79.4949 0.9828    20.0118
+#&gt;      FRAC                       geometry
+#&gt; 1  1.4065 POLYGON ((3676911 589967.3,...
+#&gt; 2  1.8241 POLYGON ((3558044 696202.5,...
+#&gt; 3  1.7785 POLYGON ((3569169 687776.4,...
+#&gt; 4  1.1273 POLYGON ((3547317 685713.2,...
+#&gt; 5  1.4961 POLYGON ((3567471 684357.4,...
+#&gt; 6  1.6735 POLYGON ((3590569 672451.7,...
+#&gt; 7  1.5407 POLYGON ((3570789 670959.4,...
+#&gt; 8  1.4946 POLYGON ((3440118 666273.2,...
+#&gt; 9  1.2877 POLYGON ((3451637 671232.4,...
+#&gt; 10 1.2380 POLYGON ((3444396 671675.7,...</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -253,7 +256,7 @@ Haddad et al. (2015). Science Advances 1(2):e1500052. <a href='DOI: 10.1126/scia
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

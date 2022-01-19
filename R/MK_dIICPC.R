@@ -43,6 +43,7 @@
 #' Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented landscape. Nature 404: 755–758.
 #' @export
 #' @examples
+#' \dontrun{
 #' library(Makurhini)
 #' data("vegetation_patches", package = "Makurhini")
 #' nrow(vegetation_patches) # Number of patches
@@ -64,6 +65,7 @@
 #'                 overall = TRUE,
 #'                 distance_thresholds = 40000) # 40 km
 #' PC
+#' }
 #' @note Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @importFrom progressr handlers handler_pbcol progressor
 #' @importFrom crayon bgWhite white bgCyan

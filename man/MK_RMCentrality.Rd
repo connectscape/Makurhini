@@ -49,6 +49,7 @@ node memberships (cluster), and modularity (modules, using probability argument)
 The function builds on functions out of Csardi’s ’igraph’ package.
 }
 \examples{
+\dontrun{
 library(Makurhini)
 library(sf)
 data("vegetation_patches", package = "Makurhini")
@@ -64,6 +65,7 @@ plot(centrality_test$d10000["degree"], breaks = "jenks")
 plot(centrality_test$d10000["BWC"], breaks = "jenks")
 plot(centrality_test$d10000["cluster"], breaks = "jenks")
 plot(centrality_test$d10000["modules"], breaks = "jenks")
+}
 }
 \references{
 Borgatti, S. P., & Everett, M. G. (2006). A Graph-theoretic perspective on centrality. Social Networks, 28(4), 466–484. https://doi.org/10.1016/j.socnet.2005.11.005

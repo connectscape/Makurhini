@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Makurhini</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -105,8 +105,8 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/OscarGOGO/Makurhini/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/connectscape/Makurhini/">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -124,7 +124,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Test the ECA or ProtConn metrics using multiple dispersal distances</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OscarGOGO/Makurhini/blob/master/R/test_distance.R'><code>R/test_distance.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/connectscape/Makurhini/blob/master/R/test_metric_distance.R'><code>R/test_metric_distance.R</code></a></small>
     <div class="hidden name"><code>test_metric_distance.Rd</code></div>
     </div>
 
@@ -132,23 +132,24 @@
     <p>Test the ECA or ProtConn metrics using multiple dispersal distances</p>
     </div>
 
-    <pre class="usage"><span class='fu'>test_metric_distance</span>(
-  <span class='no'>nodes</span>,
-  <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance1</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance3</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance4</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>metric</span> <span class='kw'>=</span> <span class='st'>"IIC"</span>,
-  <span class='kw'>probability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>distance_thresholds</span>,
-  <span class='kw'>region</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>LA</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>transboundary</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
-  <span class='kw'>groups</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-  <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>test_metric_distance</span><span class='op'>(</span>
+  <span class='va'>nodes</span>,
+  attribute <span class='op'>=</span> <span class='cn'>NULL</span>,
+  distance1 <span class='op'>=</span> <span class='cn'>NULL</span>,
+  distance2 <span class='op'>=</span> <span class='cn'>NULL</span>,
+  distance3 <span class='op'>=</span> <span class='cn'>NULL</span>,
+  distance4 <span class='op'>=</span> <span class='cn'>NULL</span>,
+  metric <span class='op'>=</span> <span class='st'>"IIC"</span>,
+  probability <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>distance_thresholds</span>,
+  region <span class='op'>=</span> <span class='cn'>NULL</span>,
+  LA <span class='op'>=</span> <span class='cn'>NULL</span>,
+  transboundary <span class='op'>=</span> <span class='cn'>NULL</span>,
+  area_unit <span class='op'>=</span> <span class='st'>"ha"</span>,
+  groups <span class='op'>=</span> <span class='fl'>3</span>,
+  write <span class='op'>=</span> <span class='cn'>NULL</span>,
+  intern <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -220,6 +221,10 @@ compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".</p></t
       <th>write</th>
       <td><p>character. Folder path and prefix, for example: "C:/Folder/test".</p></td>
     </tr>
+    <tr>
+      <th>intern</th>
+      <td><p>logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
@@ -227,36 +232,37 @@ compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".</p></t
     <p>Correa Ayram, C. A., Mendoza, M. E., Etter, A., &amp; Pérez Salicrup, D. R. (2017). Anthropogenic impact on habitat connectivity: A multidimensional human footprint index evaluated in a highly biodiverse landscape of Mexico. Ecological Indicators, 72, 895–909. https://doi.org/10.1016/j.ecolind.2016.09.007</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>Makurhini</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>rgeos</span>)
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/connectscape/Makurhini'>Makurhini</a></span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://r-forge.r-project.org/projects/rgeos/'>rgeos</a></span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"list_forest_patches"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Makurhini"</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"study_area"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Makurhini"</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"list_forest_patches"</span>, package <span class='op'>=</span> <span class='st'>"Makurhini"</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"study_area"</span>, package <span class='op'>=</span> <span class='st'>"Makurhini"</span><span class='op'>)</span>
 
-<span class='no'>Max_attribute</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='unit_convert.html'>unit_convert</a></span>(<span class='fu'><a href='https://rdrr.io/pkg/rgeos/man/misc-gArea.html'>gArea</a></span>(<span class='no'>study_area</span>), <span class='st'>"m2"</span>, <span class='st'>"ha"</span>)
+<span class='va'>Max_attribute</span> <span class='op'>&lt;-</span> <span class='fu'><a href='unit_convert.html'>unit_convert</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/pkg/rgeos/man/misc-gArea.html'>gArea</a></span><span class='op'>(</span><span class='va'>study_area</span><span class='op'>)</span>, <span class='st'>"m2"</span>, <span class='st'>"ha"</span><span class='op'>)</span>
 
-<span class='fu'>test_metric_distance</span>(<span class='kw'>nodes</span> <span class='kw'>=</span> <span class='no'>list_forest_patches</span><span class='kw'>[[</span><span class='fl'>1</span>]],
-                     <span class='kw'>distance1</span> <span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span><span class='kw'>=</span> <span class='st'>"centroid"</span>),
-                     <span class='kw'>distance2</span> <span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span><span class='kw'>=</span> <span class='st'>"edge"</span>),
-                     <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
-                     <span class='kw'>LA</span> <span class='kw'>=</span> <span class='no'>Max_attribute</span> ,
-                     <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>10000</span>,<span class='fl'>100000</span>, <span class='fl'>10000</span>),
-                     <span class='kw'>groups</span> <span class='kw'>=</span> <span class='fl'>0</span>)
+<span class='fu'>test_metric_distance</span><span class='op'>(</span>nodes <span class='op'>=</span> <span class='va'>list_forest_patches</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>,
+                     distance1 <span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>type<span class='op'>=</span> <span class='st'>"centroid"</span><span class='op'>)</span>,
+                     distance2 <span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>type<span class='op'>=</span> <span class='st'>"edge"</span><span class='op'>)</span>,
+                     attribute <span class='op'>=</span> <span class='cn'>NULL</span>, area_unit <span class='op'>=</span> <span class='st'>"ha"</span>,
+                     LA <span class='op'>=</span> <span class='va'>Max_attribute</span> ,
+                     distance_thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>10000</span>,<span class='fl'>100000</span>, <span class='fl'>10000</span><span class='op'>)</span>,
+                     groups <span class='op'>=</span> <span class='fl'>0</span><span class='op'>)</span>
 
 
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"Protected_areas"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Makurhini"</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"regions"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Makurhini"</span>)
-<span class='no'>region</span> <span class='kw'>&lt;-</span> <span class='no'>regions</span>[<span class='fl'>1</span>,]
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"Protected_areas"</span>, package <span class='op'>=</span> <span class='st'>"Makurhini"</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"regions"</span>, package <span class='op'>=</span> <span class='st'>"Makurhini"</span><span class='op'>)</span>
+<span class='va'>region</span> <span class='op'>&lt;-</span> <span class='va'>regions</span><span class='op'>[</span><span class='fl'>1</span>,<span class='op'>]</span>
 
-<span class='fu'>test_metric_distance</span>(<span class='kw'>nodes</span> <span class='kw'>=</span> <span class='no'>Protected_areas</span>,
-                     <span class='kw'>distance1</span> <span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span><span class='kw'>=</span> <span class='st'>"centroid"</span>),
-                     <span class='kw'>distance2</span> <span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span><span class='kw'>=</span> <span class='st'>"edge"</span>, <span class='kw'>keep</span> <span class='kw'>=</span> <span class='fl'>0.05</span>),
-                     <span class='kw'>metric</span> <span class='kw'>=</span> <span class='st'>"ProtConn"</span>, <span class='kw'>probability</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
-                     <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='st'>"Intersected area"</span>, <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
-                     <span class='kw'>region</span> <span class='kw'>=</span> <span class='no'>region</span>, <span class='kw'>transboundary</span> <span class='kw'>=</span> <span class='fl'>50000</span>,
-                     <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>10000</span>,<span class='fl'>100000</span>, <span class='fl'>10000</span>))
-}</div></pre>
+<span class='fu'>test_metric_distance</span><span class='op'>(</span>nodes <span class='op'>=</span> <span class='va'>Protected_areas</span>,
+                     distance1 <span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>type<span class='op'>=</span> <span class='st'>"centroid"</span><span class='op'>)</span>,
+                     distance2 <span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>type<span class='op'>=</span> <span class='st'>"edge"</span>, keep <span class='op'>=</span> <span class='fl'>0.05</span><span class='op'>)</span>,
+                     metric <span class='op'>=</span> <span class='st'>"ProtConn"</span>, probability <span class='op'>=</span> <span class='fl'>0.5</span>,
+                     area_unit <span class='op'>=</span> <span class='st'>"ha"</span>,
+                     region <span class='op'>=</span> <span class='va'>region</span>, transboundary <span class='op'>=</span> <span class='fl'>50000</span>,
+                     distance_thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>10000</span>,<span class='fl'>100000</span>, <span class='fl'>10000</span><span class='op'>)</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -272,7 +278,7 @@ compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".</p></t
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

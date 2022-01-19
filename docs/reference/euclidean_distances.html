@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Makurhini</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -105,8 +105,8 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/OscarGOGO/Makurhini/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/connectscape/Makurhini/">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -124,7 +124,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Euclidian distances</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OscarGOGO/Makurhini/blob/master/R/distances.R'><code>R/distances.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/connectscape/Makurhini/blob/master/R/euclidean_distances.R'><code>R/euclidean_distances.R</code></a></small>
     <div class="hidden name"><code>euclidean_distances.Rd</code></div>
     </div>
 
@@ -132,32 +132,32 @@
     <p>Euclidian distances</p>
     </div>
 
-    <pre class="usage"><span class='fu'>euclidean_distances</span>(
-  <span class='no'>x</span>,
-  <span class='no'>id</span>,
-  <span class='kw'>type_distance</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>,
-  <span class='kw'>distance_unit</span> <span class='kw'>=</span> <span class='st'>"m"</span>,
-  <span class='kw'>keep</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>edgeParallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>write_table</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>euclidean_distances</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>id</span>,
+  centroid <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  distance_unit <span class='op'>=</span> <span class='st'>"m"</span>,
+  keep <span class='op'>=</span> <span class='cn'>NULL</span>,
+  threshold <span class='op'>=</span> <span class='cn'>NULL</span>,
+  edgeParallel <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  pairwise <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  write_table <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>object of class sf, sfc, sfg or SpatialPolygons. The shapefile must be in a projected coordinate system.</p></td>
+      <td><p>object of class sf, sfc, sfg or SpatialPolygons. It must be in a projected coordinate system.</p></td>
     </tr>
     <tr>
       <th>id</th>
-      <td><p>character. Column name with the core id.</p></td>
+      <td><p>character. Column name with the patches+ id.</p></td>
     </tr>
     <tr>
-      <th>type_distance</th>
-      <td><p>character. Choose one of the distances: "centroid" (faster, default), where Euclidean distance is calculated from feature centroid; "edge", where Euclidean distance is calculated from feature edges;</p></td>
+      <th>centroid</th>
+      <td><p>logical. If centroid is TRUE then the Euclidean distance is calculated from patch centroids, if FALSE the Euclidean distance is calculated from patch edges.</p></td>
     </tr>
     <tr>
       <th>distance_unit</th>
@@ -165,8 +165,8 @@
     </tr>
     <tr>
       <th>keep</th>
-      <td><p>numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
-number of vertices (from rmapshaper::ms_simplif). The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
+      <td><p>numeric. Argument for higher processing speed. Only is available for "edge" distance or centroid equal FALSE, use this option to simplify the geometry and reduce the
+number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
  the higher the speed but the greater uncertainty.</p></td>
     </tr>
     <tr>
@@ -175,7 +175,7 @@ number of vertices (from rmapshaper::ms_simplif). The value can range from 0 to 
     </tr>
     <tr>
       <th>edgeParallel</th>
-      <td><p>logical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.</p></td>
+      <td><p>logical. Only is available for "edge" distance or centroid equal FALSE, use this option to parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.</p></td>
     </tr>
     <tr>
       <th>pairwise</th>
@@ -190,9 +190,6 @@ number of vertices (from rmapshaper::ms_simplif). The value can range from 0 to 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>Pairwise Euclidean distance table</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>The function builds on functions out of Roger Bivand and collaborators ’rgeos’ package.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitized Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.</p>
@@ -212,7 +209,7 @@ number of vertices (from rmapshaper::ms_simplif). The value can range from 0 to 
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

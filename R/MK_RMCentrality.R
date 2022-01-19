@@ -25,6 +25,7 @@
 #' Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented landscape. Nature 404: 755–758.
 #' @export
 #' @examples
+#' \dontrun{
 #' library(Makurhini)
 #' library(sf)
 #' data("vegetation_patches", package = "Makurhini")
@@ -40,6 +41,7 @@
 #' plot(centrality_test$d10000["BWC"], breaks = "jenks")
 #' plot(centrality_test$d10000["cluster"], breaks = "jenks")
 #' plot(centrality_test$d10000["modules"], breaks = "jenks")
+#' }
 #' @importFrom progressr handlers handler_pbcol progressor
 #' @importFrom crayon bgWhite white bgCyan
 #' @importFrom magrittr %>%

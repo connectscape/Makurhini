@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Makurhini</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -105,8 +105,8 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/OscarGOGO/Makurhini/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/connectscape/Makurhini/">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -124,7 +124,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Plot probability  of dispersal</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OscarGOGO/Makurhini/blob/master/R/test_distance.R'><code>R/test_distance.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/connectscape/Makurhini/blob/master/R/probability_distance.R'><code>R/probability_distance.R</code></a></small>
     <div class="hidden name"><code>probability_distance.Rd</code></div>
     </div>
 
@@ -132,27 +132,27 @@
     <p>Negative exponential dispersal kernel to calculate the probability of dispersal between two nodes. Used in probabilistic indexes (e.g., PC, BCPC, ProtConn etc.)</p>
     </div>
 
-    <pre class="usage"><span class='fu'>probability_distance</span>(
-  <span class='no'>probability</span>,
-  <span class='no'>max_distance</span>,
-  <span class='kw'>eval_distance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>min.prob</span> <span class='kw'>=</span> <span class='fl'>0.2</span>
-)</pre>
+    <pre class="usage"><span class='fu'>probability_distance</span><span class='op'>(</span>
+  <span class='va'>probability</span>,
+  <span class='va'>median_distance</span>,
+  eval_distance <span class='op'>=</span> <span class='cn'>NULL</span>,
+  min.prob <span class='op'>=</span> <span class='fl'>0.01</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>probability</th>
-      <td><p>numeric. Probability of dispersal at max_distance. If NULL</p></td>
+      <td><p>numeric. Probability of dispersal at median_distance. If NULL</p></td>
     </tr>
     <tr>
-      <th>max_distance</th>
+      <th>median_distance</th>
       <td><p>numeric. Up to five maximum dispersal distance (km)</p></td>
     </tr>
     <tr>
       <th>eval_distance</th>
-      <td><p>numeric. Calculate the probability of dispersal at a specific distance (km). Available when only one max_distance is used.</p></td>
+      <td><p>numeric. Calculate the probability of dispersal at a specific median distances (km). Available when only one median_distance is used.</p></td>
     </tr>
     <tr>
       <th>min.prob</th>
@@ -162,10 +162,12 @@
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'>probability_distance</span>(<span class='kw'>probability</span><span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>max_distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>10</span>, <span class='fl'>30</span>, <span class='fl'>100</span>))
-<span class='fu'>probability_distance</span>(<span class='kw'>probability</span><span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>max_distance</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>eval_distance</span> <span class='kw'>=</span> <span class='fl'>30</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='fu'>probability_distance</span><span class='op'>(</span>probability<span class='op'>=</span> <span class='fl'>0.5</span>, median_distance <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>10</span>, <span class='fl'>30</span>, <span class='fl'>100</span><span class='op'>)</span>, min.prob <span class='op'>=</span> <span class='fl'>0.01</span><span class='op'>)</span>
+<span class='fu'>probability_distance</span><span class='op'>(</span>probability<span class='op'>=</span> <span class='fl'>0.5</span>, median_distance <span class='op'>=</span> <span class='fl'>100</span>, eval_distance <span class='op'>=</span> <span class='fl'>100</span><span class='op'>)</span>
+<span class='fu'>probability_distance</span><span class='op'>(</span>probability<span class='op'>=</span> <span class='fl'>0</span>, median_distance <span class='op'>=</span> <span class='fl'>100</span>, eval_distance <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -181,7 +183,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

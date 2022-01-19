@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Get a table or matrix with the distances between pairs of nodes. — distancefile" />
-<meta property="og:description" content="Get a table or matrix with the distances (euclidean or cost distances) between pairs of nodes. It can be used as a connector file." />
+<meta property="og:description" content="Get a table or matrix with the distances (Euclidean or cost distances) between pairs of nodes. It can be used as a connector file." />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Makurhini</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -105,8 +105,8 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/OscarGOGO/Makurhini/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/connectscape/Makurhini/">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -124,34 +124,36 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get a table or matrix with the distances between pairs of nodes.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OscarGOGO/Makurhini/blob/master/R/distancefile.R'><code>R/distancefile.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/connectscape/Makurhini/blob/master/R/distancefile.R'><code>R/distancefile.R</code></a></small>
     <div class="hidden name"><code>distancefile.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get a table or matrix with the distances (euclidean or cost distances) between pairs of nodes. It can be used as a connector file.</p>
+    <p>Get a table or matrix with the distances (Euclidean or cost distances) between pairs of nodes. It can be used as a connector file.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>distancefile</span>(
-  <span class='no'>nodes</span>,
-  <span class='no'>id</span>,
-  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>,
-  <span class='kw'>distance_unit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>keep</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>resistance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>CostFun</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>ngh</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>mask</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>geometry_out</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>bounding_circles</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>multiple</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>prefix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>edgeParallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>distancefile</span><span class='op'>(</span>
+  <span class='va'>nodes</span>,
+  <span class='va'>id</span>,
+  type <span class='op'>=</span> <span class='st'>"centroid"</span>,
+  distance_unit <span class='op'>=</span> <span class='cn'>NULL</span>,
+  keep <span class='op'>=</span> <span class='cn'>NULL</span>,
+  resistance <span class='op'>=</span> <span class='cn'>NULL</span>,
+  resist.units <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  CostFun <span class='op'>=</span> <span class='cn'>NULL</span>,
+  ngh <span class='op'>=</span> <span class='cn'>NULL</span>,
+  mask <span class='op'>=</span> <span class='cn'>NULL</span>,
+  threshold <span class='op'>=</span> <span class='cn'>NULL</span>,
+  geometry_out <span class='op'>=</span> <span class='cn'>NULL</span>,
+  bounding_circles <span class='op'>=</span> <span class='cn'>NULL</span>,
+  parallel <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  edgeParallel <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  least_cost.java <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  cores.java <span class='op'>=</span> <span class='fl'>1</span>,
+  ram.java <span class='op'>=</span> <span class='cn'>NULL</span>,
+  pairwise <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  write <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -176,18 +178,23 @@ If the type is equal to "least-cost" or "commute-time", then you have to use the
     </tr>
     <tr>
       <th>distance_unit</th>
-      <td><p>character. If Euclidean distance is selected you can set a distance unit, "Makurhini::unit_covert()"
+      <td><p>character. If Euclidean distance is selected or resist.units is TRUE then you can set a distance unit, "Makurhini::unit_covert()"
 compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".</p></td>
     </tr>
     <tr>
       <th>keep</th>
       <td><p>numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
-number of vertices (from rmapshaper::ms_simplify). The value can range from 0 to 1 and is the proportion of points to retain (default equal to NULL). The higher the value,
+number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to NULL). The higher the value,
  the higher the speed but less precision.</p></td>
     </tr>
     <tr>
       <th>resistance</th>
       <td><p>raster. Raster object with resistance values.</p></td>
+    </tr>
+    <tr>
+      <th>resist.units</th>
+      <td><p>logical. If type = "least-cost" then yo can transform cost units to geographic
+units by multiplying the cost by the resolution of the raster.</p></td>
     </tr>
     <tr>
       <th>CostFun</th>
@@ -226,14 +233,6 @@ Buffer distances are entered in map units. Also, the function is parallelized us
  and furrr package and multiprocess plan, default = NULL.</p></td>
     </tr>
     <tr>
-      <th>multiple</th>
-      <td><p>character. If nodes is a shapefile then you can use this argument. Name of the column with the zone to which each core area belongs.</p></td>
-    </tr>
-    <tr>
-      <th>prefix</th>
-      <td><p>character. Initial prefix, use in case of processing several sites at the same time in CONEFOR command line.</p></td>
-    </tr>
-    <tr>
       <th>parallel</th>
       <td><p>logical. If nodes is a raster then you can use this argument for larges RasterLayer.</p></td>
     </tr>
@@ -242,13 +241,26 @@ Buffer distances are entered in map units. Also, the function is parallelized us
       <td><p>logical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.</p></td>
     </tr>
     <tr>
+      <th>least_cost.java</th>
+      <td><p>logical. If TRUE then the programming language and computing platform 'java' will be used
+to estimate the least-cost distance USING only the FORMULA: function(x) 1/mean(x). It is necessary to have java installed. This option use
+the package 'graph4lg' to reduce computation times.</p></td>
+    </tr>
+    <tr>
+      <th>cores.java</th>
+      <td><p>numeric. Computer cores used to run the .jar file (see, graph4lg), default = 1.</p></td>
+    </tr>
+    <tr>
+      <th>ram.java</th>
+      <td><p>numeric. RAM gigabytes to run the .jar file (see, graph4lg), default = NULL.</p></td>
+    </tr>
+    <tr>
       <th>pairwise</th>
       <td><p>logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.</p></td>
     </tr>
     <tr>
       <th>write</th>
-      <td><p>character. Choose the output folder if you use multiple argument otherwise, place the output path, with
-the name and extension ".txt".</p></td>
+      <td><p>character. Output path, with name and extension ".txt".</p></td>
     </tr>
     </table>
 
@@ -275,7 +287,7 @@ the name and extension ".txt".</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

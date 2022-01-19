@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Makurhini</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -105,8 +105,8 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/OscarGOGO/Makurhini/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/connectscape/Makurhini/">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -124,7 +124,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Estimate the integral index of connectivity (IIC) or the probability of connectivity (PC)</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OscarGOGO/Makurhini/blob/master/R/MK_dIICPC.R'><code>R/MK_dIICPC.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/connectscape/Makurhini/blob/master/R/MK_dIICPC.R'><code>R/MK_dIICPC.R</code></a></small>
     <div class="hidden name"><code>MK_dPCIIC.Rd</code></div>
     </div>
 
@@ -132,31 +132,32 @@
     <p>Use this function to calculate the PC and IIC indexes under one or several distance thresholds.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>MK_dPCIIC</span>(
-  <span class='no'>nodes</span>,
-  <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>area_unit</span> <span class='kw'>=</span> <span class='st'>"ha"</span>,
-  <span class='kw'>restauration</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>, <span class='kw'>resistance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>),
-  <span class='kw'>metric</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"IIC"</span>, <span class='st'>"PC"</span>),
-  <span class='kw'>probability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>overall</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>onlyoverall</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>LA</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>rasterparallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>write</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>MK_dPCIIC</span><span class='op'>(</span>
+  <span class='va'>nodes</span>,
+  attribute <span class='op'>=</span> <span class='cn'>NULL</span>,
+  area_unit <span class='op'>=</span> <span class='st'>"m2"</span>,
+  restoration <span class='op'>=</span> <span class='cn'>NULL</span>,
+  distance <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"centroid"</span>, resistance <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>,
+  metric <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"IIC"</span>, <span class='st'>"PC"</span><span class='op'>)</span>,
+  probability <span class='op'>=</span> <span class='cn'>NULL</span>,
+  distance_thresholds <span class='op'>=</span> <span class='cn'>NULL</span>,
+  overall <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  onlyoverall <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  LA <span class='op'>=</span> <span class='cn'>NULL</span>,
+  rasterparallel <span class='op'>=</span> <span class='cn'>NULL</span>,
+  write <span class='op'>=</span> <span class='cn'>NULL</span>,
+  intern <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>nodes</th>
-      <td><p>Object of class sf, SpatialPolygonsDataFrame, raster or data frame.
+      <td><p>Nodes, patches, fragments, etc. Object of class sf, SpatialPolygonsDataFrame, raster or data frame.
 If spatial layer, then it must be in a projected coordinate system. If nodes is a raster layer then raster values (Integer)
-will be taken as "id". If nodes is a data frame, then it must have at least two columns, first column with nodes "id" and second with the attribut.
-If you use the restoration argument, then you must have a dataframe with three columns where the third column is equal the restauration values</p></td>
+will be taken as "id". If nodes is a data frame, then it must have at least two columns, first column with nodes "id" and second with the attribute.
+If you use the restoration argument, then you must have a dataframe with three columns where the third column is equal the restoration values</p></td>
     </tr>
     <tr>
       <th>attribute</th>
@@ -170,27 +171,26 @@ a numeric vector with the node's attribute. The length of the vector must be equ
     <tr>
       <th>area_unit</th>
       <td><p>character. If attribute is NULL you can set an area unit (e.g., "km2", "cm2", "ha";
-see Makurhini::unit_convert). Default equal to hectares "ha".</p></td>
+see Makurhini::unit_convert). Default equal to hectares "m2".</p></td>
     </tr>
     <tr>
-      <th>restauration</th>
+      <th>restoration</th>
       <td><p>character or vector. If nodes is a shappefile then you must specify the name of the column
-with restauration value. If nodes is a raster layer then must be a numeric vector with restauration values
+with restoration value. If nodes is a raster layer then must be a numeric vector with restoration values
 to each node in the raster. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node
  to add to the initial landscape (restored).
- If nodes is a data frame then it must have three columns where third column has restauration values.</p></td>
+ If nodes is a data frame then it must have three columns where third column has restoration values.</p></td>
     </tr>
     <tr>
       <th>distance</th>
       <td><p>list or distance matrix. If it is a list, then it must be a set of distance parameters. For example: type, resistance,or keep. For "type" choose one
-of the distances: "centroid" (faster), "edge", "hausdorff-edge",
-"least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have
+of the distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have
 to use the "resistance" argument. To see more arguments see the ?distancefile.
 If it is a distance matrix, then the number of columns and rows must be equal the number of nodes and "id".</p></td>
     </tr>
     <tr>
       <th>metric</th>
-      <td><p>character. Choose a connectivity metric: "IIC" considering topologycal distances or "PC" considering maximum product probabilities.</p></td>
+      <td><p>character. Choose a connectivity metric: "IIC" considering topological distances or "PC" considering maximum product probabilities.</p></td>
     </tr>
     <tr>
       <th>probability</th>
@@ -200,7 +200,8 @@ If probability = NULL, then it will be the inverse of the mean dispersal distanc
     <tr>
       <th>distance_thresholds</th>
       <td><p>numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
-distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).</p></td>
+distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000). If NULL then the mean
+distance between nodes will be estimated and used.</p></td>
     </tr>
     <tr>
       <th>overall</th>
@@ -212,19 +213,28 @@ distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds =
     </tr>
     <tr>
       <th>LA</th>
-      <td><p>numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).</p></td>
+      <td><p>numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to m2).</p></td>
     </tr>
     <tr>
       <th>rasterparallel</th>
-      <td><p>logical. If nodes is "raster" then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.</p></td>
+      <td><p>numeric. Specify the number of cores to use for parallel processing, default = NULL.
+If nodes is "raster" then you can use this argument to assign the metrics values to the nodes
+ raster. It is useful when raster resolution is less than 100 m2.</p></td>
     </tr>
     <tr>
       <th>write</th>
       <td><p>character. Write output shapefile and overall table (if TRUE overall argument).
 It is necessary to specify the "Folder direction" + "Initial prefix",  for example, "C:/ejemplo".</p></td>
     </tr>
+    <tr>
+      <th>intern</th>
+      <td><p>logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.</p></td>
+    </tr>
     </table>
 
+    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
+
+    <p>Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Saura, S. &amp; Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at <a href='www.conefor.org'>www.conefor.org</a>.<br />
@@ -233,77 +243,30 @@ Saura, S. &amp; Pascual-Hortal, L. 2007. A new habitat availability index to int
 Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented landscape. Nature 404: 755–758.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>Makurhini</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"vegetation_patches"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Makurhini"</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>vegetation_patches</span>) <span class='co'># Number of patches</span></div><div class='output co'>#&gt; [1] 142</div><div class='input'><span class='co'>#Two distance threshold,</span>
-<span class='no'>IIC</span> <span class='kw'>&lt;-</span> <span class='fu'>MK_dPCIIC</span>(<span class='kw'>nodes</span> <span class='kw'>=</span> <span class='no'>vegetation_patches</span>, <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-                <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>),
-                <span class='kw'>metric</span> <span class='kw'>=</span> <span class='st'>"IIC"</span>, <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>5000</span>, <span class='fl'>10000</span>)) <span class='co'># 5 and 10 km</span>
-<span class='no'>IIC</span></div><div class='output co'>#&gt; $d5000
-#&gt; Simple feature collection with 142 features and 5 fields
-#&gt; geometry type:  POLYGON
-#&gt; dimension:      XY
-#&gt; bbox:           xmin: 3340120 ymin: 322869.6 xmax: 3739484 ymax: 696540.5
-#&gt; CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
-#&gt; # A tibble: 142 x 6
-#&gt;       id   dIIC dIICintra dIICflux dIICconnector                        geometry
-#&gt;    &lt;int&gt;  &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;         &lt;dbl&gt;                   &lt;POLYGON [m]&gt;
-#&gt;  1     1 89.2    88.5      0.362           0.360 ((3676911 589967.3, 3676931 58~
-#&gt;  2     2  0.741   0.0182   0.00770         0.715 ((3558044 696202.5, 3557972 69~
-#&gt;  3     3  0.735   0.0120   0.00626         0.717 ((3569169 687776.4, 3569146 68~
-#&gt;  4     4  0.724   0.00116  0.00195         0.721 ((3547317 685713.2, 3547363 68~
-#&gt;  5     5  0.728   0.00557  0.00427         0.719 ((3567471 684357.4, 3567380 68~
-#&gt;  6     6  0.737   0.0142   0.00680         0.716 ((3590569 672451.7, 3590090 67~
-#&gt;  7     7  0.758   0.0353   0.0107          0.712 ((3570789 670959.4, 3570860 67~
-#&gt;  8     8  0.724   0.00152  0.00223         0.721 ((3440118 666273.2, 3440372 66~
-#&gt;  9     9  0.725   0.00164  0.00231         0.721 ((3451637 671232.4, 3451616 67~
-#&gt; 10    10  0.730   0.00664  0.00466         0.718 ((3444396 671675.7, 3444715 67~
-#&gt; # ... with 132 more rows
-#&gt; 
-#&gt; $d10000
-#&gt; Simple feature collection with 142 features and 5 fields
-#&gt; geometry type:  POLYGON
-#&gt; dimension:      XY
-#&gt; bbox:           xmin: 3340120 ymin: 322869.6 xmax: 3739484 ymax: 696540.5
-#&gt; CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
-#&gt; # A tibble: 142 x 6
-#&gt;       id   dIIC dIICintra dIICflux dIICconnector                        geometry
-#&gt;    &lt;int&gt;  &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;         &lt;dbl&gt;                   &lt;POLYGON [m]&gt;
-#&gt;  1     1 88.8    88.1      0.360           0.357 ((3676911 589967.3, 3676931 58~
-#&gt;  2     2  0.736   0.0181   0.00766         0.710 ((3558044 696202.5, 3557972 69~
-#&gt;  3     3  0.738   0.0119   0.0143          0.712 ((3569169 687776.4, 3569146 68~
-#&gt;  4     4  0.719   0.00115  0.00194         0.716 ((3547317 685713.2, 3547363 68~
-#&gt;  5     5  0.732   0.00554  0.0124          0.714 ((3567471 684357.4, 3567380 68~
-#&gt;  6     6  0.732   0.0141   0.00677         0.711 ((3590569 672451.7, 3590090 67~
-#&gt;  7     7  0.753   0.0352   0.0106          0.707 ((3570789 670959.4, 3570860 67~
-#&gt;  8     8  0.724   0.00151  0.00642         0.716 ((3440118 666273.2, 3440372 66~
-#&gt;  9     9  0.724   0.00163  0.00662         0.716 ((3451637 671232.4, 3451616 67~
-#&gt; 10    10  0.732   0.00660  0.0111          0.714 ((3444396 671675.7, 3444715 67~
-#&gt; # ... with 132 more rows
-#&gt; </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>IIC</span>$<span class='no'>d5000</span>[<span class='st'>"dIIC"</span>], <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='st'>"jenks"</span>)</div><div class='img'><img src='MK_dPCIIC-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>IIC</span>$<span class='no'>d5000</span>[<span class='st'>"dIICflux"</span>], <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='st'>"jenks"</span>)</div><div class='img'><img src='MK_dPCIIC-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>IIC</span>$<span class='no'>d5000</span>[<span class='st'>"dIICconnector"</span>])</div><div class='img'><img src='MK_dPCIIC-3.png' alt='' width='700' height='433' /></div><div class='input'>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/connectscape/Makurhini'>Makurhini</a></span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"vegetation_patches"</span>, package <span class='op'>=</span> <span class='st'>"Makurhini"</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>vegetation_patches</span><span class='op'>)</span> <span class='co'># Number of patches</span>
+<span class='co'>#Two distance threshold,</span>
+<span class='va'>IIC</span> <span class='op'>&lt;-</span> <span class='fu'>MK_dPCIIC</span><span class='op'>(</span>nodes <span class='op'>=</span> <span class='va'>vegetation_patches</span>, attribute <span class='op'>=</span> <span class='cn'>NULL</span>,
+                area_unit <span class='op'>=</span> <span class='st'>"m2"</span>,
+                distance <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"centroid"</span><span class='op'>)</span>,
+                metric <span class='op'>=</span> <span class='st'>"IIC"</span>, distance_thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2000</span>, <span class='fl'>4000</span>, <span class='fl'>6000</span>, <span class='fl'>8000</span>, <span class='fl'>10000</span><span class='op'>)</span><span class='op'>)</span> <span class='co'>#1:10 km</span>
+<span class='va'>IIC</span>
+<span class='fu'><a href='https://r-spatial.github.io/sf/reference/plot.html'>plot</a></span><span class='op'>(</span><span class='va'>IIC</span><span class='op'>$</span><span class='va'>d2000</span><span class='op'>[</span><span class='st'>"dIIC"</span><span class='op'>]</span>, breaks <span class='op'>=</span> <span class='st'>"jenks"</span><span class='op'>)</span>
+<span class='fu'><a href='https://r-spatial.github.io/sf/reference/plot.html'>plot</a></span><span class='op'>(</span><span class='va'>IIC</span><span class='op'>$</span><span class='va'>d2000</span><span class='op'>[</span><span class='st'>"dIICflux"</span><span class='op'>]</span>, breaks <span class='op'>=</span> <span class='st'>"jenks"</span><span class='op'>)</span>
+<span class='fu'><a href='https://r-spatial.github.io/sf/reference/plot.html'>plot</a></span><span class='op'>(</span><span class='va'>IIC</span><span class='op'>$</span><span class='va'>d2000</span><span class='op'>[</span><span class='st'>"dIICconnector"</span><span class='op'>]</span><span class='op'>)</span>
+
 <span class='co'>#Using raster</span>
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"raster_vegetation_patches"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Makurhini"</span>)
-<span class='no'>PC</span> <span class='kw'>&lt;-</span> <span class='fu'>MK_dPCIIC</span>(<span class='kw'>nodes</span> <span class='kw'>=</span> <span class='no'>raster_vegetation_patches</span>, <span class='kw'>attribute</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-                <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"centroid"</span>),
-                <span class='kw'>metric</span> <span class='kw'>=</span> <span class='st'>"PC"</span>, <span class='kw'>probability</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
-                <span class='kw'>overall</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-                <span class='kw'>distance_thresholds</span> <span class='kw'>=</span> <span class='fl'>40000</span>) <span class='co'># 40 km</span>
-<span class='no'>PC</span></div><div class='output co'>#&gt; $node_importances_d40000
-#&gt; class      : RasterStack 
-#&gt; dimensions : 2491, 2662, 6631042, 5  (nrow, ncol, ncell, nlayers)
-#&gt; resolution : 150, 150  (x, y)
-#&gt; extent     : 3340120, 3739420, 322890.5, 696540.5  (xmin, xmax, ymin, ymax)
-#&gt; crs        : +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs 
-#&gt; names      :           Id,          dPC,     dPCintra,      dPCflux, dPCconnector 
-#&gt; min values :  1.000000000,  0.053419856,  0.000272601,  0.053131349,  0.000000000 
-#&gt; max values : 1.420000e+02, 6.873272e+01, 4.639073e+01, 2.234199e+01, 8.326673e-15 
-#&gt; 
-#&gt; 
-#&gt; $overall_d40000
-#&gt;     Index        Value
-#&gt; 1:  PCnum 3.794150e+11
-#&gt; 2: EC(PC) 6.159667e+05
-#&gt; </div></pre>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"raster_vegetation_patches"</span>, package <span class='op'>=</span> <span class='st'>"Makurhini"</span><span class='op'>)</span>
+<span class='va'>PC</span> <span class='op'>&lt;-</span> <span class='fu'>MK_dPCIIC</span><span class='op'>(</span>nodes <span class='op'>=</span> <span class='va'>raster_vegetation_patches</span>, attribute <span class='op'>=</span> <span class='cn'>NULL</span>,
+                distance <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"centroid"</span><span class='op'>)</span>,
+                metric <span class='op'>=</span> <span class='st'>"PC"</span>, probability <span class='op'>=</span> <span class='fl'>0.5</span>,
+                overall <span class='op'>=</span> <span class='cn'>TRUE</span>,
+                distance_thresholds <span class='op'>=</span> <span class='fl'>40000</span><span class='op'>)</span> <span class='co'># 40 km</span>
+<span class='va'>PC</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -319,7 +282,7 @@ Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented 
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

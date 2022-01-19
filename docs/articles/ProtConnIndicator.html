@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Makurhini</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -39,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -64,8 +64,8 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/OscarGOGO/Makurhini/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/connectscape/Makurhini/">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -79,22 +79,22 @@
 
       
 
-      </header><div class="row">
+      </header><script src="ProtConnIndicator_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Protected Connected indicator</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/OscarGOGO/Makurhini/blob/master/vignettes/ProtConnIndicator.Rmd"><code>vignettes/ProtConnIndicator.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/connectscape/Makurhini/blob/master/vignettes/ProtConnIndicator.Rmd"><code>vignettes/ProtConnIndicator.Rmd</code></a></small>
       <div class="hidden name"><code>ProtConnIndicator.Rmd</code></div>
 
     </div>
 
     
     
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">Makurhini</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">Makurhini</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">raster</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/connectscape/Makurhini">Makurhini</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster">raster</a></span><span class="op">)</span></pre></div>
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h2>
@@ -104,23 +104,31 @@
 <h2 class="hasAnchor">
 <a href="#loading-data" class="anchor"></a>Loading data</h2>
 <p>Loading two ecoregions and one set of protected areas, both shapefiles:</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"Protected_areas"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"Makurhini"</span>)
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"regions"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"Makurhini"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"Protected_areas"</span>, package <span class="op">=</span> <span class="st">"Makurhini"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"regions"</span>, package <span class="op">=</span> <span class="st">"Makurhini"</span><span class="op">)</span></pre></div>
 <p><img src="ProtConnIndicator_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
 </div>
 <div id="protconn-estimation-for-a-single-ecoregion" class="section level2">
 <h2 class="hasAnchor">
 <a href="#protconn-estimation-for-a-single-ecoregion" class="anchor"></a>ProtConn estimation for a single ecoregion</h2>
-<p>In the following example, we will estimate the ProtConn indicator and fractions in one ecoregion using two dispersal distances (10 and 30 km) and a connection probability of 0.5. Also, we will use a Transboundary buffer of 50 km (50000 meters), the distance between protected areas will be using centroids.</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="no">region</span> <span class="kw">&lt;-</span> <span class="no">regions</span>[<span class="fl">1</span>,]
-<span class="no">test.1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/MK_ProtConn.html">MK_ProtConn</a></span>(<span class="kw">nodes</span> <span class="kw">=</span> <span class="no">Protected_areas</span>, <span class="kw">region</span> <span class="kw">=</span> <span class="no">region</span>, <span class="kw">attribute</span> <span class="kw">=</span> <span class="st">"Intersected area"</span>, <span class="kw">area_unit</span> <span class="kw">=</span> <span class="st">"ha"</span>, <span class="kw">distance</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">type</span><span class="kw">=</span> <span class="st">"centroid"</span>), <span class="kw">distance_thresholds</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">10000</span>, <span class="fl">30000</span>), <span class="kw">probability</span> <span class="kw">=</span> <span class="fl">0.5</span>, <span class="kw">transboundary</span> <span class="kw">=</span> <span class="fl">50000</span>, <span class="kw">LA</span> <span class="kw">=</span> <span class="kw">NULL</span>, <span class="kw">plot</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">dPC</span> <span class="kw">=</span> <span class="fl">FALSE</span>, <span class="kw">write</span> <span class="kw">=</span> <span class="kw">NULL</span>, <span class="kw">SAGA</span> <span class="kw">=</span> <span class="fl">FALSE</span>, <span class="kw">intern</span> <span class="kw">=</span> <span class="fl">FALSE</span>)</pre></body></html></div>
+<p>In the following example, we will estimate the ProtConn indicator and fractions in one ecoregion using two dispersal distances (10 and 30 km) and a connection probability of 0.5. Also, we will use a Transboundary buffer of 50 km (50000 meters) from the edge of the region (transboundary_type = “region”, ?MK_ProtConn), the distance between protected areas will be using centroids.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="va">region</span> <span class="op">&lt;-</span> <span class="va">regions</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>
+<span class="va">test.1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/MK_ProtConn.html">MK_ProtConn</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">Protected_areas</span>, region <span class="op">=</span> <span class="va">region</span>, 
+                      area_unit <span class="op">=</span> <span class="st">"ha"</span>, distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>type<span class="op">=</span> <span class="st">"centroid"</span><span class="op">)</span>, 
+                      distance_thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10000</span>, <span class="fl">30000</span><span class="op">)</span>, probability <span class="op">=</span> <span class="fl">0.5</span>, 
+                      transboundary <span class="op">=</span> <span class="fl">50000</span>, transboundary_type <span class="op">=</span> <span class="st">"region"</span>,
+                      LA <span class="op">=</span> <span class="cn">NULL</span>, plot <span class="op">=</span> <span class="cn">TRUE</span>, write <span class="op">=</span> <span class="cn">NULL</span>,
+                      intern <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></pre></div>
 <div id="exploring-the-results-for-a-single-ecoregion" class="section level3">
 <h3 class="hasAnchor">
 <a href="#exploring-the-results-for-a-single-ecoregion" class="anchor"></a>Exploring the results for a single ecoregion</h3>
 <ul>
 <li>Result 10 km:</li>
 </ul>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">test.1</span>$<span class="no">d10000</span>$<span class="no">`Protected Connected (Viewer Panel)`</span></pre></body></html></div>
+<div class="sourceCode" id="cb4"><pre class="downlit">
+<span class="va">test.1</span><span class="op">$</span><span class="va">d10000</span><span class="op">$</span><span class="va">`Protected Connected (Viewer Panel)`</span></pre></div>
 <table class="table table table-condensed">
 <thead><tr>
 <th style="text-align:left;">
@@ -139,16 +147,16 @@ Percentage
 <tbody>
 <tr>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">EC(PC)</span>
+<span style="color: #636363; font-weight: bold">EC(PC) </span>
 </td>
 <td style="text-align:center;">
-130189.18
+130282.77
 </td>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">Unprotected </span>
+<span style="color: #636363; font-weight: bold">Prot </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa90d">92.540</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffeccb">7.5228</span>
 </td>
 </tr>
 <tr>
@@ -156,39 +164,41 @@ Percentage
 <span style="color: #636363; font-weight: bold">PC </span>
 </td>
 <td style="text-align:center;">
-1.2324e-03
+1.2000e-03
 </td>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">Prot </span>
+<span style="color: #636363; font-weight: bold">Unprotected </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff8eb">7.460</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa80b">92.4772</span>
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold"> </span>
+<span style="color: #636363; font-weight: bold">Maximum landscape attribute</span>
 </td>
 <td style="text-align:center;">
+3708497.35
 </td>
 <td style="text-align:left;">
 <span style="color: #636363; font-weight: bold">ProtConn </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf5">3.511</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff0d5">3.5131</span>
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold"> </span>
+<span style="color: #636363; font-weight: bold">Protected surface </span>
 </td>
 <td style="text-align:center;">
+278983.74
 </td>
 <td style="text-align:left;">
 <span style="color: #636363; font-weight: bold">ProtUnconn </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf4">3.950</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffefd3">4.0097</span>
 </td>
 </tr>
 <tr>
@@ -201,33 +211,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">RelConn </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffd383">47.058</span>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: #636363; font-weight: bold"> </span>
-</td>
-<td style="text-align:center;">
-</td>
-<td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">ProtConn_design </span>
-</td>
-<td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf4">3.950</span>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: #636363; font-weight: bold"> </span>
-</td>
-<td style="text-align:center;">
-</td>
-<td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">ProtConn_Bound </span>
-</td>
-<td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf5">3.511</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffcd73">46.6991</span>
 </td>
 </tr>
 <tr>
@@ -240,7 +224,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Prot </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa500">97.512</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa500">97.4444</span>
 </td>
 </tr>
 <tr>
@@ -253,7 +237,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Trans </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff3dd">0.0000</span>
 </td>
 </tr>
 <tr>
@@ -266,7 +250,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Unprot </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffcf8">2.488</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff0d7">2.5556</span>
 </td>
 </tr>
 <tr>
@@ -279,7 +263,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Within </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa707">94.784</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa605">94.9554</span>
 </td>
 </tr>
 <tr>
@@ -292,7 +276,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Contig </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffcf7">2.728</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffeed1">5.0446</span>
 </td>
 </tr>
 <tr>
@@ -305,7 +289,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Within_land</span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf6">3.327</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff0d5">3.3359</span>
 </td>
 </tr>
 <tr>
@@ -318,7 +302,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Contig_land</span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffefe">0.096</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff2dc">0.1772</span>
 </td>
 </tr>
 <tr>
@@ -331,7 +315,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Unprot_land</span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffefe">0.087</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff2dc">0.0898</span>
 </td>
 </tr>
 <tr>
@@ -344,20 +328,22 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Trans_land </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff3dd">0.0000</span>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">test.1</span>$<span class="no">d10000</span>
+<div class="sourceCode" id="cb5"><pre class="downlit">
+<span class="va">test.1</span><span class="op">$</span><span class="va">d10000</span>
 <span class="co">#&gt; $`Protected Connected (Viewer Panel)`</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; $`ProtConn Plot`</span></pre></body></html></div>
+<span class="co">#&gt; $`ProtConn Plot`</span></pre></div>
 <p><img src="ProtConnIndicator_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 <ul>
 <li>Result 30 km:</li>
 </ul>
-<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="no">test.1</span>$<span class="no">d30000</span>$<span class="no">`Protected Connected (Viewer Panel)`</span></pre></body></html></div>
+<div class="sourceCode" id="cb6"><pre class="downlit">
+<span class="va">test.1</span><span class="op">$</span><span class="va">d30000</span><span class="op">$</span><span class="va">`Protected Connected (Viewer Panel)`</span></pre></div>
 <table class="table table table-condensed">
 <thead><tr>
 <th style="text-align:left;">
@@ -376,16 +362,16 @@ Percentage
 <tbody>
 <tr>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">EC(PC)</span>
+<span style="color: #636363; font-weight: bold">EC(PC) </span>
 </td>
 <td style="text-align:center;">
-149504.72
+149921.76
 </td>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">Unprotected </span>
+<span style="color: #636363; font-weight: bold">Prot </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa500">92.540</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffeccb">7.5228</span>
 </td>
 </tr>
 <tr>
@@ -393,39 +379,41 @@ Percentage
 <span style="color: #636363; font-weight: bold">PC </span>
 </td>
 <td style="text-align:center;">
-1.6252e-03
+1.6000e-03
 </td>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">Prot </span>
+<span style="color: #636363; font-weight: bold">Unprotected </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff7ea">7.460</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa500">92.4772</span>
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold"> </span>
+<span style="color: #636363; font-weight: bold">Maximum landscape attribute</span>
 </td>
 <td style="text-align:center;">
+3708497.35
 </td>
 <td style="text-align:left;">
 <span style="color: #636363; font-weight: bold">ProtConn </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf3">4.031</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffefd3">4.0427</span>
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold"> </span>
+<span style="color: #636363; font-weight: bold">Protected surface </span>
 </td>
 <td style="text-align:center;">
+278983.74
 </td>
 <td style="text-align:left;">
 <span style="color: #636363; font-weight: bold">ProtUnconn </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf5">3.429</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff0d4">3.4802</span>
 </td>
 </tr>
 <tr>
@@ -438,33 +426,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">RelConn </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffca6a">54.040</span>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: #636363; font-weight: bold"> </span>
-</td>
-<td style="text-align:center;">
-</td>
-<td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">ProtConn_design </span>
-</td>
-<td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf5">3.429</span>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: #636363; font-weight: bold"> </span>
-</td>
-<td style="text-align:center;">
-</td>
-<td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">ProtConn_Bound </span>
-</td>
-<td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf3">4.031</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffc55c">53.7385</span>
 </td>
 </tr>
 <tr>
@@ -477,7 +439,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Prot </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffac15">84.914</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffab12">84.6797</span>
 </td>
 </tr>
 <tr>
@@ -490,7 +452,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Trans </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff3dd">0.0000</span>
 </td>
 </tr>
 <tr>
@@ -503,7 +465,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Unprot </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff0d5">15.086</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffe6b8">15.3203</span>
 </td>
 </tr>
 <tr>
@@ -516,7 +478,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Within </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffae1b">82.538</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffad17">82.5167</span>
 </td>
 </tr>
 <tr>
@@ -529,7 +491,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Contig </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffcf8">2.376</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffe4b3">17.4833</span>
 </td>
 </tr>
 <tr>
@@ -542,7 +504,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Within_land</span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffbf5">3.327</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff0d5">3.3359</span>
 </td>
 </tr>
 <tr>
@@ -555,7 +517,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Contig_land</span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffefe">0.096</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff2db">0.7068</span>
 </td>
 </tr>
 <tr>
@@ -568,7 +530,7 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Unprot_land</span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fffefd">0.608</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff2db">0.6193</span>
 </td>
 </tr>
 <tr>
@@ -581,15 +543,16 @@ Percentage
 <span style="color: #636363; font-weight: bold">ProtConn_Trans_land </span>
 </td>
 <td style="text-align:center;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.000</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff3dd">0.0000</span>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">test.1</span>$<span class="no">d30000</span>
+<div class="sourceCode" id="cb7"><pre class="downlit">
+<span class="va">test.1</span><span class="op">$</span><span class="va">d30000</span>
 <span class="co">#&gt; $`Protected Connected (Viewer Panel)`</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; $`ProtConn Plot`</span></pre></body></html></div>
+<span class="co">#&gt; $`ProtConn Plot`</span></pre></div>
 <p><img src="ProtConnIndicator_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
 </div>
 </div>
@@ -597,16 +560,23 @@ Percentage
 <h2 class="hasAnchor">
 <a href="#protconn-estimation-for-two-or-more-ecoregions-" class="anchor"></a>ProtConn estimation for two or more ecoregions.</h2>
 <p>Now, we will use the three ecoregions. The processing time will be longer when using more regions, although we can reduce it using the parallel argument.</p>
-<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="no">test.2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/MK_ProtConnMult.html">MK_ProtConnMult</a></span>(<span class="kw">nodes</span> <span class="kw">=</span> <span class="no">Protected_areas</span>, <span class="kw">regions</span> <span class="kw">=</span> <span class="no">regions</span>, <span class="kw">attribute</span> <span class="kw">=</span> <span class="st">"Intersected area"</span>, <span class="kw">area_unit</span> <span class="kw">=</span> <span class="st">"ha"</span>, <span class="kw">distance</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">type</span><span class="kw">=</span> <span class="st">"centroid"</span>), <span class="kw">distance_thresholds</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">10000</span>, <span class="fl">30000</span>), <span class="kw">probability</span> <span class="kw">=</span> <span class="fl">0.5</span>, <span class="kw">transboundary</span> <span class="kw">=</span> <span class="fl">50000</span>, <span class="kw">plot</span> <span class="kw">=</span> <span class="fl">FALSE</span>, <span class="kw">write</span> <span class="kw">=</span> <span class="kw">NULL</span>, <span class="kw">parallel</span> <span class="kw">=</span> <span class="fl">FALSE</span>, <span class="kw">intern</span> <span class="kw">=</span> <span class="fl">FALSE</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb8"><pre class="downlit">
+<span class="va">test.2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/MK_ProtConnMult.html">MK_ProtConnMult</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">Protected_areas</span>, regions <span class="op">=</span> <span class="va">regions</span>, 
+                          area_unit <span class="op">=</span> <span class="st">"ha"</span>, distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>type<span class="op">=</span> <span class="st">"centroid"</span><span class="op">)</span>, 
+                          distance_thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10000</span>, <span class="fl">30000</span><span class="op">)</span>, probability <span class="op">=</span> <span class="fl">0.5</span>, 
+                          transboundary <span class="op">=</span> <span class="fl">50000</span>, transboundary_type <span class="op">=</span> <span class="st">"region"</span>,
+                          plot <span class="op">=</span> <span class="cn">FALSE</span>, write <span class="op">=</span> <span class="cn">NULL</span>, 
+                          parallel <span class="op">=</span> <span class="cn">NULL</span>, intern <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></pre></div>
 <div id="exploring-some-results" class="section level3">
 <h3 class="hasAnchor">
 <a href="#exploring-some-results" class="anchor"></a>Exploring some results</h3>
 <ul>
 <li>Table summary result:</li>
 </ul>
-<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span>(<span class="no">test.2</span>)
+<div class="sourceCode" id="cb9"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">test.2</span><span class="op">)</span>
 <span class="co">#&gt; [1] "ProtConn_10000" "ProtConn_30000"</span>
-<span class="no">test.2</span>$<span class="no">ProtConn_10000</span>$<span class="no">ProtConn_overall10000</span></pre></body></html></div>
+<span class="va">test.2</span><span class="op">$</span><span class="va">ProtConn_10000</span><span class="op">$</span><span class="va">ProtConn_overall10000</span></pre></div>
 <table class="table table table-condensed">
 <thead><tr>
 <th style="text-align:left;">
@@ -615,7 +585,7 @@ Percentage
 ProtConn indicator
 </th>
 <th style="text-align:right;">
-Values(%)
+Values (%)
 </th>
 <th style="text-align:right;">
 SD
@@ -654,40 +624,40 @@ bca.upper
 3
 </td>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">Unprotected </span>
+<span style="color: #636363; font-weight: bold">Prot </span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88e19">94.913</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef6ee">6.916</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #efcbde">2.472</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e5ef">1.332</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f5e1ec">1.427</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf0f5">0.769</span>
 </td>
 <td style="text-align:right;">
-92.745
+5.669
 </td>
 <td style="text-align:right;">
-97.299
+8.103
 </td>
 <td style="text-align:right;">
-92.351
+5.996
 </td>
 <td style="text-align:right;">
-97.285
+8.443
 </td>
 <td style="text-align:right;">
-92.540
+5.390
 </td>
 <td style="text-align:right;">
-97.474
+7.837
 </td>
 <td style="text-align:right;">
-92.540
+5.390
 </td>
 <td style="text-align:right;">
-96.557
+7.732
 </td>
 </tr>
 <tr>
@@ -695,40 +665,40 @@ bca.upper
 4
 </td>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">Prot </span>
+<span style="color: #636363; font-weight: bold">Unprotected </span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef8f2">5.087</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f8901d">93.084</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #efcbde">2.472</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e5ef">1.332</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f5e1ec">1.427</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf0f5">0.769</span>
 </td>
 <td style="text-align:right;">
-2.701
+91.897
 </td>
 <td style="text-align:right;">
-7.255
+94.331
 </td>
 <td style="text-align:right;">
-2.715
+91.557
 </td>
 <td style="text-align:right;">
-7.649
+94.004
 </td>
 <td style="text-align:right;">
-2.526
+92.163
 </td>
 <td style="text-align:right;">
-7.460
+94.610
 </td>
 <td style="text-align:right;">
-2.526
+92.163
 </td>
 <td style="text-align:right;">
-6.732
+93.899
 </td>
 </tr>
 <tr>
@@ -739,37 +709,37 @@ bca.upper
 <span style="color: #636363; font-weight: bold">ProtConn </span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefcf9">2.388</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefbf7">2.894</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e3ed">1.326</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f8eaf2">1.050</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faeef5">0.766</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fbf3f7">0.606</span>
 </td>
 <td style="text-align:right;">
-1.117
+1.903
 </td>
 <td style="text-align:right;">
-3.553
+3.824
 </td>
 <td style="text-align:right;">
-1.264
+2.274
 </td>
 <td style="text-align:right;">
-3.850
+4.106
 </td>
 <td style="text-align:right;">
-0.925
+1.682
 </td>
 <td style="text-align:right;">
-3.511
+3.513
 </td>
 <td style="text-align:right;">
-0.925
+1.682
 </td>
 <td style="text-align:right;">
-2.988
+3.495
 </td>
 </tr>
 <tr>
@@ -780,37 +750,37 @@ bca.upper
 <span style="color: #636363; font-weight: bold">ProtUnconn </span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefbf8">2.700</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefaf5">4.023</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6ef">1.182</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdf8fb">0.321</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf0f6">0.682</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdfbfc">0.186</span>
 </td>
 <td style="text-align:right;">
-1.551
+3.728
 </td>
 <td style="text-align:right;">
-3.735
+4.316
 </td>
 <td style="text-align:right;">
-1.450
+3.695
 </td>
 <td style="text-align:right;">
-3.799
+4.337
 </td>
 <td style="text-align:right;">
-1.601
+3.708
 </td>
 <td style="text-align:right;">
-3.950
+4.351
 </td>
 <td style="text-align:right;">
-1.601
+3.708
 </td>
 <td style="text-align:right;">
-3.483
+4.237
 </td>
 </tr>
 <tr>
@@ -821,37 +791,37 @@ bca.upper
 <span style="color: #636363; font-weight: bold">RelConn </span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fbc992">45.124</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fcce9c">40.796</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ce5d9b">7.709</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ce5d9b">8.383</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e2a1c5">4.451</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e2a1c5">4.840</span>
 </td>
 <td style="text-align:right;">
-37.972
+32.835
 </td>
 <td style="text-align:right;">
-52.056
+48.193
 </td>
 <td style="text-align:right;">
-38.566
+34.893
 </td>
 <td style="text-align:right;">
-53.616
+50.391
 </td>
 <td style="text-align:right;">
-36.632
+31.200
 </td>
 <td style="text-align:right;">
-51.682
+46.699
 </td>
 <td style="text-align:right;">
-36.632
+31.200
 </td>
 <td style="text-align:right;">
-50.141
+45.225
 </td>
 </tr>
 <tr>
@@ -859,127 +829,45 @@ bca.upper
 8
 </td>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">ProtConn_design </span>
+<span style="color: #636363; font-weight: bold">ProtConn_Prot </span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefbf8">2.700</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88b13">97.302</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6ef">1.182</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f2d6e5">2.105</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf0f6">0.682</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e7f0">1.215</span>
 </td>
 <td style="text-align:right;">
-1.551
+95.365
 </td>
 <td style="text-align:right;">
-3.735
+99.213
 </td>
 <td style="text-align:right;">
-1.450
+95.272
 </td>
 <td style="text-align:right;">
-3.799
+99.475
 </td>
 <td style="text-align:right;">
-1.601
+95.130
 </td>
 <td style="text-align:right;">
-3.950
+99.333
 </td>
 <td style="text-align:right;">
-1.601
+95.130
 </td>
 <td style="text-align:right;">
-3.483
+98.703
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 9
-</td>
-<td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">ProtConn_Bound </span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefcf9">2.388</span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e3ed">1.326</span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faeef5">0.766</span>
-</td>
-<td style="text-align:right;">
-1.117
-</td>
-<td style="text-align:right;">
-3.553
-</td>
-<td style="text-align:right;">
-1.264
-</td>
-<td style="text-align:right;">
-3.850
-</td>
-<td style="text-align:right;">
-0.925
-</td>
-<td style="text-align:right;">
-3.511
-</td>
-<td style="text-align:right;">
-0.925
-</td>
-<td style="text-align:right;">
-2.988
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-10
-</td>
-<td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">ProtConn_Prot </span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88b13">97.767</span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f4dbe8">1.706</span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f8eaf2">0.985</span>
-</td>
-<td style="text-align:right;">
-96.209
-</td>
-<td style="text-align:right;">
-99.335
-</td>
-<td style="text-align:right;">
-95.947
-</td>
-<td style="text-align:right;">
-99.331
-</td>
-<td style="text-align:right;">
-96.202
-</td>
-<td style="text-align:right;">
-99.586
-</td>
-<td style="text-align:right;">
-96.202
-</td>
-<td style="text-align:right;">
-98.895
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-11
 </td>
 <td style="text-align:left;">
 <span style="color: #636363; font-weight: bold">ProtConn_Trans </span>
@@ -1020,43 +908,125 @@ bca.upper
 </tr>
 <tr>
 <td style="text-align:left;">
-12
+10
 </td>
 <td style="text-align:left;">
 <span style="color: #636363; font-weight: bold">ProtConn_Unprot </span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefcf9">2.233</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefbf8">2.698</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f4dbe8">1.706</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f2d6e5">2.105</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f8eaf2">0.985</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e7f0">1.215</span>
 </td>
 <td style="text-align:right;">
-0.665
+0.787
 </td>
 <td style="text-align:right;">
-3.791
+4.635
 </td>
 <td style="text-align:right;">
-0.669
+0.525
 </td>
 <td style="text-align:right;">
-4.053
+4.728
 </td>
 <td style="text-align:right;">
-0.414
+0.667
 </td>
 <td style="text-align:right;">
-3.798
+4.870
 </td>
 <td style="text-align:right;">
-0.414
+0.667
 </td>
 <td style="text-align:right;">
-3.361
+4.098
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+11
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Within </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f89528">88.251</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #dc8eb9">5.841</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ebbdd6">3.372</span>
+</td>
+<td style="text-align:right;">
+82.524
+</td>
+<td style="text-align:right;">
+93.393
+</td>
+<td style="text-align:right;">
+81.547
+</td>
+<td style="text-align:right;">
+92.239
+</td>
+<td style="text-align:right;">
+84.263
+</td>
+<td style="text-align:right;">
+94.955
+</td>
+<td style="text-align:right;">
+84.263
+</td>
+<td style="text-align:right;">
+91.815
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+12
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Contig </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef0e2">11.749</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #dc8eb9">5.841</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ebbdd6">3.372</span>
+</td>
+<td style="text-align:right;">
+6.607
+</td>
+<td style="text-align:right;">
+17.476
+</td>
+<td style="text-align:right;">
+7.761
+</td>
+<td style="text-align:right;">
+18.453
+</td>
+<td style="text-align:right;">
+5.045
+</td>
+<td style="text-align:right;">
+15.737
+</td>
+<td style="text-align:right;">
+5.045
+</td>
+<td style="text-align:right;">
+15.313
 </td>
 </tr>
 <tr>
@@ -1064,40 +1034,40 @@ bca.upper
 13
 </td>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">ProtConn_Within </span>
+<span style="color: #636363; font-weight: bold">ProtConn_Within_land</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88d19">95.261</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefbf8">2.571</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f2d5e5">1.985</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f9ebf3">1.001</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6f0">1.146</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fbf3f8">0.578</span>
 </td>
 <td style="text-align:right;">
-93.455
+1.617
 </td>
 <td style="text-align:right;">
-97.096
+3.452
 </td>
 <td style="text-align:right;">
-93.081
+1.805
 </td>
 <td style="text-align:right;">
-96.964
+3.703
 </td>
 <td style="text-align:right;">
-93.558
+1.438
 </td>
 <td style="text-align:right;">
-97.441
+3.336
 </td>
 <td style="text-align:right;">
-93.558
+1.438
 </td>
 <td style="text-align:right;">
-96.555
+3.071
 </td>
 </tr>
 <tr>
@@ -1105,40 +1075,40 @@ bca.upper
 14
 </td>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">ProtConn_Contig </span>
+<span style="color: #636363; font-weight: bold">ProtConn_Contig_land</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefcf8">2.506</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.323</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fcf8fa">0.315</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdfbfc">0.198</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdfbfc">0.182</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefcfd">0.114</span>
 </td>
 <td style="text-align:right;">
-2.205
+0.146
 </td>
 <td style="text-align:right;">
-2.788
+0.512
 </td>
 <td style="text-align:right;">
-2.283
+0.097
 </td>
 <td style="text-align:right;">
-2.866
+0.469
 </td>
 <td style="text-align:right;">
-2.145
+0.177
 </td>
 <td style="text-align:right;">
-2.728
+0.549
 </td>
 <td style="text-align:right;">
-2.145
+0.177
 </td>
 <td style="text-align:right;">
-2.700
+0.549
 </td>
 </tr>
 <tr>
@@ -1146,51 +1116,10 @@ bca.upper
 15
 </td>
 <td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">ProtConn_Within_land</span>
+<span style="color: #636363; font-weight: bold">ProtConn_Unprot_land</span>
 </td>
 <td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefcf9">2.283</span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e4ee">1.272</span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faeff5">0.735</span>
-</td>
-<td style="text-align:right;">
-1.067
-</td>
-<td style="text-align:right;">
-3.402
-</td>
-<td style="text-align:right;">
-1.240
-</td>
-<td style="text-align:right;">
-3.701
-</td>
-<td style="text-align:right;">
-0.866
-</td>
-<td style="text-align:right;">
-3.327
-</td>
-<td style="text-align:right;">
-0.866
-</td>
-<td style="text-align:right;">
-2.880
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-16
-</td>
-<td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">ProtConn_Contig_land</span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.059</span>
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.065</span>
 </td>
 <td style="text-align:right;">
 <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.036</span>
@@ -1199,74 +1128,33 @@ bca.upper
 <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.021</span>
 </td>
 <td style="text-align:right;">
-0.024
+0.030
 </td>
 <td style="text-align:right;">
-0.091
+0.098
+</td>
+<td style="text-align:right;">
+0.040
+</td>
+<td style="text-align:right;">
+0.107
 </td>
 <td style="text-align:right;">
 0.023
 </td>
 <td style="text-align:right;">
-0.095
+0.090
 </td>
 <td style="text-align:right;">
-0.024
-</td>
-<td style="text-align:right;">
-0.096
-</td>
-<td style="text-align:right;">
-0.024
-</td>
-<td style="text-align:right;">
-0.083
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-17
-</td>
-<td style="text-align:left;">
-<span style="color: #636363; font-weight: bold">ProtConn_Unprot_land</span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.044</span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.039</span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.022</span>
-</td>
-<td style="text-align:right;">
-0.006
-</td>
-<td style="text-align:right;">
-0.079
-</td>
-<td style="text-align:right;">
-0.002
-</td>
-<td style="text-align:right;">
-0.078
-</td>
-<td style="text-align:right;">
-0.011
+0.023
 </td>
 <td style="text-align:right;">
 0.087
 </td>
-<td style="text-align:right;">
-0.011
-</td>
-<td style="text-align:right;">
-0.070
-</td>
 </tr>
 <tr>
 <td style="text-align:left;">
-18
+16
 </td>
 <td style="text-align:left;">
 <span style="color: #636363; font-weight: bold">ProtConn_Trans_land </span>
@@ -1310,38 +1198,99 @@ bca.upper
 <ul>
 <li>Shapefile result:</li>
 </ul>
-<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">test.2</span>$<span class="no">ProtConn_10000</span>$<span class="no">ProtConn_10000</span>
-<span class="co">#&gt; Simple feature collection with 3 features and 19 fields</span>
-<span class="co">#&gt; geometry type:  MULTIPOLYGON</span>
-<span class="co">#&gt; dimension:      XY</span>
-<span class="co">#&gt; bbox:           xmin: 2287307 ymin: 792114.5 xmax: 3085667 ymax: 1392441</span>
-<span class="co">#&gt; CRS:            +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0</span>
-<span class="co">#&gt;   OBJECTID    EC(PC)         PC Unprotected  Prot ProtConn ProtUnconn</span>
-<span class="co">#&gt; 1       61 130189.18 1.2324e-03      92.540 7.460    3.511      3.950</span>
-<span class="co">#&gt; 2      143  54276.11 8.5645e-05      97.474 2.526    0.925      1.601</span>
-<span class="co">#&gt; 3      772 186165.71 7.4341e-04      94.724 5.276    2.727      2.549</span>
-<span class="co">#&gt;   RelConn ProtConn_design ProtConn_Bound ProtConn_Prot ProtConn_Trans</span>
-<span class="co">#&gt; 1  47.058           3.950          3.511        97.512              0</span>
-<span class="co">#&gt; 2  36.632           1.601          0.925        96.202              0</span>
-<span class="co">#&gt; 3  51.682           2.549          2.727        99.586              0</span>
-<span class="co">#&gt;   ProtConn_Unprot ProtConn_Within ProtConn_Contig ProtConn_Within_land</span>
-<span class="co">#&gt; 1           2.488          94.784           2.728                3.327</span>
-<span class="co">#&gt; 2           3.798          93.558           2.644                0.866</span>
-<span class="co">#&gt; 3           0.414          97.441           2.145                2.657</span>
-<span class="co">#&gt;   ProtConn_Contig_land ProtConn_Unprot_land ProtConn_Trans_land</span>
-<span class="co">#&gt; 1                0.096                0.087                   0</span>
-<span class="co">#&gt; 2                0.024                0.035                   0</span>
-<span class="co">#&gt; 3                0.058                0.011                   0</span>
-<span class="co">#&gt;                         geometry</span>
-<span class="co">#&gt; 1 MULTIPOLYGON (((2553705 100...</span>
-<span class="co">#&gt; 2 MULTIPOLYGON (((2745325 859...</span>
-<span class="co">#&gt; 3 MULTIPOLYGON (((2973030 103...</span></pre></body></html></div>
+<div class="sourceCode" id="cb10"><pre class="downlit">
+<span class="va">test.2</span><span class="op">$</span><span class="va">ProtConn_10000</span><span class="op">$</span><span class="va">ProtConn_10000</span>
+<span class="co">#&gt; Simple feature collection with 3 features and 17 fields</span>
+<span class="co">#&gt; Geometry type: GEOMETRY</span>
+<span class="co">#&gt; Dimension:     XY</span>
+<span class="co">#&gt; Bounding box:  xmin: 2287307 ymin: 792114.5 xmax: 3085667 ymax: 1392441</span>
+<span class="co">#&gt; CRS:           BOUNDCRS[</span>
+<span class="co">#&gt;     SOURCECRS[</span>
+<span class="co">#&gt;         PROJCRS["unknown",</span>
+<span class="co">#&gt;             BASEGEOGCRS["unknown",</span>
+<span class="co">#&gt;                 DATUM["World Geodetic System 1984",</span>
+<span class="co">#&gt;                     ELLIPSOID["WGS 84",6378137,298.257223563,</span>
+<span class="co">#&gt;                         LENGTHUNIT["metre",1]],</span>
+<span class="co">#&gt;                     ID["EPSG",6326]],</span>
+<span class="co">#&gt;                 PRIMEM["Greenwich",0,</span>
+<span class="co">#&gt;                     ANGLEUNIT["degree",0.0174532925199433],</span>
+<span class="co">#&gt;                     ID["EPSG",8901]]],</span>
+<span class="co">#&gt;             CONVERSION["unknown",</span>
+<span class="co">#&gt;                 METHOD["Lambert Conic Conformal (2SP)",</span>
+<span class="co">#&gt;                     ID["EPSG",9802]],</span>
+<span class="co">#&gt;                 PARAMETER["Latitude of false origin",12,</span>
+<span class="co">#&gt;                     ANGLEUNIT["degree",0.0174532925199433],</span>
+<span class="co">#&gt;                     ID["EPSG",8821]],</span>
+<span class="co">#&gt;                 PARAMETER["Longitude of false origin",-102,</span>
+<span class="co">#&gt;                     ANGLEUNIT["degree",0.0174532925199433],</span>
+<span class="co">#&gt;                     ID["EPSG",8822]],</span>
+<span class="co">#&gt;                 PARAMETER["Latitude of 1st standard parallel",17.5,</span>
+<span class="co">#&gt;                     ANGLEUNIT["degree",0.0174532925199433],</span>
+<span class="co">#&gt;                     ID["EPSG",8823]],</span>
+<span class="co">#&gt;                 PARAMETER["Latitude of 2nd standard parallel",29.5,</span>
+<span class="co">#&gt;                     ANGLEUNIT["degree",0.0174532925199433],</span>
+<span class="co">#&gt;                     ID["EPSG",8824]],</span>
+<span class="co">#&gt;                 PARAMETER["Easting at false origin",2500000,</span>
+<span class="co">#&gt;                     LENGTHUNIT["metre",1],</span>
+<span class="co">#&gt;                     ID["EPSG",8826]],</span>
+<span class="co">#&gt;                 PARAMETER["Northing at false origin",0,</span>
+<span class="co">#&gt;                     LENGTHUNIT["metre",1],</span>
+<span class="co">#&gt;                     ID["EPSG",8827]]],</span>
+<span class="co">#&gt;             CS[Cartesian,2],</span>
+<span class="co">#&gt;                 AXIS["(E)",east,</span>
+<span class="co">#&gt;                     ORDER[1],</span>
+<span class="co">#&gt;                     LENGTHUNIT["metre",1,</span>
+<span class="co">#&gt;                         ID["EPSG",9001]]],</span>
+<span class="co">#&gt;                 AXIS["(N)",north,</span>
+<span class="co">#&gt;                     ORDER[2],</span>
+<span class="co">#&gt;                     LENGTHUNIT["metre",1,</span>
+<span class="co">#&gt;                         ID["EPSG",9001]]]]],</span>
+<span class="co">#&gt;     TARGETCRS[</span>
+<span class="co">#&gt;         GEOGCRS["WGS 84",</span>
+<span class="co">#&gt;             DATUM["World Geodetic System 1984",</span>
+<span class="co">#&gt;                 ELLIPSOID["WGS 84",6378137,298.257223563,</span>
+<span class="co">#&gt;                     LENGTHUNIT["metre",1]]],</span>
+<span class="co">#&gt;             PRIMEM["Greenwich",0,</span>
+<span class="co">#&gt;                 ANGLEUNIT["degree",0.0174532925199433]],</span>
+<span class="co">#&gt;             CS[ellipsoidal,2],</span>
+<span class="co">#&gt;                 AXIS["geodetic latitude (Lat)",north,</span>
+<span class="co">#&gt;                     ORDER[1],</span>
+<span class="co">#&gt;                     ANGLEUNIT["degree",0.0174532925199433]],</span>
+<span class="co">#&gt;                 AXIS["geodetic longitude (Lon)",east,</span>
+<span class="co">#&gt;                     ORDER[2],</span>
+<span class="co">#&gt;                     ANGLEUNIT["degree",0.0174532925199433]],</span>
+<span class="co">#&gt;             ID["EPSG",4326]]],</span>
+<span class="co">#&gt;     ABRIDGEDTRANSFORMATION["Transformation from unknown to WGS84",</span>
+<span class="co">#&gt;         METHOD["Geocentric translations (geog2D domain)",</span>
+<span class="co">#&gt;             ID["EPSG",9603]],</span>
+<span class="co">#&gt;         PARAMETER["X-axis translation",0,</span>
+<span class="co">#&gt;             ID["EPSG",8605]],</span>
+<span class="co">#&gt;         PARAMETER["Y-axis translation",0,</span>
+<span class="co">#&gt;             ID["EPSG",8606]],</span>
+<span class="co">#&gt;         PARAMETER["Z-axis translation",0,</span>
+<span class="co">#&gt;             ID["EPSG",8607]]]]</span>
+<span class="co">#&gt;   OBJECTID    EC(PC)     PC   Prot Unprotected ProtConn ProtUnconn RelConn</span>
+<span class="co">#&gt; 1       61 130282.77 0.0012 7.5228     92.4772   3.5131     4.0097 46.6991</span>
+<span class="co">#&gt; 2      143  98619.63 0.0003 5.3895     94.6105   1.6815     3.7080 31.2002</span>
+<span class="co">#&gt; 3      772 238055.88 0.0012 7.8370     92.1630   3.4865     4.3505 44.4882</span>
+<span class="co">#&gt;   ProtConn_Prot ProtConn_Trans ProtConn_Unprot ProtConn_Within ProtConn_Contig</span>
+<span class="co">#&gt; 1       97.4444              0          2.5556         94.9554          5.0446</span>
+<span class="co">#&gt; 2       95.1302              0          4.8698         85.5352         14.4648</span>
+<span class="co">#&gt; 3       99.3326              0          0.6674         84.2633         15.7367</span>
+<span class="co">#&gt;   ProtConn_Within_land ProtConn_Contig_land ProtConn_Unprot_land</span>
+<span class="co">#&gt; 1               3.3359               0.1772               0.0898</span>
+<span class="co">#&gt; 2               1.4383               0.2432               0.0819</span>
+<span class="co">#&gt; 3               2.9379               0.5487               0.0233</span>
+<span class="co">#&gt;   ProtConn_Trans_land                       geometry</span>
+<span class="co">#&gt; 1                   0 POLYGON ((2553705 1009434, ...</span>
+<span class="co">#&gt; 2                   0 MULTIPOLYGON (((2475555 121...</span>
+<span class="co">#&gt; 3                   0 MULTIPOLYGON (((2933834 137...</span></pre></div>
 <p><img src="ProtConnIndicator_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 <ul>
 <li>It is important not to forget that you can change the type of distance using the distance (<code>see, distancefile() </code>) argument:</li>
 </ul>
 <p>Euclidean distances: * distance = list(type= “centroid”) * distance = list(type= “edge”)</p>
-<p>Least cost distances: * distance = list(type= “least-cost”, resistance = “resistance raster”) * distance = list(type= “commute-time”, resistance = “resistance raster”)</p>
+<p>Least cost distances, you need a raster with resistance values, it is recommended that the range of values be from 1 to 10: * distance = list(type= “least-cost”, resistance = “resistance raster”) * distance = list(type= “commute-time”, resistance = “resistance raster”)</p>
 <p><strong>Reference</strong>:</p>
 <ul>
 <li>Saura, S., Bastin, L., Battistella, L., Mandrici, A., &amp; Dubois, G. (2017). Protected areas in the world’s ecoregions: How well connected are they? Ecological Indicators, 76, 144–158.</li>
@@ -1365,7 +1314,7 @@ bca.upper
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

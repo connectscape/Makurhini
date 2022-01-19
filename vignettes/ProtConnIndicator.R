@@ -6,7 +6,6 @@ knitr::opts_chunk$set(
 
 ## ----setup--------------------------------------------------------------------
 library(Makurhini)
-library(Makurhini)
 library(raster)
 
 ## ----polygons-----------------------------------------------------------------

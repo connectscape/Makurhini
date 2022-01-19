@@ -27,9 +27,7 @@ URL: https://github.com/connectscape/Makurhini
 BugReports: https://github.com/connectscape/Makurhini/issues
 Suggests: 
     knitr,
-    rmarkdown,
-    ggplot2,
-    ggpubr
+    rmarkdown
 VignetteBuilder: knitr
 Imports: 
     sf (>= 1.0.2),
@@ -52,7 +50,10 @@ Imports:
     parallel,
     crayon,
     progressr,
-    terra (>= 1.3.22)
+    terra (>= 1.3.22),
+    sp (>= 1.4.4),
+    ggplot2,
+    ggpubr
 Depends: 
     methods,
     utils,

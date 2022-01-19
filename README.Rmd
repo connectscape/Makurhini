@@ -40,7 +40,7 @@ remotes (<code>install.packages("remotes")</code>) packages.
 
 You can install the released version of Makurhini from [GitHub](https://github.com) with:
 
-``` r
+```{r echo=FALSE, eval=FALSE}
 library(devtools)
 library(remotes)
 install_github("connectscape/Makurhini", dependencies = TRUE, upgrade = "never")
@@ -71,8 +71,6 @@ This is a basic example which shows you how to solve some common problems:
 
 ```{r echo=FALSE}
 library(Makurhini)
-library(raster)
-library(rgeos)
 library(sf)
 library(tmap)
 library(mapview)
@@ -92,12 +90,17 @@ Protected_areas <- read_sf("D:/Paper_Makurhini/Ejemplos/PAs_Colombia_amazonas.sh
 
 
 ```{r eval = FALSE}
-test_protconn <- MK_ProtConnMult(nodes = Protected_areas, region = ecoregions,
-                    attribute = "Intersected area", area_unit = "ha",
-                    distance = list(type= "centroid"),
-                    distance_thresholds = 10000,
-                    probability = 0.5, transboundary = 50000,
-                    plot = TRUE, CI = NULL, parallel = TRUE, intern = FALSE)
+test_protconn <- MK_ProtConnMult(nodes = Protected_areas, 
+                                 region = ecoregions,
+                                 area_unit = "ha",
+                                 distance = list(type= "centroid"),
+                                 distance_thresholds = 10000,
+                                 probability = 0.5, 
+                                 transboundary = 50000,
+                                 plot = TRUE, 
+                                 CI = NULL, 
+                                 parallel = 4, 
+                                 intern = FALSE)
 test_protconn[[1]][[1]]
 ```
 

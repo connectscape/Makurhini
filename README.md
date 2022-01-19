@@ -46,6 +46,7 @@ Analyzing landscape connectivity. [![DOI](https://zenodo.org/badge/DOI/10.5281/z
 
 ## Installation
 
+  - Depends: R (> 4.0.0), igraph (>= 1.2.6)
   - Pre-install
     [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
   - Pre-install devtools (<code>install.packages(“devtools”)</code>) and

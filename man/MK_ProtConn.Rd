@@ -87,6 +87,7 @@ test <- MK_ProtConn(nodes = Protected_areas, region = region,
                     probability = 0.5, transboundary = 50000,
                     LA = NULL, plot = TRUE, parallel = NULL,
                     protconn_bound=TRUE,
+                    delta = TRUE,
                     write = NULL, intern = TRUE)
 test
 

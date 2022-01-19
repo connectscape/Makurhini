@@ -62,7 +62,7 @@
 #' @importFrom ggplot2 ggplot geom_line geom_point aes theme scale_x_continuous scale_y_continuous element_blank labs scale_colour_manual element_line element_text element_rect
 #' @importFrom purrr compact map_dfr
 #' @importFrom methods as
-#' @importFrom utils tail
+#' @importFrom utils tail installed.packages
 #' @importFrom sf st_as_sf st_zm st_buffer st_cast st_intersection st_geometry st_difference st_area
 test_metric_distance <- function(nodes,
                               attribute = NULL,

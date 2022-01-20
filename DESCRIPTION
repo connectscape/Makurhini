@@ -11,7 +11,7 @@ Authors@R: c(person(given = "Oscar",
           person(given = "Camilo A.",
               family = "Correa Ayram",
               role = c("aut"), 
-              email = "ccorrea@humboldt.org.co", 
+              email = "correa.c@javeriana.edu.co", 
               comment = c(ORCID = "0000-0001-8619-0295")
               )
               )

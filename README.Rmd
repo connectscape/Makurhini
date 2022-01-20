@@ -269,7 +269,7 @@ nrow(vegetation_patches) # Number of patches
 ```
 
 
-To define the edge of the patches we will use a distance of 500 m from the limit of the patches (Haddad et al. 2015).
+To define the edge of the patches we can use, for example, a distance of 500 m from the limit of the patches.
 
 ![](man/figures/Imagen1.png)
 

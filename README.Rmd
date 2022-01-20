@@ -356,7 +356,7 @@ ggplot(Fragmentation_test.2, aes(x = Edge.distance, y = Percentage, group = Type
 The average core area percentage (average patch area that has the least possible edge effect) for all patches decreases by more than 70% when considering an edge effect with an edge depth distance of 1 km.
 
 
- |Edge depth distance (m) | CoreArea (%)|
+ |Edge depth distance (m) | Core Area (%)|
  |------------------------|:-----------:|
  |100                     | 83.5%       |
  |500                     | 34.14%      |

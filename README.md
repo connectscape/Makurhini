@@ -377,14 +377,14 @@ head(centrality_test)
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
 #> CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #> # A tibble: 6 x 8
-#>      id degree    eigen    close   BWC cluster modules                  geometry
-#>   <int>  <dbl>    <dbl>    <dbl> <dbl>   <dbl>   <dbl>             <POLYGON [m]>
-#> 1     1      0 4.54e-17  4.99e-5     0       1       1 ((3676911 589967.3, 3676~
-#> 2     2      1 3.40e-16  5.03e-5     0       2       2 ((3558044 696202.5, 3557~
-#> 3     3      1 2.72e-16  5.03e-5     0       3       3 ((3569169 687776.4, 3569~
-#> 4     4      1 2.95e-16  5.03e-5     0       2       2 ((3547317 685713.2, 3547~
-#> 5     5      1 2.95e-16  5.03e-5     0       3       3 ((3567471 684357.4, 3567~
-#> 6     6      0 4.54e-17  4.99e-5     0       4       4 ((3590569 672451.7, 3590~
+#>      id degree eigen    close   BWC cluster modules                     geometry
+#>   <int>  <dbl> <dbl>    <dbl> <dbl>   <dbl>   <dbl>                <POLYGON [m]>
+#> 1     1      0     0  4.99e-5     0       1       1 ((3676911 589967.3, 3676931~
+#> 2     2      1     0  5.03e-5     0       2       2 ((3558044 696202.5, 3557972~
+#> 3     3      1     0  5.03e-5     0       3       3 ((3569169 687776.4, 3569146~
+#> 4     4      1     0  5.03e-5     0       2       2 ((3547317 685713.2, 3547363~
+#> 5     5      1     0  5.03e-5     0       3       3 ((3567471 684357.4, 3567380~
+#> 6     6      0     0  4.99e-5     0       4       4 ((3590569 672451.7, 3590090~
 ```
 
 Examples:
@@ -408,8 +408,8 @@ Least cost distances:
 
 ### Fragmentation statistics
 
-‘MK\_Fragmentation’* estimates fragmentation
-statistics at the landscape and patch level.
+*‘MK\_Fragmentation()’* estimates fragmentation statistics at the
+landscape and patch level.
 
 Example:
 

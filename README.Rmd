@@ -259,7 +259,7 @@ Least cost distances:
 
 ### Fragmentation statistics
 
-</strong>MK_Fragmentation() </strong> estimates fragmentation statistics at the landscape and patch level.
+*'MK_Fragmentation()'* estimates fragmentation statistics at the landscape and patch level.
 
 Example:
 

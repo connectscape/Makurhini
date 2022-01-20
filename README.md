@@ -377,14 +377,14 @@ head(centrality_test)
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
 #> CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #> # A tibble: 6 x 8
-#>      id degree eigen    close   BWC cluster modules                     geometry
-#>   <int>  <dbl> <dbl>    <dbl> <dbl>   <dbl>   <dbl>                <POLYGON [m]>
-#> 1     1      0     0  4.99e-5     0       1       1 ((3676911 589967.3, 3676931~
-#> 2     2      1     0  5.03e-5     0       2       2 ((3558044 696202.5, 3557972~
-#> 3     3      1     0  5.03e-5     0       3       3 ((3569169 687776.4, 3569146~
-#> 4     4      1     0  5.03e-5     0       2       2 ((3547317 685713.2, 3547363~
-#> 5     5      1     0  5.03e-5     0       3       3 ((3567471 684357.4, 3567380~
-#> 6     6      0     0  4.99e-5     0       4       4 ((3590569 672451.7, 3590090~
+#>      id degree    eigen    close   BWC cluster modules                  geometry
+#>   <int>  <dbl>    <dbl>    <dbl> <dbl>   <dbl>   <dbl>             <POLYGON [m]>
+#> 1     1      0 0.        4.99e-5     0       1       1 ((3676911 589967.3, 3676~
+#> 2     2      1 6.81e-17  5.03e-5     0       2       2 ((3558044 696202.5, 3557~
+#> 3     3      1 9.08e-17  5.03e-5     0       3       3 ((3569169 687776.4, 3569~
+#> 4     4      1 1.13e-16  5.03e-5     0       2       2 ((3547317 685713.2, 3547~
+#> 5     5      1 6.81e-17  5.03e-5     0       3       3 ((3567471 684357.4, 3567~
+#> 6     6      0 0.        4.99e-5     0       4       4 ((3590569 672451.7, 3590~
 ```
 
 Examples:
@@ -405,3 +405,181 @@ Least cost distances:
     raster”)
 -   distance = list(type= “commute-time”, resistance = “resistance
     raster”)
+
+### Fragmentation statistics
+
+</strong>MK\_Fragmentation() </strong> estimates fragmentation
+statistics at the landscape and patch level.
+
+Example:
+
+``` r
+data("vegetation_patches", package = "Makurhini")
+nrow(vegetation_patches) # Number of patches
+#> [1] 142
+```
+
+To define the edge of the patches we will use a distance of 500 m from
+the limit of the patches (Haddad et al. 2015).
+
+![](man/figures/Imagen1.png)
+
+``` r
+Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500, plot = TRUE, min_patch_area = 100, landscape_area = NULL, area_unit = "km2", perimeter_unit = "km")
+```
+
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-16-2.png" width="60%" />
+
+-   The results are presented as a list, the first result is called
+    *“Summary landscape metrics (Viewer Panel)”* and it has
+    fragmentation statistics at landscape level.
+
+``` r
+class(Fragmentation_test)
+#> [1] "list"
+names(Fragmentation_test)
+#> [1] "Summary landscape metrics (Viewer Panel)"
+#> [2] "Patch statistics shapefile"
+Fragmentation_test$`Summary landscape metrics (Viewer Panel)`
+```
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:left;">
+Metric
+</th>
+<th style="text-align:center;">
+Value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Patch area (km2)
+</td>
+<td style="text-align:center;">
+12792.2046
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Number of patches
+</td>
+<td style="text-align:center;">
+142.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Size (mean)
+</td>
+<td style="text-align:center;">
+90.0859
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Patches &lt; minimum patch area
+</td>
+<td style="text-align:center;">
+126.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Patches &lt; minimum patch area (%)
+</td>
+<td style="text-align:center;">
+30.8017
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Total edge
+</td>
+<td style="text-align:center;">
+12297.5330
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Edge density
+</td>
+<td style="text-align:center;">
+0.9613
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Total Core Area (km2)
+</td>
+<td style="text-align:center;">
+7622.3940
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cority
+</td>
+<td style="text-align:center;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Shape Index (mean)
+</td>
+<td style="text-align:center;">
+138.4898
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FRAC (mean)
+</td>
+<td style="text-align:center;">
+1.4680
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MESH (km2)
+</td>
+<td style="text-align:center;">
+1543.1460
+</td>
+</tr>
+</tbody>
+</table>
+
+-   The second output *“Patch statistics shapefile”* is a shapefile with
+    patch level fragmentation statistics that can be saved using
+    write\_sf() from *‘sf’* package
+    (<https://cran.r-project.org/web/packages/sf/index.html>).
+
+``` r
+head(Fragmentation_test[[2]])
+#> Simple feature collection with 6 features and 9 fields
+#> Geometry type: POLYGON
+#> Dimension:     XY
+#> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
+#> CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#>   id      Area        CA CAPercent Perimeter EdgePercent   PARA ShapeIndex
+#> 1  1 4195.5691 3541.3806   84.4076  1412.046     15.5924 2.9713  8212.7666
+#> 2  2   60.2227   11.9415   19.8289   167.982     80.1711 0.3585   117.0545
+#> 3  3   48.8665    6.2099   12.7079   127.049     87.2921 0.3846    79.7484
+#> 4  4   15.1875    7.4210   48.8626    18.536     51.1374 0.8194     6.4864
+#> 5  5   33.2716   13.0877   39.3360    55.038     60.6640 0.6045    28.5066
+#> 6  6   53.1344   11.3564   21.3730   111.123     78.6270 0.4782    72.7339
+#>     FRAC                       geometry
+#> 1 1.4065 POLYGON ((3676911 589967.3,...
+#> 2 1.8241 POLYGON ((3558044 696202.5,...
+#> 3 1.7785 POLYGON ((3569169 687776.4,...
+#> 4 1.1273 POLYGON ((3547317 685713.2,...
+#> 5 1.4961 POLYGON ((3567471 684357.4,...
+#> 6 1.6735 POLYGON ((3590569 672451.7,...
+```
+
+<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />

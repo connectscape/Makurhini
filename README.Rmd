@@ -61,11 +61,12 @@ formattable(functions_MK,  align =c("l","l"), list(`Function` = formatter(
 ## Example
 This is a basic example which shows you how to solve some common problems:
 
-* Protected Connected Land (<i>ProtConn</i>)
-* Equivalent Connectivity Area (<i>ECA</i>)
-* Integral index of connectivity (<i>IIC</i>) and fractions (<i>dIICintra, dIICflux and dIICconnector</i>)
-* Probability of connectivity (<i>PC</i>) and fractions (<i>dPCintra, dPCflux and dPCconnector</i>)
-* Centrality measures (e.g., betweenness centrality, node memberships, and modularity)
+* [Protected Connected Land (ProtConn)]
+* [Equivalent Connectivity Area (ECA)]
+* [Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector)]
+* [Probability of connectivity (PC) and fractions (Intra, Flux and Connector)]
+* [Centrality measures] (e.g., betweenness centrality, node memberships, and modularity)
+* [Fragmentation statistics]
 
 
 ### Protected Connected Land (ProtConn)

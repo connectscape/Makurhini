@@ -55,6 +55,7 @@ functions_MK <- data.frame(Function = c("MK_Fragmentation", "distancefile", "MK_
 
 formattable(functions_MK,  align =c("l","l"), list(`Function` = formatter(
               "span", style = ~ style(font.style = "italic"))))
+
 ```
 
 ## Example

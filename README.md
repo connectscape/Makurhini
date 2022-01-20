@@ -78,7 +78,7 @@ Purpose
 <tbody>
 <tr>
 <td style="text-align:left;">
-<span style="font-style: italic">MK\_Fragmentation </span>
+<span style="font-style: italic">MK_Fragmentation </span>
 </td>
 <td style="text-align:left;">
 Calculate patch and landscape statistics (e.g., mean size patches, edge
@@ -100,7 +100,7 @@ this last is analogous to the resistance distance of circuitscape, see
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="font-style: italic">MK\_RMCentrality </span>
+<span style="font-style: italic">MK_RMCentrality </span>
 </td>
 <td style="text-align:left;">
 Estimate centrality measures under one or several dispersal distances
@@ -112,7 +112,7 @@ landscape heterogeneity.
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="font-style: italic">MK\_dPCIIC </span>
+<span style="font-style: italic">MK_dPCIIC </span>
 </td>
 <td style="text-align:left;">
 Calculate the integral index of connectivity (IIC) and probability of
@@ -125,7 +125,7 @@ when adding new nodes (restoration scenarios). It uses the
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="font-style: italic">MK\_dECA </span>
+<span style="font-style: italic">MK_dECA </span>
 </td>
 <td style="text-align:left;">
 Estimate the Equivalent Connected Area (ECA) and compare the relative
@@ -135,7 +135,7 @@ distances. It uses the ‘distancefile()’.
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="font-style: italic">MK\_ProtConn </span>
+<span style="font-style: italic">MK_ProtConn </span>
 </td>
 <td style="text-align:left;">
 Estimate the Protected Connected (ProtConn) indicator and fractions for
@@ -148,7 +148,7 @@ ProtConn\[Contig\], ProtConn\[Trans\], ProtConn\[Unprot\]). It uses the
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="font-style: italic">MK\_ProtConnMult </span>
+<span style="font-style: italic">MK_ProtConnMult </span>
 </td>
 <td style="text-align:left;">
 Estimate the ProtConn indicator and fractions for multiple regions. It
@@ -157,7 +157,7 @@ uses the ‘distancefile()’.
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="font-style: italic">MK\_Connect\_grid </span>
+<span style="font-style: italic">MK_Connect_grid </span>
 </td>
 <td style="text-align:left;">
 Compute the ProtConn indicator and fractions, PC or IIC overall
@@ -167,7 +167,7 @@ connectivity metrics (ECA) in a regular grid. It uses the
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="font-style: italic">test\_metric\_distance</span>
+<span style="font-style: italic">test_metric_distance</span>
 </td>
 <td style="text-align:left;">
 Compare ECA or ProtConn connectivity metrics using one or up to four
@@ -347,14 +347,14 @@ head(centrality_test)
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
 #> CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #> # A tibble: 6 x 8
-#>      id degree    eigen    close   BWC cluster modules                  geometry
-#>   <int>  <dbl>    <dbl>    <dbl> <dbl>   <dbl>   <dbl>             <POLYGON [m]>
-#> 1     1      0 0.        4.99e-5     0       1       1 ((3676911 589967.3, 3676~
-#> 2     2      1 9.08e-17  5.03e-5     0       2       2 ((3558044 696202.5, 3557~
-#> 3     3      1 6.81e-17  5.03e-5     0       3       3 ((3569169 687776.4, 3569~
-#> 4     4      1 4.54e-17  5.03e-5     0       2       2 ((3547317 685713.2, 3547~
-#> 5     5      1 9.08e-17  5.03e-5     0       3       3 ((3567471 684357.4, 3567~
-#> 6     6      0 0.        4.99e-5     0       4       4 ((3590569 672451.7, 3590~
+#>      id degree eigen    close   BWC cluster modules                     geometry
+#>   <int>  <dbl> <dbl>    <dbl> <dbl>   <dbl>   <dbl>                <POLYGON [m]>
+#> 1     1      0     0  4.99e-5     0       1       1 ((3676911 589967.3, 3676931~
+#> 2     2      1     0  5.03e-5     0       2       2 ((3558044 696202.5, 3557972~
+#> 3     3      1     0  5.03e-5     0       3       3 ((3569169 687776.4, 3569146~
+#> 4     4      1     0  5.03e-5     0       2       2 ((3547317 685713.2, 3547363~
+#> 5     5      1     0  5.03e-5     0       3       3 ((3567471 684357.4, 3567380~
+#> 6     6      0     0  4.99e-5     0       4       4 ((3590569 672451.7, 3590090~
 ```
 
 Examples:

@@ -1,9 +1,9 @@
 
 [![AppVeyor build
 status](https://ci.appveyor.com/api/projects/status/github/OscarGOGO/Makurhini?branch=master&svg=true)](https://ci.appveyor.com/project/OscarGOGO/Makurhini)
-<!-- badges: start --> [![Lifecycle:
+
+[![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-<!-- badges: end -->
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -377,14 +377,14 @@ head(centrality_test)
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
 #> CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #> # A tibble: 6 x 8
-#>      id degree    eigen    close   BWC cluster modules                  geometry
-#>   <int>  <dbl>    <dbl>    <dbl> <dbl>   <dbl>   <dbl>             <POLYGON [m]>
-#> 1     1      0 0.        4.99e-5     0       1       1 ((3676911 589967.3, 3676~
-#> 2     2      1 6.81e-17  5.03e-5     0       2       2 ((3558044 696202.5, 3557~
-#> 3     3      1 9.08e-17  5.03e-5     0       3       3 ((3569169 687776.4, 3569~
-#> 4     4      1 1.13e-16  5.03e-5     0       2       2 ((3547317 685713.2, 3547~
-#> 5     5      1 6.81e-17  5.03e-5     0       3       3 ((3567471 684357.4, 3567~
-#> 6     6      0 0.        4.99e-5     0       4       4 ((3590569 672451.7, 3590~
+#>      id degree eigen    close   BWC cluster modules                     geometry
+#>   <int>  <dbl> <dbl>    <dbl> <dbl>   <dbl>   <dbl>                <POLYGON [m]>
+#> 1     1      0     0  4.99e-5     0       1       1 ((3676911 589967.3, 3676931~
+#> 2     2      1     0  5.03e-5     0       2       2 ((3558044 696202.5, 3557972~
+#> 3     3      1     0  5.03e-5     0       3       3 ((3569169 687776.4, 3569146~
+#> 4     4      1     0  5.03e-5     0       2       2 ((3547317 685713.2, 3547363~
+#> 5     5      1     0  5.03e-5     0       3       3 ((3567471 684357.4, 3567380~
+#> 6     6      0     0  4.99e-5     0       4       4 ((3590569 672451.7, 3590090~
 ```
 
 Examples:
@@ -425,7 +425,10 @@ the limit of the patches (Haddad et al. 2015).
 ![](man/figures/Imagen1.png)
 
 ``` r
-Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500, plot = TRUE, min_patch_area = 100, landscape_area = NULL, area_unit = "km2", perimeter_unit = "km")
+Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500,
+                                       plot = TRUE, min_patch_area = 100, 
+                                       landscape_area = NULL, area_unit = "km2", 
+                                       perimeter_unit = "km")
 ```
 
 <img src="man/figures/README-unnamed-chunk-16-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-16-2.png" width="60%" />
@@ -583,3 +586,31 @@ head(Fragmentation_test[[2]])
 ```
 
 <img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
+
+We can make a loop where we explore different edge depths. In the
+following example, We will explore 10 edge depths (*edge\_distance
+argument*): 100, 200, 300, 400, 500, 600, 700, 800, 900 and 1000 meters.
+We will apply the *‘MK\_Fragmentation’* function using the previous
+distances and then, we will extract the core area percentage and edge
+percentage statistics. Finally, we will plot the average of the patch
+core area percentage and edge percentage (% core area + % edge = 100%).
+
+    #>   Edge.distance      Type Percentage
+    #> 1           100 Core Area   83.50499
+    #> 2           100      Edge   16.49501
+    #> 3           200 Core Area   68.18516
+    #> 4           200      Edge   31.81484
+    #> 5           300 Core Area   54.77231
+    #> 6           300      Edge   45.22769
+
+<img src="man/figures/README-unnamed-chunk-21-1.png" width="60%" />
+
+The average core area percentage (average patch area that has the least
+possible edge effect) for all patches decreases by more than 70% when
+considering an edge effect with an edge depth distance of 1 km.
+
+| Edge depth distance (m) | CoreArea (%) |
+|-------------------------|:------------:|
+| 100                     |    83.5%     |
+| 500                     |    34.14%    |
+| 1000                    |    9.78%     |

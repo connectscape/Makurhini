@@ -3,9 +3,9 @@ output: github_document
 ---
 
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/OscarGOGO/Makurhini?branch=master&svg=true)](https://ci.appveyor.com/project/OscarGOGO/Makurhini)
- <!-- badges: start -->
-  [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-  <!-- badges: end -->
+ 
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -275,7 +275,10 @@ To define the edge of the patches we will use a distance of 500 m from the limit
 
 
 ```{r }
-Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500, plot = TRUE, min_patch_area = 100, landscape_area = NULL, area_unit = "km2", perimeter_unit = "km")
+Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500,
+                                       plot = TRUE, min_patch_area = 100, 
+                                       landscape_area = NULL, area_unit = "km2", 
+                                       perimeter_unit = "km")
 
 ```
 
@@ -318,3 +321,43 @@ Frac <- tm_shape(Fragmentation_test[[2]]) + tm_fill("FRAC", palette = rev(RColor
 
 tmap_arrange(CAP, Per, SH, Frac)
 ```
+
+
+We can make a loop where we explore different edge depths. In the following example, We will explore 10 edge depths (*edge_distance argument*): 100, 200, 300, 400, 500, 600, 700, 800, 900 and 1000 meters. We will apply the *'MK_Fragmentation'* function using the previous distances and then, we will extract the core area percentage and edge percentage statistics. Finally, we will plot the average of the patch core area percentage and edge percentage (% core area + % edge = 100%). 
+
+```{r echo=FALSE}
+library(purrr)
+Fragmentation_test.2 <- map_dfr(seq(100, 1000, 100), function(x){
+  x.1 <- MK_Fragmentation(patches = vegetation_patches, 
+                          edge_distance = x, plot = FALSE)[[2]]
+  CA <- mean(x.1$CAPercent)
+  Edge <- mean(x.1$EdgePercent)
+  x.2 <- rbind(data.frame('Edge distance' = x, Type = "Core Area", Percentage = CA),
+                     data.frame('Edge distance' = x, Type = "Edge", Percentage = Edge))
+  return(x.2)
+})
+
+head(Fragmentation_test.2)
+```
+
+
+```{r echo=FALSE}
+library(ggplot2)
+ggplot(Fragmentation_test.2, aes(x = Edge.distance, y = Percentage, group = Type)) +
+  geom_line(aes(color = Type))+
+  geom_point(aes(color = Type))+ ylim(0,100)+
+  scale_x_continuous("Edge depth distance (m)", 
+                     labels = as.character(Fragmentation_test.2$Edge.distance), breaks = Fragmentation_test.2$Edge.distance)+
+  scale_color_brewer(palette="Dark2")+
+  theme_classic()
+```
+
+
+The average core area percentage (average patch area that has the least possible edge effect) for all patches decreases by more than 70% when considering an edge effect with an edge depth distance of 1 km.
+
+
+ |Edge depth distance (m) | CoreArea (%)|
+ |------------------------|:-----------:|
+ |100                     | 83.5%       |
+ |500                     | 34.14%      |
+ |1000                    | 9.78%       |

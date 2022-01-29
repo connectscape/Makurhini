@@ -20,9 +20,9 @@ MK_Fragmentation(
 
 \item{edge_distance}{Numeric. Distance to edge in meters. Default equal 500 m (Haddad et al. 2015)}
 
-\item{min_patch_area}{Numeric. Minimum patch area. Default equal 100 km2 (Haddad et al. 2015)}
+\item{min_patch_area}{Numeric. Minimum patch area used to calculate the number of patches with an area smaller than the one provided. Default equal 100 km2 (Haddad et al. 2015)}
 
-\item{landscape_area}{Numeric. Total landscape area in km2 (optional). If NULL the total patch area will be used.}
+\item{landscape_area}{Numeric. Total area of the study landscape in km2 (optional). If NULL the total patch area will be used.}
 
 \item{area_unit}{character. You can set an area unit (e.g., "km2", "cm2", "m2", "ha"; see Makurhini::unit_convert). Default equal to square kilometers "km2".}
 

@@ -108,10 +108,6 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     }
   }
 
-  if (is.null(distance_thresholds)) {
-    stop("error missing numeric distance threshold(s)")
-  }
-
   if (!is.null(write)) {
     if (!dir.exists(dirname(write))) {
       stop("error, output folder does not exist")

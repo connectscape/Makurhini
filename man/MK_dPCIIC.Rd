@@ -16,6 +16,7 @@ MK_dPCIIC(
   overall = FALSE,
   onlyoverall = FALSE,
   LA = NULL,
+  parallel = NULL,
   rasterparallel = NULL,
   write = NULL,
   intern = TRUE
@@ -62,6 +63,8 @@ distance between nodes will be estimated and used.}
 \item{onlyoverall}{logical. If TRUE, then only overall metrics will be calculated.}
 
 \item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to m2).}
+
+\item{parallel}{numeric. Specifies the number of cores to parallelize the estimation of shortest paths.It is useful when you have more than 1,000 nodes.}
 
 \item{rasterparallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL.
 If nodes is "raster" then you can use this argument to assign the metrics values to the nodes

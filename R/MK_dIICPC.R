@@ -31,6 +31,7 @@
 #' @param overall logical. If TRUE, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE
 #' @param onlyoverall logical. If TRUE, then only overall metrics will be calculated.
 #' @param LA numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to m2).
+#' @param parallel numeric. Specifies the number of cores to parallelize the estimation of shortest paths.It is useful when you have more than 1,000 nodes.
 #' @param rasterparallel numeric. Specify the number of cores to use for parallel processing, default = NULL.
 #' If nodes is "raster" then you can use this argument to assign the metrics values to the nodes
 #'  raster. It is useful when raster resolution is less than 100 m2.
@@ -84,7 +85,9 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                       metric = c("IIC", "PC"),
                       probability = NULL, distance_thresholds = NULL,
                       overall = FALSE, onlyoverall=FALSE,
-                      LA = NULL, rasterparallel = NULL, write = NULL,
+                      LA = NULL,
+                      parallel = NULL,
+                      rasterparallel = NULL, write = NULL,
                       intern = TRUE) {
   if (missing(nodes)) {
     stop("error missing file of nodes")
@@ -242,10 +245,42 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
       stop("graph adjacency error")
     }
 
-    mat1 <- tryCatch(shortest.paths(graph_nodes,
-                                    weights = if(metric == "IIC"){NULL
-                                    } else {-log(E(graph_nodes)$weight)}),
-                     error = function(err) err)
+    if(nrow(Adj_matr) > 1000){
+      toV <- as_ids(V(graph_nodes))
+
+      if(!is.null(parallel)){
+        works <- as.numeric(availableCores())-1
+        works <- if(parallel > works){works}else{parallel}
+        plan(strategy = multiprocess, gc = TRUE, workers = works)
+
+        mat1 <- tryCatch(future_map_dfc(1:length(toV), function(y){
+          x.1 <- shortest.paths(graph_nodes,
+                                to=toV[y],
+                                weights = if(metric == "IIC"){NULL
+                                } else {-log(E(graph_nodes)$weight)}) %>% as.data.frame()
+          return(x.1)
+        }, .progress = TRUE), error = function(err) err) %>%
+          as.matrix(.); rownames(mat1) <- rownames(Adj_matr); colnames(mat1) <- colnames(Adj_matr)
+        close_multiprocess(works)
+
+      } else {
+
+        mat1 <- tryCatch(map_dfc(1:length(toV), function(y){
+          x.1 <- shortest.paths(graph_nodes,
+                                to=toV[y],
+                                weights = if(metric == "IIC"){NULL
+                                } else {-log(E(graph_nodes)$weight)}) %>% as.data.frame()
+          return(x.1)
+        }), error = function(err) err) %>%
+          as.matrix(.); rownames(mat1) <- rownames(Adj_matr); colnames(mat1) <- colnames(Adj_matr)
+      }
+
+    } else {
+      mat1 <- tryCatch(shortest.paths(graph_nodes,
+                                      weights = if(metric == "IIC"){NULL
+                                      } else {-log(E(graph_nodes)$weight)}),
+                       error = function(err) err)
+    }
 
     if (inherits(mat1, "error")) {
       stop("graph shortest.paths error")
@@ -271,6 +306,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     # sum(((rowSums(mat2)+colSums(mat2)) - attribute_2^2))
     #p2
     last <- if(metric == "IIC"){"IIC"} else {"PC"}
+
     if(isTRUE(overall) | isTRUE(onlyoverall)){
       if(!is.null(LA)){
         if(LA > sum(attribute_2)){
@@ -295,12 +331,55 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     if(isFALSE(onlyoverall)){
       #p3
       N <- nrow(Adj_matr)
+
+      if(nrow(Adj_matr)>1000 & !is.null(parallel)){
+       plan(strategy = multiprocess, gc = TRUE, workers = works)
+      } else {
+        parallel = NULL
+      }
+
+      if(isTRUE(intern) & N > 1000){
+        handlers(global = TRUE)
+        pb2 <- progressor(along = 1:N)
+      }
+
       delta <- map_dbl(1:N, function(i){
-        mat.i <- Adj_matr[-i,-i]
+
+        if(N > 1000 & isTRUE(intern)){
+          pb2(sprintf("i=%g", i))
+        }
+
+        Adj_matr.i <- Adj_matr[-i,-i]
         attribute.i <- attribute_2[-i]
-        g.i <- graph.adjacency(mat.i, mode = "undirected",
+        g.i <- graph.adjacency(Adj_matr.i, mode = "undirected",
                                weighted = if(metric == "IIC"){NULL}else{TRUE})
-        mat.i <- shortest.paths(g.i, weights = if(metric == "IIC"){NULL}else{-log(E(g.i)$weight)})
+
+        if(nrow(Adj_matr.i) > 1000){
+          toV <- as_ids(V(g.i))
+
+          if(!is.null(parallel)){
+            mat.i <- tryCatch(future_map_dfc(1:length(toV), function(y){
+              y.1 <- shortest.paths(g.i,
+                                    to=toV[y],
+                                    weights = if(metric == "IIC"){NULL
+                                    } else {-log(E(g.i)$weight)}) %>% as.data.frame()
+              return(y.1)
+            }),error = function(err) err) %>%
+              as.matrix(.); rownames(mat.i) <- rownames(Adj_matr.i); colnames(mat.i) <- colnames(Adj_matr.i)
+          } else {
+            mat.i <- tryCatch(map_dfc(1:length(toV), function(y){
+              x.1 <- shortest.paths(g.i,
+                                    to=toV[y],
+                                    weights = if(metric == "IIC"){NULL
+                                    } else {-log(E(g.i)$weight)}) %>% as.data.frame()
+              return(x.1)
+            }), error = function(err) err) %>%
+              as.matrix(.); rownames(mat.i) <- rownames(Adj_matr.i); colnames(mat.i) <- colnames(Adj_matr.i)
+          }
+        } else {
+          mat.i <- shortest.paths(g.i, weights = if(metric == "IIC"){NULL}else{-log(E(g.i)$weight)})
+        }
+
         if(metric == "PC"){
           mat.i <- exp(-mat.i)
         }
@@ -311,6 +390,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
         }
         num.i <- sum(mat.i)
         dC <- (num - num.i) / num * 100
+
         return(dC)})
 
       #p4
@@ -344,14 +424,42 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
         dres <- rep(0, nrow(attribute_1))
 
         dres[N] <- map_dbl(N, function(i){
-          mat.i <- Adj_matr[- N[which(N %notin% i)],-N[which(N %notin% i)]]
+          Adj_matr.i <- Adj_matr[- N[which(N %notin% i)],-N[which(N %notin% i)]]
           attribute.i <- attribute_2[-N[which(N %notin% i)]]
-          g.i <- graph.adjacency(mat.i, mode = "undirected",
+          g.i <- graph.adjacency(Adj_matr.i, mode = "undirected",
                                  weighted = if(metric == "IIC"){NULL}else{TRUE})
-          mat.i <- shortest.paths(g.i, weights = if(metric == "IIC"){NULL}else{-log(E(g.i)$weight)})
+
+          if(nrow(Adj_matr.i) > 1000){
+            toV <- as_ids(V(g.i))
+
+
+            if(!is.null(parallel)){
+              mat.i <- tryCatch(future_map_dfc(1:length(toV), function(y){
+                y.1 <- shortest.paths(g.i,
+                                      to=toV[y],
+                                      weights = if(metric == "IIC"){NULL
+                                      } else {-log(E(g.i)$weight)}) %>% as.data.frame()
+                return(y.1)
+              }),error = function(err) err) %>%
+                as.matrix(.); rownames(mat.i) <- rownames(Adj_matr.i); colnames(mat.i) <- colnames(Adj_matr.i)
+            } else {
+              mat.i <- tryCatch(map_dfc(1:length(toV), function(y){
+                x.1 <- shortest.paths(g.i,
+                                      to=toV[y],
+                                      weights = if(metric == "IIC"){NULL
+                                      } else {-log(E(g.i)$weight)}) %>% as.data.frame()
+                return(x.1)
+              }), error = function(err) err) %>%
+                as.matrix(.); rownames(mat.i) <- rownames(Adj_matr.i); colnames(mat.i) <- colnames(Adj_matr.i)
+            }
+          } else {
+            mat.i <- shortest.paths(g.i, weights = if(metric == "IIC"){NULL}else{-log(E(g.i)$weight)})
+          }
+
           if(metric == "PC"){
             mat.i <- exp(-mat.i)
           }
+
           if(metric == "IIC"){
             mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
           } else {
@@ -361,7 +469,16 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
           num.i <- sum(mat.i)
           dC <- (num.i- num.T0) / num.T0 * 100
           return(dC)})
+
+        if(!is.null(parallel)){
+          close_multiprocess(works)
+        }
+
         metric_conn <- cbind(metric_conn, dres)
+      } else {
+        if(!is.null(parallel)){
+          close_multiprocess(works)
+        }
       }
 
       if(!is.null(idT)){
@@ -411,6 +528,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
             works <- as.numeric(availableCores())-1
             works <-  if(rasterparallel > works){works}else{rasterparallel}
             plan(strategy = multiprocess, gc = TRUE, workers = works)
+
             r_metric <- tryCatch(future_map(2:ncol(metric_conn), function(c){
               x1 <- metric_conn[,c(1, c)]
               for(i in rp){

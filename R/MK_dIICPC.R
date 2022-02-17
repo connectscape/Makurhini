@@ -338,16 +338,16 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
         parallel = NULL
       }
 
-      if(isTRUE(intern) & N > 1000){
-        handlers(global = TRUE)
-        pb2 <- progressor(along = 1:N)
-      }
+      # if(isTRUE(intern) & N > 1000){
+      #   handlers(global = TRUE)
+      #   pb2 <- progressor(along = 1:N)
+      # }
 
       delta <- map_dbl(1:N, function(i){
 
-        if(N > 1000 & isTRUE(intern)){
-          pb2(sprintf("i=%g", i))
-        }
+        # if(N > 1000 & isTRUE(intern)){
+        #   pb2(sprintf("i=%g", i))
+        # }
 
         Adj_matr.i <- Adj_matr[-i,-i]
         attribute.i <- attribute_2[-i]

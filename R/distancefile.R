@@ -15,7 +15,8 @@
 #' @param keep numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
 #'  number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to NULL). The higher the value,
 #'   the higher the speed but less precision.
-#' @param resistance raster. Raster object with resistance values.
+#' @param resistance raster. Raster object with resistance values. NOTE. If least_cost.java is TRUE, then
+#'  resistance must bee an integer raster (i.e., integer values).
 #' @param resist.units logical. If type = "least-cost" then yo can transform cost units to geographic
 #'  units by multiplying the cost by the resolution of the raster.
 #' @param CostFun A function to compute the cost to move between cells. Available only if you you have selected

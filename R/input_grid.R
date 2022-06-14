@@ -21,6 +21,10 @@ input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimpl
     stop("landscape class should be SpatialPolygonDataframe or sf")
   }
 
+  if(st_crs(node) != st_crs(landscape)){
+    stop("nodes and landscape have different crs, remember that the files must have a projected coordinate system")
+  }
+
   #
   mask1 <- rmapshaper::ms_simplify(landscape, method = "vis", keep_shapes = TRUE)
   mask1 <- st_buffer(mask1, bdist)

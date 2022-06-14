@@ -53,6 +53,7 @@
 #' test
 #'
 #' #Least-cost distances
+#' library(raster)
 #' HFP_Mexico <- raster(system.file("extdata", "HFP_Mexico.tif",
 #'                     package = "Makurhini", mustWork = TRUE))
 #' mask_1 <- as(extent(Protected_areas), 'SpatialPolygons')
@@ -61,6 +62,7 @@
 #' HFP_Mexico <- crop(HFP_Mexico, mask_1)
 #' HFP_Mexico <- HFP_Mexico/10
 #' HFP_Mexico[HFP_Mexico < 1] <- 1
+#' #If least_cost.java is TRUE, then resistance must bee an integer raster (i.e., integer values).
 #' HFP_Mexico <- round(HFP_Mexico)
 #'
 #' test2 <- MK_ProtConn(nodes = Protected_areas, region = region,
@@ -581,6 +583,6 @@ MK_ProtConn <- function(nodes,
         }
       }
   }
-
+  message("Done!")
   return(ProtConn_res)
 }

@@ -47,7 +47,8 @@ compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to me
 number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to NULL). The higher the value,
  the higher the speed but less precision.}
 
-\item{resistance}{raster. Raster object with resistance values.}
+\item{resistance}{raster. Raster object with resistance values. NOTE. If least_cost.java is TRUE, then
+resistance must bee an integer raster (i.e., integer values).}
 
 \item{resist.units}{logical. If type = "least-cost" then yo can transform cost units to geographic
 units by multiplying the cost by the resolution of the raster.}

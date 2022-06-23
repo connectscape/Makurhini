@@ -47,8 +47,7 @@ metric_class <- function(metric = NULL,
     if(is.null(transboundary)){
       tr <- 100
     } else {
-      tr <- transboundary
-      tr[which(tr == 0)] <- 100
+      tr <- transboundary; tr[which(tr == 0)] <- 100
       }
 
     metr.2 <- new("MK_Metric", metric = metric,

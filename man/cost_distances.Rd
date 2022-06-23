@@ -32,7 +32,7 @@ cost_distances(
 \item{resistance}{raster. Raster object with resistance values (landscape friction). Consider using a range of resistance values between 1 and 10, where 10 is the maximum resistance to movement, NA should be a complete barrier.}
 
 \item{CostFun}{A function to compute the cost to move between cells. The default is the conductance
-(isotropic cost distance):  function(x) 1/x[2].}
+(isotropic cost distance): function(x) 1/x[2].}
 
 \item{ngh}{numeric. Neighbor graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood), 8 (Moore neighbourhood) or 16 (king’s and knight’s moves). Default equal 8.}
 

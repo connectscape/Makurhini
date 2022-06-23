@@ -90,6 +90,7 @@ nrow(vegetation_patches) # Number of patches
 IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
                 area_unit = "m2",
                 distance = list(type = "centroid"),
+                parallel = NULL,
                 metric = "IIC", distance_thresholds = c(2000, 4000, 6000, 8000, 10000)) #1:10 km
 IIC
 plot(IIC$d2000["dIIC"], breaks = "jenks")

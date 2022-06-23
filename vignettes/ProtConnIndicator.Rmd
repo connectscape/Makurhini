@@ -14,12 +14,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ```{r setup}
 library(Makurhini)
 library(raster)
+library(sf)
 ```
-
 
 ## Overview
 We will explore the ProtConn indicator which was developed to report international conservation targets (Saura et al. 2017), the indicator offers you an analysis of protected areas connectivity for a particular region.

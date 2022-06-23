@@ -15,8 +15,7 @@ st_centroid_within_poly <- function(poly){
     poly <- st_as_sf(poly)
   }
   centroid <-st_centroid(poly, of_largest_polygon = TRUE)
-  in_poly <- st_within(centroid, poly, sparse = FALSE)
-  in_poly <- diag(in_poly)
+  in_poly <- st_within(centroid, poly, sparse = FALSE); in_poly <- diag(in_poly)
   #
   if(length(unique(in_poly)) > 1){
     st_geometry(centroid[which(in_poly == FALSE),]) <- st_geometry(st_point_on_surface(poly[which(in_poly == FALSE),]))

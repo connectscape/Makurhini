@@ -583,6 +583,10 @@ MK_ProtConn <- function(nodes,
         }
       }
   }
-  message("Done!")
+
+  if(isTRUE(intern)){
+    message("Done!")
+  }
+
   return(ProtConn_res)
 }

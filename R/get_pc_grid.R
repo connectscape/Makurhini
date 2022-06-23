@@ -10,20 +10,16 @@
 #' @importFrom sf st_sf st_as_sf st_geometry
 #' @keywords internal
 get_pc_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL){
-  st_geometry(x) <- NULL
-  Adj_matr <- y * 0
+  st_geometry(x) <- NULL; Adj_matr <- y * 0
 
   #negative kernel density
   if(isFALSE(pmedian)){
-    k = (1 / d)
-    Adj_matr <- exp(-k * y)
+    k <- (1 / d); Adj_matr <- exp(-k * y)
   } else {
     Adj_matr <- exp((y * log(p))/d)
   }
 
-  diag(Adj_matr) <- 0
-
-  mode(Adj_matr) <- "numeric"
+  diag(Adj_matr) <- 0; mode(Adj_matr) <- "numeric"
 
   #adjacency
   graph_nodes <- tryCatch(graph.adjacency(Adj_matr, mode = "undirected",
@@ -43,27 +39,18 @@ get_pc_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL){
     pij.mat <- exp(-pij.mat)
   }
 
-  pij.mat[is.infinite(pij.mat)] <- 1000
-
-  PCmat <- outer(x$attribute, x$attribute) * pij.mat
-
-  #p1
+  pij.mat[is.infinite(pij.mat)] <- 1000;  PCmat <- outer(x$attribute, x$attribute) * pij.mat
   PCnum <- sum(PCmat)
 
-  #P2
   if(!is.null(LA)){
-    PC <- PCnum / (LA^2)
-    ECPC <- sqrt(PCnum)
-    ECPC_Normalized <- (ECPC * 100)/LA
+    PC <- PCnum / (LA^2); ECPC <- sqrt(PCnum); ECPC_Normalized <- (ECPC * 100)/LA
     DataPC <- data.frame(cbind(Protected.surface = sum(x[,"attribute"]),
                                LA, 'ECA' = ECPC,
                                'ECA.Normalized' = ECPC_Normalized,
                                PC = PC))
   } else {
-    ECPC <- sqrt(PCnum)
-    DataPC <- data.frame(cbind(Protected.surface = sum(x[,"attribute"]),
+    ECPC <- sqrt(PCnum); DataPC <- data.frame(cbind(Protected.surface = sum(x[,"attribute"]),
                                LA, 'ECA' = ECPC))
-
   }
   return(DataPC)
 }

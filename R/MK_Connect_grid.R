@@ -81,6 +81,7 @@ MK_Connect_grid <- function(nodes,
                             distance = list(type = "centroid"),
                             intern = TRUE, parallel = NULL){
   options(warn = -1)
+  . = NULL
 
   if(!is.null(parallel)){
     if(!is.numeric(parallel)){
@@ -153,8 +154,8 @@ MK_Connect_grid <- function(nodes,
           pb()
         }
 
-        LA <- st_area(base_param4[[3]]@grid[x,])
-        LA <- unit_convert(LA, "m2", base_param4[[1]]@area_unit)
+        LA <- st_area(base_param4[[3]]@grid[x,]) %>%
+          unit_convert(., "m2", base_param4[[1]]@area_unit)
 
         #nodes and distances,
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
@@ -244,8 +245,8 @@ MK_Connect_grid <- function(nodes,
           pb()
         }
 
-        LA <- st_area(base_param4[[3]]@grid[x,])
-        LA <- unit_convert(LA, "m2", base_param4[[1]]@area_unit)
+        LA <- st_area(base_param4[[3]]@grid[x,]) %>%
+          unit_convert(., "m2", base_param4[[1]]@area_unit)
 
         #nodes and distances,
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
@@ -396,9 +397,7 @@ MK_Connect_grid <- function(nodes,
                                  p = base_param4[[2]]@probability,
                                  pmedian = TRUE,
                                  d = base_param4[[2]]@distance_threshold,
-                                 LA = LA)
-
-          PC_grid <- round(PC_grid, 5)
+                                 LA = LA) %>% round(., 5)
 
         } else if(is.numeric(nodes.1)){
           PC_grid <- data.frame(Protected.surface = nodes.1,
@@ -424,8 +423,8 @@ MK_Connect_grid <- function(nodes,
           pb()
         }
 
-        LA <- st_area(base_param4[[3]]@grid[x,])
-        LA <- unit_convert(LA, "m2", base_param4[[1]]@area_unit)
+        LA <- st_area(base_param4[[3]]@grid[x,]) %>%
+          unit_convert(., "m2", base_param4[[1]]@area_unit)
 
         #nodes and distances,
         nodes.1 <- tryCatch(Protconn_nodes(x = base_param4[[3]]@grid[x,],
@@ -468,9 +467,7 @@ MK_Connect_grid <- function(nodes,
                                  p = base_param4[[2]]@probability,
                                  pmedian = TRUE,
                                  d = base_param4[[2]]@distance_threshold,
-                                 LA = LA)
-
-          PC_grid <- round(PC_grid, 5)
+                                 LA = LA) %>% round(., 5)
 
         } else if(is.numeric(nodes.1)){
           PC_grid <- data.frame(Protected.surface = nodes.1,
@@ -496,7 +493,6 @@ MK_Connect_grid <- function(nodes,
     stop("error, check your input files, there may be no nodes in the region")
   }
 
-  result_2 <- cbind(base_param4[[3]]@grid, result_1)
-  result_2$IdTemp  <- NULL
+  result_2 <- cbind(base_param4[[3]]@grid, result_1); result_2$IdTemp  <- NULL
   return(result_2)
 }

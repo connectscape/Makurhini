@@ -27,14 +27,12 @@ input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimpl
 
   #
   mask1 <- rmapshaper::ms_simplify(landscape, method = "vis", keep_shapes = TRUE)
-  mask1 <- st_buffer(mask1, bdist)
-  node <- over_poly(node, mask1, geometry = TRUE)
+  mask1 <- st_buffer(mask1, bdist); node <- over_poly(node, mask1, geometry = TRUE)
 
   if (class(node)[1] == "SpatialPolygonsDataFrame" | class(node)[1] == "sf"){
     if(nrow(node)>0){
       node <- TopoClean(node, xsimplify = xsimplify)
-      node$IdTemp <- 1:nrow(node)
-      node <- node[,which(names(node) != "geometry")]
+      node$IdTemp <- 1:nrow(node); node <- node[,which(names(node) != "geometry")]
     }
   } else {
     stop("node class should be SpatialPolygonDataframe or sf")

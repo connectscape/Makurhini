@@ -7,6 +7,7 @@ knitr::opts_chunk$set(
 ## ----setup--------------------------------------------------------------------
 library(Makurhini)
 library(raster)
+library(sf)
 
 ## ----polygons-----------------------------------------------------------------
 data("Protected_areas", package = "Makurhini")

@@ -9,7 +9,7 @@
 #' @param protconn logical. If FALSE then only PC and EC
 #' @param protconn_bound logical
 #' @param delta logical
-#' @importFrom sf st_as_sf st_buffer st_difference st_area st_geometry st_transform st_crs
+#' @importFrom sf st_as_sf st_buffer st_difference st_area st_geometry st_transform st_crs st_drop_geometry
 #' @importFrom magrittr %>%
 #' @importFrom sp disaggregate
 #' @importFrom terra vect intersect na.omit aggregate buffer

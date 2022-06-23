@@ -25,22 +25,16 @@ make_grid <- function(x, hexagonal = TRUE, cell_area,
   x <- TopoClean(x)
 
   if (isFALSE(hexagonal)) {
-    cell_width <- sqrt(cell_area)
-
-    ext <- as(extent(x) + cell_width, "SpatialPolygons")
-    projection(ext) <- projection(x)
-    g <- raster(ext, resolution = cell_width)
+    cell_width <- sqrt(cell_area); ext <- as(extent(x) + cell_width, "SpatialPolygons")
+    projection(ext) <- projection(x); g <- raster(ext, resolution = cell_width)
 
     g <- as(g, "SpatialPolygons") %>% st_as_sf() %>% st_cast("POLYGON")
-    g <- st_transform(g, crs = st_crs(x))
-    inters <- over_poly(g, x)
-    g2 <- g[which(inters == 1),]
+    g <- st_transform(g, crs = st_crs(x)); inters <- over_poly(g, x); g2 <- g[which(inters == 1),]
 
   } else {
     cell_width <- sqrt(2 * cell_area/sqrt(3))
     g <- st_make_grid(x, cellsize = cell_width, square = F)  %>% st_sf() %>% st_cast("POLYGON")
-    inters <- over_poly(g, x)
-    g2 <- g[which(inters == 1),]
+    inters <- over_poly(g, x); g2 <- g[which(inters == 1),]
   }
 
 
@@ -49,14 +43,12 @@ make_grid <- function(x, hexagonal = TRUE, cell_area,
                                      preserveTopology = TRUE), error = function(err) err)
 
     if (inherits(region_1, "error")) {
-      x <- st_buffer(x, dist = 0)
-      x <- tryCatch(st_simplify(x, dTolerance = tolerance, preserveTopology = TRUE),
+      x <- st_buffer(x, dist = 0); x <- tryCatch(st_simplify(x, dTolerance = tolerance, preserveTopology = TRUE),
                     error = function(err) err)
 
       if (inherits(x, "error")) {
         stop("tolerance error, check geometry errors")
       }
-
     } else {
       x <- region_1
     }
@@ -86,13 +78,10 @@ make_grid <- function(x, hexagonal = TRUE, cell_area,
       stop("error MK_selectbyloc")
     }
     g3 <- g4[which(g4$Area2 >= a),]
-
   } else {
       g3 <- g2
     }
 
-  row.names(g3) <- as.character(1:nrow(g3))
-  g3$OBJECTID <- 1:nrow(g3)
-  g3 <- g3[,"OBJECTID"]
+  row.names(g3) <- as.character(1:nrow(g3)); g3$OBJECTID <- 1:nrow(g3); g3 <- g3[,"OBJECTID"]
   return(g3)
 }

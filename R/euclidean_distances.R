@@ -42,10 +42,8 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
   }
 
   if (isTRUE(centroid)){
-    centroid_1 <- st_centroid_within_poly(x)
-    centroid_1 <- as(centroid_1, 'Spatial')
+    centroid_1 <- st_centroid_within_poly(x); centroid_1 <- as(centroid_1, 'Spatial')
     distance <- gDistance(centroid_1, byid = TRUE)
-
   } else {
     if(isFALSE(edgeParallel)){
       if(!is.null(keep)){
@@ -56,26 +54,20 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
             x <- x.1
           }
         }
-        x$id <- x_id
-        names(x) <- id
+        x$id <- x_id; names(x) <- id
       }
       distance <- gDistance(x, byid = TRUE)
     } else {
-      i = 0
-      j = 0
+      i = 0; j = 0
       ng = round(nrow(x)/as.numeric(availableCores())-1)
       x2 <- list()
 
       repeat {
-        i <- i + round(ng)
-        ii <- i-(ng-1)
+        i <- i + round(ng); ii <- i-(ng-1)
         if(i > nrow(x)){
           i <- nrow(x)
         }
-        r <- x[ii:i,]
-        j <- j+1
-        x2[[j]] <- r
-
+        r <- x[ii:i,]; j <- j+1; x2[[j]] <- r
         if (i == nrow(x)){
           break
         }
@@ -88,7 +80,6 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
         if(!is.null(keep)){
           d.1 <- tryCatch(ms_simplify(input = d, keep = keep, keep_shapes = TRUE, explode = FALSE),
                         error = function(err)err)
-
           if(!inherits(d.1, "error")) {
             if(nrow(d.1) == nrow(d)){
               d <- d.1
@@ -112,17 +103,12 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
   }
 
   name <- c(unique(x@data[,which(colnames(x@data) == id)]), "income")
-  name <- name[1:(length(name)-1)]
-  colnames(distance) <- name
-  rownames(distance) <- name
+  name <- name[1:(length(name)-1)]; colnames(distance) <- name; rownames(distance) <- name
 
   if(isTRUE(pairwise)){
-    xy <- t(combn(colnames(distance), 2))
-    distance_2 <- data.frame(xy, distance_2 = distance[xy])
-    distance_2[,1] <- as.character(distance_2[,1])
-    distance_2[,2] <- as.character(distance_2[,2])
-    distance_2[,1] <- as.numeric(distance_2[,1])
-    distance_2[,2] <- as.numeric(distance_2[,2])
+    xy <- t(combn(colnames(distance), 2)); distance_2 <- data.frame(xy, distance_2 = distance[xy])
+    distance_2[,1] <- as.character(distance_2[,1]); distance_2[,2] <- as.character(distance_2[,2])
+    distance_2[,1] <- as.numeric(distance_2[,1]);distance_2[,2] <- as.numeric(distance_2[,2])
     names(distance_2) <- c("From", "To", "Distance")
 
     if (!is.null(threshold)){

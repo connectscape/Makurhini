@@ -13,8 +13,7 @@
 get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FALSE){
 
   #Remove "region" x.1
-  x.1 <- x[[1]][which(x[[1]]$type != "Region"),]
-  st_geometry(x.1) <- NULL
+  x.1 <- x[[1]][which(x[[1]]$type != "Region"),]; st_geometry(x.1) <- NULL
 
   #Area non transb.
   area1 <- x.1[["attribute"]][which(x.1[["type"]] == "Non-Transboundary")]
@@ -28,15 +27,12 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
   }
 
   if(isFALSE(pmedian)){
-    k = (1 / d)
-    Adj_matr <- exp(-k * y)
+    k <- (1 / d); Adj_matr <- exp(-k * y)
   } else {
     Adj_matr <- exp((y * log(p))/d)
   }
 
-  diag(Adj_matr) <- 0
-
-  mode(Adj_matr) <- "numeric"
+  diag(Adj_matr) <- 0; mode(Adj_matr) <- "numeric"
 
   #adjacency
   Adj_matr.1 <- Adj_matr[which(row.names(y) %in% as.character(x.1[[1]])),
@@ -60,18 +56,12 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
   }
 
   t <- which(x.1$type == "Transboundary")
-
   aiaj <- outer(x.1$attribute, x.1$attribute, FUN = "*")
-  aiaj[t,] <- 1
-  aiaj[,t] <- 1
-  PCmat <- aiaj * pij.mat
-  #p1
-  PCnum <- sum(PCmat)
+  aiaj[t,] <- 1; aiaj[,t] <- 1; PCmat <- aiaj * pij.mat; PCnum <- sum(PCmat)
 
   #P2
   if(!is.null(LA)){
-    PC <- PCnum / (LA^2)
-    PC_EC <- sqrt(PCnum)
+    PC <- PCnum / (LA^2);PC_EC <- sqrt(PCnum)
     DataProtconn <- data.frame(cbind(ECA = PC_EC, PC = PC, LA,
                                      Protected.surface = sum(area1)))
   } else {
@@ -89,11 +79,9 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
   DataProtconn$ProtConn_Prot <- 100 * ((100 * (sqrt(sum(area1^2)) / LA)) / DataProtconn$ProtConn)
 
   if(length(t) == 0){
-    ECAn <- DataProtconn$ECA
-    DataProtconn$ProtConn_Trans <- 0
+    ECAn <- DataProtconn$ECA; DataProtconn$ProtConn_Trans <- 0
   } else {
-    x.2 <- x.1[-t,]
-    Adj_matr.2 <- Adj_matr.1[-t,-t]
+    x.2 <- x.1[-t,]; Adj_matr.2 <- Adj_matr.1[-t,-t]
 
     #adjacency
     graph_nodes <- tryCatch(graph.adjacency(Adj_matr.2, mode = "undirected", weighted = TRUE), error = function(err) err)
@@ -110,13 +98,7 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
     } else {
       pij.mat <- exp(-pij.mat)
     }
-    PCmat <- outer(x.2$attribute, x.2$attribute) * pij.mat
-
-    #p1
-    PCnum <- sum(PCmat)
-
-    #P2
-    ECAn <- sqrt(PCnum)
+    PCmat <- outer(x.2$attribute, x.2$attribute) * pij.mat; PCnum <- sum(PCmat); ECAn <- sqrt(PCnum)
     DataProtconn$ProtConn_Trans <- 100 * ((100 * ((DataProtconn$ECA - ECAn) / LA)) / DataProtconn$ProtConn)
   }
 
@@ -128,10 +110,8 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
 
   #ProtConn_Prot fractions
   ########ProtConn[Prot] fractions
-  within1 <- ((sqrt(sum(x[[2]]^2))) / LA) * 100
-  within2 <- sqrt(DataProtconn$Protected.surface / sum(x[[2]]))
-  within3 <- within1 * within2
-  DataProtconn$ProtConn_Within <- 100 * (within3/DataProtconn$ProtConn)
+  within1 <- ((sqrt(sum(x[[2]]^2))) / LA) * 100; within2 <- sqrt(DataProtconn$Protected.surface / sum(x[[2]]))
+  within3 <- within1 * within2; DataProtconn$ProtConn_Within <- 100 * (within3/DataProtconn$ProtConn)
 
   if(DataProtconn$ProtConn_Within > 100){
     DataProtconn$ProtConn_Within <- 100
@@ -167,14 +147,9 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
         pij.mat <- exp(-pij.mat)
       }
 
-      x.3 <- x[[1]]$attribute
-      t <- which(x[[1]]$type != "Non-Transboundary")
-      aiaj <- outer(x.3, x.3, FUN = "*")
-      aiaj[t,] <- 1
-      aiaj[,t] <- 1
-      PCmat <- aiaj * pij.mat
-      PCnum <- sum(PCmat)
-      ECAdesign <- sqrt(PCnum)
+      x.3 <- x[[1]]$attribute; t <- which(x[[1]]$type != "Non-Transboundary")
+      aiaj <- outer(x.3, x.3, FUN = "*"); aiaj[t,] <- 1; aiaj[,t] <- 1
+      PCmat <- aiaj * pij.mat; PCnum <- sum(PCmat); ECAdesign <- sqrt(PCnum)
 
       DataProtconn$ProtUnconn_Design <- (100 * (ECAdesign/LA)) - (100 * (DataProtconn$ECA/LA))
       DataProtconn$ProtConn_Bound <- DataProtconn$Prot - DataProtconn$ProtUnconn_Design

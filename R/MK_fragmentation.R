@@ -114,10 +114,7 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
   }
 
   LM <- t(cbind(LM, Mesh)) %>% as.data.frame()
-  LM$Metric <- LM_names
-  LM$Value <- LM[[1]]
-  rownames(LM) <- NULL
-  LM[1] <- NULL
+  LM$Metric <- LM_names; LM$Value <- LM[[1]]; rownames(LM) <- NULL; LM[1] <- NULL
 
   #Plot
 
@@ -236,8 +233,7 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
                            style = ~ style(color = "grey", font.weight = "bold"))))
 
   if (isTRUE(plot)){
-    base::print(p0)
-    base::print(p5)
+    base::print(p0); base::print(p5)
     return(list("Summary landscape metrics (Viewer Panel)" = LM,
                 "Patch statistics shapefile" = patches))
   } else {

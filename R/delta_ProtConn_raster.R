@@ -12,18 +12,16 @@
 #' @importFrom purrr map_df
 #' @importFrom raster beginCluster endCluster clusterR reclassify rasterTmpFile values trim
 #' @importFrom terra trim classify rast vect values
+#' @importFrom magrittr %>%
 #' @keywords internal
 delta_ProtConn_raster <- function(x = NULL, x.0 = NULL, y=NULL,distance_thresholds = NULL,
                                   probability = 0.5, LA = NULL,
                                   distance = NULL, resist = NULL,
                                   works = NULL){
-  x.1 <- x
-  x.m <- y
+  x.1 <- x; x.m <- y
 
   if(class(x.1)[1] == "sf"){
-    x.1$IdTemp <- 1:nrow(x.1)
-    x.1 <- x.1[which(x.1$type != "Region"),]
-
+    x.1$IdTemp <- 1:nrow(x.1);x.1 <- x.1[which(x.1$type != "Region"),]
     distance.d <- tryCatch(protconn_dist(x = x.1, id = "IdTemp",
                                          y = distance,
                                          r = NULL,
@@ -37,19 +35,13 @@ delta_ProtConn_raster <- function(x = NULL, x.0 = NULL, y=NULL,distance_threshol
     deltasp <- lapply(distance_thresholds, function(d){
       #Matrix probability
       Adj_matr <- distance.d * 0
-
       #Negative kernel density
       if(is.null(d)){
         d <- mean(distance.d)
       }
 
       Adj_matr <- exp((distance.d * log(probability))/d)
-
-      diag(Adj_matr) <- 0
-
-      mode(Adj_matr) <- "numeric"
-
-
+      diag(Adj_matr) <- 0; mode(Adj_matr) <- "numeric"
       graph_nodes <- tryCatch(graph.adjacency(Adj_matr, mode = "undirected", weighted = TRUE),
                               error = function(err) err)
 
@@ -67,26 +59,13 @@ delta_ProtConn_raster <- function(x = NULL, x.0 = NULL, y=NULL,distance_threshol
         pij.mat <- exp(-pij.mat)
       }
 
-      t <- which(x.1$type == "Transboundary")
-
-      aiaj <- outer(x.1$attribute, x.1$attribute, FUN = "*")
-      aiaj[t,] <- 1
-      aiaj[,t] <- 1
-      PCmat <- aiaj * pij.mat
-      #p1
-      PCnum <- sum(PCmat)
-      #ECA
-      ECA1 <- sqrt(PCnum)
-      #ProtConn
-      ProtConn1 <- 100 * (ECA1 / LA)
-      Prot1 <- 100* sum(x.1$attribute/LA)#No necesariamente coincide con el prot general que tiene un dissolv
-
-      #delta
+      t <- which(x.1$type == "Transboundary"); aiaj <- outer(x.1$attribute, x.1$attribute, FUN = "*")
+      aiaj[t,] <- 1; aiaj[,t] <- 1; PCmat <- aiaj * pij.mat
+      PCnum <- sum(PCmat); ECA1 <- sqrt(PCnum)
+      ProtConn1 <- 100 * (ECA1 / LA); Prot1 <- 100* sum(x.1$attribute/LA)#No necesariamente coincide con el prot general que tiene un dissolv
 
       delta.1 <- purrr::map_df(1:max(which(x.1$type == "Non-Transboundary")), function(i){
-        mat.i <- Adj_matr[-i,-i]
-        n.i <- x.1[-i,]
-        attribute.i <- n.i$attribute
+        mat.i <- Adj_matr[-i,-i]; n.i <- x.1[-i,]; attribute.i <- n.i$attribute
         g.i <- graph.adjacency(mat.i, mode = "undirected",
                                weighted = TRUE)
         mat.i <- shortest.paths(g.i, weights = -log(E(g.i)$weight))
@@ -95,17 +74,11 @@ delta_ProtConn_raster <- function(x = NULL, x.0 = NULL, y=NULL,distance_threshol
         t <- which(n.i$type == "Transboundary")
 
         aiaj <- outer(attribute.i, attribute.i, FUN = "*")
-        aiaj[t,] <- 1
-        aiaj[,t] <- 1
-        PCmat.i <- aiaj * mat.i
+        aiaj[t,] <- 1;aiaj[,t] <- 1;PCmat.i <- aiaj * mat.i
 
-        num.i <- sum(PCmat.i)
-        #ECA
-        ECA.i <- sqrt(num.i)
+        num.i <- sum(PCmat.i); ECA.i <- sqrt(num.i)
         #ProtConn
-        ProtConn.i <- 100 * (ECA.i / LA)
-        Prot.i <- sum(attribute.i)/LA *100
-
+        ProtConn.i <- 100 * (ECA.i / LA); Prot.i <- sum(attribute.i)/LA *100
         #Deltas
         delta <- data.frame("dProt" = (Prot1 - Prot.i) / Prot1 * 100,
                             "dProtConn" = (ProtConn1 - ProtConn.i) / ProtConn1 * 100,
@@ -120,8 +93,7 @@ delta_ProtConn_raster <- function(x = NULL, x.0 = NULL, y=NULL,distance_threshol
         m <- matrix(nrow = length(v), ncol=3, byrow=TRUE)
         for(i in 1:length(v)){
           i.1 <- v[i]
-          m[i,1] <- if(i.1 == min(v)){-Inf} else {i.1-1}
-          m[i,2] <- if(i.1 == max(v)){Inf} else {i.1}
+          m[i,1] <- if(i.1 == min(v)){-Inf} else {i.1-1}; m[i,2] <- if(i.1 == max(v)){Inf} else {i.1}
           m[i,3] <- if(i.1 %in% delta.1$id){delta.1[[x]][which(delta.1$id == i.1)]} else{NA}
         }
         return(m)
@@ -144,7 +116,6 @@ delta_ProtConn_raster <- function(x = NULL, x.0 = NULL, y=NULL,distance_threshol
       delta.2 <- stack(delta.p1, delta.p2, delta.p3, delta.p4)
       rm(delta.p1, delta.p2, delta.p3, delta.p4)
       names(delta.2) <- c("id", "dProt", "dProtConn", "varProtConn")
-
       return(list("ProtConnDelta" = delta.1, "raster_ProtConnDelta" = delta.2))
     })
 
@@ -155,10 +126,8 @@ delta_ProtConn_raster <- function(x = NULL, x.0 = NULL, y=NULL,distance_threshol
                             dProtConn = 100,
                             varProtConn = 100)
 
-      m <- c(-Inf, x.0$id2, 100, x.0$id2, Inf, NA)
-      m <- matrix(m, nrow = 2, ncol=3, byrow=TRUE)
-      mid <- c(-Inf, x.0$id2, x.0$id2, x.0$id2, Inf, NA)
-      mid <- matrix(mid, nrow = 2, ncol=3, byrow=TRUE)
+      m <- c(-Inf, x.0$id2, 100, x.0$id2, Inf, NA); m <- matrix(m, nrow = 2, ncol=3, byrow=TRUE)
+      mid <- c(-Inf, x.0$id2, x.0$id2, x.0$id2, Inf, NA); mid <- matrix(mid, nrow = 2, ncol=3, byrow=TRUE)
 
       if(!is.null(works)){
         beginCluster(works)

@@ -42,12 +42,10 @@ get_grid <- function(region = NULL, grid_pol = NULL, grid_id = NULL,
                         tolerance = tolerance, grid_boundary = grid_boundary)
 
   } else {
-    x_grid <- TopoClean(grid_pol)
-    x_grid$IdTemp <- 1:nrow(x_grid)
+    x_grid <- TopoClean(grid_pol);x_grid$IdTemp <- 1:nrow(x_grid)
   }
 
-  x_grid$IdTemp <- 1:nrow(x_grid)
-  x_grid <- x_grid[, which(names(x_grid) != "geometry")]
+  x_grid$IdTemp <- 1:nrow(x_grid);x_grid <- x_grid[, which(names(x_grid) != "geometry")]
   x_grid <- new("grid", grid =  x_grid)
   return(x_grid)
 }

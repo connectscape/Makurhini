@@ -71,6 +71,8 @@
 #' @importFrom raster values as.matrix extent raster stack extent<- writeRaster reclassify crs crs<-
 #' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
+#' @importFrom purrr walk
+#' @importFrom magrittr %>%
 
 MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
                         distance = list(type= "centroid", resistance = NULL),
@@ -78,6 +80,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
                         probability = NULL, LA = NULL, coneforpath = NULL,
                         dA = FALSE, dvars = FALSE,
                         parallel = FALSE, rasterparallel = FALSE, write = NULL) {
+  . = NULL
   if (missing(nodes)) {
     stop("error missing shapefile file of nodes")
   } else {
@@ -125,8 +128,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
   }
 
   options(warn = -1)
-  ttt.2 <- getwd()
-  temp.1 <- paste0(tempdir(), "/TempInputs", sample(1:1000, 1, replace = TRUE))
+  ttt.2 <- getwd(); temp.1 <- paste0(tempdir(), "/TempInputs", sample(1:1000, 1, replace = TRUE))
   dir.create(temp.1, recursive = T)
 
   if(class(nodes)[1] == "sf"){
@@ -167,8 +169,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
     pairs = "notall"
   }
 
-  x = NULL
-  loop <- 1:length(distance_thresholds)
+  x = NULL; loop <- 1:length(distance_thresholds)
 
   if(length(distance_thresholds)>1){
     handlers(global = T)
@@ -204,11 +205,9 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
 
         } else {
           datat <- dMetric[[which(lapply(dMetric, function(x) ncol(x)) >= 11)]]
-          datat <- as.data.frame(datat)
-          datat <- datat[, as.numeric(which(colSums(!is.na(datat)) > 0))]
+          datat <- as.data.frame(datat);  datat <- datat[, as.numeric(which(colSums(!is.na(datat)) > 0))]
           if(isFALSE(dA)){
-            datat$dA <- NULL
-            datat$varA <- NULL
+            datat$dA <- NULL; datat$varA <- NULL
             datat[,which(unique(is.na(datat)) == TRUE)] <- NULL
           }
 
@@ -217,13 +216,9 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
           }
 
           ###rasters values
-          rp <- unique(raster::values(nodes))
-          rp <- as.vector(rp)
-          rp <- rp[which(!is.na(rp))]
-
+          rp <- unique(raster::values(nodes)) %>% as.vector(.); rp <- rp[which(!is.na(rp))]
+          m <- matrix(nrow = nrow(datat), ncol = 2); m[,1] <- datat[,1]
           if(isTRUE(rasterparallel)){
-            m <- matrix(nrow = nrow(datat), ncol = 2)
-            m[,1] <- datat[,1]
             works <- as.numeric(availableCores())-1
             plan(strategy = multiprocess, gc=TRUE, workers = works)
             r_metric <- tryCatch(future_map(2:ncol(datat), function(c){
@@ -235,8 +230,6 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
               return(x1)}, .progress = TRUE), error = function(err) err)
             close_multiprocess(works)
           } else {
-            m <- matrix(nrow = nrow(datat), ncol = 2)
-            m[,1] <- datat[,1]
             r_metric <- lapply(2:ncol(datat), function(c){
               x1 <- datat[,c(1, c)]
               for(i in rp){
@@ -252,13 +245,11 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
             result_interm[[i]] <- r_metric[[i-1]]
           }
 
-          result_interm[[1]] <- nodes
-          result_interm <- stack(result_interm)
+          result_interm[[1]] <- nodes; result_interm <- stack(result_interm)
           names(result_interm) <- names(datat[,1:ncol(datat)])
 
           if (!is.null(write)){
-            n <- names(datat[,1:ncol(datat)])
-            n <- lapply(as.list(2:length(n)), function(w){
+            n <- names(datat[,1:ncol(datat)]); walk(as.list(2:length(n)), function(w){
               x1 <- result_interm[[w]]
               crs(x1) <- crs(result_interm)
               writeRaster(x1, filename = paste0(write, "_", n[w], "_",  x, ".tif"), overwrite = TRUE, options = c("COMPRESS=LZW", "TFW=YES"))
@@ -268,8 +259,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
         return(result_interm)
       }), error = function(err) err)
   } else {
-    works <- as.numeric(availableCores())-1
-    works <- if(parallel > works){works}else{parallel}
+    works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
     plan(strategy = multiprocess, gc = TRUE, workers = works)
     BC_metric <- tryCatch(future_map(loop, function(x) {
       x <- distance_thresholds[x]
@@ -296,8 +286,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
         datat <- as.data.frame(datat)
         datat <- datat[, as.numeric(which(colSums(!is.na(datat)) > 0))]
         if(isFALSE(dA)){
-          datat$dA <- NULL
-          datat$varA <- NULL
+          datat$dA <- NULL; datat$varA <- NULL
           datat[,which(unique(is.na(datat)) == TRUE)] <- NULL
         }
 
@@ -306,12 +295,9 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
         }
 
         ###rasters values
-        rp <- unique(raster::values(nodes))
-        rp <- as.vector(rp)
-        rp <- rp[which(!is.na(rp))]
+        rp <- unique(raster::values(nodes)) %>% as.vector(.); rp <- rp[which(!is.na(rp))]
 
-        m <- matrix(nrow = nrow(datat), ncol = 2)
-        m[,1] <- datat[,1]
+        m <- matrix(nrow = nrow(datat), ncol = 2); m[,1] <- datat[,1]
         r_metric <- lapply(2:ncol(datat), function(c){
           x1 <- datat[,c(1, c)]
           for(i in rp){
@@ -326,13 +312,11 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
           result_interm[[i]] <- r_metric[[i-1]]
         }
 
-        result_interm[[1]] <- nodes
-        result_interm <- stack(result_interm)
+        result_interm[[1]] <- nodes; result_interm <- stack(result_interm)
         names(result_interm) <- names(datat[,1:ncol(datat)])
 
         if (!is.null(write)){
-          n <- names(datat[,1:ncol(datat)])
-          n <- lapply(as.list(2:length(n)), function(w){
+          n <- names(datat[,1:ncol(datat)]); walk(as.list(2:length(n)), function(w){
             x1 <- result_interm[[w]]
             crs(x1) <- crs(result_interm)
             writeRaster(x1, filename = paste0(write, "_", n[w], "_",  x, ".tif"), overwrite = TRUE, options = c("COMPRESS=LZW", "TFW=YES"))

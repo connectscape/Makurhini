@@ -86,6 +86,7 @@ MK_dECA <- function(nodes,
                     plot = FALSE, parallel = NULL,
                     write = NULL, intern = TRUE){
   . = NULL
+
   if (missing(nodes)) {
     stop("error missing file of nodes")
   } else {
@@ -122,15 +123,13 @@ MK_dECA <- function(nodes,
     }
   }
 
-  options(warn = -1)
-  listT <- compact(nodes)
+  options(warn = -1); listT <- compact(nodes)
 
   if(class(listT[[1]])[1] != "RasterLayer"){
-    listT <- map(listT, function(x) { if(class(x)[1] == "sf") {
-      x <- as(x, 'Spatial')
-      x@data$IdTemp <- 1:nrow(x)
+    listT <- map(listT, function(x) { if(class(x)[1] != "sf") {
+      x <- st_as_sf(x); x$IdTemp <- 1:nrow(x)
     } else {
-      x@data$IdTemp <- 1:nrow(x)
+      x$IdTemp <- 1:nrow(x)
     }
       return(x)
     })
@@ -139,9 +138,9 @@ MK_dECA <- function(nodes,
   #
   time <- as.vector(1:length(listT)) %>% as.character()
   #
-  if(class(listT[[1]])[1] == "SpatialPolygonsDataFrame"){
+  if(class(listT[[1]])[1] != "RasterLayer"){
     DECA <- map_dfr(listT, function(x){
-      x.1 <- unit_convert(sum(gArea(x, byid = T)), "m2", area_unit) %>%
+      x.1 <- unit_convert(sum(st_area(x, byid = T)), "m2", area_unit) %>%
         as.data.frame()
       return(x.1)
       })
@@ -149,22 +148,15 @@ MK_dECA <- function(nodes,
   } else {
     nres <- unit_convert(res(listT[[1]])[1]^2, "m2", area_unit)
     DECA <- map(listT, function(x){
-      x1 <- as.data.frame(table(x[]))
-      x2 <- sum(x1$Freq * nres)
+      x1 <- as.data.frame(table(x[])); x2 <- sum(x1$Freq * nres)
       return(x2)})
-    DECA <- do.call(rbind, DECA) %>% as.data.frame(as.numeric(.))
-    id = NULL
+    DECA <- do.call(rbind, DECA) %>% as.data.frame(as.numeric(.)); id = NULL
   }
 
-  DECA <- cbind(time, LA, DECA)
-  rownames(DECA) <- NULL
-  colnames(DECA)[3]<-"Area"
+  DECA <- cbind(time, LA, DECA); rownames(DECA) <- NULL; colnames(DECA)[3]<-"Area"
 
   #ECA
-  x = NULL
-  y = NULL
-
-  loop <- 1:length(listT)
+  x = NULL; y = NULL; loop <- 1:length(listT)
 
   if(isTRUE(intern)){
     handlers(global = T)
@@ -202,20 +194,17 @@ MK_dECA <- function(nodes,
       }
 
       ECA_metric2 <- cbind(ECA_metric, distance_thresholds)
-      ECA_metric2 <- as.data.frame(ECA_metric2)
-      names(ECA_metric2) <- c("ECA", "Distance")
+      ECA_metric2 <- as.data.frame(ECA_metric2); names(ECA_metric2) <- c("ECA", "Distance")
       return(ECA_metric2)
     }), error = function(err) err)
   } else {
-    works <- as.numeric(availableCores())-1
-    works <- if(parallel > works){works}else{parallel}
+    works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
     plan(strategy = multiprocess, gc = TRUE, workers = works)
     ECA <- tryCatch(future_map(loop, function(x) {
       x <- listT[[x]]
       if(isTRUE(intern)){
         pb()
       }
-
       if(nrow(x) < 2){
         x.1 <- unit_convert(sum(gArea(x, byid = T)), "m2", area_unit)
         ECA_metric <- map_dfr(distance_thresholds, function(y) {
@@ -237,8 +226,7 @@ MK_dECA <- function(nodes,
       }
 
       ECA_metric2 <- cbind(ECA_metric, distance_thresholds)
-      ECA_metric2 <- as.data.frame(ECA_metric2)
-      names(ECA_metric2) <- c("ECA", "Distance")
+      ECA_metric2 <- as.data.frame(ECA_metric2); names(ECA_metric2) <- c("ECA", "Distance")
       return(ECA_metric2)
     }),  error = function(err) err)
     close_multiprocess(works)
@@ -252,18 +240,11 @@ MK_dECA <- function(nodes,
       Tab_ECA <- cbind(DECA, Tab_ECA)
       return(Tab_ECA)})
 
-    ECA3 <- lapply(ECA2, function(x){
-      DECA.2 <- x
-      AO <- LA
-
-      dArea <- (DECA.2$Area *100)/LA
-
+   ECA3 <- lapply(ECA2, function(x){
+      DECA.2 <- x; AO <- LA; dArea <- (DECA.2$Area *100)/LA
       DECA.2$Normalized_ECA1 <- (DECA.2$ECA* dArea)/DECA.2$Area
       DECA.2$Normalized_ECA2 <- (DECA.2$ECA*100)/DECA.2$Area
-
-      AO.2 <- DECA.2$Area
-      ECA.2 <- cbind(DECA.2[, 4])
-
+      AO.2 <- DECA.2$Area; ECA.2 <- cbind(DECA.2[, 4])
       DECA.2$dA[1] <- (((DECA.2$Area[1] - AO)/AO) * 100)
       DECA.2$dA[2:nrow(DECA.2)] <- ((DECA.2$Area[2:nrow(DECA.2)] - AO.2)/AO.2) *100
 
@@ -281,8 +262,8 @@ MK_dECA <- function(nodes,
 
       names(DECA.3)[2:3] <- c("dA/dECA comparisons", "Type of change")
       DECA.2 <- DECA.2[,c(1:3, 5, 4, 6:ncol(DECA.2))]
-      DECA.4 <- cbind(DECA.2, DECA.3)
-      DECA.4[10] <- NULL
+      DECA.2$rECA <- DECA.2$dECA/DECA.2$dA
+      DECA.4 <- cbind(DECA.2, DECA.3); DECA.4[11] <- NULL
 
       names(DECA.4)[c(1:7)] <- c("Time",
                                  paste0("Max. Landscape attribute (",area_unit,")"),
@@ -305,8 +286,9 @@ MK_dECA <- function(nodes,
                                  `ECA (ha)` = color_tile("#FAE9EA", "#E8878A"),
                                  `Normalized ECA (% of LA)` = color_tile("#FFEDCC", "orange"),
                                  `Normalized ECA (% of habitat area)` = color_tile("#FFEDCC", "orange"),
-                                 `dA` = formatter("span",style = ~ style(color = ifelse(`dA` > 0, "green", "red"))),
-                                 `dECA` = formatter("span",style = ~ style(color = ifelse(`dECA` > 0, "green", "red")))))
+                                 `dA` = formatter("span",style = ~ style(color = ifelse(`dA` > 0, "forestgreen", "red"))),
+                                 `dECA` = formatter("span",style = ~ style(color = ifelse(`dECA` > 0, "forestgreen", "red"))),
+                                 `rECA` = formatter("span",style = ~ style(color = ifelse(`rECA` > 0, "#404040", "red")))))
       return(DECA.4)
     })
     #
@@ -321,12 +303,8 @@ MK_dECA <- function(nodes,
         }
 
         ECAplot <- lapply(ECA3, function(x){
-          ECA4 <- (x[[3]] * 100)/ LA
-          Loss <- 100 - ECA4
-          ECA4 <- cbind(ECA4, Loss) %>% as.data.frame()
-          names(ECA4)[1] <- "Habitat"
-          ECA4$"Connected habitat" <- x[[7]]
-          ECA4$Year <- plot
+          ECA4 <- (x[[3]] * 100)/ LA; Loss <- 100 - ECA4; ECA4 <- cbind(ECA4, Loss) %>% as.data.frame()
+          names(ECA4)[1] <- "Habitat"; ECA4$"Connected habitat" <- x[[7]]; ECA4$Year <- plot
 
           #Table 1
           ECA5 <- ECA4
@@ -348,10 +326,7 @@ MK_dECA <- function(nodes,
                                           rep("Loss", length(ECA5$Year)),
                                           rep("Connected habitat", length(ECA5$Year))),
                              value = c(ECA5$Habitat, ECA5$Loss, ECA5$`Connected habitat`))
-
-
           names(ECA5)[3] <- "percentage"
-
           ECA5$variable <- factor(ECA5$variable, levels = c("Loss", "Habitat", "Connected habitat"))
           ECA5$Text <- ECA4$percentage
           ECA5$Text[which(ECA5$variable == "Connected habitat")] <- ECA5$percentage[which(ECA5$variable == "Connected habitat")]
@@ -413,8 +388,7 @@ MK_dECA <- function(nodes,
 
     if(length(distance_thresholds) == 1){
       if((isTRUE(plot) | is.character(plot))){
-        ECA4 <- ECA3[[1]][[2]]
-        ECA3 <- ECA3[[1]][[1]]
+        ECA4 <- ECA3[[1]][[2]]; ECA3 <- ECA3[[1]][[1]]
         print(ECA4)
       } else {
         ECA3 <- ECA3[[1]]

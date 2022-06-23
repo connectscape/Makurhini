@@ -11,12 +11,10 @@ delta_ProtConn <- function(x = NULL, y=NULL, base_param3 = NULL){
   x.1 <- x
   if(nrow(x.1)>1){
     x.m <- base_param3[[1]]@nodes[which(base_param3[[1]]@nodes$IdTemp %in% x.1$IdTemp),]
-    x.1$IdTemp <- 1:nrow(x.1)
-    x.1$type <- "Non-Transboundary"
+    x.1$IdTemp <- 1:nrow(x.1); x.1$type <- "Non-Transboundary"
 
     if(length(which(y$type == "Transboundary")) > 0){
-      x.2 <- y[which(y$type == "Transboundary"),]
-      x.2$IdTemp <- 1:nrow(x.2)+ nrow(x.1)
+      x.2 <- y[which(y$type == "Transboundary"),]; x.2$IdTemp <- 1:nrow(x.2)+ nrow(x.1)
       x.2 <- rbind(x.1[,c("IdTemp", "attribute", "type")], x.2[,c("IdTemp", "attribute", "type")])
     } else {
       x.2 <- x.1[,c("IdTemp", "attribute", "type")]
@@ -42,10 +40,7 @@ delta_ProtConn <- function(x = NULL, y=NULL, base_param3 = NULL){
 
       Adj_matr <- exp((distance.d * log(base_param3[[2]]@probability))/d)
 
-      diag(Adj_matr) <- 0
-
-      mode(Adj_matr) <- "numeric"
-
+      diag(Adj_matr) <- 0; mode(Adj_matr) <- "numeric"
 
       graph_nodes <- tryCatch(graph.adjacency(Adj_matr, mode = "undirected", weighted = TRUE),
                               error = function(err) err)
@@ -64,59 +59,38 @@ delta_ProtConn <- function(x = NULL, y=NULL, base_param3 = NULL){
         pij.mat <- exp(-pij.mat)
       }
 
-      t <- which(x.1$type == "Transboundary")
-
-      aiaj <- outer(x.2$attribute, x.2$attribute, FUN = "*")
-      aiaj[t,] <- 1
-      aiaj[,t] <- 1
-      PCmat <- aiaj * pij.mat
-      #p1
-      PCnum <- sum(PCmat)
-      #ECA
-      ECA1 <- sqrt(PCnum)
+      t <- which(x.1$type == "Transboundary"); aiaj <- outer(x.2$attribute, x.2$attribute, FUN = "*")
+      aiaj[t,] <- 1; aiaj[,t] <- 1; PCmat <- aiaj * pij.mat
+      PCnum <- sum(PCmat); ECA1 <- sqrt(PCnum)
       #ProtConn
-      ProtConn1 <- 100 * (ECA1 / base_param3[[5]])
-      Prot1 <- 100* sum(x.2$attribute/base_param3[[5]])#No necesariamente coincide con el prot general que tiene un dissolv
+      ProtConn1 <- 100 * (ECA1 / base_param3[[5]]); Prot1 <- 100* sum(x.2$attribute/base_param3[[5]])#No necesariamente coincide con el prot general que tiene un dissolv
 
       #delta
       delta.1 <- purrr::map_df(1:nrow(x.1), function(i){
-        mat.i <- Adj_matr[-i,-i]
-        n.i <- x.2[-i,]
-        attribute.i <- n.i$attribute
+        mat.i <- Adj_matr[-i,-i]; n.i <- x.2[-i,]; attribute.i <- n.i$attribute
         g.i <- graph.adjacency(mat.i, mode = "undirected",
                                weighted = TRUE)
         mat.i <- shortest.paths(g.i, weights = -log(E(g.i)$weight))
-        mat.i <- exp(-mat.i)
-        #
-        t <- which(n.i$type == "Transboundary")
+        mat.i <- exp(-mat.i); t <- which(n.i$type == "Transboundary")
 
         aiaj <- outer(attribute.i, attribute.i, FUN = "*")
-        aiaj[t,] <- 1
-        aiaj[,t] <- 1
-        PCmat.i <- aiaj * mat.i
-
-        num.i <- sum(PCmat.i)
-        #ECA
-        ECA.i <- sqrt(num.i)
+        aiaj[t,] <- 1; aiaj[,t] <- 1; PCmat.i <- aiaj * mat.i
+        num.i <- sum(PCmat.i); ECA.i <- sqrt(num.i)
         #ProtConn
-        ProtConn.i <- 100 * (ECA.i / base_param3[[5]])
-        Prot.i <- sum(attribute.i)/base_param3[[5]] *100
-
+        ProtConn.i <- 100 * (ECA.i / base_param3[[5]]); Prot.i <- sum(attribute.i)/base_param3[[5]] *100
         #Deltas
         delta <- data.frame("dProt" = (Prot1 - Prot.i) / Prot1 * 100,
                             "dProtConn" = (ProtConn1 - ProtConn.i) / ProtConn1 * 100,
                             "varProtConn" = ProtConn1 - ProtConn.i)
         return(delta)})
-      delta.2 <- cbind(x.m, delta.1)
-      delta.2$IdTemp <- NULL
+      delta.2 <- cbind(x.m, delta.1); delta.2$IdTemp <- NULL
       return(delta.2)
-      })
+    })
   } else if(nrow(x.1)==1){
     deltasp <- lapply(base_param3[[2]]@distance_threshold, function(d){
       delta <- data.frame("dProt" = 100,
                           "dProtConn" = 100,
-                          "varProtConn" = 100)
-      delta <- cbind(x.1, delta)
+                          "varProtConn" = 100); delta <- cbind(x.1, delta)
       return(delta)
     })
   } else {

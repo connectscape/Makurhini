@@ -410,7 +410,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
       dflux <- 2*(rowSums(mat2) - attribute_2^2)/ num * 100
       dconnector <- map_dbl(delta - dintra - dflux, function(x){if(x < 0){0} else {x}})
       metric_conn <- as.data.frame(cbind(attribute_1[,1], delta, dintra, dflux, dconnector))
-      names(metric_conn)[1] <- "Id"
+      names(metric_conn)[1] <- "IdTemp2"
 
       if(!is.null(restoration)){
         IdT0 <- attribute_1[which(attribute_1[,3] == 0), 1]
@@ -497,10 +497,10 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                                                                                   paste0("d", metric, "connector"))
 
         if(!is.null(restoration)){
-          nodes.2$dres <- dres; names(nodes.2)[which(names(nodes.2) == "dres")] <- paste0("d", metric, "res")
+          names(nodes.2)[which(names(nodes.2) == "dres")] <- paste0("d", metric, "res")
         }
 
-        nodes.2$IdTemp <- NULL; nodes.2$Id <- NULL; nodes.2 <- nodes.2[,which(names(nodes.2) != "geometry")]
+        nodes.2$IdTemp <- NULL; nodes.2$IdTemp2 <- NULL; nodes.2 <- nodes.2[,which(names(nodes.2) != "geometry")]
 
         if(!is.null(write)){
           write_sf(nodes.2, paste0(write, "_", "d", x,  ".shp"), delete_layer = TRUE)
@@ -512,7 +512,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                                                      paste0("d", metric, "flux"),
                                                      paste0("d", metric, "connector"))
         if(class(nodes) == "data.frame"){
-          nodes.2 <- cbind(nodes, metric_conn); nodes.2$Id <- NULL; nodes.2$IdTemp <- NULL
+          nodes.2 <- cbind(nodes, metric_conn); nodes.2$IdTemp <- NULL; nodes.2$IdTemp2 <- NULL
 
           if(!is.null(write)){
             fwrite(nodes.2, paste0(write, "_", "d", x,  ".csv"))
@@ -555,9 +555,9 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
 
           if (!is.null(write)){
             n <- names(metric_conn); n <- map(as.list(2:length(n)), function(w){
-              x1 <- nodes.2[[w]]
-              crs(x1) <- crs(nodes.2)
-              writeRaster(x1, filename = paste0(write, "_", n[w], "_",  x, ".tif"), overwrite = TRUE, options = c("COMPRESS=LZW", "TFW=YES"))
+              x1 <- nodes.2[[w]]; crs(x1) <- crs(nodes.2)
+              writeRaster(x1, filename = paste0(write, "_", n[w], "_",  x, ".tif"),
+                          overwrite = TRUE, options = c("COMPRESS=LZW", "TFW=YES"))
             })
           }
         }

@@ -41,9 +41,10 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
 
     '%!in%' <- function(x,y)!('%in%'(x,y))
 
-    y.1 <- over_poly(y, x.1, geometry = TRUE) %>% st_buffer(., 0); y.1$id <- 1
+    y.1 <- over_poly(y, x.1, geometry = TRUE)
 
     if(nrow(y.1) > 1){
+      y.1 <- y.1 %>% st_buffer(., 0); y.1$id <- 1
       f1 <- terra::intersect(vect(y.1[,c("IdTemp", "id",  "geometry")]), vect(x.1[, "geometry"])) %>%
          terra::na.omit(., geom = TRUE)
 
@@ -83,10 +84,14 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
                 st_buffer(., buff)
             }
 
-            f4 <- over_poly(y.2[,"geometry"], mask1[,"geometry"], geometry = TRUE) %>%
-              vect(.) %>% terra::intersect(., vect(mask1[,"geometry"])) %>% st_as_sf(.)
+            f4 <- over_poly(y.2[,"geometry"], mask1[,"geometry"], geometry = TRUE)
 
-            f5 <- rbind(f3[,"geometry"], f4[,"geometry"]); f5 <- f5[!st_is_empty(f5), ]
+            if(nrow(f4) > 0){
+              f4 <- vect(f4) %>% terra::intersect(., vect(mask1[,"geometry"])) %>% st_as_sf(.)
+              f5 <- rbind(f3[,"geometry"], f4[,"geometry"]); f5 <- f5[!st_is_empty(f5), ]
+            } else {
+              f5 <- rbind(f3[,"geometry"], f4[,"geometry"]); f5 <- f5[!st_is_empty(f5), ]
+            }
 
             if(nrow(f5) >= 1){
               f5$id <- 1; f5_test <- tryCatch(terra::aggregate(vect(f5), "id") %>% terra::buffer(., 0) %>%
@@ -174,6 +179,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
         }
       }
     } else if (nrow(y.1) == 1){
+      y.1 <- y.1 %>% st_buffer(., 0); y.1$id <- 1
       f1 <- terra::intersect(vect(y.1[,"geometry"]), vect(x.1[,"geometry"])) %>%
         terra::na.omit(., geom = TRUE) %>%  st_as_sf(.)
 

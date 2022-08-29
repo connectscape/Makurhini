@@ -169,7 +169,8 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
 
   if(is.matrix(distance)){
     dist <- distance
-    if(length(rownames(dist)) != nrow(nodes)){
+
+    if(unique(dim(dist)) != nrow(nodes)){
       stop("nrow(dist) != nrow(nodes)")
     }
 

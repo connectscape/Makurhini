@@ -99,8 +99,6 @@ mask_1 <- as(extent(Protected_areas), 'SpatialPolygons')
 crs(mask_1) <- crs(Protected_areas)
 mask_1 <- buffer(mask_1, 20000)
 HFP_Mexico <- crop(HFP_Mexico, mask_1)
-HFP_Mexico <- HFP_Mexico/10
-HFP_Mexico[HFP_Mexico < 1] <- 1
 #If least_cost.java is TRUE, then resistance must bee an integer raster (i.e., integer values).
 HFP_Mexico <- round(HFP_Mexico)
 

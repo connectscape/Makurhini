@@ -12,7 +12,10 @@
 #' compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "m2".
 #' @param distance list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the
 #'  distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost"
-#'  or "commute-time", then you have to use the "resistance" argument. To See more arguments consult
+#'  or "commute-time", then you have to use the "resistance" argument. You can place a list with resistances
+#'  where there must be one resistance for each time/scenario of patches in the **nodes** parameter, for example,
+#'  if nodes has a list with two time patches then you can use two resistances one for time 1 and one for time 2:
+#'  distance(type = "least-cost", resistance = list(resistanceT1, resistanceT2)). To See more arguments consult
 #'  the help function of distancefile().
 #' @param metric character. Choose a connectivity metric: "IIC" considering topologycal distances or "PC"
 #' considering maximum product probabilities.
@@ -74,7 +77,6 @@
 #' @importFrom furrr future_map
 #' @importFrom utils installed.packages
 
-
 MK_dECA <- function(nodes,
                     attribute = NULL,
                     area_unit = "m2",
@@ -122,8 +124,24 @@ MK_dECA <- function(nodes,
       write = NULL
     }
   }
-
   options(warn = -1); listT <- compact(nodes)
+
+  if(distance$type == "least-cost" | distance$type == "commute-time"){
+    if(is.null(distance$resistance)){
+      stop(paste0("error missing resistance raster, e.g., resistance(type =", distance$type,
+                  ", resistance = MISSING_RESISTANCE)"))
+    } else {
+      if(class(distance$resistance)[1] == "list"){
+        if(length(distance$resistance) > 1){
+          if(length(distance$resistance) != length(listT)){
+            stop(paste0("the length of the node list (", length(listT), ") must be equal to the length of resistance list (", length(distance$resistance), ")"))
+          }
+        }
+      }
+    }
+  } else {
+    dist_param <- distance
+  }
 
   if(class(listT[[1]])[1] != "RasterLayer"){
     listT <- map(listT, function(x) { if(class(x)[1] != "sf") {
@@ -168,22 +186,31 @@ MK_dECA <- function(nodes,
 
   if(is.null(parallel)){
     ECA <- tryCatch(lapply(loop, function(x){
-      x <- listT[[x]]
+      x.1 <- listT[[x]]
       if(isTRUE(intern)){
         pb()
       }
 
-      if(nrow(x) < 2){
-        x.1 <- unit_convert(sum(gArea(x, byid = T)), "m2", area_unit)
+      if(nrow(x.1) < 2){
+        x.1 <- unit_convert(sum(gArea(x.1, byid = T)), "m2", area_unit)
         ECA_metric <- map_dfr(distance_thresholds, function(y) {
-          tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}
-          tab1 <- data.frame(Value = tab1)
+          tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}; tab1 <- data.frame(Value = tab1)
           return(tab1)})
       } else {
         ECA_metric <- map_dfr(distance_thresholds, function(y) {
-          tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
+          if(distance$type == "least-cost" | distance$type == "commute-time"){
+            if(class(distance$resistance)[1] == "list"){
+              dist_param <- distance; dist_param$resistance <- distance$resistance[[x]]
+            } else {
+              dist_param <- distance
+            }
+          } else {
+            dist_param <- distance
+          }
+
+          tab1 <- MK_dPCIIC(nodes = x.1, attribute = attribute,
                             restoration = NULL,
-                            distance = distance, area_unit = area_unit,
+                            distance = dist_param, area_unit = area_unit,
                             metric = metric, probability = probability,
                             distance_thresholds = y,
                             overall = TRUE, onlyoverall = TRUE,
@@ -201,21 +228,29 @@ MK_dECA <- function(nodes,
     works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
     plan(strategy = multiprocess, gc = TRUE, workers = works)
     ECA <- tryCatch(future_map(loop, function(x) {
-      x <- listT[[x]]
+      x.1 <- listT[[x]]
       if(isTRUE(intern)){
         pb()
       }
       if(nrow(x) < 2){
-        x.1 <- unit_convert(sum(gArea(x, byid = T)), "m2", area_unit)
+        x.1 <- unit_convert(sum(gArea(x.1, byid = T)), "m2", area_unit)
         ECA_metric <- map_dfr(distance_thresholds, function(y) {
-          tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}
-          tab1 <- data.frame(Value = tab1)
+          tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}; tab1 <- data.frame(Value = tab1)
           return(tab1)})
       } else {
         ECA_metric <- map_dfr(distance_thresholds, function(y) {
-          tab1 <- MK_dPCIIC(nodes = x, attribute = attribute,
+          if(distance$type == "least-cost" | distance$type == "commute-time"){
+            if(class(distance$resistance)[1] == "list"){
+              dist_param <- distance; dist_param$resistance <- distance$resistance[[x]]
+            } else {
+              dist_param <- distance
+            }
+          } else {
+            dist_param <- distance
+          }
+          tab1 <- MK_dPCIIC(nodes = x.1, attribute = attribute,
                             restoration = NULL,
-                            distance = distance, area_unit = area_unit,
+                            distance = dist_param, area_unit = area_unit,
                             metric = metric, probability = probability,
                             distance_thresholds = y,
                             overall = TRUE, onlyoverall = TRUE,

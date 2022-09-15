@@ -33,7 +33,7 @@
 #' data("list_forest_patches", package = "Makurhini")
 #' data("study_area", package = "Makurhini")
 #'
-#' Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
+#' Max_attribute <- unit_convert(st_area(study_area), "m2", "ha")
 #'
 #' test_metric_distance(nodes = list_forest_patches[[1]],
 #'                      distance1 =list(type= "centroid"),

@@ -91,7 +91,7 @@ test <- MK_ProtConn(nodes = Protected_areas, region = region,
                     write = NULL, intern = TRUE)
 test
 
-#Least-cost distances
+#Least-cost distances using a human foot print of Mexico (WCS-CIESIN, 2005. https://doi.org/10.7927/H4M61H5F)
 library(raster)
 HFP_Mexico <- raster(system.file("extdata", "HFP_Mexico.tif",
                     package = "Makurhini", mustWork = TRUE))

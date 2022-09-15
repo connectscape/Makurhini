@@ -34,7 +34,10 @@ compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "m2".}
 
 \item{distance}{list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the
 distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost"
-or "commute-time", then you have to use the "resistance" argument. To See more arguments consult
+or "commute-time", then you have to use the "resistance" argument. You can place a list with resistances
+where there must be one resistance for each time/scenario of patches in the **nodes** parameter, for example,
+if nodes has a list with two time patches then you can use two resistances one for time 1 and one for time 2:
+distance(type = "least-cost", resistance = list(resistanceT1, resistanceT2)). To See more arguments consult
 the help function of distancefile().}
 
 \item{metric}{character. Choose a connectivity metric: "IIC" considering topologycal distances or "PC"

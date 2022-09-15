@@ -57,7 +57,7 @@
 #' plot(hexagons_dECA["T3.4.dECA"], breaks = "quantile")
 #' plot(hexagons_dECA["T3.4.Type.Change"], key.pos = 1)
 #'}
-#' @export
+#'
 #' @importFrom sf st_as_sf st_area st_intersection
 #' @importFrom future plan multiprocess availableCores
 #' @importFrom furrr future_map_dfr
@@ -223,7 +223,7 @@ MK_dECA_grid <- function(nodes,
       }
       return(x)
     })
-    x=8
+    x=2
     result_1 <- map_dfr(loop, function(x){
       if (isTRUE(intern)) {
         #pb()
@@ -235,35 +235,31 @@ MK_dECA_grid <- function(nodes,
       dECA.1 <- data.frame("Time" = paste0(1:(length(nodes)-1), ".", 2:length(nodes)),
                            "dA" = 0,
                            "dECA" = 0,
+                           "rECA" = 0,
                            "comparisons" = "NA",
                            "Type.Change" = "NA")
 
-      LA <- st_area(x.1)
-      LA <- unit_convert(LA, "m2", area_unit)
-i=nodes[[1]]
-i = st_buffer(i, 0)
+      LA <- unit_convert(st_area(x.1), "m2", area_unit)
+
       nodes.1 <- lapply(nodes, function(i){
-        i.1 <- suppressWarnings(st_intersection(i, x.1))
+        i.1 <- suppressWarnings(st_intersection(i, x.1)); i.1 <- i.1[which(!st_is_empty(i.1)),]
+
         if(nrow(i.1) > 0){
-          i.1 <- ms_explode(i.1)
-          i.1$IdTemp <- 1:nrow(i.1)
-          i.1 <- i.1["IdTemp"]
+          i.1 <- ms_explode(i.1); i.1$IdTemp <- 1:nrow(i.1); i.1 <- i.1["IdTemp"]
+          i.1 <- i.1[which(!st_is_empty(i.1)),]
         } else {
           i.1 <- "NA"
         }
         return(i.1)
       })
-
+i=1
       dECA.2 <- map_dfc(1:(length(nodes.1)-1), function(i){
-        i.1 <- dECA.1[i,]
-        names(i.1) <- paste0("T", i.1$Time, ".",names(i.1))
+        i.1 <- dECA.1[i,]; names(i.1) <- paste0("T", i.1$Time, ".",names(i.1))
         i.1 <- i.1[,2:ncol(i.1)]
 
         if(!is.character(nodes.1[[i]])){
           if(is.character(nodes.1[[i+1]])){ #shp-NA
-            i.1[,1:2] <- -100
-            i.1[,3] <- dECAfun(-100, -100)
-            i.1[,4] <- dECAfun2(-100, -100)
+            i.1[,1:2] <- -100; i.1[,3] <- 1; i.1[,4] <- dECAfun(-100, -100); i.1[,5] <- dECAfun2(-100, -100)
           } else {  #shp-shp
             dECA.1 <- tryCatch(MK_dECA(nodes = nodes.1[i:(i+1)], attribute = NULL,
                                        area_unit = area_unit,
@@ -274,16 +270,14 @@ i = st_buffer(i, 0)
                                        LA = LA,
                                        plot = FALSE, parallel = NULL,
                                        write = NULL, intern = FALSE), error = function(err)err)
-            i.1[,1:4] <- dECA.1[2,8:11]
+            i.1[,1:5] <- dECA.1[2,8:12]
           }
 
         } else {
           if(is.character(nodes.1[[i+1]])){
-            i.1[,1:2] <- NA
+            i.1[,1:3] <- NA
           } else {
-            i.1[,1:2] <- 100
-            i.1[,3] <- dECAfun(100, 100)
-            i.1[,4] <- dECAfun2(100, 100)
+            i.1[,1:2] <- 100; i.1[,3] <- 1; i.1[,4] <- dECAfun(100, 100); i.1[,5] <- dECAfun2(100, 100)
           }
         }
         return(i.1)

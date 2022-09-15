@@ -76,6 +76,7 @@ hexagons_dECA
 plot(hexagons_dECA["T3.4.dECA"], breaks = "quantile")
 plot(hexagons_dECA["T3.4.Type.Change"], key.pos = 1)
 }
+
 }
 \references{
 Matt Strimas-Mackey. \url{http://strimas.com/spatial/hexagonal-grids/}.\cr

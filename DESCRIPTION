@@ -1,7 +1,7 @@
 Package: Makurhini
 Type: Package
 Title: Makurhini: Analyzing landscape connectivity
-Version: 2.0.5
+Version: 2.0.6
 Authors@R: c(person(given = "Oscar",
               family = "Godínez-Gómez",
               role = c("aut", "cre"),
@@ -59,4 +59,5 @@ Depends:
     utils,
     stats,
     R (>= 4.0.0),
-    igraph (>= 1.2.6)
+    igraph (>= 1.2.6),
+    cppRouting (>= 2.0)

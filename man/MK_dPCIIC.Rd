@@ -36,7 +36,7 @@ a numeric vector with the node's attribute. The length of the vector must be equ
  If nodes is a data frame then it must have two columns where second column is the attribute.}
 
 \item{area_unit}{character. If attribute is NULL you can set an area unit (e.g., "km2", "cm2", "ha";
-see Makurhini::unit_convert). Default equal to hectares "m2".}
+see Makurhini::unit_convert). Default equal to square meters "m2".}
 
 \item{restoration}{character or vector. If nodes is a shappefile then you must specify the name of the column
 with restoration value. If nodes is a raster layer then must be a numeric vector with restoration values
@@ -55,8 +55,8 @@ If it is a distance matrix, then the number of columns and rows must be equal th
 If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).}
 
 \item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
-distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000). If NULL then the mean
-distance between nodes will be estimated and used.}
+distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000). If NULL then the median
+distance between nodes will be estimated and used.Also, you can use the dispersal_distance() function to estimate the a dispersal distance using the species home range.}
 
 \item{overall}{logical. If TRUE, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE}
 

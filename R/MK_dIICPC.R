@@ -12,7 +12,7 @@
 #'   If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
 #'   If nodes is a data frame then it must have two columns where second column is the attribute.
 #' @param area_unit character. If attribute is NULL you can set an area unit (e.g., "km2", "cm2", "ha";
-#'  see Makurhini::unit_convert). Default equal to hectares "m2".
+#'  see Makurhini::unit_convert). Default equal to square meters "m2".
 #' @param restoration character or vector. If nodes is a shappefile then you must specify the name of the column
 #' with restoration value. If nodes is a raster layer then must be a numeric vector with restoration values
 #' to each node in the raster. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node
@@ -26,8 +26,8 @@
 #' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.
 #' If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).
 #' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
-#'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000). If NULL then the mean
-#'  distance between nodes will be estimated and used.
+#'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000). If NULL then the median
+#'  distance between nodes will be estimated and used.Also, you can use the dispersal_distance() function to estimate the a dispersal distance using the species home range.
 #' @param overall logical. If TRUE, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE
 #' @param onlyoverall logical. If TRUE, then only overall metrics will be calculated.
 #' @param LA numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to m2).
@@ -69,16 +69,13 @@
 #' PC
 #' }
 #' @note Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
-#' @importFrom progressr handlers handler_pbcol progressor
-#' @importFrom crayon bgWhite white bgCyan
 #' @importFrom methods as
-#' @importFrom utils write.table
-#' @importFrom purrr map map_dbl
+#' @importFrom utils txtProgressBar setTxtProgressBar write.csv
+#' @importFrom purrr map_dbl
 #' @importFrom raster as.matrix extent raster stack extent<- writeRaster reclassify crs crs<- unique
 #' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map future_map_dfc future_map_dbl
 #' @importFrom igraph graph.adjacency shortest.paths E as_ids V
-#' @importFrom data.table data.table fwrite
 #' @importFrom sf write_sf st_as_sf st_zm
 #' @importFrom magrittr %>%
 MK_dPCIIC <- function(nodes, attribute  = NULL,
@@ -86,7 +83,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                       distance = list(type= "centroid", resistance = NULL),
                       metric = c("IIC", "PC"),
                       probability = NULL, distance_thresholds = NULL,
-                      overall = FALSE, onlyoverall=FALSE,
+                      overall = FALSE, onlyoverall = FALSE,
                       LA = NULL,
                       parallel = NULL,
                       rasterparallel = NULL, write = NULL,
@@ -112,6 +109,9 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     if (!is.null(probability) & !is.numeric(probability)) {
       stop("error missing probability")
     }
+    instr_dist <- FALSE
+  } else {
+    instr_dist <- TRUE
   }
 
   if (!is.null(write)) {
@@ -129,35 +129,31 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
       nodes <- st_as_sf(nodes)
     }
 
-    nodes$IdTemp <- 1:nrow(nodes)
-    idT <- "IdTemp"
-  }
+    nodes$IdTemp <- 1:nrow(nodes); idT <- "IdTemp"
 
-  if(class(nodes)[1] == "RasterLayer"){
+    attribute_1 <- nodesfile(nodes, id = idT, attribute = attribute,
+                             area_unit = area_unit,
+                             restoration = restoration,
+                             write = NULL)
+  } else if (class(nodes)[1] == "RasterLayer"){
     if(length(raster::unique(nodes)) < 2){
       stop("error, you need more than 2 nodes")
     }
+    attribute_1 <- nodesfile(nodes, id = idT, attribute = attribute,
+                             area_unit = area_unit,
+                             restoration = restoration,
+                             write = NULL)
     idT <- NULL
-  }
-
-  if(class(nodes)[1] == "data.frame"){
+  } else if (class(nodes)[1] == "data.frame"){
     attribute_1 <- nodes
-
-    if(nrow(nodes) != nrow(attribute_1)){
-      stop("nrow(nodes) != nrow(attribute)")
-    }
 
     if(dim(nodes)[2] < 2){
       stop("You need two or three columns, see the ?MK_dPCIIC")
     }
 
     idT <- NULL
-
   } else {
-    attribute_1 <- nodesfile(nodes, id = idT, attribute = attribute,
-                             area_unit = area_unit,
-                             restoration = restoration,
-                             write = NULL)
+    stop("error missing file of nodes")
   }
 
   if(!is.null(restoration)){
@@ -200,216 +196,142 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
   }
 
   if(is.null(distance_thresholds)){
-    distance_thresholds <- mean(dist)
+    distance_thresholds <- median(dist)
   }
-
-  loop <- 1:length(distance_thresholds)
 
   if(length(distance_thresholds)>1 & isTRUE(intern)){
-    handlers(global = T)
-    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
-                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusiveness = 2))
-    pb <- progressor(along = loop)
+    pb <- txtProgressBar(0,length(distance_thresholds), style = 3)
   }
 
-  result <- map(loop, function(x){
-    x <- distance_thresholds[x]
+  result <- lapply(1:length(distance_thresholds), function(x){
+    x.1 <- distance_thresholds[x]; nodes.2 <- nodes
 
-    if(length(distance_thresholds)>1 & isTRUE(intern)){
-      pb()
-    }
+    mat1 <- tryCatch(get_sdist(dist_nodes = dist, metric = metric,
+                               probability = probability,
+                               distance_threshold = x.1,
+                               igraph_Dijkstra = instr_dist,
+                               parallel = parallel,
+                               loop = TRUE,
+                               G1 = 1000, G2 = 1000, intern = intern), error = function(err)err)
 
-    nodes.2 <- nodes; Adj_matr <- dist * 0
-
-    if(metric == "IIC"){
-      Adj_matr[dist < x] <- 1
-
+    if(inherits(mat1, "error")){
+      stop("Error in short distance estimation")
     } else {
-      #negative kernel density
-      if(is.null(probability)){
-        k = (1 / x); Adj_matr <- exp(-k * dist)
+
+      attribute_2 <- attribute_1[,2]
+
+      if(metric == "IIC"){
+        mat2 <- outer(attribute_2, attribute_2) / (1 + mat1)
       } else {
-        Adj_matr <- exp((dist * log(probability))/x)
+        mat2 <- outer(attribute_2, attribute_2) * mat1
       }
+
+      num <- sum(mat2)
     }
 
-    diag(Adj_matr) <- 0; mode(Adj_matr) <- "numeric"
-
-    #adjacency
-    graph_nodes <- tryCatch(graph.adjacency(Adj_matr, mode = "undirected",
-                                            weighted = if(metric == "IIC"){NULL}else{TRUE}),
-                            error = function(err) err)
-
-    if (inherits(graph_nodes, "error")) {
-      stop("graph adjacency error")
+    if(length(distance_thresholds) > 1 & isTRUE(intern)){
+      setTxtProgressBar(pb, x)
     }
 
-    if(nrow(Adj_matr) > 1000){
-      toV <- as_ids(V(graph_nodes))
-
-      if(!is.null(parallel)){
-        works <- as.numeric(availableCores())-1;works <- if(parallel > works){works}else{parallel}
-        plan(strategy = multiprocess, gc = TRUE, workers = works)
-
-        mat1 <- tryCatch(future_map_dfc(1:length(toV), function(y){
-          x.1 <- shortest.paths(graph_nodes,
-                                to=toV[y],
-                                weights = if(metric == "IIC"){NULL
-                                } else {-log(E(graph_nodes)$weight)}) %>% as.data.frame()
-          return(x.1)
-        }, .progress = TRUE), error = function(err) err) %>%
-          as.matrix(.); rownames(mat1) <- rownames(Adj_matr); colnames(mat1) <- colnames(Adj_matr)
-      } else {
-        mat1 <- tryCatch(map_dfc(1:length(toV), function(y){
-          x.1 <- shortest.paths(graph_nodes,
-                                to=toV[y],
-                                weights = if(metric == "IIC"){NULL
-                                } else {-log(E(graph_nodes)$weight)}) %>% as.data.frame()
-          return(x.1)
-        }), error = function(err) err) %>%
-          as.matrix(.); rownames(mat1) <- rownames(Adj_matr); colnames(mat1) <- colnames(Adj_matr)
-      }
-    } else {
-      mat1 <- tryCatch(shortest.paths(graph_nodes,
-                                      weights = if(metric == "IIC"){NULL
-                                      } else {-log(E(graph_nodes)$weight)}),
-                       error = function(err) err)
-    }
-
-    if (inherits(mat1, "error")) {
-      stop("graph shortest.paths error")
-    } else {
-      if(metric == "PC"){
-        mat1 <- exp(-mat1)
-      }
-    }
-
-    mat1[is.infinite(mat1)] <- 1000; attribute_2 <- attribute_1[,2]
-
-    if(metric == "IIC"){
-      mat2 <- outer(attribute_2, attribute_2) / (1 + mat1)
-    } else {
-      mat2 <- outer(attribute_2, attribute_2) * mat1
-    }
-
-    num <- sum(mat2)
     # sum(2*(rowSums(mat2) - attribute_2^2)/ num * 100)
     # sum(((rowSums(mat2)+colSums(mat2)) - attribute_2^2))
-
-    last <- if(metric == "IIC"){"IIC"} else {"PC"}
+    #last <- if(metric == "IIC"){"IIC"} else {"PC"}
 
     if(isTRUE(overall) | isTRUE(onlyoverall)){
       if(!is.null(LA)){
         if(LA > sum(attribute_2)){
-          overall.2 <- data.table(Index = c(paste0(last, "num"),
-                                           paste0("EC(", last, ")"),
-                                           last),
-                                 Value = c(num, sqrt(num), num / (LA^2)))
+          overall.2 <- data.frame(Index = c(paste0(metric, "num"),
+                                            paste0("EC(", metric, ")"),
+                                            metric),
+                                  Value = c(num, sqrt(num), num / (LA^2)))
         } else {
           stop("LA must be greater than the sum of the attributes of the nodes")
         }
       } else {
-        overall.2 <- data.table(Index = c(paste0(last, "num"),
-                                         paste0("EC(", last, ")")),
-                               Value = c(num, sqrt(num)))
+        overall.2 <- data.frame(Index = c(paste0(metric, "num"),
+                                          paste0("EC(", metric, ")")),
+                                Value = c(num, sqrt(num)))
+      }
+
+      if (!is.null(write)){
+        write.csv(overall.2, file = paste0(write, "_Overall","_", "d", x.1,  ".csv"))
       }
     }
 
-
     if(isFALSE(onlyoverall)){
-      N <- nrow(Adj_matr)
-      if(nrow(Adj_matr) > 1000){
-        delta <- map_dbl(1:N, function(i){
-          Adj_matr.i <- Adj_matr[-i,-i]; attribute.i <- attribute_2[-i]
-          g.i <- graph.adjacency(Adj_matr.i, mode = "undirected",
-                                 weighted = if(metric == "IIC"){NULL}else{TRUE})
+      if(nrow(attribute_1) > 1000 & !is.null(parallel)){
+        delta <- map_dbl(1:nrow(attribute_1), function(i){
+          dist.i <- dist[-i,-i]; attribute.i <- attribute_2[-i]
+          mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
+                                      probability = probability,
+                                      distance_threshold = x.1,
+                                      igraph_Dijkstra = instr_dist,
+                                      parallel = parallel, loop = TRUE,
+                                      G1 = 1000, G2 = 1000, intern = FALSE), error = function(err)err)
 
-          if(nrow(Adj_matr.i) > 1000){
-            toV <- as_ids(V(g.i))
-
-            if(!is.null(parallel)){
-              mat.i <- tryCatch(future_map_dfc(1:length(toV), function(y){
-                y.1 <- shortest.paths(g.i,
-                                      to=toV[y],
-                                      weights = if(metric == "IIC"){NULL
-                                      } else {-log(E(g.i)$weight)}) %>% as.data.frame()
-                return(y.1)
-              }),error = function(err) err) %>%
-                as.matrix(.); rownames(mat.i) <- rownames(Adj_matr.i); colnames(mat.i) <- colnames(Adj_matr.i)
+          if(inherits(mat1, "error")){
+            stop("Error in short distance estimation")
+          } else {
+            if(metric == "IIC"){
+              mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
             } else {
-              mat.i <- tryCatch(map_dfc(1:length(toV), function(y){
-                x.1 <- shortest.paths(g.i,
-                                      to=toV[y],
-                                      weights = if(metric == "IIC"){NULL
-                                      } else {-log(E(g.i)$weight)}) %>% as.data.frame()
-                return(x.1)
-              }), error = function(err) err) %>%
-                as.matrix(.); rownames(mat.i) <- rownames(Adj_matr.i); colnames(mat.i) <- colnames(Adj_matr.i)
+              mat.i <- outer(attribute.i, attribute.i) * mat.i
             }
-          } else {
-            mat.i <- shortest.paths(g.i, weights = if(metric == "IIC"){NULL}else{-log(E(g.i)$weight)})
+            num.i <- sum(mat.i); dC <- (num - num.i) / num * 100
           }
-
-          if(metric == "PC"){
-            mat.i <- exp(-mat.i)
-          }
-          if(metric == "IIC"){
-            mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
-          } else {
-            mat.i <- outer(attribute.i, attribute.i) * mat.i
-          }
-          num.i <- sum(mat.i); dC <- (num - num.i) / num * 100
 
           return(dC)})
       } else {
         if(!is.null(parallel)){
           works <- as.numeric(availableCores())-1;works <- if(parallel > works){works}else{parallel}
           plan(strategy = multiprocess, gc = TRUE, workers = works)
-          delta <- future_map_dbl(1:N, function(i){
-            Adj_matr.i <- Adj_matr[-i,-i]; attribute.i <- attribute_2[-i]
-            g.i <- graph.adjacency(Adj_matr.i, mode = "undirected",
-                                   weighted = if(metric == "IIC"){NULL}else{TRUE})
+          delta <- future_map_dbl(1:nrow(attribute_1), function(i){
+            dist.i <- dist[-i,-i]; attribute.i <- attribute_2[-i]
+            mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
+                                        probability = probability,
+                                        distance_threshold = x.1,
+                                        igraph_Dijkstra = instr_dist,
+                                        parallel = NULL, loop = TRUE,
+                                        G1 = 1000, G2 = 1000, intern = FALSE), error = function(err)err)
 
-            mat.i <- shortest.paths(g.i, weights = if(metric == "IIC"){NULL}else{-log(E(g.i)$weight)})
-
-            if(metric == "PC"){
-              mat.i <- exp(-mat.i)
-            }
-            if(metric == "IIC"){
-              mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
+            if(inherits(mat1, "error")){
+              stop("Error in short distance estimation")
             } else {
-              mat.i <- outer(attribute.i, attribute.i) * mat.i
+              if(metric == "IIC"){
+                mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
+              } else {
+                mat.i <- outer(attribute.i, attribute.i) * mat.i
+              }
+              num.i <- sum(mat.i); dC <- (num - num.i) / num * 100
             }
-            num.i <- sum(mat.i); dC <- (num - num.i) / num * 100
 
-            return(dC)}, .progress = TRUE)
+            return(dC)}, .progress = intern)
         } else {
-          parallel = NULL
-          delta <- map_dbl(1:N, function(i){
-            Adj_matr.i <- Adj_matr[-i,-i]; attribute.i <- attribute_2[-i]
-            g.i <- graph.adjacency(Adj_matr.i, mode = "undirected",
-                                   weighted = if(metric == "IIC"){NULL}else{TRUE})
-
-            mat.i <- shortest.paths(g.i, weights = if(metric == "IIC"){NULL}else{-log(E(g.i)$weight)})
-
-            if(metric == "PC"){
-              mat.i <- exp(-mat.i)
-            }
-            if(metric == "IIC"){
-              mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
+          delta <- map_dbl(1:nrow(attribute_1), function(i){
+            dist.i <- dist[-i,-i]; attribute.i <- attribute_2[-i]
+            mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
+                                        probability = probability,
+                                        distance_threshold = x.1,
+                                        igraph_Dijkstra = instr_dist,
+                                        parallel = NULL, loop = TRUE,
+                                        G1 = 1000, G2 = 1000, intern = FALSE), error = function(err)err)
+            if(inherits(mat1, "error")){
+              stop("Error in short distance estimation")
             } else {
-              mat.i <- outer(attribute.i, attribute.i) * mat.i
+              if(metric == "IIC"){
+                mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
+              } else {
+                mat.i <- outer(attribute.i, attribute.i) * mat.i
+              }
+              num.i <- sum(mat.i); dC <- (num - num.i) / num * 100
             }
-            num.i <- sum(mat.i); dC <- (num - num.i) / num * 100
 
             return(dC)})
         }
       }
 
-      dintra <- attribute_2^2 / num * 100
-      dflux <- 2*(rowSums(mat2) - attribute_2^2)/ num * 100
-      dconnector <- map_dbl(delta - dintra - dflux, function(x){if(x < 0){0} else {x}})
+      dintra <- attribute_2^2 / num * 100; dflux <- 2*(rowSums(mat2) - attribute_2^2)/ num * 100
+      dconnector <- map_dbl(delta - dintra - dflux, function(y){if(y < 0){0} else {y}})
       metric_conn <- as.data.frame(cbind(attribute_1[,1], delta, dintra, dflux, dconnector))
       names(metric_conn)[1] <- "IdTemp2"
 
@@ -425,56 +347,30 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
           mat.T0 <- outer(attribute_2, attribute_2) * mat.T0
         }
 
-        #p1
-        num.T0 <- sum(mat.T0)
-
-        #p3
-        `%notin%` <- Negate(`%in%`)
+        num.T0 <- sum(mat.T0); `%notin%` <- Negate(`%in%`)
         N <- which(attribute_1[,3] == 1); attribute_2 <- attribute_1[, 2]; dres <- rep(0, nrow(attribute_1))
 
         dres[N] <- map_dbl(N, function(i){
-          Adj_matr.i <- Adj_matr[- N[which(N %notin% i)],-N[which(N %notin% i)]]
-          attribute.i <- attribute_2[-N[which(N %notin% i)]]
-          g.i <- graph.adjacency(Adj_matr.i, mode = "undirected",
-                                 weighted = if(metric == "IIC"){NULL}else{TRUE})
+          dist.i <- dist[-N[which(N %notin% i)],-N[which(N %notin% i)]]; attribute.i <- attribute_2[-N[which(N %notin% i)]]
 
-          if(nrow(Adj_matr.i) > 1000){
-            toV <- as_ids(V(g.i))
+          mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
+                                      probability = probability,
+                                      distance_threshold = x.1,
+                                      igraph_Dijkstra = FALSE,
+                                      parallel = parallel, loop = TRUE,
+                                      G1 = 1000, G2 = 1000, intern = FALSE), error = function(err)err)
 
-            if(!is.null(parallel)){
-              mat.i <- tryCatch(future_map_dfc(1:length(toV), function(y){
-                y.1 <- shortest.paths(g.i,
-                                      to=toV[y],
-                                      weights = if(metric == "IIC"){NULL
-                                      } else {-log(E(g.i)$weight)}) %>% as.data.frame()
-                return(y.1)
-              }),error = function(err) err) %>%
-                as.matrix(.); rownames(mat.i) <- rownames(Adj_matr.i); colnames(mat.i) <- colnames(Adj_matr.i)
+          if(inherits(mat1, "error")){
+            stop("Error in short distance estimation")
+          } else {
+            if(metric == "IIC"){
+              mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
             } else {
-              mat.i <- tryCatch(map_dfc(1:length(toV), function(y){
-                x.1 <- shortest.paths(g.i,
-                                      to=toV[y],
-                                      weights = if(metric == "IIC"){NULL
-                                      } else {-log(E(g.i)$weight)}) %>% as.data.frame()
-                return(x.1)
-              }), error = function(err) err) %>%
-                as.matrix(.); rownames(mat.i) <- rownames(Adj_matr.i); colnames(mat.i) <- colnames(Adj_matr.i)
+              mat.i <- outer(attribute.i, attribute.i) * mat.i
             }
-          } else {
-            mat.i <- shortest.paths(g.i, weights = if(metric == "IIC"){NULL}else{-log(E(g.i)$weight)})
+            num.i <- sum(mat.i); dC <- (num.i- num.T0) / num.T0 * 100
           }
 
-          if(metric == "PC"){
-            mat.i <- exp(-mat.i)
-          }
-
-          if(metric == "IIC"){
-            mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
-          } else {
-            mat.i <- outer(attribute.i, attribute.i) * mat.i
-          }
-
-          num.i <- sum(mat.i); dC <- (num.i- num.T0) / num.T0 * 100
           return(dC)})
 
         if(!is.null(parallel)){
@@ -490,7 +386,6 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
 
       if(!is.null(idT)){
         nodes.2 <- cbind(nodes.2, metric_conn)
-
         names(nodes.2)[which(names(nodes.2) %in%
                                c("delta", "dintra", "dflux", "dconnector"))] <- c(paste0("d", metric),
                                                                                   paste0("d", metric, "intra"),
@@ -504,7 +399,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
         nodes.2$IdTemp <- NULL; nodes.2$IdTemp2 <- NULL; nodes.2 <- nodes.2[,which(names(nodes.2) != "geometry")]
 
         if(!is.null(write)){
-          write_sf(nodes.2, paste0(write, "_", "d", x,  ".shp"), delete_layer = TRUE)
+          write_sf(nodes.2, paste0(write, "_", "d", x.1,  ".shp"), delete_layer = TRUE)
         }
 
       } else {
@@ -516,7 +411,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
           nodes.2 <- cbind(nodes, metric_conn); nodes.2$IdTemp <- NULL; nodes.2$IdTemp2 <- NULL
 
           if(!is.null(write)){
-            fwrite(nodes.2, paste0(write, "_", "d", x,  ".csv"))
+            write.csv(nodes.2, paste0(write, "_", "d", x.1,  ".csv"))
           }
         } else {
           rp <- raster::unique(nodes); rp <- as.vector(rp); rp <- rp[which(!is.na(rp))]
@@ -555,9 +450,9 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
           nodes.2[[1]] <- nodes; nodes.2 <- stack(nodes.2); names(nodes.2) <- names(metric_conn)
 
           if (!is.null(write)){
-            n <- names(metric_conn); n <- map(as.list(2:length(n)), function(w){
+            n <- names(metric_conn); n <- lapply(as.list(2:length(n)), function(w){
               x1 <- nodes.2[[w]]; crs(x1) <- crs(nodes.2)
-              writeRaster(x1, filename = paste0(write, "_", n[w], "_",  x, ".tif"),
+              writeRaster(x1, filename = paste0(write, "_", n[w], "_",  x.1, ".tif"),
                           overwrite = TRUE, options = c("COMPRESS=LZW", "TFW=YES"))
             })
           }
@@ -566,7 +461,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
 
       if(isTRUE(overall)){
         result_metric <- list(nodes.2, overall.2)
-        names(result_metric) <- c(paste0("node_importances_d",x), paste0("overall_d", x))
+        names(result_metric) <- c(paste0("node_importances_d",x.1), paste0("overall_d", x.1))
       } else {
         result_metric <- nodes.2
       }
@@ -575,7 +470,6 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
       result_metric <- overall.2
     }
 
-    #
     return(result_metric) })
 
   if(isFALSE(onlyoverall)){
@@ -595,7 +489,6 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     } else {
       names(result) <- paste0("d", distance_thresholds)
     }
-
   }
 
   return(result)

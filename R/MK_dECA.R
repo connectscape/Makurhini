@@ -1,4 +1,4 @@
-#' ECA, dA and dECA.
+#' Estimate the ECA, rECA, dA and dECA.
 #'
 #' Equivalent Connected Area (ECA; if the area is used as attribute) or Equivalent Connectivity index (EC)
 #' @param nodes list of objects class sf, SpatialPolygonsDataFrame or raster. Nodes of each time to analyze.
@@ -33,17 +33,22 @@
 #' @param write character. Path and name of the output ".csv" file
 #' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @return Table with:\cr
-#' A: Area in km2\cr
+#' A: area in km2\cr
 #' ECA: ECA value\cr
-#' Normalized_ECA: Relative connectivity (percentage)\cr
-#' dA: Delta Area between times (percentage)\cr
-#' dECA: Delta ECA between times (percentage)\cr
+#' Normalized_ECA: relative connectivity (percentage)\cr
+#' dA: delta Area between times (percentage)\cr
+#' dECA: delta ECA between times (percentage)\cr
+#' rECA: relativized ECA (dECA/dA). According to Liang et al. (2021) "an rECA value greater than 1 indicates that habitat changes result in a
+#' disproportionately large change in habitat connectivity, while a value lower than 1 indicates connectivity
+#' changes due to random habitat changes (Saura et al. 2011; Dilts et al. 2016)".
 #' Type_change: Type of change using the dECAfun() and the difference between dA and dECA.\cr
 #' @references \url{www.conefor.org}\cr
 #' Saura, S., Estreguil, C., Mouton, C., & Rodríguez-Freire, M. (2011). Network analysis to assess landscape connectivity trends: Application to European forests (1990-2000). Ecological Indicators, 11(2), 407–416.
 #' https://doi.org/10.1016/j.ecolind.2010.06.011 \cr
 #' Herrera, L. P., Sabatino, M. C., Jaimes, F. R., & Saura, S. (2017). Landscape connectivity and the role of small habitat patches as stepping stones: an assessment of the grassland biome in South America. Biodiversity and Conservation, 26(14), 3465–3479.
 #' https://doi.org/10.1007/s10531-017-1416-7
+#' Liang, J., Ding, Z., Jiang, Z., Yang, X., Xiao, R., Singh, P. B., ... & Hu, H. (2021). Climate change, habitat connectivity, and conservation gaps: a case study of four ungulate species endemic to the Tibetan Plateau. Landscape Ecology, 36(4), 1071-1087.
+#' Dilts TE, Weisberg PJ, Leitner P, Matocq MD, Inman RD, Nussear KE, Esque TC (2016) Multi-scale connectivity and graph theory highlight critical areas for conservation under climate change. Ecol Appl 26:1223–1237
 #' @examples
 #' \dontrun{
 #' library(Makurhini)
@@ -67,15 +72,11 @@
 #' @importFrom magrittr %>%
 #' @importFrom purrr compact map map_dfr
 #' @importFrom methods as
-#' @importFrom rgeos gArea
-#' @importFrom progressr handlers handler_pbcol progressor
-#' @importFrom crayon bgWhite white bgCyan
 #' @importFrom formattable formattable color_bar proportion formatter percent style
 #' @importFrom ggplot2 ggplot geom_bar aes geom_text theme element_blank element_text labs ggtitle scale_fill_manual element_line ggsave
-#' @importFrom utils write.csv
+#' @importFrom utils write.csv txtProgressBar setTxtProgressBar installed.packages
 #' @importFrom future multiprocess plan availableCores
 #' @importFrom furrr future_map
-#' @importFrom utils installed.packages
 
 MK_dECA <- function(nodes,
                     attribute = NULL,
@@ -88,7 +89,6 @@ MK_dECA <- function(nodes,
                     plot = FALSE, parallel = NULL,
                     write = NULL, intern = TRUE){
   . = NULL
-
   if (missing(nodes)) {
     stop("error missing file of nodes")
   } else {
@@ -152,7 +152,6 @@ MK_dECA <- function(nodes,
       return(x)
     })
   }
-
   #
   time <- as.vector(1:length(listT)) %>% as.character()
   #
@@ -161,38 +160,33 @@ MK_dECA <- function(nodes,
       x.1 <- unit_convert(sum(st_area(x, byid = T)), "m2", area_unit) %>%
         as.data.frame()
       return(x.1)
-      })
-    id = "IdTemp"
+      }); id = "IdTemp"
   } else {
     nres <- unit_convert(res(listT[[1]])[1]^2, "m2", area_unit)
     DECA <- map(listT, function(x){
       x1 <- as.data.frame(table(x[])); x2 <- sum(x1$Freq * nres)
-      return(x2)})
-    DECA <- do.call(rbind, DECA) %>% as.data.frame(as.numeric(.)); id = NULL
+      return(x2)}) %>% do.call(rbind, .) %>% as.data.frame(as.numeric(.)); id = NULL
   }
 
   DECA <- cbind(time, LA, DECA); rownames(DECA) <- NULL; colnames(DECA)[3]<-"Area"
 
   #ECA
-  x = NULL; y = NULL; loop <- 1:length(listT)
+  x = NULL; y = NULL
 
   if(isTRUE(intern)){
-    handlers(global = T)
-    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
-                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusiveness = 2))
-    pb <- progressor(along = loop)
+    pb <- txtProgressBar(0, length(listT), style = 3)
   }
 
   if(is.null(parallel)){
-    ECA <- tryCatch(lapply(loop, function(x){
+    ECA <- tryCatch(lapply(1:length(listT), function(x){
       x.1 <- listT[[x]]
+
       if(isTRUE(intern)){
-        pb()
+        setTxtProgressBar(pb, x)
       }
 
       if(nrow(x.1) < 2){
-        x.1 <- unit_convert(sum(gArea(x.1, byid = T)), "m2", area_unit)
+        x.1 <- unit_convert(sum(st_area(x.1, byid = T)), "m2", area_unit)
         ECA_metric <- map_dfr(distance_thresholds, function(y) {
           tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}; tab1 <- data.frame(Value = tab1)
           return(tab1)})
@@ -215,25 +209,20 @@ MK_dECA <- function(nodes,
                             distance_thresholds = y,
                             overall = TRUE, onlyoverall = TRUE,
                             LA = LA, rasterparallel = FALSE, write = NULL)
-          tab1 <- tab1[2,2]
-          return(tab1)
+          return(tab1[2,])
         })
       }
 
-      ECA_metric2 <- cbind(ECA_metric, distance_thresholds)
-      ECA_metric2 <- as.data.frame(ECA_metric2); names(ECA_metric2) <- c("ECA", "Distance")
-      return(ECA_metric2)
+      ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[2] <- "ECA"
+      return(ECA_metric[,2:3])
     }), error = function(err) err)
   } else {
     works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
     plan(strategy = multiprocess, gc = TRUE, workers = works)
     ECA <- tryCatch(future_map(loop, function(x) {
       x.1 <- listT[[x]]
-      if(isTRUE(intern)){
-        pb()
-      }
       if(nrow(x) < 2){
-        x.1 <- unit_convert(sum(gArea(x.1, byid = T)), "m2", area_unit)
+        x.1 <- unit_convert(sum(st_area(x.1, byid = T)), "m2", area_unit)
         ECA_metric <- map_dfr(distance_thresholds, function(y) {
           tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}; tab1 <- data.frame(Value = tab1)
           return(tab1)})
@@ -255,15 +244,13 @@ MK_dECA <- function(nodes,
                             distance_thresholds = y,
                             overall = TRUE, onlyoverall = TRUE,
                             LA = LA, rasterparallel = FALSE, write = NULL)
-          tab1 <- tab1[2,2]
-          return(tab1)
+          return(tab1[2,])
         })
       }
 
-      ECA_metric2 <- cbind(ECA_metric, distance_thresholds)
-      ECA_metric2 <- as.data.frame(ECA_metric2); names(ECA_metric2) <- c("ECA", "Distance")
-      return(ECA_metric2)
-    }),  error = function(err) err)
+      ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[2] <- "ECA"
+      return(ECA_metric[,2:3])
+    }, .progress = TRUE),  error = function(err) err)
     close_multiprocess(works)
   }
 
@@ -272,11 +259,9 @@ MK_dECA <- function(nodes,
   } else {
     ECA2 <- lapply(distance_thresholds, function(x){
       Tab_ECA <- map_dfr(ECA, function(y){ y[which(y$Distance == x),] })
-      Tab_ECA <- cbind(DECA, Tab_ECA)
-      return(Tab_ECA)})
+      DECA.2 <- cbind(DECA, Tab_ECA)
 
-   ECA3 <- lapply(ECA2, function(x){
-      DECA.2 <- x; AO <- LA; dArea <- (DECA.2$Area *100)/LA
+      AO <- LA; dArea <- (DECA.2$Area *100)/LA
       DECA.2$Normalized_ECA1 <- (DECA.2$ECA* dArea)/DECA.2$Area
       DECA.2$Normalized_ECA2 <- (DECA.2$ECA*100)/DECA.2$Area
       AO.2 <- DECA.2$Area; ECA.2 <- cbind(DECA.2[, 4])
@@ -324,11 +309,10 @@ MK_dECA <- function(nodes,
                                  `dA` = formatter("span",style = ~ style(color = ifelse(`dA` > 0, "forestgreen", "red"))),
                                  `dECA` = formatter("span",style = ~ style(color = ifelse(`dECA` > 0, "forestgreen", "red"))),
                                  `rECA` = formatter("span",style = ~ style(color = ifelse(`rECA` > 0, "#404040", "red")))))
-      return(DECA.4)
-    })
+      return(DECA.4)})
     #
     if (!is.null(write)){
-      write.csv(do.call(rbind, ECA3), write, row.names = FALSE)
+      write.csv(do.call(rbind, ECA2), write, row.names = FALSE)
     }
 
     if(isTRUE("ggplot2" %in% rownames(installed.packages()))){
@@ -337,7 +321,7 @@ MK_dECA <- function(nodes,
           plot = paste0("Time", 1:length(nodes))
         }
 
-        ECAplot <- lapply(ECA3, function(x){
+        ECAplot <- lapply(ECA2, function(x){
           ECA4 <- (x[[3]] * 100)/ LA; Loss <- 100 - ECA4; ECA4 <- cbind(ECA4, Loss) %>% as.data.frame()
           names(ECA4)[1] <- "Habitat"; ECA4$"Connected habitat" <- x[[7]]; ECA4$Year <- plot
 
@@ -409,26 +393,26 @@ MK_dECA <- function(nodes,
                    height = 10, compression = "lzw", dpi = "retina", scale = 0.7)}
           return(p4)})
         ECA_result <- list()
-        for (i in 1:length(ECA3)){
-          ECA_result[[i]] <- list(ECA3[[i]], ECAplot[[i]])
+        for (i in 1:length(ECA2)){
+          ECA_result[[i]] <- list(ECA2[[i]], ECAplot[[i]])
         }
 
         names(ECA_result) <- paste(distance_thresholds)
-        ECA3 <- ECA_result
+        ECA2 <- ECA_result
       }
     } else {
       message("You need install ggplot2 to plot dECA")
       plot = FALSE
     }
 
+
     if(length(distance_thresholds) == 1){
       if((isTRUE(plot) | is.character(plot))){
-        ECA4 <- ECA3[[1]][[2]]; ECA3 <- ECA3[[1]][[1]]
-        print(ECA4)
+        print(ECA2[[1]][[2]]); ECA2 <- ECA2[[1]][[1]]
       } else {
-        ECA3 <- ECA3[[1]]
+        ECA2 <- ECA2[[1]]
       }
     }
   }
-  return(ECA3)
+  return(ECA2)
 }

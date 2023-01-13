@@ -32,21 +32,26 @@
 #' Parallelize the function using furrr package and multiprocess plan.
 #' @param write character. Path and name of the output ".csv" file
 #' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
-#' @return Table with:\cr
-#' A: area in km2\cr
-#' ECA: ECA value\cr
-#' Normalized_ECA: relative connectivity (percentage)\cr
-#' dA: delta Area between times (percentage)\cr
-#' dECA: delta ECA between times (percentage)\cr
-#' rECA: relativized ECA (dECA/dA). According to Liang et al. (2021) "an rECA value greater than 1 indicates that habitat changes result in a
+#' @return Table with:\cr\cr
+#' -  Time: name of the time periods, name of the model or scenario (are taken from the name of the elements of the list of nodes or the plot argument)\cr
+#' -  Max. Landscape atrtribute: maximum landscape attribute\cr
+#' -  Habitat area,\cr
+#' -  Distance threshold: it is usually a dispersal threshold associated with one or many species and it is set by the user.\cr
+#' -  ECA: Equivalent Connected Area or Equivalent Connectivity
+#' -  Normalized_ECA (% of LA): relative connectivity (percentage)\cr
+#' -  Normalized_ECA (% of habitat area): relative connectivity (percentage)\cr
+#' -  dA: delta Area between times (percentage)\cr
+#' -  dECA: delta ECA between times (percentage)\cr
+#' -  rECA: relativized ECA (dECA/dA). According to Liang et al. (2021) "an rECA value greater than 1 indicates that habitat changes result in a
 #' disproportionately large change in habitat connectivity, while a value lower than 1 indicates connectivity
-#' changes due to random habitat changes (Saura et al. 2011; Dilts et al. 2016)".
-#' Type_change: Type of change using the dECAfun() and the difference between dA and dECA.\cr
-#' @references \url{www.conefor.org}\cr
+#' changes due to random habitat changes (Saura et al. 2011; Dilts et al. 2016)".\cr
+#' -  dA/dECA comparisons: comparisons between dA and dECA\cr
+#' -  Type of change: Type of change using the dECAfun() and the difference between dA and dECA.\cr
+#' @references \url{www.conefor.org}\cr\cr
 #' Saura, S., Estreguil, C., Mouton, C., & Rodríguez-Freire, M. (2011). Network analysis to assess landscape connectivity trends: Application to European forests (1990-2000). Ecological Indicators, 11(2), 407–416.
-#' https://doi.org/10.1016/j.ecolind.2010.06.011 \cr
+#' https://doi.org/10.1016/j.ecolind.2010.06.011 \cr\cr
 #' Herrera, L. P., Sabatino, M. C., Jaimes, F. R., & Saura, S. (2017). Landscape connectivity and the role of small habitat patches as stepping stones: an assessment of the grassland biome in South America. Biodiversity and Conservation, 26(14), 3465–3479.
-#' https://doi.org/10.1007/s10531-017-1416-7
+#' https://doi.org/10.1007/s10531-017-1416-7\cr\cr
 #' Liang, J., Ding, Z., Jiang, Z., Yang, X., Xiao, R., Singh, P. B., ... & Hu, H. (2021). Climate change, habitat connectivity, and conservation gaps: a case study of four ungulate species endemic to the Tibetan Plateau. Landscape Ecology, 36(4), 1071-1087.
 #' Dilts TE, Weisberg PJ, Leitner P, Matocq MD, Inman RD, Nussear KE, Esque TC (2016) Multi-scale connectivity and graph theory highlight critical areas for conservation under climate change. Ecol Appl 26:1223–1237
 #' @examples
@@ -296,7 +301,11 @@ MK_dECA <- function(nodes,
       if(is.character(plot) & length(plot) == nrow(DECA.4)){
         DECA.4$Time <- plot
       } else {
-        DECA.4$Time <- rownames(DECA.4)
+        if(is.null(names(listT))){
+          DECA.4$Time <- rownames(DECA.4)
+        } else {
+          DECA.4$Time <- names(listT)
+        }
       }
 
       rownames(DECA.4) <- NULL
@@ -350,11 +359,9 @@ MK_dECA <- function(nodes,
           ECA5$Text <- ECA4$percentage
           ECA5$Text[which(ECA5$variable == "Connected habitat")] <- ECA5$percentage[which(ECA5$variable == "Connected habitat")]
 
-
           ECA5$pos <- ECA5$percentage/2
           ECA5$pos[which(ECA5$variable == "Habitat")] <- (ECA5$percentage[which(ECA5$variable == "Habitat")]/2) + ECA5$percentage[which(ECA5$variable == "Connected habitat")]
           ECA5$pos[which(ECA5$variable == "Loss")] <- (ECA5$percentage[which(ECA5$variable == "Loss")]/2) + ECA5$Text[which(ECA5$variable == "Habitat")]
-
           #Plot
           pcolors <- c("#443A82", "#30678D", "#26AE7F")
 

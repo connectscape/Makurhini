@@ -64,16 +64,21 @@ Parallelize the function using furrr package and multiprocess plan.}
 \item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 }
 \value{
-Table with:\cr
-A: area in km2\cr
-ECA: ECA value\cr
-Normalized_ECA: relative connectivity (percentage)\cr
-dA: delta Area between times (percentage)\cr
-dECA: delta ECA between times (percentage)\cr
-rECA: relativized ECA (dECA/dA). According to Liang et al. (2021) "an rECA value greater than 1 indicates that habitat changes result in a
+Table with:\cr\cr
+-  Time: name of the time periods, name of the model or scenario (are taken from the name of the elements of the list of nodes or the plot argument)\cr
+-  Max. Landscape atrtribute: maximum landscape attribute\cr
+-  Habitat area,\cr
+-  Distance threshold: it is usually a dispersal threshold associated with one or many species and it is set by the user.\cr
+-  ECA: Equivalent Connected Area or Equivalent Connectivity
+-  Normalized_ECA (% of LA): relative connectivity (percentage)\cr
+-  Normalized_ECA (% of habitat area): relative connectivity (percentage)\cr
+-  dA: delta Area between times (percentage)\cr
+-  dECA: delta ECA between times (percentage)\cr
+-  rECA: relativized ECA (dECA/dA). According to Liang et al. (2021) "an rECA value greater than 1 indicates that habitat changes result in a
 disproportionately large change in habitat connectivity, while a value lower than 1 indicates connectivity
-changes due to random habitat changes (Saura et al. 2011; Dilts et al. 2016)".
-Type_change: Type of change using the dECAfun() and the difference between dA and dECA.\cr
+changes due to random habitat changes (Saura et al. 2011; Dilts et al. 2016)".\cr
+-  dA/dECA comparisons: comparisons between dA and dECA\cr
+-  Type of change: Type of change using the dECAfun() and the difference between dA and dECA.\cr
 }
 \description{
 Equivalent Connected Area (ECA; if the area is used as attribute) or Equivalent Connectivity index (EC)
@@ -99,11 +104,11 @@ dECA_test
 }
 }
 \references{
-\url{www.conefor.org}\cr
+\url{www.conefor.org}\cr\cr
 Saura, S., Estreguil, C., Mouton, C., & Rodríguez-Freire, M. (2011). Network analysis to assess landscape connectivity trends: Application to European forests (1990-2000). Ecological Indicators, 11(2), 407–416.
-https://doi.org/10.1016/j.ecolind.2010.06.011 \cr
+https://doi.org/10.1016/j.ecolind.2010.06.011 \cr\cr
 Herrera, L. P., Sabatino, M. C., Jaimes, F. R., & Saura, S. (2017). Landscape connectivity and the role of small habitat patches as stepping stones: an assessment of the grassland biome in South America. Biodiversity and Conservation, 26(14), 3465–3479.
-https://doi.org/10.1007/s10531-017-1416-7
+https://doi.org/10.1007/s10531-017-1416-7\cr\cr
 Liang, J., Ding, Z., Jiang, Z., Yang, X., Xiao, R., Singh, P. B., ... & Hu, H. (2021). Climate change, habitat connectivity, and conservation gaps: a case study of four ungulate species endemic to the Tibetan Plateau. Landscape Ecology, 36(4), 1071-1087.
 Dilts TE, Weisberg PJ, Leitner P, Matocq MD, Inman RD, Nussear KE, Esque TC (2016) Multi-scale connectivity and graph theory highlight critical areas for conservation under climate change. Ecol Appl 26:1223–1237
 }

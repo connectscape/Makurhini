@@ -133,6 +133,16 @@ MK_ProtConn <- function(nodes,
     }
   }
 
+  if(isFALSE(parallel)){
+    parallel <- NULL
+  }
+
+  if(isTRUE(parallel)){
+    message(paste0("The number of available cores is ", as.numeric(availableCores()),
+                   ", so ", as.numeric(availableCores()), " cores will be used."))
+    parallel <- as.numeric(availableCores())-2
+  }
+
   if(isTRUE(intern)){
     message("Step 1. Reviewing parameters")
   }

@@ -100,6 +100,16 @@ MK_ProtConnMult <- function(nodes, regions,
     }
   }
 
+  if(isFALSE(parallel)){
+    parallel <- NULL
+  }
+
+  if(isTRUE(parallel)){
+    message(paste0("The number of available cores is ", as.numeric(availableCores()),
+                   ", so ", as.numeric(availableCores()), " cores will be used."))
+    parallel <- as.numeric(availableCores())-2
+  }
+
   if(nrow(regions)<=1){
     stop("one region, for better results please use MK_ProtConn()")
   } else {

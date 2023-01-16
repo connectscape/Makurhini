@@ -129,6 +129,17 @@ MK_dECA <- function(nodes,
       write = NULL
     }
   }
+
+  if(isFALSE(parallel)){
+    parallel <- NULL
+  }
+
+  if(isTRUE(parallel)){
+    message(paste0("The number of available cores is ", as.numeric(availableCores()),
+                   ", so ", as.numeric(availableCores()), " cores will be used."))
+    parallel <- as.numeric(availableCores())-2
+  }
+
   options(warn = -1); listT <- compact(nodes)
 
   if(distance$type == "least-cost" | distance$type == "commute-time"){

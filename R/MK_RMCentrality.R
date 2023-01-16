@@ -75,6 +75,12 @@ MK_RMCentrality <- function(nodes,
     }
   }
 
+  if(!is.null(parallel)){
+    if(!is.numeric(parallel)){
+      stop("if you use parallel argument then you need a numeric value")
+    }
+  }
+
   if(isFALSE(parallel)){
     parallel <- NULL
   }

@@ -113,6 +113,12 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
     }
   }
 
+  if(!is.null(parallel)){
+    if(!is.numeric(parallel)){
+      stop("if you use parallel argument then you need a numeric value")
+    }
+  }
+
   if(isFALSE(parallel)){
     parallel <- NULL
   }

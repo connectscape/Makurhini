@@ -75,7 +75,7 @@
 #' }
 #' @export
 #' @importFrom magrittr %>%
-#' @importFrom purrr compact map map_dfr
+#' @importFrom purrr compact map_dfr
 #' @importFrom methods as
 #' @importFrom formattable formattable color_bar proportion formatter percent style
 #' @importFrom ggplot2 ggplot geom_bar aes geom_text theme element_blank element_text labs ggtitle scale_fill_manual element_line ggsave
@@ -166,7 +166,7 @@ MK_dECA <- function(nodes,
   }
 
   if(class(listT[[1]])[1] != "RasterLayer"){
-    listT <- map(listT, function(x) { if(class(x)[1] != "sf") {
+    listT <- lapply(listT, function(x) { if(class(x)[1] != "sf") {
       x <- st_as_sf(x); x$IdTemp <- 1:nrow(x)
     } else {
       x$IdTemp <- 1:nrow(x)
@@ -185,7 +185,7 @@ MK_dECA <- function(nodes,
       }); id = "IdTemp"
   } else {
     nres <- unit_convert(res(listT[[1]])[1]^2, "m2", area_unit)
-    DECA <- map(listT, function(x){
+    DECA <- lapply(listT, function(x){
       x1 <- as.data.frame(table(x[])); x2 <- sum(x1$Freq * nres)
       return(x2)}) %>% do.call(rbind, .) %>% as.data.frame(as.numeric(.)); id = NULL
   }
@@ -241,9 +241,10 @@ MK_dECA <- function(nodes,
   } else {
     works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
     plan(strategy = multiprocess, gc = TRUE, workers = works)
-    ECA <- tryCatch(future_map(loop, function(x) {
+    ECA <- tryCatch(future_map(1:length(listT), function(x) {
       x.1 <- listT[[x]]
-      if(nrow(x) < 2){
+
+      if(nrow(x.1) < 2){
         x.1 <- unit_convert(sum(st_area(x.1, byid = T)), "m2", area_unit)
         ECA_metric <- map_dfr(distance_thresholds, function(y) {
           tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}; tab1 <- data.frame(Value = tab1)
@@ -259,6 +260,7 @@ MK_dECA <- function(nodes,
           } else {
             dist_param <- distance
           }
+
           tab1 <- MK_dPCIIC(nodes = x.1, attribute = attribute,
                             restoration = NULL,
                             distance = dist_param, area_unit = area_unit,
@@ -272,7 +274,7 @@ MK_dECA <- function(nodes,
 
       ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[2] <- "ECA"
       return(ECA_metric[,2:3])
-    }, .progress = TRUE),  error = function(err) err)
+    }, .progress = intern),  error = function(err) err)
     close_multiprocess(works)
   }
 
@@ -316,7 +318,7 @@ MK_dECA <- function(nodes,
                                  "Normalized ECA (% of habitat area)"                                 )
 
       if(is.character(plot) & length(plot) == nrow(DECA.4)){
-        DECA.4$Time <- plot
+        DECA.4$Time <- factor(plot, levels = plot)
       } else {
         if(is.null(names(listT))){
           DECA.4$Time <- rownames(DECA.4)
@@ -344,8 +346,9 @@ MK_dECA <- function(nodes,
     if(isTRUE("ggplot2" %in% rownames(installed.packages()))){
       if(isTRUE(plot) | is.character(plot)){
         if(isTRUE(plot)){
-          plot = paste0("Time", 1:length(nodes))
+          plot <- paste0("Time", 1:length(nodes))
         }
+        plot <- factor(plot, levels = plot)
 
         ECAplot <- lapply(ECA2, function(x){
           ECA4 <- (x[[3]] * 100)/ LA; Loss <- 100 - ECA4; ECA4 <- cbind(ECA4, Loss) %>% as.data.frame()
@@ -357,9 +360,9 @@ MK_dECA <- function(nodes,
                              variable = c(rep("Habitat", length(ECA4$Year)),
                                           rep("Loss", length(ECA4$Year)),
                                           rep("Connected habitat", length(ECA4$Year))),
-                             value = c(ECA4$Habitat, ECA4$Loss, ECA4$`Connected habitat`))
+                             percentage = c(ECA4$Habitat, ECA4$Loss, ECA4$`Connected habitat`),
+                             check.names = FALSE)
 
-          names(ECA4)[3] <- "percentage"
           ECA4$variable <- factor(ECA4$variable, levels = c("Loss", "Habitat", "Connected habitat"))
 
           #Table 2
@@ -370,8 +373,8 @@ MK_dECA <- function(nodes,
                              variable = c(rep("Habitat", length(ECA5$Year)),
                                           rep("Loss", length(ECA5$Year)),
                                           rep("Connected habitat", length(ECA5$Year))),
-                             value = c(ECA5$Habitat, ECA5$Loss, ECA5$`Connected habitat`))
-          names(ECA5)[3] <- "percentage"
+                             percentage = c(ECA5$Habitat, ECA5$Loss, ECA5$`Connected habitat`),
+                             check.names = FALSE)
           ECA5$variable <- factor(ECA5$variable, levels = c("Loss", "Habitat", "Connected habitat"))
           ECA5$Text <- ECA4$percentage
           ECA5$Text[which(ECA5$variable == "Connected habitat")] <- ECA5$percentage[which(ECA5$variable == "Connected habitat")]

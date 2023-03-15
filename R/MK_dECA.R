@@ -195,6 +195,7 @@ MK_dECA <- function(nodes,
         ECA_metric <- map_dfr(distance_thresholds, function(y) {
           tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}; tab1 <- data.frame(Value = tab1)
           return(tab1)})
+        ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[1] <- "ECA"
       } else {
         ECA_metric <- map_dfr(distance_thresholds, function(y) {
           if(distance$type == "least-cost" | distance$type == "commute-time"){
@@ -216,10 +217,9 @@ MK_dECA <- function(nodes,
                             LA = LA, rasterparallel = FALSE, write = NULL)
           return(tab1[2,])
         })
+        ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[2] <- "ECA"; ECA_metric <- ECA_metric[,2:3]
       }
-
-      ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[2] <- "ECA"
-      return(ECA_metric[,2:3])
+      return(ECA_metric)
     }), error = function(err) err)
   } else {
     works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
@@ -231,6 +231,7 @@ MK_dECA <- function(nodes,
         ECA_metric <- map_dfr(distance_thresholds, function(y) {
           tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}; tab1 <- data.frame(Value = tab1)
           return(tab1)})
+        ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[1] <- "ECA"
       } else {
         ECA_metric <- map_dfr(distance_thresholds, function(y) {
           if(distance$type == "least-cost" | distance$type == "commute-time"){
@@ -251,10 +252,9 @@ MK_dECA <- function(nodes,
                             LA = LA, rasterparallel = FALSE, write = NULL)
           return(tab1[2,])
         })
+        ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[2] <- "ECA"; ECA_metric <- ECA_metric[,2:3]
       }
-
-      ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[2] <- "ECA"
-      return(ECA_metric[,2:3])
+      return(ECA_metric)
     }, .progress = TRUE),  error = function(err) err)
     close_multiprocess(works)
   }

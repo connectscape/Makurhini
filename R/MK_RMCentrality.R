@@ -75,6 +75,22 @@ MK_RMCentrality <- function(nodes,
     }
   }
 
+  if(!is.null(parallel)){
+    if(!is.numeric(parallel)){
+      stop("if you use parallel argument then you need a numeric value")
+    }
+  }
+
+  if(isFALSE(parallel)){
+    parallel <- NULL
+  }
+
+  if(isTRUE(parallel)){
+    message(paste0("The number of available cores is ", as.numeric(availableCores()),
+                   ", so ", as.numeric(availableCores()), " cores will be used."))
+    parallel <- as.numeric(availableCores())-2
+  }
+
   if(class(nodes)[1] == "SpatialPolygonsDataFrame"| class(nodes)[1] == "sf"){
     if (nrow(nodes) < 2) {
       stop("error, you need more than 2 nodes")

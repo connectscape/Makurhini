@@ -89,6 +89,16 @@ MK_Connect_grid <- function(nodes,
     }
   }
 
+  if(isFALSE(parallel)){
+    parallel <- NULL
+  }
+
+  if(isTRUE(parallel)){
+    message(paste0("The number of available cores is ", as.numeric(availableCores()),
+                   ", so ", as.numeric(availableCores()), " cores will be used."))
+    parallel <- as.numeric(availableCores())-2
+  }
+
   message("Step 1. Reviewing parameters")
   base_param1 <- input_grid(node = nodes, landscape = region, unit = area_unit,
                             bdist = if(is.null(transboundary)){0} else{transboundary})

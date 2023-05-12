@@ -42,8 +42,6 @@
 #' plot(centrality_test$d10000["cluster"], breaks = "jenks")
 #' plot(centrality_test$d10000["modules"], breaks = "jenks")
 #' }
-#' @importFrom progressr handlers handler_pbcol progressor
-#' @importFrom crayon bgWhite white bgCyan
 #' @importFrom magrittr %>%
 #' @importFrom sf write_sf st_as_sf
 #' @importFrom igraph graph.adjacency strength evcent closeness betweenness clusters cluster_louvain degree
@@ -57,7 +55,7 @@ MK_RMCentrality <- function(nodes,
                             probability = NULL,
                             rasterparallel = FALSE,
                             write = NULL, intern = TRUE){
-  if (missing(nodes)) {
+  if(missing(nodes)) {
     stop("error missing file of nodes")
   } else {
     if (is.numeric(nodes) | is.character(nodes)) {
@@ -65,44 +63,28 @@ MK_RMCentrality <- function(nodes,
     }
   }
 
-  if (is.null(distance_thresholds)) {
+  if(is.null(distance_thresholds)) {
     stop("error missing numeric distance threshold(s)")
   }
 
-  if (!is.null(write)) {
+  if(!is.null(write)) {
     if (!dir.exists(dirname(write))) {
       stop("error, output folder does not exist")
     }
   }
 
-  if(!is.null(parallel)){
-    if(!is.numeric(parallel)){
-      stop("if you use parallel argument then you need a numeric value")
-    }
-  }
-
-  if(isFALSE(parallel)){
-    parallel <- NULL
-  }
-
-  if(isTRUE(parallel)){
-    message(paste0("The number of available cores is ", as.numeric(availableCores()),
-                   ", so ", as.numeric(availableCores()), " cores will be used."))
-    parallel <- as.numeric(availableCores())-2
-  }
-
   if(class(nodes)[1] == "SpatialPolygonsDataFrame"| class(nodes)[1] == "sf"){
-    if (nrow(nodes) < 2) {
+    if(nrow(nodes) < 2) {
       stop("error, you need more than 2 nodes")
+    } else {
+      nodes <- st_as_sf(nodes); nodes$IdTemp <- 1:nrow(nodes); idT <- "IdTemp"
     }
-    nodes <- st_as_sf(nodes)
-    nodes$IdTemp <- 1:nrow(nodes)
-    idT <- "IdTemp"
   } else {
     if(length(raster::unique(nodes)) < 2){
       stop("error, you need more than 2 nodes")
+    } else {
+      idT <- NULL
     }
-    idT <- NULL
   }
 
   dist <- distancefile(nodes = nodes,  id = idT, type = distance$type,
@@ -127,25 +109,19 @@ MK_RMCentrality <- function(nodes,
 
   loop <- 1:length(distance_thresholds)
 
-  if(length(distance_thresholds)>1 & isTRUE(intern)){
-    handlers(global = T)
-    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
-                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusiveness = 2))
-    pb <- progressor(along = loop)
+  if(length(distance_thresholds) > 1 & isTRUE(intern)){
+    pb <- txtProgressBar(0, length(loop), style = 3)
   }
 
   centrality_result <- lapply(loop, function(x){
     x <- distance_thresholds[x]
     if(length(distance_thresholds) > 1 & isTRUE(intern)){
-      pb()
+      setTxtProgressBar(pb, x)
     }
     nodes.2 <- nodes
 
     if(isTRUE(binary)){
-      Adj_matr <- dist*0
-      Adj_matr[dist < x] <- 1
-      diag(Adj_matr) <- 0
+      Adj_matr <- dist*0; Adj_matr[dist < x] <- 1; diag(Adj_matr) <- 0
       graph_nodes <- tryCatch(graph.adjacency(Adj_matr, mode = "undirected"), error = function(err) err)
     } else {
       Adj_matr <- dist*0

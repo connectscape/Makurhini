@@ -228,7 +228,9 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                                igraph_Dijkstra = instr_dist,
                                parallel = parallel,
                                loop = TRUE,
-                               G1 = 1000, G2 = 1000, intern = intern), error = function(err)err)
+                               G1 = 1000,
+                               G2 = 1000,
+                               intern = intern), error = function(err)err)
 
     if(inherits(mat1, "error")){
       stop("Error in short distance estimation")

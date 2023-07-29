@@ -50,11 +50,12 @@ Analyzing landscape connectivity.
 
 ## Installation
 
--   Depends: R (&gt; 4.0.0), igraph (&gt;= 1.2.6)
--   Pre-install
-    [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
--   Pre-install devtools (<code>install.packages(“devtools”)</code>) and
-    remotes (<code>install.packages(“remotes”)</code>) packages.
+- Depends: R (\> 4.0.0), igraph (\>= 1.2.6)
+- Pre-install [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
+- Pre-install devtools (<code>install.packages(“devtools”)</code>) and
+  remotes (<code>install.packages(“remotes”)</code>) packages.
+- **It is recommended to install the R igraph package (\>= 1.2.6)
+  beforehand.**
 
 You can install the released version of Makurhini from
 [GitHub](https://github.com) with:
@@ -213,17 +214,17 @@ multiple dispersion distances.
 This is a basic example which shows you how to solve some common
 problems:
 
--   [Protected Connected Land
-    (ProtConn)](#protected-connected-land-protconn)
--   [Equivalent Connectivity Area
-    (ECA)](#equivalent-connectivity-area-eca)
--   [Integral index of connectivity (IIC) and fractions (Intra, Flux and
-    Connector)](#integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector)
--   [Probability of connectivity (PC) and fractions (Intra, Flux and
-    Connector)](#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector)
--   [Centrality measures](#centrality-measures) (e.g., betweenness
-    centrality, node memberships, and modularity)
--   [Fragmentation statistics](#fragmentation-statistics)
+- [Protected Connected Land
+  (ProtConn)](#protected-connected-land-protconn)
+- [Equivalent Connectivity Area
+  (ECA)](#equivalent-connectivity-area-eca)
+- [Integral index of connectivity (IIC) and fractions (Intra, Flux and
+  Connector)](#integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector)
+- [Probability of connectivity (PC) and fractions (Intra, Flux and
+  Connector)](#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector)
+- [Centrality measures](#centrality-measures) (e.g., betweenness
+  centrality, node memberships, and modularity)
+- [Fragmentation statistics](#fragmentation-statistics)
 
 ### Protected Connected Land (ProtConn)
 
@@ -256,7 +257,7 @@ ProtConn value: ![](man/figures/protconn.png)
 ### Equivalent Connectivity Area (ECA)
 
 Example in the Biosphere Reserve Mariposa Monarca, Mexico, with
-old-growth vegetation fragments of four times (?list\_forest\_patches).
+old-growth vegetation fragments of four times (?list_forest_patches).
 
 ``` r
 data("list_forest_patches", package = "Makurhini")
@@ -286,7 +287,7 @@ ECA plot:
 ![](man/figures/ECAplot.png)
 
 Another way to analyze the ECA (and ProtConn indicator) is by using the
-*‘MK\_Connect\_grid()’* that estimates the index values on a grid. An
+*‘MK_Connect_grid()’* that estimates the index values on a grid. An
 example of its application is the following, on the Andean-Amazon
 Piedmont. The analysis was performed using a grid of hexagons each with
 an area of 10,000 ha and a forest/non-forest map to measure changes in
@@ -297,7 +298,7 @@ Andean-Amazon connectivity.
 ### Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector)
 
 Example with 142 old-growth vegetation fragments in southeast Mexico
-(?vegetation\_patches).
+(?vegetation_patches).
 
 ``` r
 data("vegetation_patches", package = "Makurhini")
@@ -315,14 +316,14 @@ head(IIC)
 #> Geometry type: POLYGON
 #> Dimension:     XY
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
-#> CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
-#>   id       dIIC    dIICintra    dIICflux dIICconnector
-#> 1  1 88.7690645 88.051222392 0.360469840     0.3573723
-#> 2  2  0.7405588  0.018141557 0.012229087     0.7101882
-#> 3  3  0.7379196  0.011944718 0.014340157     0.7116348
-#> 4  4  0.7235710  0.001153790 0.006505351     0.7159119
-#> 5  5  0.7315123  0.005537345 0.012359182     0.7136157
-#> 6  6  0.7319644  0.014122295 0.006764927     0.7110772
+#> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#>   id         dIIC    dIICintra    dIICflux dIICconnector
+#> 1  1 88.411692232 88.051222392 0.360469840  1.432188e-14
+#> 2  2  0.030370644  0.018141557 0.012229087  0.000000e+00
+#> 3  3  0.026284875  0.011944718 0.014340157  0.000000e+00
+#> 4  4  0.007659141  0.001153790 0.006505351  6.224188e-15
+#> 5  5  0.017896528  0.005537345 0.012359182  0.000000e+00
+#> 6  6  0.020887221  0.014122295 0.006764927  0.000000e+00
 #>                         geometry
 #> 1 POLYGON ((3676911 589967.3,...
 #> 2 POLYGON ((3558044 696202.5,...
@@ -346,14 +347,14 @@ head(PC)
 #> Geometry type: POLYGON
 #> Dimension:     XY
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
-#> CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #>   id          dPC     dPCintra      dPCflux dPCconnector
 #> 1  1 89.076871365 89.076092740 7.786254e-04 0.000000e+00
-#> 2  2  0.019279012  0.018352716 9.262961e-04 8.369065e-15
+#> 2  2  0.019279012  0.018352716 9.262961e-04 0.000000e+00
 #> 3  3  0.013665190  0.012083748 1.581442e-03 0.000000e+00
-#> 4  4  0.001752818  0.001167219 5.855988e-04 0.000000e+00
-#> 5  5  0.006952601  0.005601797 1.350804e-03 4.227304e-15
-#> 6  6  0.014339722  0.014286671 5.305105e-05 6.214511e-16
+#> 4  4  0.001752818  0.001167219 5.855988e-04 2.907613e-15
+#> 5  5  0.006952601  0.005601797 1.350804e-03 5.138034e-15
+#> 6  6  0.014339722  0.014286671 5.305105e-05 1.560214e-15
 #>                         geometry
 #> 1 POLYGON ((3676911 589967.3,...
 #> 2 POLYGON ((3558044 696202.5,...
@@ -378,16 +379,16 @@ head(centrality_test)
 #> Geometry type: POLYGON
 #> Dimension:     XY
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
-#> CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
-#> # A tibble: 6 x 8
-#>      id degree eigen    close   BWC cluster modules                     geometry
-#>   <int>  <dbl> <dbl>    <dbl> <dbl>   <dbl>   <dbl>                <POLYGON [m]>
-#> 1     1      0     0  4.99e-5     0       1       1 ((3676911 589967.3, 3676931~
-#> 2     2      1     0  5.03e-5     0       2       2 ((3558044 696202.5, 3557972~
-#> 3     3      1     0  5.03e-5     0       3       3 ((3569169 687776.4, 3569146~
-#> 4     4      1     0  5.03e-5     0       2       2 ((3547317 685713.2, 3547363~
-#> 5     5      1     0  5.03e-5     0       3       3 ((3567471 684357.4, 3567380~
-#> 6     6      0     0  4.99e-5     0       4       4 ((3590569 672451.7, 3590090~
+#> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#> # A tibble: 6 × 8
+#>      id degree    eigen close   BWC cluster modules                     geometry
+#>   <int>  <dbl>    <dbl> <dbl> <dbl>   <dbl>   <dbl>                <POLYGON [m]>
+#> 1     1      0 0          NaN     0       1       1 ((3676911 589967.3, 3676931…
+#> 2     2      1 1.13e-16     1     0       2       2 ((3558044 696202.5, 3557972…
+#> 3     3      1 1.36e-16     1     0       3       3 ((3569169 687776.4, 3569146…
+#> 4     4      1 1.36e-16     1     0       2       2 ((3547317 685713.2, 3547363…
+#> 5     5      1 1.36e-16     1     0       3       3 ((3567471 684357.4, 3567380…
+#> 6     6      0 0          NaN     0       4       4 ((3590569 672451.7, 3590090…
 ```
 
 Examples:
@@ -399,19 +400,18 @@ Moreover, you can change distance using the distance
 
 Euclidean distances:
 
--   distance = list(type= “centroid”)
--   distance = list(type= “edge”)
+- distance = list(type= “centroid”)
+- distance = list(type= “edge”)
 
 Least cost distances:
 
--   distance = list(type= “least-cost”, resistance = “resistance
-    raster”)
--   distance = list(type= “commute-time”, resistance = “resistance
-    raster”)
+- distance = list(type= “least-cost”, resistance = “resistance raster”)
+- distance = list(type= “commute-time”, resistance = “resistance
+  raster”)
 
 ### Fragmentation statistics
 
-*‘MK\_Fragmentation()’* estimates fragmentation statistics at the
+*‘MK_Fragmentation()’* estimates fragmentation statistics at the
 landscape and patch level.
 
 Example:
@@ -436,9 +436,9 @@ Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distan
 
 <img src="man/figures/README-unnamed-chunk-16-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-16-2.png" width="60%" />
 
--   The results are presented as a list, the first result is called
-    *“Summary landscape metrics (Viewer Panel)”* and it has
-    fragmentation statistics at landscape level.
+- The results are presented as a list, the first result is called
+  *“Summary landscape metrics (Viewer Panel)”* and it has fragmentation
+  statistics at landscape level.
 
 ``` r
 class(Fragmentation_test)
@@ -487,7 +487,7 @@ Size (mean)
 </tr>
 <tr>
 <td style="text-align:left;">
-Patches &lt; minimum patch area
+Patches \< minimum patch area
 </td>
 <td style="text-align:center;">
 126.0000
@@ -495,7 +495,7 @@ Patches &lt; minimum patch area
 </tr>
 <tr>
 <td style="text-align:left;">
-Patches &lt; minimum patch area (%)
+Patches \< minimum patch area (%)
 </td>
 <td style="text-align:center;">
 30.8017
@@ -560,10 +560,10 @@ MESH (km2)
 </tbody>
 </table>
 
--   The second output *“Patch statistics shapefile”* is a shapefile with
-    patch level fragmentation statistics that can be saved using
-    write\_sf() from *‘sf’* package
-    (<https://cran.r-project.org/web/packages/sf/index.html>).
+- The second output *“Patch statistics shapefile”* is a shapefile with
+  patch level fragmentation statistics that can be saved using
+  write_sf() from *‘sf’* package
+  (<https://cran.r-project.org/web/packages/sf/index.html>).
 
 ``` r
 head(Fragmentation_test[[2]])
@@ -571,7 +571,7 @@ head(Fragmentation_test[[2]])
 #> Geometry type: POLYGON
 #> Dimension:     XY
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
-#> CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #>   id      Area        CA CAPercent Perimeter EdgePercent   PARA ShapeIndex
 #> 1  1 4195.5691 3541.3806   84.4076  1412.046     15.5924 2.9713  8212.7666
 #> 2  2   60.2227   11.9415   19.8289   167.982     80.1711 0.3585   117.0545
@@ -591,9 +591,9 @@ head(Fragmentation_test[[2]])
 <img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
 
 We can make a loop where we explore different edge depths. In the
-following example, We will explore 10 edge depths (*edge\_distance
+following example, We will explore 10 edge depths (*edge_distance
 argument*): 100, 200, 300, 400, 500, 600, 700, 800, 900 and 1000 meters.
-We will apply the *‘MK\_Fragmentation’* function using the previous
+We will apply the *‘MK_Fragmentation’* function using the previous
 distances and then, we will extract the core area percentage and edge
 percentage statistics. Finally, we will plot the average of the patch
 core area percentage and edge percentage (% core area + % edge = 100%).

@@ -37,6 +37,7 @@ A formal paper detailing this package is forthcoming, but until it is published,
 * Pre-install [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
 * Pre-install devtools (<code>install.packages("devtools")</code>) and
 remotes (<code>install.packages("remotes")</code>) packages. 
+* **It is recommended to install the R igraph package (>= 1.2.6) beforehand.**
 
 You can install the released version of Makurhini from [GitHub](https://github.com) with:
 
@@ -81,7 +82,7 @@ library(classInt)
 
 In the following example, we will calculate the connectivity of the protected areas network in four ecoregions of the Colombian Amazon  neighboring countries using the ProtConn indicator and its fractions. We considered a transboundary distance of 50 km.
 
-```{r echo=FALSE}
+```{r echo=FALSE, eval=FALSE}
 ecoregions <- read_sf("D:/Paper_Makurhini/Ejemplos/Ecoregiones_Colombia_amazonas.shp")
 Protected_areas <- read_sf("D:/Paper_Makurhini/Ejemplos/PAs_Colombia_amazonas.shp")
 ```

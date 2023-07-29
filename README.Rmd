@@ -1,11 +1,15 @@
 ---
 output: github_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/OscarGOGO/Makurhini?branch=master&svg=true)](https://ci.appveyor.com/project/OscarGOGO/Makurhini)
- 
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/OscarGOGO/Makurhini?branch=master&svg=true)](https://ci.appveyor.com/project/OscarGOGO/Makurhini)
 
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -18,35 +22,91 @@ knitr::opts_chunk$set(
   message=FALSE, warning=FALSE
 )
 ```
+
 # Makurhini: Analyzing landscape connectivity.
+
 ![](man/figures/LOGO_MAKHURINI.png)
 
+## NEWS
+
+- Thank you for using Makurhini. **We will have a new update in October, so stay tuned!**
 
 ## Overview
-<strong>Makurhini</strong> *(Connect in Purépecha language)* is an R package for calculating fragmentation and landscape connectivity indices used in conservation planning. Makurhini provides a set of functions to identify connectivity of protected areas networks and the importance of landscape elements for maintaining connectivity. This package allows the evaluation of scenarios under landscape connectivity changes and presents an additional improvement, the inclusion of landscape heterogeneity as a constraining factor for connectivity.
 
-The network connectivity indices calculated in Makurhini package have been previously published (e.g., Pascual-Hortal & Saura, 2006. *Landscape ecology*, https://doi.org/10.1007/s10980-006-0013-z; Saura & Pascual-Hortal, 2007. *Lanscape and urban planning*, https://doi.org/10.1016/j.landurbplan.2007.03.005; Saura & Rubio, 2010. *Ecography*, https://doi.org/10.1111/j.1600-0587.2009.05760.x; Saura et al., 2011. *Ecological indicators*, https://doi.org/10.1016/j.ecolind.2010.06.011; Saura et al., 2017. *Ecological indicators*, http://dx.doi.org/10.1016/j.ecolind.2016.12.047; Saura et al., 2018. *Biological conservation*, https://doi.org/10.1016/j.biocon.2017.12.020), and it allows the integration of efficient and useful workflow for landscape management and monitoring of global conservation targets.
+<strong>Makurhini</strong> *(Connect in Purépecha language)* is an R
+package for calculating fragmentation and landscape connectivity indices
+used in conservation planning. Makurhini provides a set of functions to
+identify connectivity of protected areas networks and the importance of
+landscape elements for maintaining connectivity. This package allows the
+evaluation of scenarios under landscape connectivity changes and
+presents an additional improvement, the inclusion of landscape
+heterogeneity as a constraining factor for connectivity.
+
+The network connectivity indices calculated in Makurhini package have
+been previously published (e.g., Pascual-Hortal & Saura, 2006.
+*Landscape ecology*, <https://doi.org/10.1007/s10980-006-0013-z>; Saura
+& Pascual-Hortal, 2007. *Lanscape and urban planning*,
+<https://doi.org/10.1016/j.landurbplan.2007.03.005>; Saura & Rubio,
+2010. *Ecography*, <https://doi.org/10.1111/j.1600-0587.2009.05760.x>;
+Saura et al., 2011. *Ecological indicators*,
+<https://doi.org/10.1016/j.ecolind.2010.06.011>; Saura et al., 2017.
+*Ecological indicators*,
+<http://dx.doi.org/10.1016/j.ecolind.2016.12.047>; Saura et al., 2018.
+*Biological conservation*,
+<https://doi.org/10.1016/j.biocon.2017.12.020>), and it allows the
+integration of efficient and useful workflow for landscape management
+and monitoring of global conservation targets.
 
 ### Citing Makurhini package
-A formal paper detailing this package is forthcoming, but until it is published, please use the something like the following to cite if you use it in your work:
 
-<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: Analyzing landscape connectivity. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3771605.svg)](https://doi.org/10.5281/zenodo.3771605) </code> </i>
+A formal paper detailing this package is forthcoming, but until it is
+published, please use the something like the following to cite if you
+use it in your work:
+
+<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini:
+Analyzing landscape connectivity.
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3771605.svg)](https://doi.org/10.5281/zenodo.3771605)
+</code> </i>
+
 
 ## Installation
-* Depends: R (> 4.0.0), igraph (>= 1.2.6)
-* Pre-install [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
-* Pre-install devtools (<code>install.packages("devtools")</code>) and
-remotes (<code>install.packages("remotes")</code>) packages. 
-* **It is recommended to install the R igraph package (>= 1.2.6) beforehand.**
 
-You can install the released version of Makurhini from [GitHub](https://github.com) with:
+-   Depends: R (\> 4.0.0), igraph (\>= 1.2.6)
+-   Pre-install
+    [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
+-   Pre-install devtools (<code>install.packages("devtools")</code>) and
+    remotes (<code>install.packages("remotes")</code>) packages.
+-   **It is recommended to install the R igraph package (\>= 1.2.6)
+    beforehand.**
+
+You can install the released version of Makurhini from
+[GitHub](https://github.com) with:
 
 ```{r echo=TRUE, eval=FALSE}
 library(devtools)
 library(remotes)
 install_github("connectscape/Makurhini", dependencies = TRUE, upgrade = "never")
 ```
-In case it does not appear in the list of packages, close the R session and reopen.
+
+In case it does not appear in the list of packages, close the R session
+and reopen.
+
+**If the following error occurs during installation**: 
+```{r eval=FALSE}
+Using github PAT
+from envvar GITHUB_PAT Error: Failed to install 'unknown package' from
+GitHub: HTTP error 401. Bad credentials
+
+```
+
+
+Then you can try the following: 
+
+```{r eval=FALSE}
+Sys.getenv("GITHUB_PAT")
+Sys.unsetenv("GITHUB_PAT")
+```
+
 
 ## Summary of main *Makurhini* functions
 
@@ -60,17 +120,23 @@ formattable(functions_MK,  align =c("l","l"), list(`Function` = formatter(
 ```
 
 ## Example
-This is a basic example which shows you how to solve some common problems:
 
-* [Protected Connected Land (ProtConn)]
-* [Equivalent Connectivity Area (ECA)]
-* [Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector)]
-* [Probability of connectivity (PC) and fractions (Intra, Flux and Connector)]
-* [Centrality measures] (e.g., betweenness centrality, node memberships, and modularity)
-* [Fragmentation statistics]
+This is a basic example which shows you how to solve some common
+problems:
 
+-   [Protected Connected Land
+    (ProtConn)](#protected-connected-land-protconn)
+-   [Equivalent Connectivity Area
+    (ECA)](#equivalent-connectivity-area-eca)
+-   [Integral index of connectivity (IIC) and fractions (Intra, Flux and
+    Connector)](#integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector)
+-   [Probability of connectivity (PC) and fractions (Intra, Flux and
+    Connector)](#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector)
+-   [Centrality measures] (e.g., betweenness centrality, node
+    memberships, and modularity)
+-   [Fragmentation statistics]
 
-### Protected Connected Land (ProtConn)
+### Protected Connected Land (ProtConn) {#protected-connected-land-protconn}
 
 ```{r echo=FALSE}
 library(Makurhini)
@@ -80,17 +146,17 @@ library(mapview)
 library(classInt)
 ```
 
-In the following example, we will calculate the connectivity of the protected areas network in four ecoregions of the Colombian Amazon  neighboring countries using the ProtConn indicator and its fractions. We considered a transboundary distance of 50 km.
+In the following example, we will calculate the connectivity of the
+protected areas network in four ecoregions of the Colombian Amazon
+neighboring countries using the ProtConn indicator and its fractions. We
+considered a transboundary distance of 50 km.
 
 ```{r echo=FALSE, eval=FALSE}
 ecoregions <- read_sf("D:/Paper_Makurhini/Ejemplos/Ecoregiones_Colombia_amazonas.shp")
 Protected_areas <- read_sf("D:/Paper_Makurhini/Ejemplos/PAs_Colombia_amazonas.shp")
 ```
 
-
 ![](man/figures/Example_PA_Eco.png)
-
-
 
 ```{r eval = FALSE}
 test_protconn <- MK_ProtConnMult(nodes = Protected_areas, 
@@ -107,17 +173,14 @@ test_protconn <- MK_ProtConnMult(nodes = Protected_areas,
 test_protconn[[1]][[1]]
 ```
 
-
 ![](man/figures/table_protconn.png)
 
+ProtConn value: ![](man/figures/protconn.png)
 
+### Equivalent Connectivity Area (ECA) {#equivalent-connectivity-area-eca}
 
-ProtConn value:
-![](man/figures/protconn.png)
-
-###  Equivalent Connectivity Area (ECA)
-
-Example in the Biosphere Reserve Mariposa Monarca, Mexico, with old-growth vegetation fragments of four times (?list_forest_patches).
+Example in the Biosphere Reserve Mariposa Monarca, Mexico, with
+old-growth vegetation fragments of four times (?list_forest_patches).
 
 ```{r eval=FALSE}
 data("list_forest_patches", package = "Makurhini")
@@ -138,27 +201,27 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
 dECA_test
 ```
 
-
 ECA table:
 
 ![](man/figures/table_eca.PNG)
-
-
-
-
 
 ECA plot:
 
 ![](man/figures/ECAplot.png)
 
-Another way to analyze the ECA (and ProtConn indicator) is by using the *'MK_Connect_grid()'* that estimates the index values on a grid. An example of its application is the following, on the Andean-Amazon Piedmont. The analysis was performed using a grid of hexagons each with an area of 10,000 ha and a forest/non-forest map to measure changes in Andean-Amazon connectivity.
+Another way to analyze the ECA (and ProtConn indicator) is by using the
+*'MK_Connect_grid()'* that estimates the index values on a grid. An
+example of its application is the following, on the Andean-Amazon
+Piedmont. The analysis was performed using a grid of hexagons each with
+an area of 10,000 ha and a forest/non-forest map to measure changes in
+Andean-Amazon connectivity.
 
 ![](man/figures/grid_example.png)
 
+### Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector) {#integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector}
 
-###  Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector)
-
-Example with 142 old-growth vegetation fragments in southeast Mexico (?vegetation_patches).
+Example with 142 old-growth vegetation fragments in southeast Mexico
+(?vegetation_patches).
 
 ```{r }
 data("vegetation_patches", package = "Makurhini")
@@ -190,8 +253,7 @@ dconect <- tm_shape(IIC) + tm_fill("dIICconnector", palette = RColorBrewer::brew
 tmap_arrange(diic, dintra, dflux, dconect)
 ```
 
-
-###  Probability of connectivity (PC) and fractions (Intra, Flux and Connector)
+### Probability of connectivity (PC) and fractions (Intra, Flux and Connector) {#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector}
 
 ```{r }
 PC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
@@ -221,7 +283,7 @@ dconect <-tm_shape(PC) + tm_fill("-log(dPCconnector)", palette = RColorBrewer::b
 tmap_arrange(diic, dintra, dflux, dconect)
 ```
 
-###  Centrality measures
+### Centrality measures
 
 ```{r }
 centrality_test <- MK_RMCentrality(nodes = vegetation_patches,
@@ -232,9 +294,7 @@ centrality_test <- MK_RMCentrality(nodes = vegetation_patches,
 head(centrality_test)
 ```
 
-
 Examples:
-
 
 ```{r echo=FALSE, out.width = "100%"}
 clustertest <- tm_shape(centrality_test) + tm_fill("cluster", palette = RColorBrewer::brewer.pal(c, "PuOr"), breaks =  classIntervals(centrality_test$cluster, c, "jenks")[[2]])+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
@@ -244,24 +304,25 @@ modules <- tm_shape(centrality_test) + tm_fill("modules", palette = RColorBrewer
 tmap_arrange(clustertest, modules)
 ```
 
-
-
-Moreover, you can change distance using the distance (<code>?distancefile</code>) argument:
+Moreover, you can change distance using the distance
+(<code>?distancefile</code>) argument:
 
 Euclidean distances:
 
-* distance = list(type= "centroid")
-* distance = list(type= "edge")
+-   distance = list(type= "centroid")
+-   distance = list(type= "edge")
 
 Least cost distances:
 
-* distance = list(type= "least-cost", resistance = "resistance raster")
-* distance = list(type= "commute-time", resistance = "resistance raster")
-
+-   distance = list(type= "least-cost", resistance = "resistance
+    raster")
+-   distance = list(type= "commute-time", resistance = "resistance
+    raster")
 
 ### Fragmentation statistics
 
-*'MK_Fragmentation()'* estimates fragmentation statistics at the landscape and patch level.
+*'MK_Fragmentation()'* estimates fragmentation statistics at the
+landscape and patch level.
 
 Example:
 
@@ -270,11 +331,10 @@ data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) # Number of patches
 ```
 
-
-To define the edge of the patches we can use, for example, a distance of 500 m from the limit of the patches.
+To define the edge of the patches we can use, for example, a distance of
+500 m from the limit of the patches.
 
 ![](man/figures/Imagen1.png)
-
 
 ```{r }
 Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500,
@@ -284,8 +344,9 @@ Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distan
 
 ```
 
-
-* The results are presented as a list, the first result is called *"Summary landscape metrics (Viewer Panel)"* and it has fragmentation statistics at landscape level.
+-   The results are presented as a list, the first result is called
+    *"Summary landscape metrics (Viewer Panel)"* and it has
+    fragmentation statistics at landscape level.
 
 ```{r }
 class(Fragmentation_test)
@@ -293,12 +354,14 @@ names(Fragmentation_test)
 Fragmentation_test$`Summary landscape metrics (Viewer Panel)`
 ```
 
-* The second output *"Patch statistics shapefile"* is a shapefile with patch level fragmentation statistics that can be saved using write_sf() from *'sf'* package (https://cran.r-project.org/web/packages/sf/index.html).
+-   The second output *"Patch statistics shapefile"* is a shapefile with
+    patch level fragmentation statistics that can be saved using
+    write_sf() from *'sf'* package
+    (<https://cran.r-project.org/web/packages/sf/index.html>).
 
 ```{r }
 head(Fragmentation_test[[2]])
 ```
-
 
 ```{r echo=FALSE, out.width = "100%"}
 library(classInt)
@@ -324,8 +387,13 @@ Frac <- tm_shape(Fragmentation_test[[2]]) + tm_fill("FRAC", palette = rev(RColor
 tmap_arrange(CAP, Per, SH, Frac)
 ```
 
-
-We can make a loop where we explore different edge depths. In the following example, We will explore 10 edge depths (*edge_distance argument*): 100, 200, 300, 400, 500, 600, 700, 800, 900 and 1000 meters. We will apply the *'MK_Fragmentation'* function using the previous distances and then, we will extract the core area percentage and edge percentage statistics. Finally, we will plot the average of the patch core area percentage and edge percentage (% core area + % edge = 100%). 
+We can make a loop where we explore different edge depths. In the
+following example, We will explore 10 edge depths (*edge_distance
+argument*): 100, 200, 300, 400, 500, 600, 700, 800, 900 and 1000 meters.
+We will apply the *'MK_Fragmentation'* function using the previous
+distances and then, we will extract the core area percentage and edge
+percentage statistics. Finally, we will plot the average of the patch
+core area percentage and edge percentage (% core area + % edge = 100%).
 
 ```{r echo=FALSE}
 library(purrr)
@@ -342,7 +410,6 @@ Fragmentation_test.2 <- map_dfr(seq(100, 1000, 100), function(x){
 head(Fragmentation_test.2)
 ```
 
-
 ```{r echo=FALSE}
 library(ggplot2)
 ggplot(Fragmentation_test.2, aes(x = Edge.distance, y = Percentage, group = Type)) +
@@ -354,12 +421,12 @@ ggplot(Fragmentation_test.2, aes(x = Edge.distance, y = Percentage, group = Type
   theme_classic()
 ```
 
+The average core area percentage (average patch area that has the least
+possible edge effect) for all patches decreases by more than 70% when
+considering an edge effect with an edge depth distance of 1 km.
 
-The average core area percentage (average patch area that has the least possible edge effect) for all patches decreases by more than 70% when considering an edge effect with an edge depth distance of 1 km.
-
-
- |Edge depth distance (m) | Core Area (%)|
- |------------------------|:-----------:|
- |100                     | 83.5%       |
- |500                     | 34.14%      |
- |1000                    | 9.78%       |
+| Edge depth distance (m) | Core Area (%) |
+|-------------------------|:-------------:|
+| 100                     |     83.5%     |
+| 500                     |    34.14%     |
+| 1000                    |     9.78%     |

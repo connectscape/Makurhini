@@ -38,7 +38,6 @@ Imports:
     furrr,
     magrittr,
     gdistance (>= 1.3.6),
-    rgeos,
     data.table,
     formattable,
     spex,

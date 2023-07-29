@@ -73,11 +73,12 @@
 #' @importFrom utils txtProgressBar setTxtProgressBar write.csv
 #' @importFrom purrr map_dbl
 #' @importFrom raster as.matrix extent raster stack extent<- writeRaster reclassify crs crs<- unique
-#' @importFrom future multiprocess plan availableCores
-#' @importFrom furrr future_map future_map_dfc future_map_dbl
+#' @importFrom future multicore multisession plan availableCores
+#' @importFrom furrr future_map future_map_dbl
 #' @importFrom igraph graph.adjacency shortest.paths E as_ids V
 #' @importFrom sf write_sf st_as_sf st_zm
 #' @importFrom magrittr %>%
+#' @importFrom stats median
 MK_dPCIIC <- function(nodes, attribute  = NULL,
                       area_unit = "m2", restoration = NULL,
                       distance = list(type= "centroid", resistance = NULL),
@@ -302,7 +303,12 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
       } else {
         if(!is.null(parallel)){
           works <- as.numeric(availableCores())-1;works <- if(parallel > works){works}else{parallel}
-          plan(strategy = multiprocess, gc = TRUE, workers = works)
+          if(.Platform$OS.type == "unix") {
+            strat <- future::multicore
+          } else {
+            strat <- future::multisession
+          }
+          plan(strategy = strat, gc = TRUE, workers = works)
           delta <- future_map_dbl(1:nrow(attribute_1), function(i){
             dist.i <- dist[-i,-i]; attribute.i <- attribute_2[-i]
             mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
@@ -438,7 +444,12 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
             m <- matrix(nrow = nrow(attribute_1), ncol = 2); m[,1] <- attribute_1[,1]
 
             works <- as.numeric(availableCores())-1; works <-  if(rasterparallel > works){works}else{rasterparallel}
-            plan(strategy = multiprocess, gc = TRUE, workers = works)
+            if(.Platform$OS.type == "unix") {
+              strat <- future::multicore
+            } else {
+              strat <- future::multisession
+            }
+            plan(strategy = strat, gc = TRUE, workers = works)
 
             r_metric <- tryCatch(future_map(2:ncol(metric_conn), function(c){
               x1 <- metric_conn[,c(1, c)]

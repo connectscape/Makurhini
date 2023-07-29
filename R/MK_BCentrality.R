@@ -69,7 +69,7 @@
 #' @importFrom crayon bgWhite white bgCyan
 #' @importFrom utils write.table
 #' @importFrom raster values as.matrix extent raster stack extent<- writeRaster reclassify crs crs<-
-#' @importFrom future multiprocess plan availableCores
+#' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map
 #' @importFrom purrr walk
 #' @importFrom magrittr %>%
@@ -236,7 +236,12 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
           m <- matrix(nrow = nrow(datat), ncol = 2); m[,1] <- datat[,1]
           if(isTRUE(rasterparallel)){
             works <- as.numeric(availableCores())-1
-            plan(strategy = multiprocess, gc=TRUE, workers = works)
+            if(.Platform$OS.type == "unix") {
+              strat <- future::multicore
+            } else {
+              strat <- future::multisession
+            }
+            plan(strategy = strat, gc=TRUE, workers = works)
             r_metric <- tryCatch(future_map(2:ncol(datat), function(c){
               x1 <- datat[,c(1, c)]
               for(i in rp){
@@ -276,7 +281,12 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
       }), error = function(err) err)
   } else {
     works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
-    plan(strategy = multiprocess, gc = TRUE, workers = works)
+    if(.Platform$OS.type == "unix") {
+      strat <- future::multicore
+    } else {
+      strat <- future::multisession
+    }
+    plan(strategy = strat, gc = TRUE, workers = works)
     BC_metric <- tryCatch(future_map(loop, function(x) {
       x <- distance_thresholds[x]
 

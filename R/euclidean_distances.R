@@ -17,7 +17,7 @@
 #' @importFrom rmapshaper ms_simplify
 #' @importFrom methods as
 #' @importFrom utils combn write.table
-#' @importFrom future multiprocess plan availableCores
+#' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map
 #' @export
 euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
@@ -75,7 +75,14 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
       rm(r,i,ii,j)
 
       works <- as.numeric(availableCores())-1
-      plan(strategy = multiprocess, gc = TRUE, workers = works)
+
+      if(.Platform$OS.type == "unix") {
+        strat <- future::multicore
+      } else {
+        strat <- future::multisession
+      }
+
+      plan(strategy = strat, gc = TRUE, workers = works)
       distance <- tryCatch(future_map(x2, function(d){
         if(!is.null(keep)){
           d.1 <- tryCatch(ms_simplify(input = d, keep = keep, keep_shapes = TRUE, explode = FALSE),

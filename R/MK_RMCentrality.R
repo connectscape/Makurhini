@@ -46,7 +46,7 @@
 #' @importFrom sf write_sf st_as_sf
 #' @importFrom igraph graph.adjacency strength evcent closeness betweenness clusters cluster_louvain degree
 #' @importFrom raster as.matrix extent raster stack extent<- writeRaster reclassify crs crs<- unique
-#' @importFrom future multiprocess plan availableCores
+#' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map
 MK_RMCentrality <- function(nodes,
                             distance = list(type = "centroid"),
@@ -213,11 +213,14 @@ MK_RMCentrality <- function(nodes,
       rp <- rp[which(!is.na(rp))]
 
       if(isTRUE(rasterparallel)){
-        m <- matrix(nrow = nrow(dist), ncol = 2)
-        m[,1] <- rownames(dist) %>% as.numeric()
-
+        m <- matrix(nrow = nrow(dist), ncol = 2); m[,1] <- rownames(dist) %>% as.numeric()
         works <- as.numeric(availableCores())-1
-        plan(strategy = multiprocess, gc = TRUE, workers = works)
+        if(.Platform$OS.type == "unix") {
+          strat <- future::multicore
+        } else {
+          strat <- future::multisession
+        }
+        plan(strategy = strat, gc = TRUE, workers = works)
         r_metric <- tryCatch(future_map(2:ncol(metric_conn), function(c){
           x1 <- metric_conn[, c(1, c)]
           for(i in rp){

@@ -59,7 +59,7 @@
 #'}
 #'
 #' @importFrom sf st_as_sf st_area st_intersection
-#' @importFrom future plan multiprocess availableCores
+#' @importFrom future plan multicore multisession availableCores
 #' @importFrom furrr future_map_dfr
 #' @importFrom progressr handlers handler_pbcol progressor
 #' @importFrom crayon bgWhite white bgCyan
@@ -140,9 +140,13 @@ MK_dECA_grid <- function(nodes,
   }
 
   if (!is.null(parallel)){
-    works <- as.numeric(availableCores())-1
-    works <- if(parallel > works){works}else{parallel}
-    plan(strategy = multiprocess, gc = TRUE, workers = works)
+    works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
+    if(.Platform$OS.type == "unix") {
+      strat <- future::multicore
+    } else {
+      strat <- future::multisession
+    }
+    plan(strategy = strat, gc = TRUE, workers = works)
 
     nodes <- future_map(nodes, function(x){
       if(class(x)[[1]] == "SpatialPolygonsDataFrame"){

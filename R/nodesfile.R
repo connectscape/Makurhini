@@ -18,9 +18,8 @@
 #' @param write character. Output folder path if you use the name option, otherwise, place the output path, with the name and extension ".txt"
 #' @return nodo file in .txt format
 #' @export
-#' @importFrom raster res
+#' @importFrom raster res area
 #' @importFrom sf st_zm st_as_sf
-#' @importFrom rgeos gArea
 #' @importFrom methods as
 #' @importFrom utils write.table
 nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2",
@@ -45,17 +44,13 @@ nodesfile <- function(nodes, id, attribute = NULL, area_unit = "m2",
     }
 
     if(class(nodes)[1] == "sf") {
-      nodes <- st_zm(nodes)
-      nodes <- as(nodes, 'Spatial')
+      nodes <- st_zm(nodes); nodes <- as(nodes, 'Spatial')
     } else {
-      nodes <- st_as_sf(nodes)
-      nodes <- st_zm(nodes)
-      nodes <- as(nodes, 'Spatial')
+      nodes <- st_as_sf(nodes); nodes <- st_zm(nodes); nodes <- as(nodes, 'Spatial')
     }
 
     if (is.null(attribute)) {
-      nodes$Area <- gArea(nodes, byid = TRUE)
-      attribute <- "Area"
+      nodes$Area <- raster::area(nodes, byid = TRUE); attribute <- "Area"
       if (area_unit != "m2"){
         nodes$Area <- unit_convert(nodes$Area, "m2", area_unit)
       }

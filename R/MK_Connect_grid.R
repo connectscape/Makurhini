@@ -61,10 +61,9 @@
 #' @importFrom magrittr %>%
 #' @importFrom raster crop raster
 #' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_convex_hull
-#' @importFrom future plan multiprocess availableCores
+#' @importFrom future plan multicore multisession availableCores
 #' @importFrom furrr future_map_dfr
-#' @importFrom progressr handlers handler_pbcol progressor
-#' @importFrom crayon bgWhite white bgCyan
+#' @importFrom utils txtProgressBar setTxtProgressBar
 #' @importFrom purrr map_df
 #' @importFrom methods as
 
@@ -146,23 +145,20 @@ MK_Connect_grid <- function(nodes,
   if (isTRUE(protconn)) {
     if (isTRUE(intern)) {
       message("Step 3. Processing ProtConn metric on the grid. Progress estimated:")
-      handlers(global = T)
-      handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
-                             incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                             intrusiveness = 2))
-      pb <- progressor(along = loop)
+      pb <- txtProgressBar(0,length(loop), style = 3)
     } else {
       message("Step 3. Processing ProtConn metric on the grid")
     }
 
     if (!is.null(parallel)){
-      works <- as.numeric(availableCores())-1
-      works <-  if(parallel > works){works}else{parallel}
-      plan(strategy = multiprocess, gc = TRUE, workers = works)
+      works <- as.numeric(availableCores())-1; works <-  if(parallel > works){works}else{parallel}
+      if(.Platform$OS.type == "unix") {
+        strat <- future::multicore
+      } else {
+        strat <- future::multisession
+      }
+      plan(strategy = strat, gc = TRUE, workers = works)
       result_1 <- tryCatch(future_map_dfr(loop, function(x){
-        if (isTRUE(intern)) {
-          pb()
-        }
 
         LA <- st_area(base_param4[[3]]@grid[x,]) %>%
           unit_convert(., "m2", base_param4[[1]]@area_unit)
@@ -252,7 +248,7 @@ MK_Connect_grid <- function(nodes,
     } else {
       result_1 <- tryCatch(map_df(loop, function(x) {
         if (isTRUE(intern)) {
-          pb()
+          setTxtProgressBar(pb, x)
         }
 
         LA <- st_area(base_param4[[3]]@grid[x,]) %>%
@@ -345,24 +341,20 @@ MK_Connect_grid <- function(nodes,
   } else {
     if (isTRUE(intern)) {
       message("Step 3. Processing PC and ECA metrics on the grid. Progress estimated:")
-      handlers(global = T)
-      handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
-                             incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                             intrusiveness = 2))
-      pb <- progressor(along = loop)
+      pb <- txtProgressBar(0,length(loop), style = 3)
     } else {
       message("Step 3. Processing PC and ECA metrics on the grid")
     }
 
     if (!is.null(parallel)) {
-      works <- as.numeric(availableCores())-1
-      works <-  if(parallel > works){works}else{parallel}
-      plan(strategy = multiprocess, gc = TRUE, workers = works)
+      works <- as.numeric(availableCores())-1; works <-  if(parallel > works){works}else{parallel}
+      if(.Platform$OS.type == "unix") {
+        strat <- future::multicore
+      } else {
+        strat <- future::multisession
+      }
+      plan(strategy = strat, gc = TRUE, workers = works)
       result_1 <- tryCatch(future_map_dfr(loop, function(x) {
-        if (isTRUE(intern)) {
-          pb()
-        }
-
         LA <- st_area(base_param4[[3]]@grid[x,])
         LA <- unit_convert(LA, "m2", base_param4[[1]]@area_unit)
 
@@ -430,7 +422,7 @@ MK_Connect_grid <- function(nodes,
     } else {
       result_1 <- tryCatch(map_df(loop, function(x) {
         if (isTRUE(intern)) {
-          pb()
+          setTxtProgressBar(pb, x)
         }
 
         LA <- st_area(base_param4[[3]]@grid[x,]) %>%

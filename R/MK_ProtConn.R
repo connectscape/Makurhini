@@ -80,7 +80,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom raster raster crop
 #' @importFrom purrr compact map
-#' @importFrom future plan multiprocess availableCores
+#' @importFrom future plan multicore multisession availableCores
 #' @importFrom furrr future_map
 #' @importFrom formattable formattable formatter style color_tile as.htmlwidget
 #' @importFrom methods as
@@ -338,8 +338,7 @@ MK_ProtConn <- function(nodes,
         }
         return(result_lista)
       })
-    }
-    else if(is.numeric(base_param3[[3]])) { #Just exist only one node in the region
+    } else if(is.numeric(base_param3[[3]])) { #Just exist only one node in the region
       nodes.2 <- base_param3[[3]]
 
       if (isTRUE(intern) & length(base_param3[[2]]@transboundary) == 1 &
@@ -551,6 +550,7 @@ MK_ProtConn <- function(nodes,
       p <- progressor(along = xs)
     }
     if(is.null(parallel)){
+      #x=1
       y <- lapply(xs, function(x){
         x.1 <- ProtConn_Estimation(base_param3, n = base_param3[[2]]@transboundary[x],
                                    write = write, intern = intern)
@@ -560,9 +560,13 @@ MK_ProtConn <- function(nodes,
         return(x.1)
       })
     } else {
-      works <- as.numeric(availableCores())-1
-      works <-  if(parallel > works){works}else{parallel}
-      plan(strategy = multiprocess, gc = TRUE, workers = works)
+      works <- as.numeric(availableCores())-1; works <-  if(parallel > works){works}else{parallel}
+      if(.Platform$OS.type == "unix") {
+        strat <- future::multicore
+      } else {
+        strat <- future::multisession
+      }
+      plan(strategy = strat, gc = TRUE, workers = works)
       y <- tryCatch(future_map(xs, function(x){
         x.1 <- ProtConn_Estimation(base_param3, n = base_param3[[2]]@transboundary[x],
                                    write = write)

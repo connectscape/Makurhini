@@ -18,8 +18,6 @@
 #' @param delta logical. Estimate the contribution of each node to the ProtConn value in the region.
 #' @param plot logical. Plot the main ProtConn indicators and fractions, default = FALSE.
 #' @param write character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".
-#' @param parallel numeric. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
-#' plan when there are more than ONE transboundary.
 #' @param aggregate_raster numeric.Use this parameter if you work with small high-resolution raster (e.g., less than 150 m) or with very large extents. The value of this parameter is used to resample the raster region, perform buffering and speed up the process of transboundary node selection.
 #' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @return
@@ -54,8 +52,6 @@
 #' @importFrom magrittr %>%
 #' @importFrom raster raster crop buffer clump res res<-
 #' @importFrom purrr compact map
-#' @importFrom future plan multiprocess availableCores
-#' @importFrom furrr future_map
 #' @importFrom formattable formattable formatter style color_tile as.htmlwidget
 #' @importFrom methods as
 #' @importFrom progressr handlers handler_pbcol progressor
@@ -74,7 +70,6 @@ MK_ProtConn_raster <- function(nodes,
                                delta = FALSE,
                                plot = FALSE,
                                write = NULL,
-                               parallel = NULL,
                                aggregate_raster = NULL,
                                intern = TRUE){
   options(warn = -1)

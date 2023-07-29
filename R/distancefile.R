@@ -54,7 +54,7 @@
 #' @importFrom sf st_as_sf st_union st_sf
 #' @importFrom methods as
 #' @importFrom purrr map
-#' @importFrom future multiprocess plan availableCores
+#' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map
 #' @importFrom rmapshaper ms_dissolve
 #' @importFrom spex qm_rasterToPolygons
@@ -122,7 +122,14 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
       rp <- rp[which(!is.na(rp))]
       rp <- split(rp, ceiling(seq_along(rp)/round(sqrt(max(rp)))))
       works <- as.numeric(availableCores())-1
-      plan(strategy = multiprocess, gc = TRUE, workers = works)
+
+      if(.Platform$OS.type == "unix") {
+        strat <- future::multicore
+      } else {
+        strat <- future::multisession
+      }
+
+      plan(strategy = strat, gc = TRUE, workers = works)
 
       if(type == "centroid"){
         cr <- crs(nodes)

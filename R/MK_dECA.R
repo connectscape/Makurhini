@@ -80,7 +80,7 @@
 #' @importFrom formattable formattable color_bar proportion formatter percent style
 #' @importFrom ggplot2 ggplot geom_bar aes geom_text theme element_blank element_text labs ggtitle scale_fill_manual element_line ggsave
 #' @importFrom utils write.csv txtProgressBar setTxtProgressBar installed.packages
-#' @importFrom future multiprocess plan availableCores
+#' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map
 
 MK_dECA <- function(nodes,
@@ -240,7 +240,12 @@ MK_dECA <- function(nodes,
     }), error = function(err) err)
   } else {
     works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
-    plan(strategy = multiprocess, gc = TRUE, workers = works)
+    if(.Platform$OS.type == "unix") {
+      strat <- future::multicore
+    } else {
+      strat <- future::multisession
+    }
+    plan(strategy = strat, gc = TRUE, workers = works)
     ECA <- tryCatch(future_map(1:length(listT), function(x) {
       x.1 <- listT[[x]]
 

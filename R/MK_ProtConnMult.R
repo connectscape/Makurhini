@@ -56,7 +56,7 @@
 #' @importFrom sf st_as_sf st_zm st_geometry st_geometry<- write_sf
 #' @importFrom progressr handlers handler_pbcol progressor
 #' @importFrom crayon bgWhite white bgCyan
-#' @importFrom future multiprocess plan availableCores
+#' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map future_map_dfr
 #' @importFrom formattable color_tile area style formattable formatter
 #' @importFrom utils write.csv
@@ -130,6 +130,7 @@ MK_ProtConnMult <- function(nodes, regions,
 
 
   if(is.null(parallel)){
+    x=2
     protconn_result <- tryCatch(lapply(loop, function(x){
       Ecoreg_sel <- regions[x,]
 
@@ -211,9 +212,13 @@ MK_ProtConnMult <- function(nodes, regions,
     }
 
   } else {
-    works <- as.numeric(availableCores())-1
-    works <- if(parallel > works){works}else{parallel}
-    plan(strategy = multiprocess, gc = TRUE, workers = works)
+    works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
+    if(.Platform$OS.type == "unix") {
+      strat <- future::multicore
+    } else {
+      strat <- future::multisession
+    }
+    plan(strategy = strat, gc = TRUE, workers = works)
     protconn_result <- tryCatch(future_map(loop, function(x){
       if (isTRUE(intern)){
         pb()
@@ -371,7 +376,7 @@ MK_ProtConnMult <- function(nodes, regions,
       DataProtconn <- formattable(x.4[3:nrow(x.4),], align = c("l", rep("r", NCOL(x.4) - 1)),
                                   list(`ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
                                        `Values (%)` = color_tile("white", "#F88B13"),
-                                       area(col = 3:4) ~ color_tile("white", "#CE5D9B")))
+                                       formattable::area(col = 3:4) ~ color_tile("white", "#CE5D9B")))
     } else {
       row.names(x.4) <- NULL
       DataProtconn <- formattable(x.4[3:nrow(x.4),], align = c("l", rep("r", NCOL(x.4) - 1)),

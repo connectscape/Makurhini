@@ -39,7 +39,7 @@
 #' @importFrom methods as new
 #' @importFrom stats na.omit
 #' @importFrom utils combn write.table
-#' @importFrom future multiprocess plan availableCores
+#' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map
 #' @importFrom graph4lg mat_cost_dist
 #' @importFrom magrittr %>%
@@ -255,7 +255,14 @@ cost_distances <- function(x, id,
       colnames(voronoi_adj) <- x[[id]]; rownames(voronoi_adj) <- x[[id]]
 
       works <- as.numeric(availableCores())/2
-      plan(strategy = multiprocess, gc = TRUE, workers = works)
+
+      if(.Platform$OS.type == "unix") {
+        strat <- future::multicore
+      } else {
+        strat <- future::multisession
+      }
+
+      plan(strategy = strat, gc = TRUE, workers = works)
 
       distance <- tryCatch(future_map(as.list(colnames(voronoi_adj)), function(i){
         foc_adj <- rbind(x[which(x[[id]] == i),],

@@ -11,7 +11,7 @@
 #' @param G2 numeric
 #' @param intern logical
 #' @importFrom utils txtProgressBar setTxtProgressBar write.csv
-#' @importFrom future multiprocess plan availableCores
+#' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map
 #' @importFrom igraph graph.adjacency shortest.paths E as_ids V
 #' @importFrom magrittr %>%
@@ -49,7 +49,14 @@ get_sdist <- function(dist_nodes = NULL,
 
       if(!is.null(parallel)){
         works <- as.numeric(availableCores())-1;works <- if(parallel > works){works}else{parallel}
-        plan(strategy = multiprocess, gc = TRUE, workers = works)
+
+        if(.Platform$OS.type == "unix") {
+          strat <- future::multicore
+        } else {
+          strat <- future::multisession
+        }
+
+        plan(strategy = strat, gc = TRUE, workers = works)
 
         smat <- future_map(seq_n, function(y){
           toV.i <- toV[y:(y + G1-1)];y.1 <- shortest.paths(graph_nodes,
@@ -124,7 +131,14 @@ get_sdist <- function(dist_nodes = NULL,
         })
       } else {
         works <- as.numeric(availableCores())-1;works <- if(parallel > works){works}else{parallel}
-        plan(strategy = multiprocess, gc = TRUE, workers = works)
+
+        if(.Platform$OS.type == "unix") {
+          strat <- future::multicore
+        } else {
+          strat <- future::multisession
+        }
+
+        plan(strategy = strat, gc = TRUE, workers = works)
 
         smat <- future_map(seq_n, function(y){
           toV.i <- toV[y:(y + G2-1)];y.1 <- get_distance_matrix(Graph = graph_nodes,

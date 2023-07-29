@@ -11,16 +11,15 @@
 #' @param delta logical
 #' @importFrom sf st_as_sf st_buffer st_difference st_area st_geometry st_transform st_crs st_drop_geometry
 #' @importFrom magrittr %>%
-#' @importFrom sp disaggregate
 #' @importFrom terra vect intersect na.omit aggregate buffer
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_explode
 #' @importFrom purrr map_dfr
 #' @keywords internal
+#"' @importFrom sp disaggregate"
 Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALSE,
                            metrunit = "ha", protconn = TRUE, protconn_bound = FALSE,
                            delta = FALSE){
-  options(warn = -1)
-  . = NULL
+  options(warn = -1); . = NULL
 
   x$id <- 1; x <- x[,"id"]
 
@@ -33,7 +32,6 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
       if(isTRUE(protconn_bound)){
         x.0 <- ms_explode(x)
       }
-
       x.1 <- x
     }
 
@@ -48,17 +46,18 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
       f1 <- terra::intersect(vect(y.1[,c("IdTemp", "id",  "geometry")]), vect(x.1[, "geometry"])) %>%
          terra::na.omit(., geom = TRUE)
 
+      # f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 0) %>%
+      #                  st_as_sf(.) %>% as(., 'Spatial') %>%
+      #                  sp::disaggregate(.) %>%
+      #                  st_as_sf(), error = function(err)err)
+
       f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 0) %>%
-                       as(., 'Spatial') %>%
-                       sp::disaggregate(.) %>%
-                       st_as_sf(), error = function(err)err)
+                       st_as_sf(.) %>% ms_explode(.), error = function(err)err)
 
       if(inherits(f2, "error")){
         f1 <- terra::buffer(f1, 0)
         f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 1) %>%
-                         as(., 'Spatial') %>%
-                         sp::disaggregate(.) %>%
-                         st_as_sf(), error = function(err)err)
+                         st_as_sf(.) %>% ms_explode(.), error = function(err)err)
       }
 
       f2 <- f2[,"geometry"]
@@ -94,18 +93,18 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
             }
 
             if(nrow(f5) >= 1){
+              # f5$id <- 1; f5_test <- tryCatch(terra::aggregate(vect(f5), "id") %>% terra::buffer(., 0) %>%
+              #                  st_as_sf(.) %>% as(., 'Spatial') %>%
+              #                  sp::disaggregate(.) %>%
+              #                  st_as_sf(), error = function(err)err)
               f5$id <- 1; f5_test <- tryCatch(terra::aggregate(vect(f5), "id") %>% terra::buffer(., 0) %>%
-                               as(., 'Spatial') %>%
-                               sp::disaggregate(.) %>%
-                               st_as_sf(), error = function(err)err)
+                                                st_as_sf(.) %>% ms_explode(.), error = function(err)err)
 
               if(inherits(f5_test, "error")){
                 f5$id <- 1; f5 <- tryCatch(terra::buffer(vect(f5), 0) %>%
                              terra::aggregate(., "id") %>%
                              terra::buffer(., 1) %>%
-                             as(., 'Spatial') %>%
-                             sp::disaggregate(.) %>%
-                             st_as_sf(), error = function(err)err)
+                             st_as_sf(.) %>% ms_explode(.), error = function(err)err)
               } else {
                 f5 <- f5_test
               }
@@ -138,11 +137,11 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
           f6$OBJECTID<- 1:nrow(f6); f6 <- f6[,c("OBJECTID", "type", "attribute")]
 
           #N2
-          f1b <- tryCatch(as(f1, 'Spatial') %>% sp::disaggregate(.) %>% st_as_sf(.), error = function(err)err)
+          f1b <- tryCatch(as(f1, 'Spatial') %>% st_as_sf(.) %>% ms_explode(.), error = function(err)err)
 
           if(inherits(f1b, "error")){
             f1b <- map_dfr(1:nrow(f1), function(i){
-              i.1 <- as(f1[i,], 'Spatial') %>% sp::disaggregate(.) %>% st_as_sf(.)
+              i.1 <- as(f1[i,], 'Spatial') %>% st_as_sf(.) %>% ms_explode()
               return(i.1)
             })
           }

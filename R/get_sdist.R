@@ -155,12 +155,13 @@ get_sdist <- function(dist_nodes = NULL,
     }
 
     if(metric == "IIC"){
-      correg1 <- smat * 0; correg1[correg < distance_threshold] <- 1; smat[which(correg1 == 0)] <- Inf
+      correg1 <- smat * 0; correg1[correg < distance_threshold] <- 1
+      smat[which(correg1 == 0)] <- Inf; diag(smat) <- 0
     }
   }
 
-  if(metric == "PC"){ smat <- exp(-smat)}; smat[is.infinite(smat)] <- 1000
-
+  if(metric == "PC"){ smat <- exp(-smat); smat[is.infinite(smat)] <- 0} else {smat[is.infinite(smat)] <- 0.0000001}
+  invisible(gc())
   return(smat)
 }
 

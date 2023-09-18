@@ -6,12 +6,13 @@
 #' @importFrom ps ps
 #' @importFrom future sequential
 close_multiprocess <- function(w){
-  w <- as.numeric(w)
-  a <- ps::ps()
-  a <- a[which(a$name =="Rscript.exe"),1]
+  if(missing(w) | !missing(w)){
+    a <- ps::ps()
+    a <- a[which(a$name =="Rscript.exe"),1]
 
-  for(i in a){
-    tools::pskill(i)
+    for(i in a){
+      tools::pskill(i)
+    }
+    future::sequential()
   }
-  future::sequential()
 }

@@ -18,7 +18,6 @@ MK_ProtConn_raster(
   delta = FALSE,
   plot = FALSE,
   write = NULL,
-  parallel = NULL,
   aggregate_raster = NULL,
   intern = TRUE
 )

@@ -6,7 +6,7 @@
 \usage{
 nodesfile(
   nodes,
-  id,
+  id = NULL,
   attribute = NULL,
   area_unit = "m2",
   restoration = NULL,
@@ -20,8 +20,8 @@ nodesfile(
 in the shapefile data table. If nodes is a raster layer then raster values (Integer) will be taken as "id".}
 
 \item{attribute}{character or vector. If nodes is a shappefile then you must specify the column name
-with the attribute in the data table selected for the nodes. If nodes is a raster layer then it must be
-a numeric vector with the node's attribute. The length of the vector must be equal to the number of nodes.
+with the attribute in the data table selected for the nodes.
+If nodes is a raster layer then it must be a numeric vector with the node's attribute. The length of the vector must be equal to the number of nodes.
  The numeric vector is multiplied by the area of each node to obtain a weighted habitat index.
  If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.}
 

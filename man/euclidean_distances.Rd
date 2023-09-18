@@ -12,6 +12,7 @@ euclidean_distances(
   keep = NULL,
   threshold = NULL,
   edgeParallel = FALSE,
+  ActiveParallel = FALSE,
   pairwise = TRUE,
   write_table = NULL
 )
@@ -26,12 +27,14 @@ euclidean_distances(
 \item{distance_unit}{character. Set a distance unit, "Makurhini::unit_covert()" compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".}
 
 \item{keep}{numeric. Argument for higher processing speed. Only is available for "edge" distance or centroid equal FALSE, use this option to simplify the geometry and reduce the
-number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default 0.02). The higher the value,
+number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (e.g., 0.02). The higher the value,
  the higher the speed but the greater uncertainty.}
 
 \item{threshold}{numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.}
 
-\item{edgeParallel}{logical. Only is available for "edge" distance or centroid equal FALSE, use this option to parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.}
+\item{edgeParallel}{logical or numeric. Only is available for "edge" distance or centroid equal FALSE, use this option to parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.}
+
+\item{ActiveParallel}{logical. It should be TRUE if there is already an open parallelization plan.}
 
 \item{pairwise}{logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.}
 

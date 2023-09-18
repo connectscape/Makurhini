@@ -33,8 +33,9 @@
 #' these spatial geometries and with this numeric value will be added to the resistance, so that it is possible to
 #' calculate a cost distance value for the pairs of nodes that involve these geometries and avoid an error.
 #' If NULL, then a Euclidean distance (centroid) will be calculated to find these distances.
-#' @param parallel logical. If nodes is a raster then you can use this argument for larges RasterLayer.
+#' @param parallel logical or numerical. If nodes is a raster then you can use this argument for larges RasterLayer.
 #' @param edgeParallel logical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.
+#' @param ActiveParallel logical. It should be TRUE if there is already an open parallelization plan.
 #' @param bounding_circles numeric. If a value is entered, this will create bounding circles around pairs of core areas
 #'  (recommended for speed, large resistance rasters or pixel resolution < 150 m).
 #'  Buffer distances are entered in map units. Also, the function is parallelized using
@@ -53,18 +54,16 @@
 #' @export
 #' @importFrom sf st_as_sf st_union st_sf
 #' @importFrom methods as
-#' @importFrom purrr map
+#' @importFrom purrr map_dfr
 #' @importFrom future multicore multisession plan availableCores
-#' @importFrom furrr future_map
-#' @importFrom rmapshaper ms_dissolve
-#' @importFrom spex qm_rasterToPolygons
-#' @importFrom raster rasterToPoints crs values raster
-#' @importFrom magrittr %>%
+#' @importFrom furrr future_map_dfr
+#' @importFrom terra rast minmax as.polygons unique subst
+#' @importFrom raster rasterToPoints crs raster
 distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, keep = NULL,
                          resistance = NULL, resist.units = FALSE,
                          CostFun = NULL, ngh = NULL, mask = NULL,
                          threshold = NULL, geometry_out = NULL, bounding_circles = NULL,
-                         parallel = FALSE, edgeParallel = FALSE,
+                         parallel = FALSE, edgeParallel = FALSE, ActiveParallel = FALSE,
                          least_cost.java = FALSE,
                          cores.java = 1, ram.java = NULL,
                          pairwise = TRUE,
@@ -98,6 +97,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
     }
 
     '%!in%' <- function(x,y)!('%in%'(x,y))
+
     if (is.null(id)) {
       stop("error missing id name")
     } else {
@@ -107,95 +107,87 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
     }
 
   } else {
-    if(class(nodes)[1] == "SpatRaster"){
-      nodes <- raster(nodes)
-    }
-    if(nodes@data@max < 2) {
-      stop("error, you need more than 2 nodes")
-    }
-  }
-
-  if(class(nodes)[1] == "RasterLayer"){
-    if(isTRUE(parallel)){
-      rp <- unique(values(nodes))
-      rp <- as.vector(rp)
-      rp <- rp[which(!is.na(rp))]
-      rp <- split(rp, ceiling(seq_along(rp)/round(sqrt(max(rp)))))
-      works <- as.numeric(availableCores())-1
-
-      if(.Platform$OS.type == "unix") {
-        strat <- future::multicore
-      } else {
-        strat <- future::multisession
+    if(isTRUE(ActiveParallel)){
+      parallel = TRUE
+      if(type == "edge"){
+        message("Parallel will not be used to get the edges of the fragments but it will be used to get the distances that is because we depend on the 'terra' package which until the release of this version of Makurhini cannot be serialized. A sequential loop will be used.")
       }
-
-      plan(strategy = strat, gc = TRUE, workers = works)
-
-      if(type == "centroid"){
-        cr <- crs(nodes)
-        nodes <- tryCatch(future_map(rp, function(x){
-          r <- nodes
-          r[r %!in% x] <- NA
-          p <- data.frame(rasterToPoints(r))
-          names(p)[3] <- "layer"
-          p <- p[p$layer > 0,]
-
-          coords1 <- map(split(p, p$layer), function(x){
-            cn <- colMeans(x[, c("x", "y")])
-            cn <- data.frame(x = cn[[1]], y = cn[[2]], Id = unique(x[, "layer"]))
-            return(cn)}) %>% do.call(rbind, .)
-
-          coords1 <- st_as_sf(coords1, coords = c("x", "y"),
-                              crs = cr, stringsAsFactors = FALSE)
-          return(coords1) },.progress = TRUE), error = function(err)err)
-        if(inherits(nodes, "error")) {
-          close_multiprocess(works)
-          stop(nodes)
-        }
-        nodes <- do.call(rbind, nodes)
-      } else {
-        nodes <- tryCatch(future_map(rp, function(x){
-          r <- nodes
-          r[r %!in% x] <- NA
-          pn <- qm_rasterToPolygons(r)
-          names(pn)[1] <- "Id"
-          pn <- ms_dissolve(pn, "Id")
-          return(pn)
-        }, .progress = TRUE), error = function(err)err)
-        if(inherits(nodes, "error")) {
-          close_multiprocess(works)
-          stop(nodes)
-        }
-        nodes <- do.call(rbind, nodes)
-      }
-      close_multiprocess(works)
-
     } else {
-      if(type == "centroid"){
-        cr <- crs(nodes)
-        pts <- data.frame(rasterToPoints(nodes))
-        names(pts)[3] <- "layer"
+      if(isTRUE(parallel) | !is.null(parallel)){
+        if(type != "edge"){
+          if(is.numeric(parallel)){
+            works <- parallel
+          } else {
+            works <- as.numeric(availableCores())-1
+          }
 
-        pts <- pts[pts$layer > 0,]
-
-        nodes <- lapply(split(pts, pts$layer), function(x){
-          cn <- colMeans(x[, c("x", "y")])
-          cn <- data.frame(x = cn[[1]], y = cn[[2]], Id = unique(x[, "layer"]))
-          return(cn)}) %>% do.call(rbind, .)
-
-        nodes <- st_as_sf(nodes, coords = c("x", "y"),
-                          crs = cr, stringsAsFactors = FALSE)
-      } else {
-        nodes <- qm_rasterToPolygons(nodes)
-        names(nodes)[1] <- "Id"
-        nodes <- lapply(split(nodes, nodes$Id), function(x){
-          x2 <- st_union(x) %>% st_sf(.)
-          x2$Id <- unique(x$Id)
-          return(x2)}) %>% do.call(rbind, .)
+          if(.Platform$OS.type == "unix") {
+            strat <- future::multicore
+          } else {
+            strat <- future::multisession
+          }
+          plan(strategy = strat, gc = TRUE, workers = works)
+        } else {
+          message("Parallel will not be used to get the edges of the fragments but it will be used to get the distances that is because we depend on the 'terra' package which until the release of this version of Makurhini cannot be serialized. A sequential loop will be used.")
+        }
       }
     }
-    names(nodes)[1] <- "IdTemp"
-    id = "IdTemp"
+
+    if(type == "centroid"){
+      if(class(nodes)[1] == "SpatRaster"){
+        nodes <- raster(nodes)
+      }
+
+      if(nodes@data@max < 2) {
+        stop("error, you need more than 2 nodes")
+      }
+
+      if(isTRUE(parallel) | !is.null(parallel)){
+        cr <- crs(nodes); pts <- data.frame(rasterToPoints(nodes)); pts <- pts[pts[[3]] > 0,]
+        nodes <- tryCatch(future_map_dfr(split(pts, pts[[3]]), function(x){
+          x.1 <- colMeans(x[, c("x", "y")]); x.1 <- data.frame(x = x.1[[1]], y = x.1[[2]], Id = unique(x[[3]]))
+          return(x.1)}, .progress = TRUE) |> st_as_sf(x = _, coords = c("x", "y"),  crs = cr, stringsAsFactors = FALSE), error = function(err)err)
+
+        if(isFALSE(ActiveParallel)){
+          close_multiprocess()
+        }
+
+        if(inherits(nodes, "error")) {
+          close_multiprocess(); stop(nodes)
+        }
+      } else {
+        cr <- crs(nodes); pts <- data.frame(rasterToPoints(nodes)); pts <- pts[pts[[3]] > 0,]
+        nodes <- map_dfr(split(pts, pts[[3]]), function(x){
+          x.1 <- colMeans(x[, c("x", "y")]); x.1 <- data.frame(x = x.1[[1]], y = x.1[[2]], Id = unique(x[[3]]))
+          return(x.1)}, .progress = TRUE) |> st_as_sf(x = _, coords = c("x", "y"),  crs = cr, stringsAsFactors = FALSE)
+      }
+    }
+
+    if(type == "edge"){
+      if(class(nodes)[1] != "SpatRaster"){
+        nodes <- rast(nodes)
+      }
+
+      if(minmax(nodes)[2] < 2) {
+        stop("error, you need more than 2 nodes")
+      }
+
+      if(isTRUE(parallel) | !is.null(parallel)){
+        rp <- terra::unique(nodes, na.rm = TRUE)[[1]]; rp2 <- base::split(rp, ceiling(seq_along(rp)/round(sqrt(max(rp)))))
+
+        nodes <- tryCatch(map_dfr(rp2, function(x){
+          x.1 <- subst(nodes, rp[!rp %in% x], NA)
+          x.1 <- suppressWarnings(as.polygons(x.1, na.all = FALSE) |> st_as_sf(x = _))
+          return(x.1)}, .progress = TRUE), error = function(err)err)
+
+        if(inherits(nodes, "error")) {
+          stop(nodes)
+        }
+      } else {
+        nodes <- terra::as.polygons(nodes) |> st_as_sf(x = _)
+      }
+    }
+    names(nodes)[1] <- "IdTemp"; id = "IdTemp"
   }
 
   if (type %in%  c("centroid", "edge")){
@@ -203,6 +195,8 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
                                     centroid = if(type == "centroid"){TRUE} else {FALSE},
                                     distance_unit = distance_unit,
                                     keep = keep, threshold = threshold,
+                                    edgeParallel = parallel,
+                                    ActiveParallel = ActiveParallel,
                                     pairwise = pairwise,
                                     write_table = write)
 
@@ -224,7 +218,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
   } else {
     stop("Error, you have to choose a type option")
   }
-
+  invisible(gc())
   return(distance)
 }
 

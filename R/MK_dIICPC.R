@@ -53,12 +53,11 @@
 #'                 area_unit = "m2",
 #'                 distance = list(type = "centroid"),
 #'                 parallel = NULL,
-#'                 metric = "IIC", distance_thresholds = c(2000, 4000, 6000, 8000, 10000)) #1:10 km
+#'                 metric = "IIC", distance_thresholds = c(10000, 20000)) #10,20 km
 #' IIC
-#' plot(IIC$d2000["dIIC"], breaks = "jenks")
-#' plot(IIC$d2000["dIICflux"], breaks = "jenks")
-#' plot(IIC$d2000["dIICconnector"])
-#'
+#' plot(IIC$d20000["dIIC"], breaks = "jenks")
+#' plot(IIC$d20000["dIICflux"], breaks = "jenks")
+#' plot(IIC$d20000["dIICconnector"], breaks = "jenks")
 #' #Using raster
 #' data("raster_vegetation_patches", package = "Makurhini")
 #' PC <- MK_dPCIIC(nodes = raster_vegetation_patches, attribute = NULL,
@@ -66,7 +65,8 @@
 #'                 metric = "PC", probability = 0.5,
 #'                 overall = TRUE,
 #'                 distance_thresholds = 40000) # 40 km
-#' PC
+#' PC$overall_d40000
+#' plot(PC$node_importances_d40000)
 #' }
 #' @note Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @importFrom methods as
@@ -98,21 +98,19 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     }
   }
 
-  if (!metric %in% c("IIC", "PC")) {
-    stop("Type must be either 'IIC', or 'PC'")
-  }
-
-  if (isTRUE(unique(metric == c("IIC", "PC")))) {
-    metric = "IIC"
-  }
-
-  if (metric == "PC") {
-    if (!is.null(probability) & !is.numeric(probability)) {
-      stop("error missing probability")
-    }
-    instr_dist <- FALSE
+  if (isTRUE(unique(c("IIC", "PC") %in% metric))) {
+    metric = "IIC"; instr_dist <- TRUE
   } else {
-    instr_dist <- TRUE
+    if (metric == "PC") {
+      if (!is.null(probability) & !is.numeric(probability)) {
+        stop("error missing probability")
+      }
+      instr_dist <- FALSE
+    } else if (metric == "IIC"){
+      instr_dist <- TRUE
+    } else {
+      stop("Type must be either 'IIC', or 'PC'")
+    }
   }
 
   if (!is.null(write)) {
@@ -121,22 +119,21 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     }
   }
 
-  if(!is.null(parallel)){
-    if(!is.numeric(parallel)){
-      stop("if you use parallel argument then you need a numeric value")
-    }
-  }
-
   if(isFALSE(parallel)){
     parallel <- NULL
-  }
-
-  if(isTRUE(parallel)){
+  } else if (isTRUE(parallel)){
     message(paste0("The number of available cores is ", as.numeric(availableCores()),
                    ", so ", as.numeric(availableCores()), " cores will be used."))
     parallel <- as.numeric(availableCores())-2
+  } else if((!is.null(parallel))){
+    if(!is.numeric(parallel)){
+      stop("if you use parallel argument then you need a numeric value")
+    }
+  } else {
+    parallel <- NULL
   }
 
+  #Nodes
   if(class(nodes)[1] == "SpatialPolygonsDataFrame" | class(nodes)[1] == "sf"){
     if (nrow(nodes) < 2) {
       stop("error, you need more than 2 nodes")
@@ -147,7 +144,6 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     }
 
     nodes$IdTemp <- 1:nrow(nodes); idT <- "IdTemp"
-
     attribute_1 <- nodesfile(nodes, id = idT, attribute = attribute,
                              area_unit = area_unit,
                              restoration = restoration,
@@ -156,30 +152,28 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     if(length(raster::unique(nodes)) < 2){
       stop("error, you need more than 2 nodes")
     }
+    idT <- NULL
     attribute_1 <- nodesfile(nodes, id = idT, attribute = attribute,
                              area_unit = area_unit,
                              restoration = restoration,
                              write = NULL)
-    idT <- NULL
   } else if (class(nodes)[1] == "data.frame"){
-    attribute_1 <- nodes
+    attribute_1 <- nodes; idT <- NULL
 
     if(dim(nodes)[2] < 2){
       stop("You need two or three columns, see the ?MK_dPCIIC")
     }
-
-    idT <- NULL
   } else {
     stop("error missing file of nodes")
   }
 
   if(!is.null(restoration)){
-    if(isFALSE(ncol(attribute_1) == 3 &
-               isTRUE(unique(unique(attribute_1[, 3]) <= 1)))){
+    if(isFALSE(ncol(attribute_1) == 3 & isTRUE(unique(unique(attribute_1[, 3]) <= 1)))){
       stop("error, review restoration argument, unique values must be 0 and 1")
     }
   }
 
+  #Distance
   if(is.matrix(distance)){
     dist <- distance
 
@@ -192,7 +186,8 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     }
 
   } else {
-    dist <- distancefile(nodes = nodes, id = idT,
+    dist <- distancefile(nodes = nodes,
+                         id = idT,
                          type = distance$type,
                          distance_unit = distance$distance_unit,
                          keep = distance$keep,
@@ -206,8 +201,10 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                          bounding_circles = distance$bounding_circles,
                          parallel = distance$parallel,
                          edgeParallel = distance$edgeParallel,
+                         ActiveParallel = FALSE,
                          least_cost.java = distance$least_cost.java,
-                         cores.java = distance$cores.java, ram.java = distance$ram.java,
+                         cores.java = distance$cores.java,
+                         ram.java = distance$ram.java,
                          pairwise = FALSE,
                          write = NULL)
   }
@@ -216,7 +213,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     distance_thresholds <- median(dist)
   }
 
-  if(length(distance_thresholds)>1 & isTRUE(intern)){
+  if(length(distance_thresholds) > 1 & isTRUE(intern)){
     pb <- txtProgressBar(0,length(distance_thresholds), style = 3)
   }
 
@@ -228,33 +225,25 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                                distance_threshold = x.1,
                                igraph_Dijkstra = instr_dist,
                                parallel = parallel,
-                               loop = TRUE,
-                               G1 = 1000,
-                               G2 = 1000,
+                               loop = TRUE, G1 = 1000, G2 = 1000,
                                intern = intern), error = function(err)err)
 
     if(inherits(mat1, "error")){
       stop("Error in short distance estimation")
     } else {
-
       attribute_2 <- attribute_1[,2]
 
       if(metric == "IIC"){
-        mat2 <- outer(attribute_2, attribute_2) / (1 + mat1)
+        mat2 <- outer(attribute_2, attribute_2) / (1 + mat1); mat2[which(mat1 == 0.0000001)] <- 0
       } else {
         mat2 <- outer(attribute_2, attribute_2) * mat1
       }
-
       num <- sum(mat2)
-    }
-
-    if(length(distance_thresholds) > 1 & isTRUE(intern)){
-      setTxtProgressBar(pb, x)
     }
 
     # sum(2*(rowSums(mat2) - attribute_2^2)/ num * 100)
     # sum(((rowSums(mat2)+colSums(mat2)) - attribute_2^2))
-    #last <- if(metric == "IIC"){"IIC"} else {"PC"}
+    # last <- if(metric == "IIC"){"IIC"} else {"PC"}
 
     if(isTRUE(overall) | isTRUE(onlyoverall)){
       if(!is.null(LA)){
@@ -263,6 +252,14 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                                             paste0("EC(", metric, ")"),
                                             metric),
                                   Value = c(num, sqrt(num), num / (LA^2)))
+          if(overall.2$Value[3] > 1){
+            overall.2$Value[3] <- 1
+          }
+
+          if(overall.2$Value[2] > LA){
+            overall.2$Value[2] <- LA
+          }
+
         } else {
           stop("LA must be greater than the sum of the attributes of the nodes")
         }
@@ -278,10 +275,10 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     }
 
     if(isFALSE(onlyoverall)){
-      if(nrow(attribute_1) > 1000 & !is.null(parallel)){
+      if(nrow(attribute_1) < 1000 & !is.null(parallel)){
         delta <- map_dbl(1:nrow(attribute_1), function(i){
-          dist.i <- dist[-i,-i]; attribute.i <- attribute_2[-i]
-          mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
+          attribute.i <- attribute_2[-i]
+          mat.i <- tryCatch(get_sdist(dist_nodes = dist[-i,-i], metric = metric,
                                       probability = probability,
                                       distance_threshold = x.1,
                                       igraph_Dijkstra = instr_dist,
@@ -292,13 +289,12 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
             stop("Error in short distance estimation")
           } else {
             if(metric == "IIC"){
-              mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
+              mat2.i <- outer(attribute.i, attribute.i) / (1 + mat.i); mat2.i[which(mat.i == 0.0000001)] <- 0
             } else {
-              mat.i <- outer(attribute.i, attribute.i) * mat.i
+              mat2.i <- outer(attribute.i, attribute.i) * mat.i
             }
-            num.i <- sum(mat.i); dC <- (num - num.i) / num * 100
+            num.i <- sum(mat2.i); dC <- (num - num.i) / num * 100
           }
-
           return(dC)})
       } else {
         if(!is.null(parallel)){
@@ -310,8 +306,8 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
           }
           plan(strategy = strat, gc = TRUE, workers = works)
           delta <- future_map_dbl(1:nrow(attribute_1), function(i){
-            dist.i <- dist[-i,-i]; attribute.i <- attribute_2[-i]
-            mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
+            attribute.i <- attribute_2[-i]
+            mat.i <- tryCatch(get_sdist(dist_nodes = dist[-i,-i], metric = metric,
                                         probability = probability,
                                         distance_threshold = x.1,
                                         igraph_Dijkstra = instr_dist,
@@ -322,42 +318,41 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
               stop("Error in short distance estimation")
             } else {
               if(metric == "IIC"){
-                mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
+                 mat2.i <- outer(attribute.i, attribute.i) / (1 + mat.i); mat2.i[which(mat.i == 0.0000001)] <- 0
               } else {
-                mat.i <- outer(attribute.i, attribute.i) * mat.i
+                mat2.i <- outer(attribute.i, attribute.i) * mat.i
               }
-              num.i <- sum(mat.i); dC <- (num - num.i) / num * 100
+              num.i <- sum(mat2.i); dC <- (num - num.i) / num * 100
             }
-
             return(dC)}, .progress = intern)
         } else {
           delta <- map_dbl(1:nrow(attribute_1), function(i){
-            dist.i <- dist[-i,-i]; attribute.i <- attribute_2[-i]
-            mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
+            attribute.i <- attribute_2[-i]
+            mat.i <- tryCatch(get_sdist(dist_nodes = dist[-i,-i], metric = metric,
                                         probability = probability,
                                         distance_threshold = x.1,
                                         igraph_Dijkstra = instr_dist,
-                                        parallel = NULL, loop = TRUE,
+                                        parallel = parallel, loop = TRUE,
                                         G1 = 1000, G2 = 1000, intern = FALSE), error = function(err)err)
+
             if(inherits(mat1, "error")){
               stop("Error in short distance estimation")
             } else {
               if(metric == "IIC"){
-                mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
+                 mat2.i <- outer(attribute.i, attribute.i) / (1 + mat.i); mat2.i[which(mat.i == 0.0000001)] <- 0
               } else {
-                mat.i <- outer(attribute.i, attribute.i) * mat.i
+                mat2.i <- outer(attribute.i, attribute.i) * mat.i
               }
-              num.i <- sum(mat.i); dC <- (num - num.i) / num * 100
+              num.i <- sum(mat2.i); dC <- (num - num.i) / num * 100
             }
-
             return(dC)})
         }
       }
-
-      dintra <- attribute_2^2 / num * 100; dflux <- 2*(rowSums(mat2) - attribute_2^2)/ num * 100
-      dconnector <- map_dbl(delta - dintra - dflux, function(y){if(y < 0){0} else {y}})
-      metric_conn <- as.data.frame(cbind(attribute_1[,1], delta, dintra, dflux, dconnector))
-      names(metric_conn)[1] <- "IdTemp2"
+      dintra <- round((((attribute_2^2)) / num) * 100, 7); dflux <- round(2*(rowSums(mat2) - attribute_2^2)/ num * 100, 7)
+      dconnector <- round(map_dbl(delta - dintra - dflux, function(y){if(y < 0){0} else {y}}), 7)
+      metric_conn <- data.frame("IdTemp2" = attribute_1[,1], "delta" = round(delta, 7),
+                                "dintra" = dintra, "dflux" = dflux, "dconnector" = dconnector,
+                                check.names = FALSE)
 
       if(!is.null(restoration)){
         IdT0 <- attribute_1[which(attribute_1[,3] == 0), 1]
@@ -366,39 +361,59 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
         attribute_2 <- attribute_1[which(attribute_1[,1] %in% IdT0), 2]
 
         if(metric == "IIC"){
-          mat.T0 <- outer(attribute_2, attribute_2) / (1 + mat.T0)
+          mat2 <- outer(attribute_2, attribute_2) / (1 + mat.T0); mat2[which(mat.T0 == 1000000)] <- 0
         } else {
-          mat.T0 <- outer(attribute_2, attribute_2) * mat.T0
+          mat2 <- outer(attribute_2, attribute_2) * mat.T0
         }
 
-        num.T0 <- sum(mat.T0); `%notin%` <- Negate(`%in%`)
+        num.T0 <- sum(mat2); `%notin%` <- Negate(`%in%`)
         N <- which(attribute_1[,3] == 1); attribute_2 <- attribute_1[, 2]; dres <- rep(0, nrow(attribute_1))
 
-        dres[N] <- map_dbl(N, function(i){
-          dist.i <- dist[-N[which(N %notin% i)],-N[which(N %notin% i)]]; attribute.i <- attribute_2[-N[which(N %notin% i)]]
-
-          mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
-                                      probability = probability,
-                                      distance_threshold = x.1,
-                                      igraph_Dijkstra = FALSE,
-                                      parallel = parallel, loop = TRUE,
-                                      G1 = 1000, G2 = 1000, intern = FALSE), error = function(err)err)
-
-          if(inherits(mat1, "error")){
-            stop("Error in short distance estimation")
-          } else {
-            if(metric == "IIC"){
-              mat.i <- outer(attribute.i, attribute.i) / (1 + mat.i)
-            } else {
-              mat.i <- outer(attribute.i, attribute.i) * mat.i
-            }
-            num.i <- sum(mat.i); dC <- (num.i- num.T0) / num.T0 * 100
-          }
-
-          return(dC)})
-
         if(!is.null(parallel)){
+          dres[N] <- future_map_dbl(N, function(i){
+            dist.i <- dist[-N[which(N %notin% i)],-N[which(N %notin% i)]]; attribute.i <- attribute_2[-N[which(N %notin% i)]]
+
+            mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
+                                        probability = probability,
+                                        distance_threshold = x.1,
+                                        igraph_Dijkstra = FALSE,
+                                        parallel = NULL, loop = TRUE,
+                                        G1 = 1000, G2 = 1000, intern = FALSE), error = function(err)err)
+
+            if(inherits(mat1, "error")){
+              stop("Error in short distance estimation")
+            } else {
+              if(metric == "IIC"){
+                 mat2.i <- outer(attribute.i, attribute.i) / (1 + mat.i); mat2.i[which(mat.i == 0.0000001)] <- 0
+              } else {
+                mat2.i <- outer(attribute.i, attribute.i) * mat.i
+              }
+              num.i <- sum(mat2.i); dC <- (num.i- num.T0) / num.T0 * 100
+            }
+            return(dC)})
           close_multiprocess(works)
+        } else {
+          dres[N] <- map_dbl(N, function(i){
+            dist.i <- dist[-N[which(N %notin% i)],-N[which(N %notin% i)]]; attribute.i <- attribute_2[-N[which(N %notin% i)]]
+
+            mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
+                                        probability = probability,
+                                        distance_threshold = x.1,
+                                        igraph_Dijkstra = FALSE,
+                                        parallel = parallel, loop = TRUE,
+                                        G1 = 1000, G2 = 1000, intern = FALSE), error = function(err)err)
+
+            if(inherits(mat1, "error")){
+              stop("Error in short distance estimation")
+            } else {
+              if(metric == "IIC"){
+                mat2.i <- outer(attribute.i, attribute.i) / (1 + mat.i); mat2.i[which(mat.i == 0.0000001)] <- 0
+              } else {
+                mat2.i <- outer(attribute.i, attribute.i) * mat.i
+              }
+              num.i <- sum(mat2.i); dC <- (num.i- num.T0) / num.T0 * 100
+            }
+            return(dC)})
         }
 
         metric_conn <- cbind(metric_conn, dres)
@@ -476,7 +491,8 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
             nodes.2[[i]] <- r_metric[[i-1]]
           }
 
-          nodes.2[[1]] <- nodes; nodes.2 <- stack(nodes.2); names(nodes.2) <- names(metric_conn)
+          nodes.2[[1]] <- nodes; nodes.2 <- stack(nodes.2)
+          names(nodes.2) <- names(metric_conn); names(nodes.2)[1] <- "Id"
 
           if (!is.null(write)){
             n <- names(metric_conn); n <- lapply(as.list(2:length(n)), function(w){
@@ -497,6 +513,10 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
 
     } else {
       result_metric <- overall.2
+    }
+
+    if(length(distance_thresholds) > 1 & isTRUE(intern)){
+      setTxtProgressBar(pb, x)
     }
 
     return(result_metric) })

@@ -33,8 +33,7 @@
 #' 	Paul Savary. 2020. R Package graph4lg: Build Graphs for Landscape Genetics Analysis.
 #'  \url{https://cran.r-project.org/web/packages/graph4lg/index.html}
 #' @importFrom sf st_as_sf st_geometry st_geometry<- st_coordinates st_centroid st_combine st_voronoi st_touches st_collection_extract
-#' @importFrom rgeos gCentroid
-#' @importFrom raster crop mask extend buffer raster res
+#' @importFrom raster crop mask extend buffer raster res trim
 #' @importFrom gdistance transition geoCorrection costDistance commuteDistance
 #' @importFrom methods as new
 #' @importFrom stats na.omit
@@ -272,14 +271,11 @@ cost_distances <- function(x, id,
         foc_adj <- foc_adj[which(foc_adj[[id]] %in% c(unique(dist$From), unique(dist$To))),]
 
         if(nrow(foc_adj) > 1){
-          r2 <- gCentroid(foc_adj, byid = TRUE) %>% buffer(., width = bounding_circles) %>%
-            crop(resistance_1, .)
-          r2 <- raster::mask(r2, r2)
+          r2 <- suppressWarnings(st_centroid(foc_adj)) %>% st_buffer(., dist = bounding_circles) %>%
+            as(., "Spatial") %>%  crop(resistance_1, .) %>% raster::trim(.)
 
-          ##
           coordenates_2 <- coordenates_1[which(coordenates_1[[id]] %in% foc_adj[[id]]),]
-          st_geometry(coordenates_2) <- NULL
-          coordenates_2 <- cbind(coordenates_2$lon, coordenates_2$lat)
+          st_geometry(coordenates_2) <- NULL; coordenates_2 <- cbind(coordenates_2$lon, coordenates_2$lat)
           rownames(coordenates_2) <- NULL
           ##
 

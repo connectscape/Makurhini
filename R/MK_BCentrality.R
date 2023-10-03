@@ -79,7 +79,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
                         metric = c("BC", "BCIIC", "BCPC"), distance_thresholds = NULL,
                         probability = NULL, LA = NULL, coneforpath = NULL,
                         dA = FALSE, dvars = FALSE,
-                        parallel = FALSE, rasterparallel = FALSE, write = NULL) {
+                        parallel = NULL, rasterparallel = FALSE, write = NULL) {
   . = NULL
   if (missing(nodes)) {
     stop("error missing shapefile file of nodes")

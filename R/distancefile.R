@@ -87,7 +87,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
     distance_unit = "m"
   }
 
-  if(class(nodes)[1] != "RasterLayer"){
+  if(!grepl("Raster", class(nodes)[1])){
     if(class(nodes)[1] == "sf" ){
       nodes <- as(nodes, 'Spatial')
     }
@@ -107,6 +107,11 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
     }
 
   } else {
+    ###POR AHORA
+    if(class(nodes)[1] != "RasterLayer"){
+      nodes <- raster::raster(nodes)
+    }
+
     if(isTRUE(ActiveParallel)){
       parallel = TRUE
       if(type == "edge"){
@@ -190,7 +195,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
     names(nodes)[1] <- "IdTemp"; id = "IdTemp"
   }
 
-  if (type %in%  c("centroid", "edge")){
+  if(type %in%  c("centroid", "edge")){
     distance <- euclidean_distances(x = nodes, id = id,
                                     centroid = if(type == "centroid"){TRUE} else {FALSE},
                                     distance_unit = distance_unit,

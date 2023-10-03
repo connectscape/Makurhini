@@ -14,7 +14,7 @@
 #' @param write_table character. "" indicates output to the console.
 #' @return Pairwise Euclidean distance table
 #' @references Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitized Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
-#' @importFrom sf st_as_sf st_distance
+#' @importFrom sf st_as_sf st_distance st_geometry_type
 #' @importFrom rmapshaper ms_simplify
 #' @importFrom methods as
 #' @importFrom utils combn write.table

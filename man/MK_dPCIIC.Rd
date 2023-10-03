@@ -91,12 +91,11 @@ IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
                 area_unit = "m2",
                 distance = list(type = "centroid"),
                 parallel = NULL,
-                metric = "IIC", distance_thresholds = c(2000, 4000, 6000, 8000, 10000)) #1:10 km
+                metric = "IIC", distance_thresholds = c(10000, 20000)) #10,20 km
 IIC
-plot(IIC$d2000["dIIC"], breaks = "jenks")
-plot(IIC$d2000["dIICflux"], breaks = "jenks")
-plot(IIC$d2000["dIICconnector"])
-
+plot(IIC$d20000["dIIC"], breaks = "jenks")
+plot(IIC$d20000["dIICflux"], breaks = "jenks")
+plot(IIC$d20000["dIICconnector"], breaks = "jenks")
 #Using raster
 data("raster_vegetation_patches", package = "Makurhini")
 PC <- MK_dPCIIC(nodes = raster_vegetation_patches, attribute = NULL,
@@ -104,7 +103,8 @@ PC <- MK_dPCIIC(nodes = raster_vegetation_patches, attribute = NULL,
                 metric = "PC", probability = 0.5,
                 overall = TRUE,
                 distance_thresholds = 40000) # 40 km
-PC
+PC$overall_d40000
+plot(PC$node_importances_d40000)
 }
 }
 \references{

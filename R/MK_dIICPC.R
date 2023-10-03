@@ -275,7 +275,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     }
 
     if(isFALSE(onlyoverall)){
-      if(nrow(attribute_1) < 1000 & !is.null(parallel)){
+      if(nrow(attribute_1) < 1000 & is.null(parallel)){
         delta <- map_dbl(1:nrow(attribute_1), function(i){
           attribute.i <- attribute_2[-i]
           mat.i <- tryCatch(get_sdist(dist_nodes = dist[-i,-i], metric = metric,
@@ -446,7 +446,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                                                      paste0("d", metric, "intra"),
                                                      paste0("d", metric, "flux"),
                                                      paste0("d", metric, "connector"))
-        if(class(nodes) == "data.frame"){
+        if(class(nodes)[1] == "data.frame"){
           nodes.2 <- cbind(nodes, metric_conn); nodes.2$IdTemp <- NULL; nodes.2$IdTemp2 <- NULL
 
           if(!is.null(write)){

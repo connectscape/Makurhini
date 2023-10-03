@@ -17,7 +17,7 @@ MK_BCentrality(
   coneforpath = NULL,
   dA = FALSE,
   dvars = FALSE,
-  parallel = FALSE,
+  parallel = NULL,
   rasterparallel = FALSE,
   write = NULL
 )

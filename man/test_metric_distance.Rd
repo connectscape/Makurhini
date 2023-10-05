@@ -69,7 +69,7 @@ Test the ECA or ProtConn metrics using multiple dispersal distances
 \examples{
 \dontrun{
 library(Makurhini)
-library(rgeos)
+library(sf)
 
 data("list_forest_patches", package = "Makurhini")
 data("study_area", package = "Makurhini")

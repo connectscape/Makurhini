@@ -7,6 +7,7 @@
 Protconn_nodes(
   x,
   y,
+  id = "IdTemp",
   buff = NULL,
   method = "nodes",
   xsimplify = FALSE,
@@ -20,6 +21,8 @@ Protconn_nodes(
 \item{x}{object of class sf, sfc, sfg or SpatialPolygons}
 
 \item{y}{object of class sf, sfc, sfg or SpatialPolygons}
+
+\item{id}{character}
 
 \item{buff}{numeric}
 

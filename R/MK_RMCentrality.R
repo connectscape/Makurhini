@@ -80,7 +80,11 @@ MK_RMCentrality <- function(nodes,
       nodes <- st_as_sf(nodes); nodes$IdTemp <- 1:nrow(nodes); idT <- "IdTemp"
     }
   } else {
-    if(length(raster::unique(nodes)) < 2){
+    if(class(nodes)[1] == "RasterLayer"){
+      nodes <- terra::rast(nodes)
+    }
+    t_uniq <- terra::unique(nodes)
+    if(nrow(t_uniq) < 2){
       stop("error, you need more than 2 nodes")
     } else {
       idT <- NULL
@@ -103,17 +107,14 @@ MK_RMCentrality <- function(nodes,
                        pairwise = FALSE,
                        write = NULL)
   if(!is.null(idT)){
-    rownames(dist) <- nodes$IdTemp
-    colnames(dist) <- nodes$IdTemp
+    rownames(dist) <- nodes$IdTemp; colnames(dist) <- nodes$IdTemp
   }
-
-  loop <- 1:length(distance_thresholds)
 
   if(length(distance_thresholds) > 1 & isTRUE(intern)){
-    pb <- txtProgressBar(0, length(loop), style = 3)
+    pb <- txtProgressBar(0, length(distance_thresholds), style = 3)
   }
 
-  centrality_result <- lapply(loop, function(x){
+  centrality_result <- lapply(1:length(distance_thresholds), function(x){
     x <- distance_thresholds[x]
     if(length(distance_thresholds) > 1 & isTRUE(intern)){
       setTxtProgressBar(pb, x)
@@ -126,8 +127,7 @@ MK_RMCentrality <- function(nodes,
     } else {
       Adj_matr <- dist*0
       if(is.null(probability)){
-        k =(1 / x)
-        Adj_matr <- exp(-k * dist)
+        k =(1 / x); Adj_matr <- exp(-k * dist)
       } else {
         Adj_matr <- exp((dist * log(probability))/x)
       }
@@ -174,12 +174,9 @@ MK_RMCentrality <- function(nodes,
       }
 
     } else {
-      metric.degree <- degree(graph_nodes)
-      metric.eigen <- evcent(graph_nodes)
-      metric.close <- closeness(graph_nodes)
-      metric.between <- betweenness(graph_nodes)
-      metric.Membcomponents <- clusters(graph_nodes)$membership
-      metric.modularity <- cluster_louvain(graph_nodes)
+      metric.degree <- degree(graph_nodes); metric.eigen <- evcent(graph_nodes)
+      metric.close <- closeness(graph_nodes); metric.between <- betweenness(graph_nodes)
+      metric.Membcomponents <- clusters(graph_nodes)$membership; metric.modularity <- cluster_louvain(graph_nodes)
       modules <- rep(0, nrow(dist))
 
       for(i in 1:length(metric.modularity)){

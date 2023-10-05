@@ -28,7 +28,7 @@
 #' @examples
 #' \dontrun{
 #' library(Makurhini)
-#' library(rgeos)
+#' library(sf)
 #'
 #' data("list_forest_patches", package = "Makurhini")
 #' data("study_area", package = "Makurhini")
@@ -65,27 +65,23 @@
 #' @importFrom utils tail installed.packages
 #' @importFrom sf st_as_sf st_zm st_buffer st_cast st_intersection st_geometry st_difference st_area
 test_metric_distance <- function(nodes,
-                              attribute = NULL,
-                              distance1 = NULL,
-                              distance2 = NULL,
-                              distance3 = NULL,
-                              distance4 = NULL,
-                              metric = "IIC", probability = NULL,
-                              distance_thresholds,
-                              region = NULL,
-                              LA = NULL,
-                              transboundary = NULL,
-                              area_unit = "ha",
-                              groups = 3, write = NULL,
-                              intern = TRUE){
-  if(isFALSE("ggplot2" %in% rownames(installed.packages())) &
-     isFALSE("ggpubr" %in% rownames(installed.packages()))){
-    stop("To make the plots you need to install the packages ggplot2 and ggpubr")
+                                 attribute = NULL,
+                                 distance1 = NULL,
+                                 distance2 = NULL,
+                                 distance3 = NULL,
+                                 distance4 = NULL,
+                                 metric = "IIC", probability = NULL,
+                                 distance_thresholds,
+                                 region = NULL,
+                                 LA = NULL,
+                                 transboundary = NULL,
+                                 area_unit = "ha",
+                                 groups = 3, write = NULL,
+                                 intern = TRUE){
+  if(class(nodes)[1] != "sf") {
+    nodes <- st_as_sf(nodes)
   }
 
-  if(class(nodes)[1] == "sf") {
-    nodes <- as(nodes, 'Spatial')
-  }
   options(warn = -1)
   . = NULL
   distances_test <- list(distance1, distance2, distance3, distance4)
@@ -99,7 +95,7 @@ test_metric_distance <- function(nodes,
     }
   }
 
-  if(metric=="ProtConn"){
+  if(metric == "ProtConn"){
     if (missing(region)) {
       stop("error missing file of region")
     } else {
@@ -112,14 +108,10 @@ test_metric_distance <- function(nodes,
       stop("error missing probability")
     }
 
-    region <- st_as_sf(region) %>% st_zm() %>%
-      st_buffer(., dist = 0) %>% st_cast("POLYGON")
+    region <- st_zm(region) %>% st_buffer(., dist = 0) %>% st_cast("POLYGON")
+    nodes <- st_zm(nodes) %>% st_buffer(., dist = 0) %>% st_cast("POLYGON")
 
-    nodes <- st_as_sf(nodes) %>% st_zm() %>%
-      st_buffer(., dist = 0) %>% st_cast("POLYGON")
-
-    nodes$IDTemp <- 1:nrow(nodes)
-    nodes <- nodes[, "IDTemp"]
+    nodes$IdTemp <- 1:nrow(nodes); nodes <- nodes[, "IdTemp"]
 
     nodes.2 <- tryCatch(Protconn_nodes(x = region,
                                        y = nodes,
@@ -132,10 +124,8 @@ test_metric_distance <- function(nodes,
     if(is.null(LA)){
       LA <- sum(unit_convert(as.numeric(st_area(region)), "m2", area_unit))
     }
-
-    nodes <- as(nodes.2[[1]], 'Spatial')
-    attribute <- "attribute"
-    }
+    nodes <- as(nodes.2[[1]], 'Spatial'); attribute <- "attribute"
+  }
 
   if (metric=="PC"){
     if (is.null(probability) | !is.numeric(probability)) {
@@ -148,9 +138,7 @@ test_metric_distance <- function(nodes,
   }
 
   #Id
-  nodes@data$IdTemp <- 1:nrow(nodes)
-
-  loop <- 1:length(distances_test)
+  nodes$IdTemp <- 1:nrow(nodes); loop <- 1:length(distances_test)
 
   if(isTRUE(intern)){
     handlers(global = T)
@@ -162,7 +150,7 @@ test_metric_distance <- function(nodes,
 
   conn_metric <- map_dfr(loop, function(x){
     x.1 <- distances_test[[x]]
-    ECA_metric <-  map_dfr(distance_thresholds, function(y) {
+    ECA_metric <-  map_dfr(distance_thresholds, function(y){
       tab1 <- tryCatch(MK_dPCIIC(nodes = nodes, attribute = attribute,
                                  restoration = NULL,
                                  distance = x.1, area_unit = area_unit,
@@ -170,7 +158,7 @@ test_metric_distance <- function(nodes,
                                  probability = probability,
                                  distance_thresholds = y,
                                  overall = TRUE, onlyoverall = TRUE,
-                                 LA = LA, rasterparallel = FALSE, write = NULL), error = function(err)err)
+                                 LA = LA, rasterparallel = NULL, write = NULL), error = function(err)err)
 
       if (inherits(tab1, "error")){
         stop(tab1)
@@ -181,27 +169,25 @@ test_metric_distance <- function(nodes,
       if(metric=="ProtConn"){
         tab1 <- 100 * (tab1 / LA)
       }
-      return(tab1)
+
+      return(data.frame(Value = tab1))
     })
 
     if(length(distances_test)>1 & isTRUE(intern)){
       pb()
     }
+
     conn_metric2 <- cbind(ECA_metric, distance_thresholds)
-    conn_metric2 <- as.data.frame(conn_metric2)
     names(conn_metric2) <- c(if(metric=="ProtConn"){"ProtConn"}else{"ECA"}, "Distance")
     conn_metric2$Group <- x.1$type
     return(conn_metric2)
   })
 
-
   ###Differences
-  peaks_groups <- list()
-  unique_groups <- unique(conn_metric$Group)
-
+  peaks_groups <- list(); unique_groups <- unique(conn_metric$Group)
 
   ###Groups return
-  if(groups>0){
+  if(groups > 0){
     for (i in 1:length(unique_groups)){
       table1 <- conn_metric[conn_metric$Group == unique_groups[i],]
       dif1 <- table1[,1]
@@ -251,8 +237,7 @@ test_metric_distance <- function(nodes,
   }
 
 
-  ccolour <- c("#E16A86", "#909800", "#00AD9A", "#9183E6")
-  ccolour <- ccolour[1:length(unique_groups)]
+  ccolour <- c("#E16A86", "#909800", "#00AD9A", "#9183E6")[1:length(unique_groups)]
 
   p1 <- ggplot() +
     geom_line(aes(y = conn_metric[,1], x = conn_metric$Distance, colour = conn_metric$Group),
@@ -279,7 +264,7 @@ test_metric_distance <- function(nodes,
           legend.key= element_rect(fill = "white", colour = "white"),
           legend.text = element_text(size = 11))
 
-  if(groups>0){
+  if(groups > 0){
     peak_plot$To <- as.numeric(peak_plot$To)
     p1 <- p1 + geom_point(data = peak_plot,
                           mapping = aes(x = conn_metric[which(conn_metric[,1] %in% peak_plot[,4]),2],
@@ -294,9 +279,9 @@ test_metric_distance <- function(nodes,
   result <- list(conn_metric,if(groups>0){peaks_groups}, p1)
   result <- purrr::compact(result)
 
-  if(groups>0){
+  if(groups > 0){
     names(result) <- c("Table_metric_test",  "Table_groups_test", "plot_metric_test")
-  }else {
+  } else {
     names(result) <- c("Table_metric_test", "plot_metric_test")
   }
 
@@ -307,7 +292,7 @@ test_metric_distance <- function(nodes,
 
     write.csv(conn_metric, paste0(write, '_MetricValTest.csv'), row.names = FALSE)
 
-    if(groups>0){
+    if(groups > 0){
       write.csv(peak_plot, paste0(write, '_GroupsTest.csv'), row.names = FALSE)
     }
   }

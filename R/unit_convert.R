@@ -64,7 +64,7 @@ unit_convert <- function(data_unit,
     data_unit <- as.numeric(data_unit)
   }
 
-  if(class(data_unit) == "units"){
+  if(class(data_unit)[1] == "units"){
     data_unit <- as.numeric(data_unit)
   }
 

@@ -2,6 +2,7 @@
 #'
 #' @param x object of class sf, sfc, sfg or SpatialPolygons
 #' @param y object of class sf, sfc, sfg or SpatialPolygons
+#' @param id character
 #' @param buff numeric
 #' @param method character
 #' @param xsimplify logical
@@ -16,7 +17,7 @@
 #' @importFrom purrr map_dfr
 #' @keywords internal
 #"' @importFrom sp disaggregate"
-Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALSE,
+Protconn_nodes <- function(x, y, id = "IdTemp", buff = NULL, method = "nodes", xsimplify = FALSE,
                            metrunit = "ha", protconn = TRUE, protconn_bound = FALSE,
                            delta = FALSE){
   options(warn = -1); . = NULL
@@ -43,7 +44,7 @@ Protconn_nodes <- function(x, y, buff = NULL, method = "nodes", xsimplify = FALS
 
     if(nrow(y.1) > 1){
       y.1 <- y.1 %>% st_buffer(., 0); y.1$id <- 1
-      f1 <- terra::intersect(vect(y.1[,c("IdTemp", "id",  "geometry")]), vect(x.1[, "geometry"])) %>%
+      f1 <- terra::intersect(vect(y.1[,c(id, "id",  "geometry")]), vect(x.1[, "geometry"])) %>%
          terra::na.omit(., geom = TRUE)
 
       # f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 0) %>%

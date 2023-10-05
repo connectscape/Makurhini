@@ -51,16 +51,17 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
   } else {
     if(isFALSE(edgeParallel) | is.null(edgeParallel) & isFALSE(ActiveParallel)){
       if(!is.null(keep) & as.character(unique(st_geometry_type(x))) != "POINT"){
-        x_id <- x[[id]]
-        x.1 <- tryCatch(ms_simplify(input = x, keep = keep, keep_shapes = TRUE, explode = FALSE), error = function(err)err)
+        x_id <- x[[id]]; x.1 <- tryCatch(ms_simplify(input = x, keep = keep,
+                                                     keep_shapes = TRUE,
+                                                     explode = FALSE),
+                                         error = function(err)err)
         if(!inherits(x.1, "error")) {
           if(nrow(x.1) == nrow(x)){
-            x <- x.1
+            x <- x.1; x[which(names(x) == id)] <- x_id
           }
         } else {
-          stop("error in edgeParallel")
+          stop("error in edgeParallel and keep parameter")
         }
-        x$id <- x_id; names(x)[which(names(x) == "id")] <- id
       }
       distance <- st_distance(x, by_element = FALSE); attr(distance, "units") <- NULL; class(distance) <- setdiff(class(distance),"units")
     } else {

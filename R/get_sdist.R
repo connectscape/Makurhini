@@ -105,7 +105,7 @@ get_sdist <- function(dist_nodes = NULL,
       }
 
       if(is.null(probability)){
-        k = (1 / distance_threshold); dist_nodes$Distance <- -log(exp(-k * dist_nodes$Distance))
+        k <- (1 / distance_threshold); dist_nodes$Distance <- -log(exp(-k * dist_nodes$Distance))
       } else {
         dist_nodes$Distance <- -log(exp((dist_nodes$Distance * log(probability))/distance_threshold))
       }

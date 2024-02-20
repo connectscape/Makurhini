@@ -56,6 +56,7 @@
 #' @importFrom purrr map_dfr
 #' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map_dfr
+#' @importFrom magrittr %>%
 #' @importFrom terra rast minmax as.polygons unique subst
 #' @importFrom raster rasterToPoints crs raster
 distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, keep = NULL,
@@ -208,14 +209,14 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
 
         nodes <- tryCatch(map_dfr(rp2, function(x){
           x.1 <- subst(nodes, rp[!rp %in% x], NA)
-          x.1 <- suppressWarnings(as.polygons(x.1, na.all = FALSE) |> st_as_sf(x = _))
+          x.1 <- suppressWarnings(as.polygons(x.1, na.all = FALSE) %>% st_as_sf(.))
           return(x.1)}, .progress = TRUE), error = function(err)err)
 
         if(inherits(nodes, "error")) {
           stop(nodes)
         }
       } else {
-        nodes <- terra::as.polygons(nodes) |> st_as_sf(x = _)
+        nodes <- terra::as.polygons(nodes) %>% st_as_sf(.)
       }
     }
     names(nodes)[1] <- "IdTemp"; id = "IdTemp"

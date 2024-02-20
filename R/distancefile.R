@@ -173,8 +173,8 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
       if(isTRUE(parallel) | !is.null(parallel)){
         cr <- crs(nodes); pts <- data.frame(rasterToPoints(nodes)); pts <- pts[pts[[3]] > 0,]
         nodes <- tryCatch(future_map_dfr(split(pts, pts[[3]]), function(x){
-          x.1 <- colMeans(x[, c("x", "y")]); x.1 <- data.frame(x = x.1[[1]], y = x.1[[2]], Id = unique(x[[3]]))
-          return(x.1)}, .progress = TRUE) |> st_as_sf(x = _, coords = c("x", "y"),  crs = cr, stringsAsFactors = FALSE), error = function(err)err)
+          x.1 <- colMeans(x[, c("x", "y")]); x.1 <- data.frame("x" = x.1[[1]], "y" = x.1[[2]], "Id" = unique(x[[3]]))
+          return(x.1)}), error = function(err)err)
 
         if(isFALSE(ActiveParallel)){
           close_multiprocess()
@@ -182,12 +182,15 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
 
         if(inherits(nodes, "error")) {
           close_multiprocess(); stop(nodes)
+        } else {
+          nodes <- st_as_sf(nodes, coords = c("x", "y"),  crs = cr, stringsAsFactors = FALSE)
         }
       } else {
         cr <- crs(nodes); pts <- data.frame(rasterToPoints(nodes)); pts <- pts[pts[[3]] > 0,]
         nodes <- map_dfr(split(pts, pts[[3]]), function(x){
-          x.1 <- colMeans(x[, c("x", "y")]); x.1 <- data.frame(x = x.1[[1]], y = x.1[[2]], Id = unique(x[[3]]))
-          return(x.1)}, .progress = TRUE) |> st_as_sf(x = _, coords = c("x", "y"),  crs = cr, stringsAsFactors = FALSE)
+          x.1 <- colMeans(x[, c("x", "y")]); x.1 <- data.frame("x" = x.1[[1]], "y" = x.1[[2]], "Id" = unique(x[[3]]))
+          return(x.1)}, .progress = TRUE)
+        nodes <- st_as_sf(nodes, coords = c("x", "y"),  crs = cr, stringsAsFactors = FALSE)
       }
     }
 

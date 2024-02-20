@@ -32,7 +32,7 @@ protconn_dist <- function(x, id, y, r = NULL, resistance = NULL, resist.units = 
                                            geometry_out = y$geometry_out,
                                            bounding_circles = y$bounding_circles,
                                            parallel = y$parallel,
-                                           edgeParallel = y$edgeParallel, pairwise = FALSE,
+                                           pairwise = FALSE,
                                            least_cost.java = y$least_cost.java,
                                            cores.java = y$cores.java, ram.java = y$ram.java,
                                            write = NULL), error = function(err)err)
@@ -49,7 +49,7 @@ protconn_dist <- function(x, id, y, r = NULL, resistance = NULL, resist.units = 
                                              geometry_out = y$geometry_out,
                                              bounding_circles = y$bounding_circles,
                                              parallel = y$parallel,
-                                             edgeParallel = y$edgeParallel, pairwise = FALSE,
+                                             pairwise = FALSE,
                                              least_cost.java = y$least_cost.java,
                                              cores.java = y$cores.java, ram.java = y$ram.java,
                                              write = NULL), error = function(err)err)

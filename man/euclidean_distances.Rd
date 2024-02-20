@@ -11,8 +11,9 @@ euclidean_distances(
   distance_unit = "m",
   keep = NULL,
   threshold = NULL,
-  edgeParallel = FALSE,
+  distParallel = FALSE,
   ActiveParallel = FALSE,
+  n = 1000,
   pairwise = TRUE,
   write_table = NULL
 )
@@ -32,13 +33,13 @@ number of vertices. The value can range from 0 to 1 and is the proportion of poi
 
 \item{threshold}{numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.}
 
-\item{edgeParallel}{logical or numeric. Only is available for "edge" distance or centroid equal FALSE, use this option to parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.}
-
 \item{ActiveParallel}{logical. It should be TRUE if there is already an open parallelization plan.}
 
 \item{pairwise}{logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.}
 
 \item{write_table}{character. "" indicates output to the console.}
+
+\item{dist_Parallel}{logical or numeric. Only is available for "edge" and "centroid" distance, use this option to parallelize using furrr package and multiprocess plan, default = FALSE.}
 }
 \value{
 Pairwise Euclidean distance table

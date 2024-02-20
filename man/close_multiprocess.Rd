@@ -2,7 +2,7 @@
 % Please edit documentation in R/close_multiprocess.R
 \name{close_multiprocess}
 \alias{close_multiprocess}
-\title{Close cores}
+\title{Close parallel process}
 \usage{
 close_multiprocess(w)
 }
@@ -10,7 +10,7 @@ close_multiprocess(w)
 \item{w}{numeric. workers or number of cores}
 }
 \description{
-Close cores
+Close parallel process
 }
 \references{
 Revanth Nemani. 2020. https://stackoverflow.com/questions/59652303/kill-futures-from-future-apply-on-linux#comment105470849_59652303

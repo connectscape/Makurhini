@@ -19,7 +19,6 @@ distancefile(
   geometry_out = NULL,
   bounding_circles = NULL,
   parallel = FALSE,
-  edgeParallel = FALSE,
   ActiveParallel = FALSE,
   least_cost.java = FALSE,
   cores.java = 1,
@@ -78,9 +77,7 @@ If NULL, then a Euclidean distance (centroid) will be calculated to find these d
 Buffer distances are entered in map units. Also, the function is parallelized using
  and furrr package and multiprocess plan, default = NULL.}
 
-\item{parallel}{logical or numerical. If nodes is a raster then you can use this argument for larges RasterLayer.}
-
-\item{edgeParallel}{logical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.}
+\item{parallel}{logical or numerical. Recommended for a large number of nodes or very large RasterLayer.}
 
 \item{ActiveParallel}{logical. It should be TRUE if there is already an open parallelization plan.}
 

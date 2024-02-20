@@ -173,7 +173,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
                geometry_out = distance$geometry_out,
                bounding_circles = distance$bounding_circles,
                parallel = distance$parallel,
-               edgeParallel = distance$edgeParallel, pairwise = TRUE,
+               pairwise = TRUE,
                least_cost.java = distance$least_cost.java,
                cores.java = distance$cores.java, ram.java = distance$ram.java,
                write = paste0(temp.1,"/Dist.txt"))

@@ -33,8 +33,7 @@
 #' these spatial geometries and with this numeric value will be added to the resistance, so that it is possible to
 #' calculate a cost distance value for the pairs of nodes that involve these geometries and avoid an error.
 #' If NULL, then a Euclidean distance (centroid) will be calculated to find these distances.
-#' @param parallel logical or numerical. If nodes is a raster then you can use this argument for larges RasterLayer.
-#' @param edgeParallel logical. Parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.
+#' @param parallel logical or numerical. Recommended for a large number of nodes or very large RasterLayer.
 #' @param ActiveParallel logical. It should be TRUE if there is already an open parallelization plan.
 #' @param bounding_circles numeric. If a value is entered, this will create bounding circles around pairs of core areas
 #'  (recommended for speed, large resistance rasters or pixel resolution < 150 m).
@@ -63,7 +62,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
                          resistance = NULL, resist.units = FALSE,
                          CostFun = NULL, ngh = NULL, mask = NULL,
                          threshold = NULL, geometry_out = NULL, bounding_circles = NULL,
-                         parallel = FALSE, edgeParallel = FALSE, ActiveParallel = FALSE,
+                         parallel = FALSE, ActiveParallel = FALSE,
                          least_cost.java = FALSE,
                          cores.java = 1, ram.java = NULL,
                          pairwise = TRUE,
@@ -106,6 +105,18 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
       }
     }
 
+    if(isFALSE(parallel) | is.null(parallel) & isTRUE(ActiveParallel)){
+      parallel = TRUE; works <- as.numeric(availableCores())-1
+
+      if(.Platform$OS.type == "unix") {
+        strat <- future::multicore
+      } else {
+        strat <- future::multisession
+      }
+
+      plan(strategy = strat, gc = TRUE, workers = works)
+    }
+
   } else {
     ###POR AHORA
     if(class(nodes)[1] != "RasterLayer"){
@@ -113,7 +124,19 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
     }
 
     if(isTRUE(ActiveParallel)){
-      parallel = TRUE
+      if(isFALSE(parallel) | is.null(parallel)){
+        parallel = TRUE
+        works <- as.numeric(availableCores())-1
+
+        if(.Platform$OS.type == "unix") {
+          strat <- future::multicore
+        } else {
+          strat <- future::multisession
+        }
+
+        plan(strategy = strat, gc = TRUE, workers = works)
+      }
+
       if(type == "edge"){
         message("Parallel will not be used to get the edges of the fragments but it will be used to get the distances that is because we depend on the 'terra' package which until the release of this version of Makurhini cannot be serialized. A sequential loop will be used.")
       }
@@ -196,20 +219,27 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
   }
 
   if(type %in%  c("centroid", "edge")){
-    distance <- euclidean_distances(x = nodes, id = id,
+    distance <- euclidean_distances(x = nodes,
+                                    id = id,
                                     centroid = if(type == "centroid"){TRUE} else {FALSE},
                                     distance_unit = distance_unit,
                                     keep = keep, threshold = threshold,
-                                    edgeParallel = parallel,
+                                    distParallel = parallel,
                                     ActiveParallel = ActiveParallel,
                                     pairwise = pairwise,
                                     write_table = write)
 
   } else if (type %in%  c("least-cost", "commute-time")){
-    distance <- cost_distances(x = nodes, id = id, LCD = if(type == "least-cost"){TRUE} else {FALSE},
+    distance <- cost_distances(x = nodes,
+                               id = id,
+                               LCD = if(type == "least-cost"){TRUE} else {FALSE},
                                resistance = resistance,
-                               CostFun = CostFun, ngh = ngh, bounding_circles = bounding_circles ,
-                               threshold = threshold, mask = mask, geometry_out = geometry_out,
+                               CostFun = CostFun,
+                               ngh = ngh,
+                               bounding_circles = bounding_circles ,
+                               threshold = threshold,
+                               mask = mask,
+                               geometry_out = geometry_out,
                                pairwise = pairwise,
                                least_cost.java = least_cost.java,
                                cores.java = cores.java, ram.java = ram.java,

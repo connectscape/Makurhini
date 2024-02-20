@@ -8,7 +8,7 @@
 #' @param keep numeric. Argument for higher processing speed. Only is available for "edge" distance or centroid equal FALSE, use this option to simplify the geometry and reduce the
 #'  number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (e.g., 0.02). The higher the value,
 #'   the higher the speed but the greater uncertainty.
-#' @param edgeParallel logical or numeric. Only is available for "edge" distance or centroid equal FALSE, use this option to parallelize the edge distance using furrr package and multiprocess plan, default = FALSE.
+#' @param dist_Parallel logical or numeric. Only is available for "edge" and "centroid" distance, use this option to parallelize using furrr package and multiprocess plan, default = FALSE.
 #' @param ActiveParallel logical. It should be TRUE if there is already an open parallelization plan.
 #' @param pairwise logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.
 #' @param write_table character. "" indicates output to the console.
@@ -22,8 +22,8 @@
 #' @importFrom furrr future_map
 #' @export
 euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
-                                keep = NULL, threshold = NULL, edgeParallel = FALSE,
-                                ActiveParallel = FALSE,
+                                keep = NULL, threshold = NULL, distParallel = FALSE,
+                                ActiveParallel = FALSE, n = 1000,
                                 pairwise = TRUE, write_table = NULL){
   if(missing(id)){
     stop("missing id")
@@ -44,12 +44,46 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
   }
 
   if (isTRUE(centroid)){
-    if(as.character(unique(st_geometry_type(x))) != "POINT"){
-      x <- st_centroid_within_poly(x)
+    if(isFALSE(distParallel) | is.null(distParallel) & isFALSE(ActiveParallel)){
+      if(as.character(unique(st_geometry_type(x))) != "POINT"){
+        x <- st_centroid_within_poly(x)
+      }
+      distance <- st_distance(x, by_element = FALSE); attr(distance, "units") <- NULL; class(distance) <- setdiff(class(distance),"units")
+    } else {
+      if(isFALSE(ActiveParallel)){
+        if(is.logical(distParallel)){
+          works <- as.numeric(availableCores())-1
+        } else {
+          if(is.numeric(distParallel)){
+            works <- distParallel
+          }
+        }
+
+        if(.Platform$OS.type == "unix") {
+          strat <- future::multicore
+        } else {
+          strat <- future::multisession
+        }
+
+        plan(strategy = strat, gc = TRUE, workers = works)
+      }
+
+      if(as.character(unique(st_geometry_type(x))) != "POINT"){
+        x <- future_map_dfr(split(x, ceiling(1:nrow(x)/10)), function(y){
+          y <- st_centroid_within_poly(y); return(y)})
+      }
+
+      distance <- future_map(split(x, ceiling(1:nrow(x)/1000)), function(y){
+        y <- st_distance(y, x, by_element = FALSE); attr(y, "units") <- NULL; class(y) <- setdiff(class(y),"units")
+        return(y)}); distance <- do.call(rbind, distance)
+
+      if(isFALSE(ActiveParallel)){
+        close_multiprocess()
+      }
+
     }
-    distance <- st_distance(x, by_element = FALSE); attr(distance, "units") <- NULL; class(distance) <- setdiff(class(distance),"units")
   } else {
-    if(isFALSE(edgeParallel) | is.null(edgeParallel) & isFALSE(ActiveParallel)){
+    if(isFALSE(distParallel) | is.null(distParallel) & isFALSE(ActiveParallel)){
       if(!is.null(keep) & as.character(unique(st_geometry_type(x))) != "POINT"){
         x_id <- x[[id]]; x.1 <- tryCatch(ms_simplify(input = x, keep = keep,
                                                      keep_shapes = TRUE,
@@ -60,17 +94,17 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
             x <- x.1; x[which(names(x) == id)] <- x_id
           }
         } else {
-          stop("error in edgeParallel and keep parameter")
+          stop("error in distParallel and keep parameter")
         }
       }
       distance <- st_distance(x, by_element = FALSE); attr(distance, "units") <- NULL; class(distance) <- setdiff(class(distance),"units")
     } else {
       if(isFALSE(ActiveParallel)){
-        if(is.logical(edgeParallel)){
+        if(is.logical(distParallel)){
           works <- as.numeric(availableCores())-1
         } else {
-          if(is.numeric(edgeParallel)){
-            works <- edgeParallel
+          if(is.numeric(distParallel)){
+            works <- distParallel
           }
         }
 
@@ -91,7 +125,7 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
               y <- y.1
             }
           } else {
-            stop("error in edgeParallel")
+            stop("error in distParallel")
           }
         }
         distance <- st_distance(y, x, by_element = FALSE); attr(distance, "units") <- NULL; class(distance) <- setdiff(class(distance),"units")

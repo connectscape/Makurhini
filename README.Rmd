@@ -29,7 +29,8 @@ knitr::opts_chunk$set(
 
 ## NEWS
 
-- Thank you for using Makurhini. **We will have a new update in October, so stay tuned!**
+-   Thank you for using Makurhini. **We will have a new update in
+    October, so stay tuned!**
 
 ## Overview
 
@@ -68,7 +69,6 @@ Analyzing landscape connectivity.
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3771605.svg)](https://doi.org/10.5281/zenodo.3771605)
 </code> </i>
 
-
 ## Installation
 
 -   Depends: R (\> 4.0.0), igraph (\>= 1.2.6)
@@ -91,7 +91,8 @@ install_github("connectscape/Makurhini", dependencies = TRUE, upgrade = "never")
 In case it does not appear in the list of packages, close the R session
 and reopen.
 
-**If the following error occurs during installation**: 
+**If the following error occurs during installation**:
+
 ```{r eval=FALSE}
 Using github PAT
 from envvar GITHUB_PAT Error: Failed to install 'unknown package' from
@@ -99,14 +100,50 @@ GitHub: HTTP error 401. Bad credentials
 
 ```
 
-
-Then you can try the following: 
+Then you can try the following:
 
 ```{r eval=FALSE}
 Sys.getenv("GITHUB_PAT")
 Sys.unsetenv("GITHUB_PAT")
 ```
 
+## Makurhini on Linux
+
+To install Makurhini on Ubuntu linux consider the following steps:
+
+1)  Use the **Linux command line** to install the *unit* package:
+
+    `sudo apt-get install -y libudunits2-dev`
+
+2)  Use the **Linux command line** to install *gdal*:
+
+    `sudo apt install libgdal-dev`
+
+3)  Use the **Linux command line** to install *libfontconfig* and
+    *libharfbuzz*:
+
+    `sudo apt install libfontconfig1-dev`
+
+    `sudo apt install libharfbuzz-dev libfribidi-dev`
+
+4)  You can now install the *devtools* and *remotes* packages, and the *terra*, *raster* and *sf* packages directly in your **R or RStudio**. 
+
+    `install.packages(c('remotes', 'devtools', 'terra', 'raster', 'sf'))`
+
+5)  Use the **Linux command line** to install *igraph*:
+
+    `sudo apt-get install libnlopt-dev`
+
+    `sudo apt-get install r-cran-igraph`
+
+6)  You can now install the *gdistance*, *graph4lg* and *ggpubr*
+    packages directly in your **R or RStudio.**
+
+    `install.packages(c('gdistance', 'graph4lg', 'ggpubr'))`
+
+Note that the installation of Malurhini on Linux depends on your version
+of ubuntu and that you manage to install the packages that Makurhini
+depends on.
 
 ## Summary of main *Makurhini* functions
 

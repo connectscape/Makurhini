@@ -53,7 +53,7 @@
 #'                 area_unit = "m2",
 #'                 distance = list(type = "centroid"),
 #'                 parallel = NULL,
-#'                 metric = "IIC", distance_thresholds = c(10000, 20000)) #10,20 km
+#'                 metric = "PC", distance_thresholds = c(10000, 20000)) #10,20 km
 #' IIC
 #' plot(IIC$d20000["dIIC"], breaks = "jenks")
 #' plot(IIC$d20000["dIICflux"], breaks = "jenks")
@@ -342,8 +342,10 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
             })
         }
       }
+
       dintra <- round((((attribute_2^2)) / num) * 100, 7); dflux <- round(2*(rowSums(mat1) - attribute_2^2)/ num * 100, 7)
-      dconnector <- round(map_dbl(delta - ((((attribute_2^2)) / num) * 100) - (2*(rowSums(mat1) - attribute_2^2)/ num * 100), function(y){if(y < 0){0} else {y}}), 10)
+      dconnector <- round(map_dbl(delta - ((((attribute_2^2)) / num) * 100) - (2*(rowSums(mat1) - attribute_2^2)/ num * 100), function(y){if(y < 0){0} else {y}}), 20)
+
       metric_conn <- data.frame("IdTemp2" = attribute_1[,1], "delta" = round(delta, 7),
                                 "dintra" = dintra, "dflux" = dflux, "dconnector" = dconnector,
                                 check.names = FALSE)

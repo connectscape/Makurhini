@@ -22,6 +22,8 @@ get_sdist(
 \arguments{
 \item{dist_nodes}{matrix distance or pairwise data.frame distance}
 
+\item{attr_nodes}{numeric. Nodes attribute}
+
 \item{metric}{character. 'PC' or 'IIC'}
 
 \item{probability}{numeric}
@@ -37,6 +39,8 @@ get_sdist(
 \item{G1}{numeric}
 
 \item{G2}{numeric}
+
+\item{min_nodes}{numeric}
 
 \item{intern}{logical}
 }

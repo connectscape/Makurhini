@@ -89,6 +89,46 @@ Sys.getenv("GITHUB_PAT")
 Sys.unsetenv("GITHUB_PAT")
 ```
 
+## Makurhini on Linux
+
+To install Makurhini on Ubuntu linux consider the following steps:
+
+1)  Use the **Linux command line** to install the *unit* package:
+
+    `sudo apt-get install -y libudunits2-dev`
+
+2)  Use the **Linux command line** to install *gdal*:
+
+    `sudo apt install libgdal-dev`
+
+3)  Use the **Linux command line** to install *libfontconfig* and
+    *libharfbuzz*:
+
+    `sudo apt install libfontconfig1-dev`
+
+    `sudo apt install libharfbuzz-dev libfribidi-dev`
+
+4)  You can now install the *devtools* and *remotes* packages, and the
+    *terra*, *raster* and *sf* packages directly in your **R or
+    RStudio**.
+
+    `install.packages(c('remotes', 'devtools', 'terra', 'raster', 'sf'))`
+
+5)  Use the **Linux command line** to install *igraph*:
+
+    `sudo apt-get install libnlopt-dev`
+
+    `sudo apt-get install r-cran-igraph`
+
+6)  You can now install the *gdistance*, *graph4lg* and *ggpubr*
+    packages directly in your **R or RStudio.**
+
+    `install.packages(c('gdistance', 'graph4lg', 'ggpubr'))`
+
+Note that the installation of Malurhini on Linux depends on your version
+of ubuntu and that you manage to install the packages that Makurhini
+depends on.
+
 ## Summary of main *Makurhini* functions
 
 <table class="table table-condensed">
@@ -337,13 +377,13 @@ head(IIC)
 #> Dimension:     XY
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
 #> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
-#>   id         dIIC    dIICintra    dIICflux dIICconnector
-#> 1  1 88.411692232 88.051222392 0.360469840  1.432188e-14
-#> 2  2  0.030370644  0.018141557 0.012229087  0.000000e+00
-#> 3  3  0.026284875  0.011944718 0.014340157  0.000000e+00
-#> 4  4  0.007659141  0.001153790 0.006505351  6.224188e-15
-#> 5  5  0.017896528  0.005537345 0.012359182  0.000000e+00
-#> 6  6  0.020887221  0.014122295 0.006764927  0.000000e+00
+#>   id       dIIC  dIICintra  dIICflux dIICconnector
+#> 1  1 88.6878612 88.6878612 0.0000000   0.00000e+00
+#> 2  2  0.0228809  0.0182727 0.0046082   0.00000e+00
+#> 3  3  0.0202227  0.0120311 0.0081916   0.00000e+00
+#> 4  4  0.0057703  0.0011621 0.0046082   0.00000e+00
+#> 5  5  0.0137690  0.0055774 0.0081916   2.91434e-15
+#> 6  6  0.0142244  0.0142244 0.0000000   0.00000e+00
 #>                         geometry
 #> 1 POLYGON ((3676911 589967.3,...
 #> 2 POLYGON ((3558044 696202.5,...
@@ -368,13 +408,13 @@ head(PC)
 #> Dimension:     XY
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
 #> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
-#>   id          dPC     dPCintra      dPCflux dPCconnector
-#> 1  1 89.076871365 89.076092740 7.786254e-04 0.000000e+00
-#> 2  2  0.019279012  0.018352716 9.262961e-04 0.000000e+00
-#> 3  3  0.013665190  0.012083748 1.581442e-03 0.000000e+00
-#> 4  4  0.001752818  0.001167219 5.855988e-04 2.907613e-15
-#> 5  5  0.006952601  0.005601797 1.350804e-03 5.138034e-15
-#> 6  6  0.014339722  0.014286671 5.305105e-05 1.560214e-15
+#>   id        dPC   dPCintra   dPCflux dPCconnector
+#> 1  1 89.0768714 89.0760927 0.0007786  0.00000e+00
+#> 2  2  0.0192790  0.0183527 0.0009263  0.00000e+00
+#> 3  3  0.0136652  0.0120837 0.0015814  0.00000e+00
+#> 4  4  0.0017528  0.0011672 0.0005856  0.00000e+00
+#> 5  5  0.0069526  0.0056018 0.0013508  4.42528e-15
+#> 6  6  0.0143397  0.0142867 0.0000531  0.00000e+00
 #>                         geometry
 #> 1 POLYGON ((3676911 589967.3,...
 #> 2 POLYGON ((3558044 696202.5,...

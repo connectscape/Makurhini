@@ -91,7 +91,7 @@ IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
                 area_unit = "m2",
                 distance = list(type = "centroid"),
                 parallel = NULL,
-                metric = "IIC", distance_thresholds = c(10000, 20000)) #10,20 km
+                metric = "PC", distance_thresholds = c(10000, 20000)) #10,20 km
 IIC
 plot(IIC$d20000["dIIC"], breaks = "jenks")
 plot(IIC$d20000["dIICflux"], breaks = "jenks")

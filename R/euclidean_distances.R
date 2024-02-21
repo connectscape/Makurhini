@@ -8,7 +8,7 @@
 #' @param keep numeric. Argument for higher processing speed. Only is available for "edge" distance or centroid equal FALSE, use this option to simplify the geometry and reduce the
 #'  number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (e.g., 0.02). The higher the value,
 #'   the higher the speed but the greater uncertainty.
-#' @param dist_Parallel logical or numeric. Only is available for "edge" and "centroid" distance, use this option to parallelize using furrr package and multiprocess plan, default = FALSE.
+#' @param distParallel logical or numeric. Only is available for "edge" and "centroid" distance, use this option to parallelize using furrr package and multiprocess plan, default = FALSE.
 #' @param ActiveParallel logical. It should be TRUE if there is already an open parallelization plan.
 #' @param pairwise logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.
 #' @param write_table character. "" indicates output to the console.
@@ -23,7 +23,7 @@
 #' @export
 euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
                                 keep = NULL, threshold = NULL, distParallel = FALSE,
-                                ActiveParallel = FALSE, n = 1000,
+                                ActiveParallel = FALSE,
                                 pairwise = TRUE, write_table = NULL){
   if(missing(id)){
     stop("missing id")

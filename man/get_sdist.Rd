@@ -6,6 +6,7 @@
 \usage{
 get_sdist(
   dist_nodes = NULL,
+  attr_nodes = NULL,
   metric = NULL,
   probability = NULL,
   distance_threshold = NULL,
@@ -14,6 +15,7 @@ get_sdist(
   loop = TRUE,
   G1 = 1000,
   G2 = 1000,
+  min_nodes = 2000,
   intern = TRUE
 )
 }

@@ -186,7 +186,7 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
     }
 
   } else {
-    dist <- distancefile(nodes = nodes,
+    dist <- tryCatch(distancefile(nodes = nodes,
                          id = idT,
                          type = distance$type,
                          distance_unit = distance$distance_unit,
@@ -200,13 +200,17 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
                          geometry_out = distance$geometry_out,
                          bounding_circles = distance$bounding_circles,
                          parallel = distance$parallel,
-                         edgeParallel = distance$edgeParallel,
                          ActiveParallel = FALSE,
                          least_cost.java = distance$least_cost.java,
                          cores.java = distance$cores.java,
                          ram.java = distance$ram.java,
                          pairwise = FALSE,
-                         write = NULL)
+                         write = NULL), error = function(err)err)
+    #dist <- distance
+    if(inherits(dist, "error")){
+      close_multiprocess()
+      stop(dist)
+    }
   }
 
   if(is.null(distance_thresholds)){
@@ -216,29 +220,27 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
   if(length(distance_thresholds) > 1 & isTRUE(intern)){
     pb <- txtProgressBar(0,length(distance_thresholds), style = 3)
   }
-
+  #x=1
+  #result <- list(result_metric)
   result <- lapply(1:length(distance_thresholds), function(x){
     x.1 <- distance_thresholds[x]; nodes.2 <- nodes
 
-    mat1 <- tryCatch(get_sdist(dist_nodes = dist, metric = metric,
+    mat1 <- tryCatch(get_sdist(dist_nodes = dist,
+                               attr_nodes = attribute_1[,2],
+                               metric = metric,
                                probability = probability,
                                distance_threshold = x.1,
                                igraph_Dijkstra = instr_dist,
                                parallel = parallel,
                                loop = TRUE, G1 = 1000, G2 = 1000,
                                intern = intern), error = function(err)err)
+    #mat1 <- smat
 
     if(inherits(mat1, "error")){
       stop("Error in short distance estimation")
     } else {
       attribute_2 <- attribute_1[,2]
-
-      if(metric == "IIC"){
-        mat2 <- outer(attribute_2, attribute_2) / (1 + mat1); mat2[which(mat1 == 0.0000001)] <- 0
-      } else {
-        mat2 <- outer(attribute_2, attribute_2) * mat1
-      }
-      num <- sum(mat2)
+      num <- sum(mat1)
     }
 
     # sum(2*(rowSums(mat2) - attribute_2^2)/ num * 100)
@@ -278,25 +280,23 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
       if(nrow(attribute_1) < 1000 & is.null(parallel)){
         delta <- map_dbl(1:nrow(attribute_1), function(i){
           attribute.i <- attribute_2[-i]
-          mat.i <- tryCatch(get_sdist(dist_nodes = dist[-i,-i], metric = metric,
+          mat.i <- tryCatch(get_sdist(dist_nodes = dist[-i,-i],
+                                      attr_nodes = attribute.i,
+                                      metric = metric,
                                       probability = probability,
                                       distance_threshold = x.1,
                                       igraph_Dijkstra = instr_dist,
                                       parallel = parallel, loop = TRUE,
                                       G1 = 1000, G2 = 1000, intern = FALSE), error = function(err)err)
 
-          if(inherits(mat1, "error")){
+          if(inherits(mat.i, "error")){
             stop("Error in short distance estimation")
           } else {
-            if(metric == "IIC"){
-              mat2.i <- outer(attribute.i, attribute.i) / (1 + mat.i); mat2.i[which(mat.i == 0.0000001)] <- 0
-            } else {
-              mat2.i <- outer(attribute.i, attribute.i) * mat.i
-            }
-            num.i <- sum(mat2.i); dC <- (num - num.i) / num * 100
+            num.i <- sum(mat.i); dC <- (num - num.i) / num * 100; return(dC)
           }
-          return(dC)})
+          })
       } else {
+        #Probar parallel fuera de la funcion o dentro de
         if(!is.null(parallel)){
           works <- as.numeric(availableCores())-1;works <- if(parallel > works){works}else{parallel}
           if(.Platform$OS.type == "unix") {
@@ -307,28 +307,27 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
           plan(strategy = strat, gc = TRUE, workers = works)
           delta <- future_map_dbl(1:nrow(attribute_1), function(i){
             attribute.i <- attribute_2[-i]
-            mat.i <- tryCatch(get_sdist(dist_nodes = dist[-i,-i], metric = metric,
+            mat.i <- tryCatch(get_sdist(dist_nodes = dist[-i,-i],
+                                        attr_nodes = attribute.i,
+                                        metric = metric,
                                         probability = probability,
                                         distance_threshold = x.1,
                                         igraph_Dijkstra = instr_dist,
                                         parallel = NULL, loop = TRUE,
                                         G1 = 1000, G2 = 1000, intern = FALSE), error = function(err)err)
 
-            if(inherits(mat1, "error")){
+            if(inherits(mat.i, "error")){
               stop("Error in short distance estimation")
             } else {
-              if(metric == "IIC"){
-                 mat2.i <- outer(attribute.i, attribute.i) / (1 + mat.i); mat2.i[which(mat.i == 0.0000001)] <- 0
-              } else {
-                mat2.i <- outer(attribute.i, attribute.i) * mat.i
-              }
-              num.i <- sum(mat2.i); dC <- (num - num.i) / num * 100
+              num.i <- sum(mat.i); dC <- (num - num.i) / num * 100; return(dC)
             }
-            return(dC)}, .progress = intern)
+            }, .progress = intern)
         } else {
           delta <- map_dbl(1:nrow(attribute_1), function(i){
             attribute.i <- attribute_2[-i]
-            mat.i <- tryCatch(get_sdist(dist_nodes = dist[-i,-i], metric = metric,
+            mat.i <- tryCatch(get_sdist(dist_nodes = dist[-i,-i],
+                                        attr_nodes = attribute.i,
+                                        metric = metric,
                                         probability = probability,
                                         distance_threshold = x.1,
                                         igraph_Dijkstra = instr_dist,
@@ -338,18 +337,13 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
             if(inherits(mat1, "error")){
               stop("Error in short distance estimation")
             } else {
-              if(metric == "IIC"){
-                 mat2.i <- outer(attribute.i, attribute.i) / (1 + mat.i); mat2.i[which(mat.i == 0.0000001)] <- 0
-              } else {
-                mat2.i <- outer(attribute.i, attribute.i) * mat.i
-              }
-              num.i <- sum(mat2.i); dC <- (num - num.i) / num * 100
+              num.i <- sum(mat.i); dC <- (num - num.i) / num * 100; return(dC)
             }
-            return(dC)})
+            })
         }
       }
-      dintra <- round((((attribute_2^2)) / num) * 100, 7); dflux <- round(2*(rowSums(mat2) - attribute_2^2)/ num * 100, 7)
-      dconnector <- round(map_dbl(delta - dintra - dflux, function(y){if(y < 0){0} else {y}}), 7)
+      dintra <- round((((attribute_2^2)) / num) * 100, 7); dflux <- round(2*(rowSums(mat1) - attribute_2^2)/ num * 100, 7)
+      dconnector <- round(map_dbl(delta - ((((attribute_2^2)) / num) * 100) - (2*(rowSums(mat1) - attribute_2^2)/ num * 100), function(y){if(y < 0){0} else {y}}), 10)
       metric_conn <- data.frame("IdTemp2" = attribute_1[,1], "delta" = round(delta, 7),
                                 "dintra" = dintra, "dflux" = dflux, "dconnector" = dconnector,
                                 check.names = FALSE)
@@ -373,30 +367,29 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
           dres[N] <- future_map_dbl(N, function(i){
             dist.i <- dist[-N[which(N %notin% i)],-N[which(N %notin% i)]]; attribute.i <- attribute_2[-N[which(N %notin% i)]]
 
-            mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
+            mat.i <- tryCatch(get_sdist(dist_nodes = dist.i,
+                                        attr_nodes = attribute.i,
+                                        metric = metric,
                                         probability = probability,
                                         distance_threshold = x.1,
                                         igraph_Dijkstra = FALSE,
                                         parallel = NULL, loop = TRUE,
                                         G1 = 1000, G2 = 1000, intern = FALSE), error = function(err)err)
 
-            if(inherits(mat1, "error")){
+            if(inherits(mat.i, "error")){
               stop("Error in short distance estimation")
             } else {
-              if(metric == "IIC"){
-                 mat2.i <- outer(attribute.i, attribute.i) / (1 + mat.i); mat2.i[which(mat.i == 0.0000001)] <- 0
-              } else {
-                mat2.i <- outer(attribute.i, attribute.i) * mat.i
-              }
-              num.i <- sum(mat2.i); dC <- (num.i- num.T0) / num.T0 * 100
+              num.i <- sum(mat.i); dC <- (num.i- num.T0) / num.T0 * 100; return(dC)
             }
-            return(dC)})
+            })
           close_multiprocess(works)
         } else {
           dres[N] <- map_dbl(N, function(i){
             dist.i <- dist[-N[which(N %notin% i)],-N[which(N %notin% i)]]; attribute.i <- attribute_2[-N[which(N %notin% i)]]
 
-            mat.i <- tryCatch(get_sdist(dist_nodes = dist.i, metric = metric,
+            mat.i <- tryCatch(get_sdist(dist_nodes = dist.i,
+                                        attr_nodes = attribute.i,
+                                        metric = metric,
                                         probability = probability,
                                         distance_threshold = x.1,
                                         igraph_Dijkstra = FALSE,
@@ -406,14 +399,9 @@ MK_dPCIIC <- function(nodes, attribute  = NULL,
             if(inherits(mat1, "error")){
               stop("Error in short distance estimation")
             } else {
-              if(metric == "IIC"){
-                mat2.i <- outer(attribute.i, attribute.i) / (1 + mat.i); mat2.i[which(mat.i == 0.0000001)] <- 0
-              } else {
-                mat2.i <- outer(attribute.i, attribute.i) * mat.i
-              }
-              num.i <- sum(mat2.i); dC <- (num.i- num.T0) / num.T0 * 100
+              num.i <- sum(mat.i); dC <- (num.i- num.T0) / num.T0 * 100; return(dC)
             }
-            return(dC)})
+            })
         }
 
         metric_conn <- cbind(metric_conn, dres)

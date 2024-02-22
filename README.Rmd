@@ -148,7 +148,7 @@ library(remotes)
 install_github("connectscape/Makurhini", dependencies = TRUE, upgrade = "never")
 ```
 
-Note that the installation of Malurhini on Linux depends on your version 
+Note that the installation of Makurhini on Linux depends on your version 
 of operating system and that you manage to install the packages that Makurhini
 depends on.
 

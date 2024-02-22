@@ -29,8 +29,7 @@ knitr::opts_chunk$set(
 
 ## NEWS
 
--   Thank you for using Makurhini. **We will have a new update in
-    October, so stay tuned!**
+-   Thank you for using Makurhini. **We will have a new update soon, so stay tuned!**
 
 ## Overview
 
@@ -109,7 +108,7 @@ Sys.unsetenv("GITHUB_PAT")
 
 ## Makurhini on Linux
 
-To install Makurhini on Ubuntu linux consider the following steps:
+To install Makurhini on linux consider the following steps:
 
 1)  Use the **Linux command line** to install the *unit* package:
 
@@ -140,9 +139,17 @@ To install Makurhini on Ubuntu linux consider the following steps:
     packages directly in your **R or RStudio.**
 
     `install.packages(c('gdistance', 'graph4lg', 'ggpubr'))`
+    
+7)  Now you can install Makurhini directly in your **R or RStudio.**
 
-Note that the installation of Malurhini on Linux depends on your version
-of ubuntu and that you manage to install the packages that Makurhini
+```{r echo=TRUE, eval=FALSE}
+library(devtools)
+library(remotes)
+install_github("connectscape/Makurhini", dependencies = TRUE, upgrade = "never")
+```
+
+Note that the installation of Malurhini on Linux depends on your version 
+of operating system and that you manage to install the packages that Makurhini
 depends on.
 
 ## Summary of main *Makurhini* functions

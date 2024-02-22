@@ -13,8 +13,8 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 ## NEWS
 
-- Thank you for using Makurhini. **We will have a new update in October,
-  so stay tuned!**
+- Thank you for using Makurhini. **We will have a new update soon, so
+  stay tuned!**
 
 ## Overview
 
@@ -91,7 +91,7 @@ Sys.unsetenv("GITHUB_PAT")
 
 ## Makurhini on Linux
 
-To install Makurhini on Ubuntu linux consider the following steps:
+To install Makurhini on linux consider the following steps:
 
 1)  Use the **Linux command line** to install the *unit* package:
 
@@ -125,9 +125,17 @@ To install Makurhini on Ubuntu linux consider the following steps:
 
     `install.packages(c('gdistance', 'graph4lg', 'ggpubr'))`
 
+7)  Now you can install Makurhini directly in your **R or RStudio.**
+
+``` r
+library(devtools)
+library(remotes)
+install_github("connectscape/Makurhini", dependencies = TRUE, upgrade = "never")
+```
+
 Note that the installation of Malurhini on Linux depends on your version
-of ubuntu and that you manage to install the packages that Makurhini
-depends on.
+of operating system and that you manage to install the packages that
+Makurhini depends on.
 
 ## Summary of main *Makurhini* functions
 
@@ -393,7 +401,7 @@ head(IIC)
 #> 6 POLYGON ((3590569 672451.7,...
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
 ### Probability of connectivity (PC) and fractions (Intra, Flux and Connector)
 
@@ -424,7 +432,7 @@ head(PC)
 #> 6 POLYGON ((3590569 672451.7,...
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
 
 ### Centrality measures
 
@@ -441,19 +449,19 @@ head(centrality_test)
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
 #> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #> # A tibble: 6 × 8
-#>      id degree eigen close   BWC cluster modules                        geometry
-#>   <int>  <dbl> <dbl> <dbl> <dbl>   <dbl>   <dbl>                   <POLYGON [m]>
-#> 1     1      0     0   NaN     0       1       1 ((3676911 589967.3, 3676931 58…
-#> 2     2      1     0     1     0       2       2 ((3558044 696202.5, 3557972 69…
-#> 3     3      1     0     1     0       3       3 ((3569169 687776.4, 3569146 68…
-#> 4     4      1     0     1     0       2       2 ((3547317 685713.2, 3547363 68…
-#> 5     5      1     0     1     0       3       3 ((3567471 684357.4, 3567380 68…
-#> 6     6      0     0   NaN     0       4       4 ((3590569 672451.7, 3590090 67…
+#>      id degree    eigen close   BWC cluster modules                     geometry
+#>   <int>  <dbl>    <dbl> <dbl> <dbl>   <dbl>   <dbl>                <POLYGON [m]>
+#> 1     1      0 0          NaN     0       1       1 ((3676911 589967.3, 3676931…
+#> 2     2      1 1.59e-16     1     0       2       2 ((3558044 696202.5, 3557972…
+#> 3     3      1 1.13e-16     1     0       3       3 ((3569169 687776.4, 3569146…
+#> 4     4      1 1.59e-16     1     0       2       2 ((3547317 685713.2, 3547363…
+#> 5     5      1 1.36e-16     1     0       3       3 ((3567471 684357.4, 3567380…
+#> 6     6      0 0          NaN     0       4       4 ((3590569 672451.7, 3590090…
 ```
 
 Examples:
 
-<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
 
 Moreover, you can change distance using the distance
 (<code>?distancefile</code>) argument:
@@ -494,7 +502,7 @@ Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distan
                                        perimeter_unit = "km")
 ```
 
-<img src="man/figures/README-unnamed-chunk-18-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-18-2.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-19-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-19-2.png" width="60%" />
 
 - The results are presented as a list, the first result is called
   *“Summary landscape metrics (Viewer Panel)”* and it has fragmentation
@@ -648,7 +656,7 @@ head(Fragmentation_test[[2]])
 #> 6 1.6735 POLYGON ((3590569 672451.7,...
 ```
 
-<img src="man/figures/README-unnamed-chunk-21-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-22-1.png" width="100%" />
 
 We can make a loop where we explore different edge depths. In the
 following example, We will explore 10 edge depths (*edge_distance
@@ -666,7 +674,7 @@ core area percentage and edge percentage (% core area + % edge = 100%).
     #> 5           300 Core Area   54.77231
     #> 6           300      Edge   45.22769
 
-<img src="man/figures/README-unnamed-chunk-23-1.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-24-1.png" width="60%" />
 
 The average core area percentage (average patch area that has the least
 possible edge effect) for all patches decreases by more than 70% when

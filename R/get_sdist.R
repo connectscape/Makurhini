@@ -45,6 +45,7 @@ get_sdist <- function(dist_nodes = NULL,
     }
 
     diag(Adj_matr) <- 0; mode(Adj_matr) <- "numeric"
+    Adj_matr[is.na(dist_nodes)] <- 0
     graph_nodes <- graph.adjacency(Adj_matr, mode = "undirected",
                                             weighted = if(metric == "IIC"){NULL}else{TRUE})
 
@@ -182,7 +183,7 @@ get_sdist <- function(dist_nodes = NULL,
       smat <- do.call(cbind, smat)
 
     } else {
-     smat <- get_distance_matrix(Graph = graph_nodes, from = toV, to = toV, allcores = FALSE)
+     smat <- get_distance_matrix(Graph = graph_nodes, from = toV, to = toV)
     }
 
     if(metric == "IIC"){
@@ -191,11 +192,18 @@ get_sdist <- function(dist_nodes = NULL,
   }
 
   if(metric == "PC"){
-    smat <- exp(-smat); smat[is.infinite(smat)] <- 0; smat <- outer(attr_nodes, attr_nodes) * smat
+    smat <- exp(-smat); smat[is.infinite(smat)] <- 0
+    if(!is.null(attr_nodes)){
+      smat <- outer(attr_nodes, attr_nodes) * smat
+    }
     invisible(gc());return(smat)
   } else {
-    smat2 <- outer(attr_nodes, attr_nodes) / (1 + smat); smat2[which(is.infinite(smat))] <- 0
-    invisible(gc());return(smat2)
+    if(!is.null(attr_nodes)){
+      smat2 <- outer(attr_nodes, attr_nodes) / (1 + smat); smat2[which(is.infinite(smat))] <- 0
+      invisible(gc()); return(smat2)
+    } else {
+      smat[which(is.infinite(smat))] <- 0; invisible(gc()); return(smat)
+    }
   }
 }
 

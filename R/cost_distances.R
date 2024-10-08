@@ -37,12 +37,14 @@
 #' @importFrom gdistance transition geoCorrection costDistance commuteDistance
 #' @importFrom methods as new
 #' @importFrom stats na.omit
-#' @importFrom utils combn write.table
+#' @importFrom utils combn write.table installed.packages install.packages
 #' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map
 #' @importFrom graph4lg mat_cost_dist
 #' @importFrom magrittr %>%
-#' @export
+#' @importFrom googledrive drive_download as_id
+#' @importFrom rappdirs user_data_dir
+#' @keywords internal
 
 cost_distances <- function(x, id,
                            LCD = "least-cost",
@@ -112,11 +114,48 @@ cost_distances <- function(x, id,
       cost <- cost[-which(is.na(cost$cost)),]
     }
 
-    distance_result <- mat_cost_dist(raster = resistance_1,
+    if(!all(cost$cost%%1==0)){
+      message("Please note that in order to use the Java option, the raster values must be integers. Makurhini will transform the values to integers to continue the process, otherwise please stop the process and use the default option, i.e. least_cost.java = FALSE.")
+      resistance_1 <- round(resistance_1)
+      val <- raster::values(resistance_1)
+      cost <- data.frame(code = unique(val),
+                         cost = unique(val))
+
+      if(length(which(is.na(cost$cost))) >0){
+        cost <- cost[-which(is.na(cost$cost)),]
+      }
+    }
+
+    distance_result <- tryCatch(mat_cost_dist(raster = resistance_1,
                            pts = pts_1,
                            cost = cost,
                            method = "java",
-                           parallel.java = cores.java, alloc_ram = ram.java)
+                           parallel.java = cores.java, alloc_ram = ram.java),
+                           error = function(err)err)
+
+    if(inherits(distance_result, "error")){
+      message("Makurhini will attempt to download the corrupted Java file once more via Google Drive and the 'googledrive' package. You will be required to authorize log-in to a Google Drive account. This process will only be necessary on this occasion.")
+      list.of.packages <- c("rappdirs", "googledrive")
+      new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+      if(length(new.packages) > 0){install.packages(new.packages, dependencies = TRUE)}
+      invisible(lapply(list.of.packages, function(x){suppressPackageStartupMessages(library(x, character.only = TRUE,
+                                                                                            warn.conflicts = FALSE,  quietly = TRUE))}))
+      data_dir <- rappdirs::user_data_dir()
+      if(!dir.exists(paths = paste0(data_dir, "/graph4lg_jar"))){
+        dir.create(path = paste0(data_dir, "/graph4lg_jar"))
+      }
+      destfile <- "/graph4lg_jar/costdist-0.4.1.jar"
+      dl <- googledrive::drive_download(
+        as_id("1FpGV0ktvbP_L6y9JkMtrHbQTSY0scV3x"),
+        path = paste0(data_dir, "/", destfile), overwrite = TRUE)
+
+      distance_result <- mat_cost_dist(raster = resistance_1,
+                                       pts = pts_1,
+                                       cost = cost,
+                                       method = "java",
+                                       parallel.java = cores.java, alloc_ram = ram.java)
+    }
+
     distance_result <- distance_result * res(resistance_1)[1]
 
     distance_result <- as.matrix(distance_result)

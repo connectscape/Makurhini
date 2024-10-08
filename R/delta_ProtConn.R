@@ -4,12 +4,12 @@
 #' @param x object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
 #' @param y object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
 #' @param base_param3 list
-#' @importFrom igraph graph.adjacency shortest.paths E
+#' @importFrom igraph graph_from_adjacency_matrix distances E
 #' @importFrom purrr map_df
 #' @keywords internal
 delta_ProtConn <- function(x = NULL, y=NULL, base_param3 = NULL){
   x.1 <- x
-  if(nrow(x.1)>1){
+  if(nrow(x.1) > 1){
     x.m <- base_param3[[1]]@nodes[which(base_param3[[1]]@nodes$IdTemp %in% x.1$IdTemp),]
     x.1$IdTemp <- 1:nrow(x.1); x.1$type <- "Non-Transboundary"
 
@@ -20,43 +20,39 @@ delta_ProtConn <- function(x = NULL, y=NULL, base_param3 = NULL){
       x.2 <- x.1[,c("IdTemp", "attribute", "type")]
     }
 
-    distance.d <- tryCatch(protconn_dist(x = x.2, id = "IdTemp",
+    dist_nodes <- tryCatch(protconn_dist(x = x.2, id = "IdTemp",
                                          y = base_param3[[2]]@distance,
                                          r = NULL,
                                          resistance = base_param3[[4]]),
                            error = function(err)err)
-    if(inherits(distance.d, "error")){
+    if(inherits(dist_nodes, "error")){
       stop("error distance. Check topology errors or resistance raster")
+    } else {
+      '%!in%' <- function(x,y)!('%in%'(x,y))
+      diag(dist_nodes) <- 0; mode(dist_nodes) <- "numeric"
+      dist_nodes[lower.tri(dist_nodes, diag = TRUE)] <- NA; dist_nodes <- as.data.frame(as.table(dist_nodes))
+      dist_nodes <- na.omit(dist_nodes); dist_nodes[,1] <- as.numeric(as.character(dist_nodes[,1]))
+      dist_nodes[,2] <- as.numeric(as.character(dist_nodes[,2])); names(dist_nodes) <- c("From", "To", "Distance")
     }
 
     deltasp <- lapply(base_param3[[2]]@distance_threshold, function(d){
-      #Matrix probability
-      Adj_matr <- distance.d * 0
-
-      #Negative kernel density
-      if(is.null(d)){
-        d <- mean(distance.d)
+      if(is.null(base_param3[[2]]@probability)){
+        k <- (1 / d); dist_nodes$Distance <- -log(exp(-k * dist_nodes$Distance))
+      } else {
+        dist_nodes$Distance <- -log(exp((dist_nodes$Distance * log(base_param3[[2]]@probability))/d))
       }
 
-      Adj_matr <- exp((distance.d * log(base_param3[[2]]@probability))/d)
-
-      diag(Adj_matr) <- 0; mode(Adj_matr) <- "numeric"
-
-      graph_nodes <- tryCatch(graph.adjacency(Adj_matr, mode = "undirected", weighted = TRUE),
-                              error = function(err) err)
-
+      graph_nodes <- tryCatch(makegraph(dist_nodes, directed = FALSE), error = function(err) err)
       if (inherits(graph_nodes, "error")) {
         stop("graph adjacency error delta protconn")
       }
-
-      #product of shortest paths
-      pij.mat <- tryCatch(shortest.paths(graph_nodes, weights = -log(E(graph_nodes)$weight)),
+      toV <- as.numeric(graph_nodes$dict$ref)
+      pij.mat <- tryCatch(get_distance_matrix(Graph = graph_nodes, from = toV, to = toV, algorithm = "phast"),
                           error = function(err) err)
-
       if(inherits(pij.mat, "error")) {
-        stop("graph shortest.paths error delta protconn")
+        stop("graph shortest.paths error")
       } else {
-        pij.mat <- exp(-pij.mat)
+        pij.mat <- exp(-pij.mat); pij.mat[is.infinite(pij.mat)] <- 0
       }
 
       t <- which(x.1$type == "Transboundary"); aiaj <- outer(x.2$attribute, x.2$attribute, FUN = "*")
@@ -67,14 +63,13 @@ delta_ProtConn <- function(x = NULL, y=NULL, base_param3 = NULL){
 
       #delta
       delta.1 <- purrr::map_df(1:nrow(x.1), function(i){
-        mat.i <- Adj_matr[-i,-i]; n.i <- x.2[-i,]; attribute.i <- n.i$attribute
-        g.i <- graph.adjacency(mat.i, mode = "undirected",
-                               weighted = TRUE)
-        mat.i <- shortest.paths(g.i, weights = -log(E(g.i)$weight))
-        mat.i <- exp(-mat.i); t <- which(n.i$type == "Transboundary")
-
-        aiaj <- outer(attribute.i, attribute.i, FUN = "*")
-        aiaj[t,] <- 1; aiaj[,t] <- 1; PCmat.i <- aiaj * mat.i
+        graph_nodes.i <- graph_nodes; n.i <- x.2[-i,]; attribute.i <- n.i$attribute
+        graph_nodes.i$data <- graph_nodes.i$data[-which(graph_nodes.i$data$from == (i-1)|graph_nodes.i$data$to == (i-1)),]
+        graph_nodes.i$dict <- graph_nodes.i$dict[-which(graph_nodes.i$dict$ref == i),]
+        toV <- as.numeric(graph_nodes.i$dict$ref)
+        mat.i <- get_distance_matrix(Graph = graph_nodes.i, from = toV, to = toV, algorithm = "phast")
+        mat.i <- exp(-mat.i); mat.i[is.infinite(mat.i)] <- 0; t <- which(n.i$type == "Transboundary")
+        aiaj <- outer(attribute.i, attribute.i, FUN = "*"); aiaj[t,] <- 1; aiaj[,t] <- 1; PCmat.i <- aiaj * mat.i
         num.i <- sum(PCmat.i); ECA.i <- sqrt(num.i)
         #ProtConn
         ProtConn.i <- 100 * (ECA.i / base_param3[[5]]); Prot.i <- sum(attribute.i)/base_param3[[5]] *100

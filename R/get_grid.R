@@ -3,7 +3,6 @@
 #' @param region object of class sf, sfc, sfg or SpatialPolygons
 #' @param grid_pol object of class sf, sfc, sfg or SpatialPolygons. Grid hexagones or squares. The
 #' shapefile must be in a projected coordinate system.
-#' @param grid_id character. Column name of the grid ID.
 #' @param hexagonal logical. If FALSE will be a regular grid of "square".
 #' @param cellsize numeric. Grid area (square kilometers).
 #' @param grid_boundary logical.If TRUE, the Incomplete "hexagons" or "squares" in the boundaries of
@@ -17,10 +16,13 @@
 #' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip
 #' @importFrom methods setClass new
 #' @keywords internal
-get_grid <- function(region = NULL, grid_pol = NULL, grid_id = NULL,
+get_grid <- function(region = NULL,
+                     grid_pol = NULL,
                      hexagonal = TRUE,
-                     cellsize = NULL, grid_boundary = FALSE,
-                     clip = FALSE, tolerance = NULL){
+                     cellsize = NULL,
+                     grid_boundary = FALSE,
+                     clip = FALSE,
+                     tolerance = NULL){
   class_cache <- new.env(parent = emptyenv())
   MK_grid <- setClass("grid", slots = list(grid = "sf"),
                                where = class_cache)

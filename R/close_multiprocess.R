@@ -5,12 +5,14 @@
 #' @importFrom tools pskill
 #' @importFrom ps ps
 #' @importFrom future sequential
+#' @export
+
 close_multiprocess <- function(w){
   if(missing(w) | !missing(w)){
     a <- ps::ps(); a <- a[which(a$name =="Rscript.exe"),1]
     for(i in a){
       tools::pskill(i)
     }
-    future::sequential()
+    sequential()
   }
 }

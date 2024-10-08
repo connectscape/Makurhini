@@ -1,51 +1,48 @@
 #' Get a table or matrix with the distances between pairs of nodes.
 #'
 #' Get a table or matrix with the distances (Euclidean or cost distances) between pairs of nodes. It can be used as a connector file.
-#' @param nodes object of class sf, SpatialPolygons, RasterLaryer or SpatRaster (terra package). It must be in a projected coordinate system.
-#' If nodes is a raster layer then raster values (Integer) will be taken as "id".
-#' @param id character. If nodes is a shapefile then you must specify the column name with the node ID in the shapefile data table.
-#' @param type character. Choose one of the distances: "centroid" (faster, default), where Euclidean distance is
-#' calculated from feature centroid; "edge", where Euclidean distance is calculated from feature edges;
-#' "least-cost" that takes into account obstacles and local friction of the landscape (see, "gdistance" package);
-#' "commute-time" that is analogous to the resistance distance of circuitscape. The commute-time distance is
-#' based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).
-#' If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.
-#' @param distance_unit character. If Euclidean distance is selected or resist.units is TRUE then you can set a distance unit, "Makurhini::unit_covert()"
-#' compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".
-#' @param keep numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
-#'  number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to NULL). The higher the value,
+#' @param nodes object of class \code{sf, SpatialPolygons, RasterLaryer or SpatRaster} (terra package). It must be in a \bold{projected coordinate system}.
+#' If nodes is a \code{raster} layer then raster values (Integer) will be taken as "id".
+#' @param id \code{character}. If nodes is a shapefile then you must specify the column name with the node ID in the shapefile data table.
+#' @param type \code{character}. Choose one of the distance options:\cr
+#' -    \code{"centroid"} (faster option, default), where Euclidean distance is calculated from feature centroid
+#' -    \code{"edge"}, where Euclidean distance is calculated from feature edges.\cr
+#' -    \code{"least-cost"} that takes into account obstacles and local friction of the landscape (see, \bold{gdistance} package).\cr
+#' -    \code{"commute-time"} that is analogous to the resistance distance of circuitscape. The commute-time distance is
+#' based on the random walk theory and calculated using the electrical circuit theory (See, \bold{gdistance} package).\cr
+#' If the type is equal to \code{"least-cost"} or \code{"commute-time"}, then you have to use the \bold{"resistance"} argument.
+#' @param distance_unit \code{character}. If \code{"least-cost"} or \code{"commute-time"} is selected or \code{resist.units = TRUE} then you can set a distance unit
+#'  ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m" (see, \link[Makurhini]{unit_convert}).
+#' @param keep \code{numeric}. In case you have selected the \code{"edge"} distance, use this option to simplify the geometry and reduce the
+#'  number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to \code{NULL}). The higher the value,
 #'   the higher the speed but less precision.
-#' @param resistance raster. Raster object with resistance values. NOTE. If least_cost.java is TRUE, then
-#'  resistance must bee an integer raster (i.e., integer values).
-#' @param resist.units logical. If type = "least-cost" then yo can transform cost units to geographic
-#'  units by multiplying the cost by the resolution of the raster.
-#' @param CostFun A function to compute the cost to move between cells. Available only if you you have selected
-#' the "least-cost" or "commute-time" distance. The default is the mean (isotropic cost distance):
-#' function(x) mean(x). If resistance is a conductance raster then you can use: function(x) 1/mean(x)
-#' @param ngh numeric.  Neighbor graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood),
-#' 8 (Moore neighborhood) or 16. Available only if you have selected
-#' the "least-cost" or "commute-time" distance.
-#' @param mask object of class sf, sfc, sfg or SpatialPolygons. For higher processing speed of "least-cost" or
-#' "commute-time" distances. Use this option to clip the resistance at the extent of the mask.
-#' @param threshold numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
-#' @param geometry_out numeric. You can use this argument if you have selected the "least-cost" or "commute-time" distance.
+#' @param resistance \code{raster}. Raster object with \bold{resistance} values. If \bold{\code{least_cost.java = TRUE}}, then
+#'  resistance must bee an \bold{integer raster} (i.e., integer values).
+#' @param resist.units \code{logical}. If \code{resist.units = TRUE} and \code{type = "least-cost"} then cost units are converted to metric units by multiplying the cost by the raster resolution.
+#' @param CostFun \code{function}. A function to compute the cost to move between cells. Available only if you you have selected
+#' the \code{"least-cost"} or \code{"commute-time"} distance. The default is the mean (isotropic cost distance):
+#' \code{function(x) 1/mean(x)}. If resistance is a conductance raster then you can use: \code{function(x) mean(x)}
+#' @param ngh \code{numeric}. Neighbor graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood),
+#' 8 (Moore neighborhood) or 16. Available only if you have selected the \code{"least-cost"} or \code{"commute-time"} distance.
+#' @param mask object of class \code{sf, sfc, sfg. SpatialPolygons}. For higher processing speed of \code{"least-cost"} or \code{"commute-time"} distances. Use this option to clip the resistance at the extent of the mask.
+#' @param threshold \code{numeric}. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
+#' @param geometry_out \code{numeric}. You can use this argument if you have selected the \code{"least-cost"} or \code{"commute-time"} distance.
 #' If some spatial geometries are out of the resistance extent, then a buffer zone the large enough to cover
 #' these spatial geometries and with this numeric value will be added to the resistance, so that it is possible to
 #' calculate a cost distance value for the pairs of nodes that involve these geometries and avoid an error.
-#' If NULL, then a Euclidean distance (centroid) will be calculated to find these distances.
-#' @param parallel logical or numerical. Recommended for a large number of nodes or very large RasterLayer.
-#' @param ActiveParallel logical. It should be TRUE if there is already an open parallelization plan.
-#' @param bounding_circles numeric. If a value is entered, this will create bounding circles around pairs of core areas
+#' If NULL, then the Euclidean distance between centroids (\code{type = "centroid"}) will be calculated to find these distances.
+#' @param parallel \code{logical} or \code{numerical}. Recommended for a large number of nodes or very large RasterLayer.
+#' @param ActiveParallel \code{logical}. It should be \code{TRUE} if there is already an open parallelization plan.
+#' @param bounding_circles \code{numeric}. If a value is entered, this will create bounding circles around pairs of core areas
 #'  (recommended for speed, large resistance rasters or pixel resolution < 150 m).
-#'  Buffer distances are entered in map units. Also, the function is parallelized using
-#'   and furrr package and multiprocess plan, default = NULL.
-#' @param least_cost.java logical. If TRUE then the programming language and computing platform 'java' will be used
-#' to estimate the least-cost distance USING only the FORMULA: function(x) 1/mean(x). It is necessary to have java installed. This option use
-#' the package 'graph4lg' to reduce computation times.
-#' @param cores.java numeric. Computer cores used to run the .jar file (see, graph4lg), default = 1.
-#' @param ram.java numeric. RAM gigabytes to run the .jar file (see, graph4lg), default = NULL.
-#' @param pairwise logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.
-#' @param write character. Output path, with name and extension ".txt".
+#'  Buffer distances are entered in map units.
+#' @param least_cost.java \code{logical}. If \code{TRUE} then the programming language and computing platform \bold{'java'} will be used
+#' to estimate the least-cost distance \bold{using a resistance raster and the following formula}: \code{function(x) 1/mean(x)}. It is necessary to have \bold{java} installed. This option use
+#' the package \bold{\code{graph4lg}} to reduce computation times.
+#' @param cores.java \code{numeric}. Computer cores used to run the .jar file (see, \bold{\code{graph4lg}} ), default = \code{1}.
+#' @param ram.java \code{numeric}. RAM gigabytes to run the .jar file (see, \bold{\code{graph4lg}} ), default = \code{NULL}.
+#' @param pairwise \code{logical}. If \code{TRUE} a pairwise table of class \code{data.frame} is returned (From, To, distance) otherwise it will be a \code{matrix}.
+#' @param write \code{character}. Output path, with name and extension \bold{".txt"}.
 #' @return Exports a euclidean or cost distance table between pairs of nodes.
 #' @references
 #' \url{https://www.rdocumentation.org/packages/rgeos/versions/0.3-26/topics/gDistance}\cr
@@ -59,7 +56,8 @@
 #' @importFrom magrittr %>%
 #' @importFrom terra rast minmax as.polygons unique subst
 #' @importFrom raster rasterToPoints crs raster
-distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, keep = NULL,
+distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL,
+                         keep = NULL,
                          resistance = NULL, resist.units = FALSE,
                          CostFun = NULL, ngh = NULL, mask = NULL,
                          threshold = NULL, geometry_out = NULL, bounding_circles = NULL,
@@ -88,8 +86,8 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
   }
 
   if(!grepl("Raster", class(nodes)[1])){
-    if(class(nodes)[1] == "sf" ){
-      nodes <- as(nodes, 'Spatial')
+    if(class(nodes)[1] != "sf" ){
+      nodes <- st_as_sf(nodes)
     }
 
     if(nrow(nodes) < 2){
@@ -106,28 +104,14 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
       }
     }
 
-    if(isFALSE(parallel) | is.null(parallel) & isTRUE(ActiveParallel)){
-      parallel = TRUE; works <- as.numeric(availableCores())-1
-
-      if(.Platform$OS.type == "unix") {
-        strat <- future::multicore
-      } else {
-        strat <- future::multisession
-      }
-
-      plan(strategy = strat, gc = TRUE, workers = works)
-    }
-
-  } else {
-    ###POR AHORA
-    if(class(nodes)[1] != "RasterLayer"){
-      nodes <- raster::raster(nodes)
-    }
-
     if(isTRUE(ActiveParallel)){
-      if(isFALSE(parallel) | is.null(parallel)){
-        parallel = TRUE
-        works <- as.numeric(availableCores())-1
+      parallel = FALSE
+      if(type == "edge"){
+        message("Parallel will not be used to get the edges of the fragments but it will be used to get the distances that is because we depend on the 'terra' package which until the release of this version of Makurhini cannot be serialized. A sequential loop will be used.")
+      }
+    } else {
+      if(isTRUE(parallel) | !is.null(parallel)){
+        parallel = TRUE; works <- as.numeric(availableCores())-1
 
         if(.Platform$OS.type == "unix") {
           strat <- future::multicore
@@ -137,7 +121,15 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
 
         plan(strategy = strat, gc = TRUE, workers = works)
       }
+    }
+  } else {
+    ###POR AHORA
+    if(class(nodes)[1] != "RasterLayer"){
+      nodes <- raster::raster(nodes)
+    }
 
+    if(isTRUE(ActiveParallel)){
+      parallel = FALSE
       if(type == "edge"){
         message("Parallel will not be used to get the edges of the fragments but it will be used to get the distances that is because we depend on the 'terra' package which until the release of this version of Makurhini cannot be serialized. A sequential loop will be used.")
       }
@@ -232,7 +224,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
                                     ActiveParallel = ActiveParallel,
                                     pairwise = pairwise,
                                     write_table = write)
-
+    return(distance)
   } else if (type %in%  c("least-cost", "commute-time")){
     distance <- cost_distances(x = nodes,
                                id = id,
@@ -254,11 +246,11 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL, ke
         distance <- unit_convert(distance, "m", distance_unit)
       }
     }
+    invisible(gc()); return(distance)
   } else {
     stop("Error, you have to choose a type option")
   }
-  invisible(gc())
-  return(distance)
+
 }
 
 

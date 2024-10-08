@@ -20,7 +20,7 @@
 #' @importFrom utils combn write.table
 #' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map
-#' @export
+#' @keywords internal
 euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
                                 keep = NULL, threshold = NULL, distParallel = FALSE,
                                 ActiveParallel = FALSE,
@@ -37,16 +37,16 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
     x <- st_as_sf(x)
   }
 
-  if(!is.null(write_table)) {
+  if(!is.null(write_table)){
     if(!dir.exists(dirname(write_table))) {
       stop("error, output folder does not exist")
     }
   }
 
-  if (isTRUE(centroid)){
+  if(isTRUE(centroid)){
     if(isFALSE(distParallel) | is.null(distParallel) & isFALSE(ActiveParallel)){
-      if(as.character(unique(st_geometry_type(x))) != "POINT"){
-        x <- st_centroid_within_poly(x)
+      if(any(as.character(unique(st_geometry_type(x))) != "POINT")){
+        x <- st_centroid_within_poly(poly = x)
       }
       distance <- st_distance(x, by_element = FALSE); attr(distance, "units") <- NULL; class(distance) <- setdiff(class(distance),"units")
     } else {
@@ -80,7 +80,6 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
       if(isFALSE(ActiveParallel)){
         close_multiprocess()
       }
-
     }
   } else {
     if(isFALSE(distParallel) | is.null(distParallel) & isFALSE(ActiveParallel)){

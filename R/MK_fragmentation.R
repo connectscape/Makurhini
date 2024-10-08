@@ -1,36 +1,38 @@
 #' Fragmentation Statistics
 #'
 #' Calculate patch and landscape statistics
-#' @param patches Object of class sf, sfc, sfg or SpatialPolygons. Individual patches, the shapefile must be in a projected coordinate system.
-#' @param edge_distance Numeric. Distance to edge in meters. Default equal 500 m (Haddad et al. 2015)
-#' @param min_patch_area Numeric. Minimum patch area used to calculate the number of patches with an area smaller than the one provided. Default equal 100 km2 (Haddad et al. 2015)
-#' @param landscape_area Numeric. Total area of the study landscape in km2 (optional). If NULL the total patch area will be used.
-#' @param area_unit character. You can set an area unit (e.g., "km2", "cm2", "m2", "ha"; see Makurhini::unit_convert). Default equal to square kilometers "km2".
-#' @param perimeter_unit character. You can set a perimeter unit (e.g., "km", "cm", "m", "ha"; see Makurhini::unit_convert). Default equal to kilometers "km".
-#' @param plot Logical. Basic histograms and core area - edge map.
-#' @param write Character. Write the tables, shapefile and and plots. It's necessary to specify the path and prefix, for example,
-#' to save in the path "C:/Folder" with the prefix "Fragmentation": "C:/Folder/Fragmentation".
+#' @param patches Object of class \code{sf, sfc, sfg, SpatialPolygons}. Individual patches, the object must be in a projected coordinate system.
+#' @param edge_distance \code{numeric}. Distance to edge in meters. Default equal 500 m (Haddad et al. 2015)
+#' @param min_patch_area \code{numeric}. Minimum patch area used to calculate the number of patches with an area smaller than the one provided. Default equal 100 km\out{<sup>2</sup>} (Haddad et al. 2015)
+#' @param landscape_area \code{numeric}. Total area of the study landscape in km\out{<sup>2</sup>} (optional). If NULL the total patch area will be used.
+#' @param area_unit \code{character}. You can set an area unit (e.g., "km2", "cm2", "m2", "ha"; see \link[Makurhini]{unit_convert}). Default equal to square kilometers "km2".
+#' @param perimeter_unit \code{character}. You can set a perimeter unit (e.g., "km", "cm", "m", "ha"; see \link[Makurhini]{unit_convert}). Default equal to kilometers "km".
+#' @param plot \code{logical}. Basic histograms and core area - edge map.
+#' @param write \code{character}. Write the table (landscape statistics), sf object (patch statistics) and plots. It's necessary to specify the path and prefix, for example,
+#' to save in the path "C:/Folder" with the prefix "Fragmentation": \code{"C:/Folder/Fragmentation"}.
 #' @return
 #' Patch and landscape statistics:\cr
 #' 1) Patches Area in square kilometers.\cr
 #' 2) Number patches.\cr
 #' 3) Mean size of patches.\cr
-#' 4) Number of patches smaller than 100 km2 or another minimum patch area.\cr
-#' 5) Area in square kilometers of patches smaller than 100 km2 or another minimum patch area.\cr
-#' 6) Total edge.\cr
-#' 7) Edge density.\cr
-#' 8) Total core area (km2; considering a distance to edge of 500 m).\cr
-#' 9) Total core area.\cr
-#' 10) Core percent.\cr
-#' 11) Edge percent.\cr
-#' 12) Cority index. It is a measure of fragmentation with respect to a distance from the core area of 500 m (Haddad et al., 2015), where a value of 1 indicates a landscape without fragmentation.\cr
-#' 13) Shape Index. A simple shape metric that takes values from 1 (perfectly compact) to infinity is derived by dividing the perimeter by the perimeter of a circle of the same area.\cr
-#' 14) Fractal dimension.\cr
-#' 15) Effective Mesh Size.\cr
+#' 4) Number of patches smaller than the parameter \code{min_patch_area} (default = 100 km\out{<sup>2</sup>}).\cr
+#' 5) Percentage of patches smaller than the parameter \code{min_patch_area} (default = 100 km\out{<sup>2</sup>}).\cr
+#' 6) Total patch edge. Total perimeter of the patches (unit = \code{perimeter_unit}).\cr
+#' 7) Edge density. Total perimeter per unit of area (unit = \code{area_unit}), default = km\out{<sup>2</sup>}. A value of 0 is present when there is no edge in the landscape.\cr
+#' 8) Patch density.\cr
+#' 9) Total core area (units = \code{area_unit}) considering the distance set in the parameter \code{edge_distance} (delfault = 500 m).\cr
+#' 10) Cority index. It is a measure of fragmentation with respect to a distance from the core area (parameter \code{edge_distance}; delfault = 500 m), where a value of 1 indicates a landscape without fragmentation. Average for landscape level.\cr
+#' 11) Shape Index. A simple shape metric that takes values from 1 (perfectly compact) to infinity is derived by dividing the perimeter by the perimeter of a circle of the same area. Average for landscape level. \cr
+#' 12) Fractal dimension. The index reflects the complexity of the shape of the fragment. A fractal dimension greater than 1 indicates an increase in the complexity of the shape. When the value is close to 1 the shape is simple, such as squares.Average for landscape level. \cr
+#' 13) Effective Mesh Size. Effective Mesh Size (MESH) is a measure of the degree of fragmentation in the landscape ranging from 0 to the total landscape area. MESH is maximum when the landscape unit consists of a single habitat fragment or the habitat is continuous beyond the landscape unit analyzed (Moser, 2007).\cr
+#' 14) Core percent (patch level). Percentage of core area in the patch (units = \code{area_unit}) considering the distance set in the parameter \code{edge_distance} (delfault = 500 m).\cr
+#' 15) Edge percent (patch level). Percentage of edge in the patch (units = \code{area_unit}) considering the distance set in the parameter \code{edge_distance} (delfault = 500 m).\cr
+#' 16) PARA (patch level). Ratio of the patch perimeter to area.
 #' @references
+#' Haddad et al. (2015). Science Advances 1(2):e1500052. https://www.science.org/doi/10.1126/sciadv.1500052.\cr
 #' McGarigal, K., S. A. Cushman, M. C. Neel, and E. Ene. 2002. FRAGSTATS: Spatial Pattern Analysis Program for Categorical Maps. Computer software program produced by the authors at the University of Massachusetts, Amherst. Available at the following web site:
 #'  \url{www.umass.edu/landeco/research/fragstats/fragstats.html}.\cr
-#' Haddad et al. (2015). Science Advances 1(2):e1500052. \url{DOI: 10.1126/sciadv.1500052}.
+#' Moser, B., Jaeger, J.A.G., Tappeiner, U. et al. Modification of the effective mesh size for measuring landscape fragmentation to solve the boundary problem. Landscape Ecol 22, 447–459 (2007).  \url{https://doi.org/10.1007/s10980-006-9023-0}
 #' @examples
 #' data("vegetation_patches", package = "Makurhini")
 #' nrow(vegetation_patches) # Number of patches
@@ -48,7 +50,7 @@
 #' @importFrom ggpubr ggarrange
 #' @importFrom utils installed.packages
 MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
-                             landscape_area = NULL, area_unit = "km2", perimeter_unit = "km",
+                             landscape_area = NULL, area_unit = "ha", perimeter_unit = "km",
                              plot = FALSE, write = NULL){
   if (missing(patches)) {
     stop("error missing shapefile file of patches")
@@ -76,18 +78,22 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
   ###Patch metrics
   CoreA <- st_buffer(patches, dist = -(edge_distance))
   data <- data.frame(IdTemp = patches$IdTemp,
-                     Area = cbind(round(unit_convert(st_area(patches, byid = T), "m2", area_unit), 4)),
-                     CA = cbind(round(unit_convert(st_area(CoreA), "m2", area_unit), 4)))
+                     Area = round(unit_convert(st_area(patches, byid = T), "m2", area_unit), 4),
+                     CA = round(unit_convert(st_area(CoreA), "m2", area_unit), 4))
   data$CAPercent <- round((data$CA * 100) / data$Area, 4)
   data$Perimeter <- round(unit_convert(st_length(st_boundary(patches)), "m", perimeter_unit), 3) %>% as.numeric()
   data$EdgePercent <- round((100 - data$CAPercent), 4)
   data$PARA <- round(data$Area / data$Perimeter, 4)
-  data$ShapeIndex <- round(( (data$Perimeter / (2 * pi)) * sqrt(data$Area/pi) ), 4)
-  data$FRAC <- round((2 * (log(0.25 * data$Perimeter)) ) / log(data$Area), 4)
+  data$ShapeIndex <- round(data$Perimeter / (2 * sqrt(data$Area*pi)), 4)
+  data$FRAC <- round((2 * (log(data$Perimeter))) / log(data$Area), 4)
   patches <- base::merge(patches, data, by = "IdTemp", all = T)
   patches$IdTemp <- NULL
 
   ###Landscape metrics
+  if (is.null(landscape_area)){
+    landscape_area <- round(sum(data$Area, na.rm = TRUE), 4)
+  }
+
   LM <- data.frame(a = round(sum(data$Area, na.rm = TRUE), 4),
                  b = nrow(data),
                  c = round(mean.default(data$Area, na.rm = TRUE), 4),
@@ -95,26 +101,24 @@ MK_Fragmentation <- function(patches, edge_distance = 500, min_patch_area = 100,
                  e = round(sum(data[which(data$Area < min_patch_area),]$Area, na.rm = TRUE) * 100 / sum(data$Area, na.rm = TRUE), 4),
                  f = round(sum(data$Perimeter, na.rm = TRUE), 4),
                  g = round(sum(data$Perimeter, na.rm = TRUE) / sum(data$Area, na.rm = TRUE), 4),
+                 l = round(((nrow(data)/unit_convert(landscape_area, area_unit, "m2")) * unit_convert(1, area_unit, "m2"))*100, 4),
                  h = round(sum(data$CA, na.rm = TRUE), 4),
                  i = round((nrow(data) - length(which(data$CA == 0))) / nrow(data), 4),
                  j = round(mean(data$ShapeIndex, na.rm = TRUE), 4),
-                 k = round(mean(data$FRAC, na.rm = TRUE), 4))
+                 k = round(mean(data$FRAC, na.rm = TRUE), 4),
+                 m = round((1/landscape_area) * sum(data$Area^2), 4))
 
-  LM_names <- c(paste0("Patch area (", area_unit, ")"), "Number of patches", "Size (mean)",
-                "Patches < minimum patch area", "Patches < minimum patch area (%)",
-                "Total edge", "Edge density",
+  LM_names <- c(paste0("Patch area (", area_unit, ")"),
+                "Number of patches",
+                "Size (mean)",
+                "Patches < minimum patch area",
+                "Patches < minimum patch area (%)",
+                "Total edge", "Edge density", "Patch density",
                 paste0("Total Core Area (", area_unit, ")"), "Cority",
                 "Shape Index (mean)",
                 "FRAC (mean)", paste0("MESH (", area_unit, ")"))
-
-  if (is.null(landscape_area)){
-    Mesh <- data.frame(Mesh = round((1 / LM[1]) * sum(data$Area^2), 3))
-  } else {
-    Mesh <- data.frame(Mesh = round((1/landscape_area) * sum(data$Area^2), 3))
-  }
-
-  LM <- t(cbind(LM, Mesh)) %>% as.data.frame()
-  LM$Metric <- LM_names; LM$Value <- LM[[1]]; rownames(LM) <- NULL; LM[1] <- NULL
+  LM <- t(LM) %>% as.data.frame(); LM$Metric <- LM_names
+  LM$Value <- LM[[1]]; rownames(LM) <- NULL; LM[1] <- NULL
 
   #Plot
 

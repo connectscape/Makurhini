@@ -21,37 +21,24 @@ Protconn_nodes <- function(x, y, id = "IdTemp", buff = NULL, method = "nodes", x
                            metrunit = "ha", protconn = TRUE, protconn_bound = FALSE,
                            delta = FALSE){
   options(warn = -1); . = NULL
-
   x$id <- 1; x <- x[,"id"]
-
   if(nrow(y) > 0){
     if(isTRUE(xsimplify)){
       x.0 <- rmapshaper::ms_simplify(x, keep = 0.1,  method = "vis",
-                                     keep_shapes = TRUE, explode = TRUE)
-      x.1 <- st_buffer(x.0, 0) %>%  ms_dissolve(.)
+                                     keep_shapes = TRUE, explode = TRUE) %>%
+        st_buffer(x = ., 0) %>%  ms_dissolve(.)
     } else {
       if(isTRUE(protconn_bound)){
         x.0 <- ms_explode(x)
       }
-      x.1 <- x
     }
-
-    y$PROTIDT <- 1:nrow(y)
-
-    '%!in%' <- function(x,y)!('%in%'(x,y))
-
+    x.1 <- x; y$PROTIDT <- 1:nrow(y); '%!in%' <- function(x,y)!('%in%'(x,y))
     y.1 <- over_poly(y, x.1, geometry = TRUE)
 
     if(nrow(y.1) > 1){
-      y.1 <- y.1 %>% st_buffer(., 0); y.1$id <- 1
+      y.1$id <- 1; y.1 <- st_buffer(y.1, 0)
       f1 <- terra::intersect(vect(y.1[,c(id, "id",  "geometry")]), vect(x.1[, "geometry"])) %>%
          terra::na.omit(., geom = TRUE)
-
-      # f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 0) %>%
-      #                  st_as_sf(.) %>% as(., 'Spatial') %>%
-      #                  sp::disaggregate(.) %>%
-      #                  st_as_sf(), error = function(err)err)
-
       f2 <- tryCatch(terra::aggregate(f1, "id") %>% terra::buffer(., 0) %>%
                        st_as_sf(.) %>% ms_explode(.), error = function(err)err)
 
@@ -67,18 +54,15 @@ Protconn_nodes <- function(x, y, id = "IdTemp", buff = NULL, method = "nodes", x
         if(nrow(f2) > 1){
           y.1 <- y.1[,"PROTIDT"]; f2$type <- "Non-Transboundary"; f2$attribute <- as.numeric(st_area(f2)) %>%
             unit_convert(., "m2", metrunit)
-
           #Transboundary
           y.2 <- y[which(y$PROTIDT %!in% y.1$PROTIDT),]
 
           if(nrow(y.2) > 0){
             f3 <- st_difference(y.1, x.1)
-
             #Dos metodos
             if(method == "nodes"){
               mask1 <- rmapshaper::ms_simplify(y.1, method = "vis", keep_shapes = TRUE)%>%
                 ms_dissolve() %>% st_buffer(., buff)
-
             } else {
               mask1 <- rmapshaper::ms_simplify(x.1, method = "vis", keep_shapes = TRUE)%>%
                 st_buffer(., buff)
@@ -94,13 +78,8 @@ Protconn_nodes <- function(x, y, id = "IdTemp", buff = NULL, method = "nodes", x
             }
 
             if(nrow(f5) >= 1){
-              # f5$id <- 1; f5_test <- tryCatch(terra::aggregate(vect(f5), "id") %>% terra::buffer(., 0) %>%
-              #                  st_as_sf(.) %>% as(., 'Spatial') %>%
-              #                  sp::disaggregate(.) %>%
-              #                  st_as_sf(), error = function(err)err)
               f5$id <- 1; f5_test <- tryCatch(terra::aggregate(vect(f5), "id") %>% terra::buffer(., 0) %>%
                                                 st_as_sf(.) %>% ms_explode(.), error = function(err)err)
-
               if(inherits(f5_test, "error")){
                 f5$id <- 1; f5 <- tryCatch(terra::buffer(vect(f5), 0) %>%
                              terra::aggregate(., "id") %>%
@@ -199,5 +178,6 @@ Protconn_nodes <- function(x, y, id = "IdTemp", buff = NULL, method = "nodes", x
   } else {
     f8 <- "NA"
   }
+  invisible(gc())
   return(f8)
 }

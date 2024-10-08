@@ -5,6 +5,7 @@
 #' @importFrom parallel makeCluster stopCluster parLapply detectCores
 #' @importFrom methods as
 #' @importFrom raster intersect
+#' @keywords internal
 PIntercsect<-function(p1,p2){
   if(class(p1)[1]=="sf"){
     p1 <- as(p1, 'Spatial')

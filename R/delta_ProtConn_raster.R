@@ -8,7 +8,7 @@
 #' @param distance list
 #' @param resist raster
 #' @param works numeric
-#' @importFrom igraph graph.adjacency shortest.paths E
+#' @importFrom igraph graph_from_adjacency_matrix distances E
 #' @importFrom purrr map_df
 #' @importFrom raster beginCluster endCluster clusterR reclassify rasterTmpFile values trim
 #' @importFrom terra trim classify rast vect values
@@ -42,7 +42,7 @@ delta_ProtConn_raster <- function(x = NULL, x.0 = NULL, y=NULL,distance_threshol
 
       Adj_matr <- exp((distance.d * log(probability))/d)
       diag(Adj_matr) <- 0; mode(Adj_matr) <- "numeric"
-      graph_nodes <- tryCatch(graph.adjacency(Adj_matr, mode = "undirected", weighted = TRUE),
+      graph_nodes <- tryCatch(igraph::graph_from_adjacency_matrix(Adj_matr, mode = "undirected", weighted = TRUE),
                               error = function(err) err)
 
       if (inherits(graph_nodes, "error")) {
@@ -50,7 +50,7 @@ delta_ProtConn_raster <- function(x = NULL, x.0 = NULL, y=NULL,distance_threshol
       }
 
       #product of shortest paths
-      pij.mat <- tryCatch(shortest.paths(graph_nodes, weights = -log(E(graph_nodes)$weight)),
+      pij.mat <- tryCatch(igraph::distances(graph_nodes, weights = -log(E(graph_nodes)$weight)),
                           error = function(err) err)
 
       if(inherits(pij.mat, "error")) {
@@ -66,9 +66,9 @@ delta_ProtConn_raster <- function(x = NULL, x.0 = NULL, y=NULL,distance_threshol
 
       delta.1 <- purrr::map_df(1:max(which(x.1$type == "Non-Transboundary")), function(i){
         mat.i <- Adj_matr[-i,-i]; n.i <- x.1[-i,]; attribute.i <- n.i$attribute
-        g.i <- graph.adjacency(mat.i, mode = "undirected",
+        g.i <- igraph::graph_from_adjacency_matrix(mat.i, mode = "undirected",
                                weighted = TRUE)
-        mat.i <- shortest.paths(g.i, weights = -log(E(g.i)$weight))
+        mat.i <- igraph::distances(g.i, weights = -log(E(g.i)$weight))
         mat.i <- exp(-mat.i)
         #
         t <- which(n.i$type == "Transboundary")

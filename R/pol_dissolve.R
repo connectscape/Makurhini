@@ -4,6 +4,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom sf st_as_sf st_cast st_union
 #' @importFrom methods as
+#' @keywords internal
 pol_dissolve<-function(polygone, attribute){
   . = NULL
   if(class(polygone)[1]!="sf"){

@@ -1,12 +1,14 @@
 #' Convert numeric types from one area unit to another
 #'
-#' @param data_unit numeric. Area value to be converted.
-#' @param unit_1 character. Select an area unit: "m2" = square meter, "Dam2" = square decametre,
+#' @param data_unit \code{numeric}. Area value to be converted.
+#' @param unit_1 \code{character}. Select an area unit: "m2" = square meter, "Dam2" = square decametre,
 #' "ha" = hectares, "km2" = square kilometer, "inch2" = square inch, "foot2" = square foot,
 #' "yard2" = square yard, "mile2" = square mile. Length unit: "m" = meter, "km" = kilometer, "inch", "foot", "yard", "mile"
-#' @param unit_2 character. Select an area unit: "m2" = square meter, "Dam2" = square decametre,
+#' @param unit_2 \code{character}. Select an area unit: "m2" = square meter, "Dam2" = square decametre,
 #' "ha" = hectares, "km2" = square kilometer, "inch2" = square inch, "foot2" = square foot,
 #' "yard2" = square yard, "mile2" = square mile. Length unit: "m" = meter, "km" = kilometer, "inch", "foot", "yard", "mile"
+#' @examples
+#' unit_convert(100, "km2", "ha")
 #' @export
 
 unit_convert <- function(data_unit,

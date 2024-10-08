@@ -7,11 +7,10 @@
 #' \url{https://stackoverflow.com/users/3609772/mitch}.
 #' @importFrom magrittr %>%
 #' @importFrom sf st_centroid st_within st_point_on_surface st_as_sf
-#' @export
+#' @keywords internal
 st_centroid_within_poly <- function(poly){
   options(warn = -1)
-  cl <- class(poly)[1]
-  if(cl != "sf"){
+  if(class(poly)[1] != "sf"){
     poly <- st_as_sf(poly)
   }
   centroid <- suppressWarnings(st_centroid(poly, of_largest_polygon = TRUE))

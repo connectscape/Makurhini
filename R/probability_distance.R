@@ -1,10 +1,10 @@
-#'Plot probability  of dispersal
+#' Plot probability  of dispersal
 #'
 #' Negative exponential dispersal kernel to calculate the probability of dispersal between two nodes. Used in probabilistic indexes (e.g., PC, BCPC, ProtConn etc.)
-#' @param probability numeric. Probability of dispersal at median_distance. If NULL
-#' @param median_distance numeric. Up to five maximum dispersal distance (km)
-#' @param eval_distance numeric. Calculate the probability of dispersal at a specific median distances (km). Available when only one median_distance is used.
-#' @param min.prob numeric. Value between 0-1, maximum x axe value
+#' @param probability \code{numeric}. Probability of dispersal at \code{median_distance} parameter.
+#' @param median_distance \code{numeric}. Up to five maximum dispersal distance in km.
+#' @param eval_distance \code{numeric}. Calculate the probability of dispersal at a specific median distances (km). Available when only one median_distance is used.
+#' @param min.prob \code{numeric}. Value between 0-1, maximum \code{x} axe value.
 #' @examples
 #' \dontrun{
 #' probability_distance(probability= 0.5, median_distance = c(1, 10, 30, 100), min.prob = 0.01)

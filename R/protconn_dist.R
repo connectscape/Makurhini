@@ -19,11 +19,11 @@ protconn_dist <- function(x, id, y, r = NULL, resistance = NULL, resist.units = 
       stop("error, you need a resistance raster")
     }
   }
+  if(nrow(x[which(x$type == "Non-Transboundary"),]) > 1){
 
-
-  if(nrow(x[which(x$type == "Non-Transboundary"),])>1){
     distance_base <- tryCatch(distancefile(nodes = x,  id = id, type = y$type,
-                                           distance_unit = y$distance_unit, keep = y$keep,
+                                           distance_unit = y$distance_unit,
+                                           keep = y$keep,
                                            resistance = resistance,
                                            resist.units = y$resist.units,
                                            CostFun = y$CostFun, ngh = y$ngh,
@@ -81,12 +81,10 @@ protconn_dist <- function(x, id, y, r = NULL, resistance = NULL, resist.units = 
                           which(colnames(distance_base) == as.character(bn[i]))] <- 0
           }
         }
-
       } else {
         stop("error. You need region shapefile (r parameter)")
       }
     }
-
   } else {
     distance_base <- "No pair nodes"
   }

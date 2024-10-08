@@ -18,27 +18,26 @@ plotprotconn <- function(DataProtconn, d){
   Data_plot_1 <- Data_plot[which(Data_plot$Indicator %in% c("Unprotected", "Prot","ProtConn")),]
   Data_plot_1$Indicator[which(Data_plot_1$Indicator == "ProtConn")] <-  "Protected connected"
   Data_plot_1$Indicator[which(Data_plot_1$Indicator == "Prot")] <-  "Protected"
-
   Data_plot_1$Indicator <- factor(Data_plot_1$Indicator, levels = c("Unprotected", "Protected", "Protected connected"))
   names(Data_plot_1) <- c("Values", "name")
-  Data_plot_1$col <- c("#53A768", "#C34D51", "#4C72AF")
   Data_plot_1[which(Data_plot_1$Values == 0), ] <- NULL
 
   if(nrow(Data_plot_1) > 1){
     plot_protconn1 <- ggplot(Data_plot_1, aes(x = Data_plot_1$name, y = Data_plot_1$Values,
                                               fill = Data_plot_1$name)) +
       geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, size = 0.2) +
-      labs(title = paste0("ProtConn Indicators: ", d), x = "", y = "Percentage (%)", size = rel(1.2)) +
+      labs(title = paste0("ProtConn Indicators: ", d , " m"), x = "", y = "Percentage (%)", size = rel(1.2)) +
       theme_bw()  +
       theme(plot.title = element_text(color = "#252525", size = rel(1.4), hjust = 0.5, face = "bold"),
             axis.title = element_text(color = "#252525", size = rel(1.2)),
             legend.title = element_blank(),
             legend.text = element_text(colour = "#252525", size = rel(1.2)),
             axis.text= element_text(colour = "#525252", size = rel(1)))+
-      scale_fill_manual(values = Data_plot_1$col) +
+      scale_fill_manual(values = c("#fc8d62", "#66c2a5", "#8da0cb")) +
       geom_hline(aes(yintercept = 17, linetype = "Aichi Target (17%)"), colour = 'black', size = 1.2) +
+      geom_hline(aes(yintercept = 30, linetype = "Kunming-Montreal (30%)"), colour = 'red', size = 1.2)+
       scale_linetype_manual(name = " Aichi Target", values = c(2, 2),
-                            guide = guide_legend(override.aes = list(color = c("black"), size = 0.8)))
+                            guide = guide_legend(override.aes = list(color = c("black", 'red'), size = 0.8)))
 
     plot_protconn[[1]] <- plot_protconn1
   }

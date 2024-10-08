@@ -8,10 +8,11 @@
 #'  with the attribute in the data table selected for the nodes.
 #'  If nodes is a raster layer then it must be a numeric vector with the node's attribute. The length of the vector must be equal to the number of nodes.
 #'   The numeric vector is multiplied by the area of each node to obtain a weighted habitat index.
-#'   If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
+#'   If NULL the \bold{node area} will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
 #' @param area_unit character. If attribute is NULL you can set an area unit, ?unit_covert
 #' compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to "m2".
-#' @param restoration character or vector. If nodes is a shappefile then you must specify the name of the column
+#' @param weighted logical. If the nodes are of raster type, you can weight the estimated area of each node by the attribute. When using this parameter the attribute, which must be a vector of length equal to the number of nodes, usually has values between 0 and 1.
+#' @param restoration character or vector. If nodes is a shapefile then you must specify the name of the column
 #' with restoration value. If nodes is a raster layer then must be a numeric vector with restoration values
 #' to each node in the raster. Binary values (0,1), where 1 = existing nodes in the landscape, and 0 = a new node
 #'  to add to the initial landscape (restored).
@@ -22,8 +23,9 @@
 #' @importFrom sf st_zm st_as_sf st_area
 #' @importFrom methods as
 #' @importFrom utils write.table
-nodesfile <- function(nodes, id = NULL, attribute = NULL, area_unit = "m2",
-                      restoration = NULL,
+nodesfile <- function(nodes, id = NULL,
+                      attribute = NULL, area_unit = "m2",
+                      restoration = NULL, weighted = FALSE,
                       write = NULL) {
   if (missing(nodes)) {
     stop("error missing file of nodes")
@@ -62,10 +64,15 @@ nodesfile <- function(nodes, id = NULL, attribute = NULL, area_unit = "m2",
                        which(names(nodes) == restoration))] |> st_drop_geometry() |> as.data.frame()
 
   } else if (class(nodes)[1] == "RasterLayer" | class(nodes)[1] == "SpatRaster"){
-    nres <- unit_convert(res(nodes)[1]^2, "m2", area_unit); nodes <- as.data.frame(table(nodes[]));nodes$Freq <- nodes$Freq * nres
-
     if(!is.null(attribute)){
-      nodes$Freq <- nodes$Freq * attribute
+      if(isTRUE(weighted)){
+        nres <- unit_convert(res(nodes)[1]^2, "m2", area_unit);nodes <- as.data.frame(table(nodes[]));nodes$Freq <- nodes$Freq * nres
+        nodes$Freq <- nodes$Freq * attribute
+      } else {
+        nodes <- as.data.frame(table(nodes[])); nodes$Freq <- attribute
+      }
+    } else {
+      nres <- unit_convert(res(nodes)[1]^2, "m2", area_unit); nodes <- as.data.frame(table(nodes[]));nodes$Freq <- nodes$Freq * nres
     }
 
     names(nodes)[1:2] <- c("Id", "attribute"); nodes <- nodes[,1:2]; id = "Id"

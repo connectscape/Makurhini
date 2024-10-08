@@ -7,9 +7,6 @@
 #' @param probability numeric
 #' @param transboundary numeric
 #' @param distance list
-#' @importFrom sf st_sf st_cast st_buffer st_difference st_area st_geometry
-#' @importFrom magrittr %>%
-#' @importFrom rmapshaper ms_dissolve ms_simplify ms_clip
 #' @importFrom methods setClass new
 #' @keywords internal
 
@@ -42,46 +39,42 @@ metric_class <- function(metric = NULL,
                                                distance = "list"),
                      where = class_cache)
 
-
-
     if(is.null(transboundary)){
       tr <- 100
     } else {
       tr <- transboundary; tr[which(tr == 0)] <- 100
       }
 
-    metr.2 <- new("MK_Metric", metric = metric,
+    metr <- new("MK_Metric", metric = metric,
                   attribute = attribute,
                   thintersect = thintersect,
                   distance_threshold = distance_threshold,
                   probability = if(is.null(probability)){2} else {probability},
                   transboundary = tr,
                   distance = distance)
-
-
+    return(metr)
   } else if(metric == "PC"){
     metr <- setClass("MK_Metric", slots = list(metric = "character",
                                                distance_threshold = "numeric",
                                                probability = "numeric",
                                                distance = "list"),
                      where = class_cache)
-    metr.2 <- new("MK_Metric",metric = metric,
+    metr <- new("MK_Metric", metric = metric,
                   distance_threshold = distance_threshold,
                   probability = if(is.null(probability)){2} else {probability},
                   distance = distance)
-
+    return(metr)
   } else if(metric == "IIC"){
     metr <- setClass("MK_Metric", slots = list(metric = "character",
                                                distance_threshold = "numeric",
                                                distance = "list"),
                      where = class_cache)
-    metr.2 <- new("MK_Metric",metric = metric,
+    metr <- new("MK_Metric", metric = metric,
                   distance_threshold = distance_threshold,
                   distance = distance)
+    return(metr)
   } else {
     stop("error select between: ProtConn, PC or IIC")
   }
-
-  return(metr.2)
 }
 

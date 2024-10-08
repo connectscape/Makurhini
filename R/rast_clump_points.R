@@ -7,11 +7,9 @@
 #' @importFrom future plan multicore multisession availableCores
 #' @importFrom furrr future_map
 #' @importFrom sf st_as_sf
-#' @export
+#' @keywords internal
 rast_clump_points <- function(x, parallel = NULL, centroid_geometry = FALSE){
-  x.0 <- raster::values(x)
-  x.0 <- unique(x.0)
-  x.0 <- x.0[which(!is.na(x.0))]
+  x.0 <- raster::values(x); x.0 <- unique(x.0); x.0 <- x.0[which(!is.na(x.0))]
   crsx <- crs(x)
 
   if(is.null(parallel)){

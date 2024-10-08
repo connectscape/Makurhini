@@ -6,7 +6,7 @@
 #' @param pmedian logical. median (TRUE) or mean(FALSE) dispersal distance
 #' @param d numeric. Dispersal distance
 #' @param LA numeric. Max. landscape attribute
-#' @importFrom igraph graph.adjacency shortest.paths E
+#' @importFrom igraph graph_from_adjacency_matrix distances E
 #' @importFrom sf st_sf st_as_sf st_geometry
 #' @keywords internal
 get_pc_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL){
@@ -22,7 +22,7 @@ get_pc_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL){
   diag(Adj_matr) <- 0; mode(Adj_matr) <- "numeric"
 
   #adjacency
-  graph_nodes <- tryCatch(graph.adjacency(Adj_matr, mode = "undirected",
+  graph_nodes <- tryCatch(igraph::graph_from_adjacency_matrix(Adj_matr, mode = "undirected",
                                           weighted = TRUE), error = function(err) err)
 
   if (inherits(graph_nodes, "error")) {
@@ -30,7 +30,7 @@ get_pc_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL){
   }
 
   #product of shortest paths
-  pij.mat <- tryCatch(shortest.paths(graph_nodes,
+  pij.mat <- tryCatch(igraph::distances(graph_nodes,
                                      weights = -log(E(graph_nodes)$weight)), error = function(err) err)
 
   if(inherits(pij.mat, "error")) {

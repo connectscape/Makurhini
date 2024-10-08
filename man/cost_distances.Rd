@@ -79,3 +79,4 @@ Jacob van Etten. 2017. R Package gdistance: Distances and Routes on Geographical
 	Paul Savary. 2020. R Package graph4lg: Build Graphs for Landscape Genetics Analysis.
  \url{https://cran.r-project.org/web/packages/graph4lg/index.html}
 }
+\keyword{internal}

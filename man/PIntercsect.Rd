@@ -14,3 +14,4 @@ PIntercsect(p1, p2)
 \description{
 intersect polygons
 }
+\keyword{internal}

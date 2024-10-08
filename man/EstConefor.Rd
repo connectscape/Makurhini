@@ -22,45 +22,47 @@ EstConefor(
 )
 }
 \arguments{
-\item{nodeFile}{character. Node file name. If prefix is true use the prefix name}
+\item{nodeFile}{\code{character}. Node file name. If the \code{prefix} parameter is used, then use the prefix name.}
 
-\item{coneforpath}{character. Path to Conefor 2.6 with command line interface
-(\url{http://www.conefor.org/coneforsensinode.html}). Example, "C:/Users/coneforWin64.exe".}
+\item{coneforpath}{\code{character}. Path to \bold{Conefor 2.6 with command line interface}
+(for more details and download \url{http://www.conefor.org/coneforsensinode.html}). Example, "C:/Users/coneforWin64.exe".}
 
-\item{connectionFile}{character. Connection file name. If prefix is true use the prefix name}
+\item{connectionFile}{\code{character}. Connection file name. If prefix is true use the prefix name.}
 
-\item{typeconnection}{character. Indicate if it is distance (dist), probability (prob), adjacency (adj)}
+\item{typeconnection}{\code{character}. Indicate if it is distance (dist), probability (prob), adjacency (adj).}
 
-\item{typepairs}{character. "all" if all pairs of patches are in the distances file and "notall" if only they are the most important connections}
+\item{typepairs}{\code{character}. \code{"all"} if all pairs of patches are in the distances file and \code{"notall"} if only they are the most important connections.}
 
-\item{index}{character. Select Binary index (CCP, LCP, IIC, BC, BCIIC, NC, NL, H) or Probabilistic (F, AWF, PC, BCPC)}
+\item{index}{\code{character}. Select Binary index (CCP, LCP, IIC, BC, BCIIC, NC, NL, H) or Probabilistic (F, AWF, PC, BCPC).}
 
-\item{thdist}{numeric. Distance threshold to establish connections}
+\item{thdist}{\code{numeric}. Distance threshold to establish connections.}
 
-\item{multdist}{numeric vector. Multiple distance threshold to establish connections (meters). The minimum (min) and maximum (max) distance values to be calculated need to be specified, as well as the value by which the distance value must be increased (step) starting from min until max is reached, e.g. multdist = c(min=10000, max=100000, step=10000)}
+\item{multdist}{\code{numeric}. Multiple distance threshold to establish connections (meters). The minimum (min) and maximum (max) distance values to be calculated need to be specified, as well as the value by which the distance value must be increased (step) starting from min until max is reached, e.g. \code{multdist = c(min=10000, max=100000, step=10000)}.}
 
-\item{conprob}{numeric. If a probabilistic index is selected, indicate the probability of connection under the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection}
+\item{conprob}{\code{numeric}. If a probabilistic index is selected, indicate the probability of connection under the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection.}
 
-\item{onlyoverall}{logical. Estimate only overall index, default TRUE}
+\item{onlyoverall}{\code{logical}. Estimate only overall index, default \code{TRUE}.}
 
-\item{LA}{numeric. Maximum landscape attribute}
+\item{LA}{\code{numeric}. Maximum landscape attribute.}
 
-\item{nrestauration}{logical. If TRUE Indicates that there are nodes to add to the initial landscape -restauration effect-. The nodeFile needs a third column with values of 0 or 1 indicating for each node whether it already exists in the landscape (1) or is a candidate to be added to the landscape (0).The onlyoverall option have to be FALSE.}
+\item{nrestauration}{\code{logical}. If \code{TRUE} Indicates that there are nodes to add to the initial landscape -restauration effect-. The nodeFile needs a third column with values of 0 or 1 indicating for each node whether it already exists in the landscape (1) or is a candidate to be added to the landscape (0).The onlyoverall option have to be \code{FALSE}.}
 
-\item{prefix}{character. Used in case of processing several sites at once}
+\item{prefix}{\code{character}. Used in case of processing several sites at once.}
 
-\item{write}{character. Full path direction of the folder}
+\item{write}{\code{character}. Full path direction of the folder.}
 }
 \value{
-Four files .txt:"overall_indices", "results_all_EC(PC)", "results_all_overall_indices" y "node_importance"
+Four .txt files: "overall_indices", "results_all_EC(PC)", "results_all_overall_indices" y "node_importance".
 }
 \description{
 Use the CONEFOR command line to estimate probabilistic and binary connectivity indexes
 }
 \examples{
 \dontrun{
+library(Makurhini)
 setwd("~")
 EstConefor(nodeFile = "nodes.txt",
+          coneforpath = "C:/Users/coneforWin64.exe",
           connectionFile = "dist.txt",
           typeconnection = "dist",
           typepairs = "notall",

@@ -2,54 +2,75 @@
 % Please edit documentation in R/MK_dECA_grid.R
 \name{MK_dECA_grid}
 \alias{MK_dECA_grid}
-\title{dA and dECA in a regular grid}
+\title{Estimate the ECA, dA and dECA in a regular grid}
 \usage{
 MK_dECA_grid(
   nodes,
-  area_unit = "m2",
+  nodes_names = NULL,
+  attribute = NULL,
   region = NULL,
-  grid_param = list(grid_pol = NULL, grid_id = NULL, hexagonal = TRUE, cellsize = NULL,
-    grid_boundary = FALSE, clip = FALSE, tolerance = NULL),
+  grid = list(hexagonal = TRUE, cellsize = NULL, grid_boundary = FALSE, clip = FALSE,
+    tolerance = NULL),
+  area_unit = "m2",
   distance = list(type = "centroid"),
   metric = "IIC",
   distance_threshold = NULL,
+  threshold,
   probability = NULL,
-  intern = TRUE,
-  parallel = NULL
+  parallel = NULL,
+  intern = TRUE
 )
 }
 \arguments{
-\item{nodes}{list of objects class sf, SpatialPolygonsDataFrame. Nodes of each time to analyze.
-The shapefiles must be in a projected coordinate system.}
+\item{nodes}{\code{list}. List of objects containing nodes (e.g., habitat patches or fragments) of each time to analyze information. Nodes are spatial data of type vector (class \code{sf, SpatVector, SpatialPolygonsDataFrame}). It must be in a projected coordinate system.}
 
-\item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit
-("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".}
+\item{nodes_names}{\code{character}. (\emph{optional, default =} \code{NULL}). Name of each time or scenario used in the nodes parameter}
 
-\item{region}{object of class sf, sfc, sfg or SpatialPolygons. Region shapefile, the shapefile must be
+\item{attribute}{\code{character}. If \code{NULL} the area of the nodes will be used as the node attribute. The unit of area can be selected using the \code{area_unit} parameter.
+Specify \bold{the name of the column} containing the attribute for the nodes. The column name must be present in each element of the node list.\cr}
+
+\item{region}{object of class \code{sf}, \code{SpatialPolygonsDataFrame}. Polygon delimiting the region or study area. It must be
 in a projected coordinate system.}
 
-\item{grid_param}{list. Parameters of the grid shapefile, see \link[Makurhini]{get_grid}.Just omit the parameter 'region'. Example,
-list(grid_pol = NULL, hexagonal = TRUE, grid_id = NULL, cellsize = unit_convert(1000, "km2", "m2"),
-grid_boundary = FALSE, clip = FALSE, tolerance = NULL).}
+\item{grid}{\code{list} or object of class \code{sf}, \code{SpatialPolygonsDataFrame}.
+Use this parameter to generate a grid indicating its characteristics in a \code{list} (see \link[Makurhini]{get_grid}) or enter the name of an sf class \code{sf} or \code{SpatialPolygonsDataFrame} with the grid whose coordinate system must be the same as that of the \code{nodes}.
+ Example for generating 100 km\out{<sup>2</sup>} hexagons:\cr
+\code{list(hexagonal = TRUE, cellsize = unit_convert(100, "km2", "m2"), grid_boundary = FALSE, clip = FALSE, tolerance = NULL)}.}
 
-\item{distance}{list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).}
+\item{area_unit}{\code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.}
 
-\item{metric}{character. Choose a connectivity metric: "IIC" considering topologycal distances or "PC"
-considering maximum product probabilities.}
+\item{distance}{A \code{list} to establish the distance between each pair of nodes. Distance between nodes may be Euclidean distances (straight-line distance) or effective distances (cost distances) by considering the landscape resistance to the species movements. It must contain the distance parameters necessary to calculate the distance between nodes. For example, two of the most important parameters: \code{“type”} and \code{“resistance”}. For \code{"type"} choose one  of the distances:  \bold{"centroid" (faster), "edge", "least-cost" or "commute-time"}. If the type is equal to \code{"least-cost"} or \code{"commute-time"}, then you must use the \code{"resistance"} argument. To see more arguments see the \link[Makurhini]{distancefile} function.
+You can place a \code{list} with resistances where there must be one resistance for each time/scenario of patches in the \code{nodes} parameter, for example,
+if nodes has a list with two time patches then you can use two resistances one for time 1 and one for time 2:\cr
+\code{distance(type = "least-cost", resistance = list(resistanceT1, resistanceT2))}.}
 
-\item{distance_threshold}{numeric. Distance threshold to establish connections (crs units, usually meters).}
+\item{metric}{A \code{character} indicating the connectivity metric to use: \code{"PC"} (the default and recommended) to calculate the probability of connectivity index, and \code{"IIC"} to calculate the binary integral index of connectivity.}
 
-\item{probability}{numeric. Probability of direct dispersal between nodes, Default, 0.5,
- that is 50 percentage of probability connection. If probability = NULL, then it will be the inverse of the mean dispersal distance
-for the species (1/α; Hanski and Ovaskainen 2000).}
+\item{distance_threshold}{A \code{numeric} indicating the dispersal distance (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range. Can be the same length as the \code{distance_thresholds} parameter.}
 
-\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
+\item{threshold}{\code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing.}
 
-\item{parallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
-plan when there are more than ONE transboundary.}
+\item{probability}{A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.}
+
+\item{parallel}{\code{numeric}. Specify the number of cores to use for parallel processing, \code{default = NULL}. Parallelize the function using furrr package.}
+
+\item{intern}{\code{logical}. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
+}
+\value{
+Table with:\cr\cr
+-  Time: name of the time periods, name of the model or scenario (are taken from the name of the elements of the list of nodes or the plot argument)\cr
+-  ECAi: Equivalent Connected Area or Equivalent Connectivity for time i (first time/scenery in the comparison)\cr
+-  ECAj: Equivalent Connected Area or Equivalent Connectivity for time j (second time/scenery in the comparison)\cr
+-  dA: delta Area between times (percentage)\cr
+-  dECA: delta ECA between times (percentage)\cr
+-  rECA: relativized ECA (dECA/dA). According to Liang et al. (2021) "an rECA value greater than 1 indicates that habitat changes result in a
+disproportionately large change in habitat connectivity, while a value lower than 1 indicates connectivity
+changes due to random habitat changes (Saura et al. 2011; Dilts et al. 2016)".\cr
+-  dA/dECA comparisons: comparisons between dA and dECA\cr
+-  Type of change: Type of change using the dECAfun() and the difference between dA and dECA.\cr
 }
 \description{
-Use the function to compute the Protected Connected (ProtConn), EC, PC or IIC indexes in a regular grid.
+Use the function to compute the ECA, dECA, dA indexes in a regular grid.
 }
 \examples{
 \dontrun{
@@ -65,29 +86,24 @@ hexagons_dECA <- MK_dECA_grid(nodes = list_forest_patches,
                               region = study_area,
                               area_unit = "ha",
                               metric = "IIC",
-                              grid_param = list(hexagonal = TRUE,
+                              grid = list(hexagonal = TRUE,
                                                 cellsize = unit_convert(100, "km2", "m2")),
                               distance_threshold = 3000,
                               probability = 0.5,
                               distance = list(type = "centroid"),
-                              intern = TRUE,
-                              parallel = NULL)
+                              parallel = NULL
+                              intern = TRUE)
 hexagons_dECA
 plot(hexagons_dECA["T3.4.dECA"], breaks = "quantile")
 plot(hexagons_dECA["T3.4.Type.Change"], key.pos = 1)
 }
-
 }
 \references{
-Matt Strimas-Mackey. \url{http://strimas.com/spatial/hexagonal-grids/}.\cr
-Saura, S., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2017). Protected areas in the
-world's ecoregions: How well connected are they? Ecological Indicators, 76, 144–158.
-Saura, S. & Torne, J. (2012). Conefor 2.6. Universidad Politecnica de Madrid. Available
- at \url{www.conefor.org}.\cr
-Pascual-Hortal, L. & Saura, S. (2006). Comparison and development of new graph-based landscape
- connectivity indices: towards the priorization of habitat patches and corridors for conservation.
- Landscape Ecology, 21(7): 959-967.\cr
-Saura, S. & Pascual-Hortal, L. (2007). A new habitat availability index to integrate connectivity
-in landscape conservation planning: comparison with existing indices and application to a case study.
-Landscape and Urban Planning, 83(2-3): 91-103.
+\url{www.conefor.org}\cr\cr
+- Saura, S., Estreguil, C., Mouton, C., & Rodríguez-Freire, M. (2011). Network analysis to assess landscape connectivity trends: Application to European forests (1990-2000). Ecological Indicators, 11(2), 407–416.
+https://doi.org/10.1016/j.ecolind.2010.06.011 \cr
+ Herrera, L. P., Sabatino, M. C., Jaimes, F. R., & Saura, S. (2017). Landscape connectivity and the role of small habitat patches as stepping stones: an assessment of the grassland biome in South America. Biodiversity and Conservation, 26(14), 3465–3479.
+https://doi.org/10.1007/s10531-017-1416-7\cr
+- Liang, J., Ding, Z., Jiang, Z., Yang, X., Xiao, R., Singh, P. B., ... & Hu, H. (2021). Climate change, habitat connectivity, and conservation gaps: a case study of four ungulate species endemic to the Tibetan Plateau. Landscape Ecology, 36(4), 1071-1087.\cr
+- Dilts TE, Weisberg PJ, Leitner P, Matocq MD, Inman RD, Nussear KE, Esque TC (2016) Multi-scale connectivity and graph theory highlight critical areas for conservation under climate change. Ecol Appl 26:1223–1237
 }

@@ -8,8 +8,8 @@ MK_Connect_grid(
   nodes,
   area_unit = "ha",
   region = NULL,
-  grid_param = list(grid_pol = NULL, grid_id = NULL, hexagonal = TRUE, cellsize = NULL,
-    grid_boundary = FALSE, clip = FALSE, tolerance = NULL),
+  grid = list(hexagonal = TRUE, cellsize = NULL, grid_boundary = FALSE, clip = FALSE,
+    tolerance = NULL),
   protconn = TRUE,
   distance_threshold = NULL,
   probability = NULL,
@@ -20,35 +20,33 @@ MK_Connect_grid(
 )
 }
 \arguments{
-\item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. Nodes shapefile, the shapefile must be
+\item{nodes}{\code{sf, SpatVector, SpatialPolygonsDataFrame}. Object containing nodes (e.g., habitat patches or fragments) of each time to analyze information. Nodes are spatial data of type vector (class \code{sf, SpatVector, SpatialPolygonsDataFrame}). It must be in a projected coordinate system.}
+
+\item{area_unit}{\code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.}
+
+\item{region}{object of class \code{sf}, \code{SpatialPolygonsDataFrame}. Polygon delimiting the region or study area. It must be
 in a projected coordinate system.}
 
-\item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit
-("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "ha".}
+\item{grid}{\code{list} or object of class \code{sf}, \code{SpatialPolygonsDataFrame}.
+Use this parameter to generate a grid indicating its characteristics in a \code{list} (see \link[Makurhini]{get_grid}) or enter the name of an sf class \code{sf} or \code{SpatialPolygonsDataFrame} with the grid whose coordinate system must be the same as that of the \code{nodes}.
+ Example for generating 100 km\out{<sup>2</sup>} hexagons:\cr
+\code{list(hexagonal = TRUE, cellsize = unit_convert(100, "km2", "m2"), grid_boundary = FALSE, clip = FALSE, tolerance = NULL)}.}
 
-\item{region}{object of class sf, sfc, sfg or SpatialPolygons. Region shapefile, the shapefile must be
-in a projected coordinate system.}
+\item{protconn}{\code{logical}. If \code{TRUE} then the \bold{ProtConn} will be estimated; otherwise, the \bold{PC} index will be estimated.}
 
-\item{grid_param}{list. Parameters of the grid shapefile, see \link[Makurhini]{get_grid}.Just omit the parameter 'region'. Example,
-list(grid_pol = NULL, hexagonal = TRUE, grid_id = NULL, cellsize = unit_convert(1000, "km2", "m2"),
-grid_boundary = FALSE, clip = FALSE, tolerance = NULL).}
+\item{distance_threshold}{A \code{numeric} indicating the dispersal distance (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range.}
 
-\item{protconn}{logical. If TRUE then the ProtConn will be estimated; otherwise, the PC index will be estimated.}
+\item{probability}{A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.}
 
-\item{distance_threshold}{numeric. Distance threshold to establish connections (crs units, usually meters).}
+\item{transboundary}{\code{numeric}. Buffer to select transboundary polygones, see \link[Makurhini]{MK_ProtConn}.}
 
-\item{probability}{numeric. Probability of direct dispersal between nodes, Default, 0.5,
- that is 50 percentage of probability connection. If probability = NULL, then it will be the inverse of the mean dispersal distance
-for the species (1/α; Hanski and Ovaskainen 2000).}
+\item{distance}{A \code{list} of parameters to establish the distance between each pair of nodes. Distance between nodes may be Euclidean distances (straight-line distance) or effective distances (cost distances) by considering the landscape resistance to the species movements. \cr
+ This list must contain the distance parameters necessary to calculate the distance between nodes. For example, two of the most important parameters: \code{“type”} and \code{“resistance”}. For \code{"type"} choose one  of the distances:  \bold{"centroid" (faster), "edge", "least-cost" or "commute-time"}. If the type is equal to \code{"least-cost"} or \code{"commute-time"}, then you must use the \code{"resistance"} argument. For example: \code{distance(type = "least-cost", resistance = raster_resistance)}. \cr
+To see more arguments see the \link[Makurhini]{distancefile} function.}
 
-\item{transboundary}{numeric. Buffer to select transboundary polygones, see \link[Makurhini]{MK_ProtConn}.}
+\item{intern}{\code{logical}. Show the progress of the process, \code{default = TRUE}. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 
-\item{distance}{list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).}
-
-\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
-
-\item{parallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess
-plan when there are more than ONE transboundary.}
+\item{parallel}{\code{numeric}. Specify the number of cores to use for parallel processing, \code{default = NULL}. Parallelize the function using furrr package.}
 }
 \description{
 Use the function to compute the Protected Connected (ProtConn), EC, PC or IIC indexes in a regular grid.
@@ -66,8 +64,8 @@ plot(st_geometry(ecoregion), col="blue")
 hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
                                     region = ecoregion,
                                     area_unit = "ha",
-                                    grid_param = list(hexagonal = TRUE,
-                                                      cellsize = unit_convert(1000, "km2", "m2")),
+                                    grid = list(hexagonal = TRUE,
+                                                cellsize = unit_convert(1000, "km2", "m2")),
                                     protconn = TRUE,
                                     distance_threshold = 3000,
                                     probability = 0.5,

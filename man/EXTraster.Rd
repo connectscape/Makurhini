@@ -14,3 +14,4 @@ EXTraster(R.Emax, R.Emin)
 \description{
 Function to have two raster with the same number of rows, columns and extension
 }
+\keyword{internal}

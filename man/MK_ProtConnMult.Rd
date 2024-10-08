@@ -24,50 +24,50 @@ MK_ProtConnMult(
 )
 }
 \arguments{
-\item{nodes}{object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.}
+\item{nodes}{object of class \code{sf, sfc, sfg, spatialPolygonsDataFrame}. Spatial data of vector type that normally contains the spatial limits of protected areas. It must be in a projected coordinate system.}
 
-\item{regions}{object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.}
+\item{regions}{object of class \code{sf, sfc, sfg, spatialPolygonsDataFrame}. Polygon delimiting the \bold{regions} or \bold{study areas}. It must be in a projected coordinate system.}
 
-\item{area_unit}{character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "m2".}
+\item{area_unit}{\code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.}
 
-\item{distance}{list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).}
+\item{distance}{A \code{list} of parameters to establish the distance between each pair of nodes. Distance between nodes may be Euclidean distances (straight-line distance) or effective distances (cost distances) by considering the landscape resistance to the species movements. \cr
+ This list must contain the distance parameters necessary to calculate the distance between nodes. For example, two of the most important parameters: \code{“type”} and \code{“resistance”}. For \code{"type"} choose one  of the distances:  \bold{"centroid" (faster), "edge", "least-cost" or "commute-time"}. If the type is equal to \code{"least-cost"} or \code{"commute-time"}, then you must use the \code{"resistance"} argument. For example: \code{distance(type = "least-cost", resistance = raster_resistance)}. \cr
+To see more arguments see the \link[Makurhini]{distancefile} function.}
 
-\item{distance_thresholds}{numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
-distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).}
+\item{distance_thresholds}{A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range. Can be the same length as the \code{distance_thresholds} parameter.}
 
-\item{probability}{numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. numeric.
-If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).}
+\item{probability}{A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.}
 
-\item{transboundary}{numeric. Buffer to select polygons in a second round, their attribute value = 0, see Saura et al. 2017.}
+\item{transboundary}{\code{numeric}. Buffer to select polygons (e.g., PAs) in a second round. The selected polygons will have an attribute value = 0, i.e., their contribution for connectivity would be as stepping stones (Saura et al. 2017). One cross-border value or one for each threshold distance can be set.}
 
-\item{transboundary_type}{character. Two options: "nodes" or "region". If it is "nodes" the transboundary is built from the limits of the nodes present in the region (default),
-if "region" is selected the transboundary is built from the limits of the region.}
+\item{transboundary_type}{\code{character}. Two options: \code{"nodes" (methodology from Saura et al. 2017)} or \code{"region"}.\cr
+- If it is \code{"nodes"}, the transboundary is built from the limits of the nodes present in the region (default).
+- If it is \code{"region"}, is selected the transboundary is built from the limits of the region.}
 
-\item{protconn_bound}{logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.}
+\item{protconn_bound}{\code{logical}. If \code{TRUE} then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.}
 
-\item{geom_simplify}{logical. Slightly simplify the region and nodes geometries.}
+\item{geom_simplify}{\code{logical}. Slightly simplify the region and nodes geometries.}
 
-\item{delta}{logical. Estimate the contribution of each node to the ProtConn value in the regions.}
+\item{delta}{\code{logical}. Estimate the contribution of each node to the ProtConn value in each region.}
 
-\item{CI}{character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, \link[boot]{boot.ci})}
+\item{CI}{\code{character}. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values \code{c("norm","basic", "stud", "perc", "bca")} or \code{"all"} which will compute all five types of intervals (see, \link[boot]{boot.ci})}
 
-\item{plot}{logical. Plot the main ProtConn indicators and fractions with their standard deviation, default = FALSE.}
+\item{plot}{\code{logical}. Plot the main ProtConn indicators and fractions with their standard deviation, default = \code{FALSE}.}
 
-\item{write}{character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".}
+\item{write}{\code{character}. Output folder including the output file name without extension, e.g., \code{"C:/ProtConn/Protfiles"}.}
 
-\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
+\item{intern}{\code{logical}. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 
-\item{parallel}{numeric. Specify the number of cores to use for parallel processing, default = NULL.
-Parallelize the function using furrr package and multiprocess plan.}
+\item{parallel}{\code{numeric}. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess plan.}
 }
 \value{
-Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
+For each region:\cr
+- Table with the following ProtConn values: \code{ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
  ProtConn[Contig], ProtConn[Trans], ProtConn[Unprot], ProtConn[Within][land], ProtConn[Contig][land],
- ProtConn[Unprot][land], ProtConn[Trans][land] \cr
+ ProtConn[Unprot][land], ProtConn[Trans][land]} \cr
 \cr
-*Each indicator is accompanied by six dispersion statistics: standard deviation, standard error and four confidence intervals obtained with a bootstrap-type resampling (Carpenter & Bithell 2000; see, \strong{ProtConnStat()})\cr
-\cr
-*If plot is not TRUE a list is returned with the ProtConn table and a plots.
+- If plot \bold{is not NULL} a \code{list} is returned with the ProtConn table and a plots.
+- If \bold{delta} is \code{TRUE} then it returns an sf class object with the importance value (contribution to ProtConn) for each node in the region.
 }
 \description{
 Estimate Protected Connected (ProtConn) indicator and fractions for multiple regions.
@@ -76,11 +76,10 @@ Estimate Protected Connected (ProtConn) indicator and fractions for multiple reg
 \dontrun{
 library(Makurhini)
 library(sf)
-data("Protected_areas", package = "Makurhini")
-plot(Protected_areas, col="green")
-
 data("regions", package = "Makurhini")
 plot(regions, col=c("blue", "red", "green"))
+data("Protected_areas", package = "Makurhini")
+plot(st_crop(Protected_areas, regions), col="green")
 
 test <- MK_ProtConnMult(nodes = Protected_areas,
                         regions = regions,

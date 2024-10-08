@@ -14,3 +14,4 @@ TopoClean(x, xsimplify = FALSE)
 \description{
 Topological error correction
 }
+\keyword{internal}

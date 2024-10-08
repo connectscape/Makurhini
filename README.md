@@ -13,8 +13,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 ## NEWS
 
-- Thank you for using Makurhini. **We will have a new update soon, so
-  stay tuned!**
+- Thank you for using Makurhini. **We have a new version Makurhini 3.0!**
 
 ## Overview
 

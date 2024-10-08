@@ -1,34 +1,34 @@
-#' Betweenness Centrality metrics using Conefor command line
+#' @title Betweenness Centrality metrics using Conefor command line
 #'
-#' Use this function to calculate the BC, BCIIC and BCPC indexes under one or several distance thresholds.
-#' @param nodes Object of class sf, SpatialPolygonsDataFrame or raster.
-#'  The shapefile must be in a projected coordinate system.
-#' @param id character. If nodes is a shapefile then you can specify the column name with the node ID.
+#' @description
+#' Use this function to calculate the BC, BCIIC and BCPC indexes under one or several distance thresholds using Conefor command line.
+#' @param nodes Object containing nodes (e.g., habitat patches or fragments) information. It can be of the following classes:\cr
+#' -   \code{Data.frame} with at least two columns: the first for node IDs and the second for attributes. \cr
+#' -   Spatial data of type vector (class \code{sf, SpatVector, SpatialPolygonsDataFrame}). It must be in a projected coordinate system.\cr
+#' -   Raster (class \code{RasterLayer, SpatRaster}). It must be in a projected coordinate system. The values must be integers representing the ID of each habitat patch or node, with non-habitat areas represented by NA values (see \link[raster]{clump} or \link[terra]{patches}).
+#' @param id \code{character}. If nodes is a vector then you can specify the column name with the node ID.
 #'  If NULL, then a new id will be generated.
-#' @param attribute character or vector. If nodes is a shappefile then you must specify the column name
-#'  with the attribute in the data table selected for the nodes. If nodes is a raster layer then it must be
-#'  a numeric vector with the node's attribute. The length of the vector must be equal to the number of nodes.
-#'   The numeric vector is multiplied by the area of each node to obtain a weighted habitat index.
-#'   If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
-#' @param area_unit character. If attribute is NULL you can set an area unit, ?unit_covert
-#' compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to "m2".
-#' @param distance list. Distance parameters. For example: type, resistance,or keep. For "type" choose one
-#' of the distances: "centroid" (faster), "edge", "hausdorff-edge",
-#' "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have
-#' to use the "resistance" argument. To see more arguments see the ?distancefile.
-#' @param metric character. Choose a Betweenness Centrality Metric: "BC" or "BCIIC" considering topologycal distances or "BCPC" considering maximum product probabilities.
-#' @param distance_thresholds numeric. Distance or distances thresholds (meters) to establish connections. For example, one distance: distance_threshold = 30000; two or more specific distances:
-#'  distance_thresholds = c(30000, 50000); sequence distances: distance_thresholds = seq(10000,100000, 10000).
-#' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. Use in case of selecting the "BPC" metric.
-#' @param LA numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to ha).
-#' @param coneforpath character. Path to Conefor 2.6 with command line interface
-#' (\url{http://www.conefor.org/coneforsensinode.html}). Example, "C:/Users/coneforWin64.exe".
-#' @param dA logical. If TRUE, then the delta attribute will be added to the node's importance result.
-#' @param dvars logical. If TRUE, then the absolute variation will be added to the node's importance result.
-#' @param parallel numeric. Specify the number of cores to use for parallel processing, default = NULL.
-#' Parallelize the function using furrr package and multiprocess plan.
-#' @param rasterparallel logical. If parallel is FALSE and nodes is a raster then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m2.
-#' @param write character. Write output shapefile, example, "C:/ejemplo.shp".
+#' @param attribute \code{character} or \code{vector}. If \code{NULL} the area of the nodes will be used as the node attribute. The unit of area can be selected using the \code{area_unit} parameter. To use an alternative attribute, consider the class type of the object in the \code{nodes} parameter: \cr
+#' -   If \code{nodes} is a spatial vector or data.frame, specify \bold{the name of the column} containing the attribute for the nodes. \cr
+#' -   If \code{nodes} is a raster layer then it must be a numeric vector with the node's attribute. The length of the vector must be equal to the number of nodes.
+#' @param area_unit \code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.
+#' @param distance  A \code{matrix} or \code{list} to establish the distance between each pair of nodes. Distance between nodes may be Euclidean distances (straight-line distance) or effective distances (cost distances) by considering the landscape resistance to the species movements. If it is a matrix, then the number of columns and rows must be equal to the number of nodes. This distance matrix could be generated by the \link[Makurhini]{distancefile} function.  If it is a list, then it must contain the distance parameters necessary to calculate the distance between nodes. For example: “type” and “resistance”. For "type" choose one  of the distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you must use the "resistance" argument. To see more arguments see the \link[Makurhini]{distancefile} function.
+#' @param metric A \code{character} indicating the Betweenness Centrality metric to use: \code{"BC"} (the classical), \code{“BCIIC”} considering binary indices and topological distances, and \code{“BCPC”} (recommended)  considering the maximum product probabilities.
+#' @param distance_thresholds A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range.
+#' @param probability A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"BCPC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.
+#' @param LA \code{numeric}. (\emph{optional, default = } \code{NULL}). The maximum landscape attribute, which is the attribute value that would correspond to a hypothetical habitat patch covering all the landscape with the best possible habitat, in which IIC and PC would be equal to 1. For example, if nodes attribute corresponds to the node area, then LA equals total landscape area. If nodes attribute correspond to a quality-weighted area and the quality factor ranges from 0 to 100, LA will be equal to 100 multiplied by total landscape area. The value of LA does not affect at all the importance of the nodes and is only used to calculate the overall landscape connectivity. If no LA value is entered (default) and  \code{overall = TRUE} or \code{onlyoverall = TRUE}, the function will only calculate the numerator of the global connectivity indices and the equivalent connected ECA or EC index.
+#' @param coneforpath \code{character}. Path to Conefor 2.6 with command line interface (http://www.conefor.org/coneforsensinode.html). Example, \code{"C:/Users/coneforWin64.exe"}.
+#' @param dA \code{logical}. If TRUE, then the delta attribute will be added to the node's importance result.
+#' @param dvars \code{logical}. If TRUE, then the absolute variation will be added to the node's importance result.
+#' @param parallel  (\emph{optional, default =} \code{NULL}).
+#' A \code{numeric} specifying the number of cores to parallelize the index estimation of the PC or IIC index and its deltas.Particularly useful when you have more than 1000 nodes. By default the analyses are not parallelized.
+#' @param rasterparallel \code{logical}. If parallel is \code{FALSE} and nodes is a \code{raster} then you can use this argument to assign the metrics values to the nodes raster. It is useful when raster resolution is less than 100 m\out{<sup>2</sup>}.
+#' @param write \code{character}. Write output shapefile, example, "C:/ejemplo.shp".
+#' @param intern \code{logical}. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
+#' @details To use this function  you need to download and uncompress Conefor 2.6 with command line interface from \url{http://www.conefor.org/coneforsensinode.html}\cr
+#' Betweenness Centrality metrics can be calculated in three different ways:\cr
+#' - \bold{BC} calculates the classical Betweenness Centrality metric as originally defined by Freeman (1977; Sociometry 40: 35–41). \cr
+#' - \bold{BCIIC and BCPC} calculate the improved version of the BC metric by Bodin and Saura (2010) integrated within the same analytical framework as the IIC (binary) and the PC (probabilistic) metrics.
 #' @references Saura, S. and Torne, J. (2012). Conefor 2.6. Universidad Politecnica de Madrid. Available at \url{www.conefor.org}.\cr
 #'  Freeman L.C. (1977). Set of Measures of Centrality Based on Betweenness. Sociometry 40: 35-41.\cr
 #'  Bodin, O. and Saura, S. (2010). Ranking individual habitat patches as connectivity providers: integrating network analysis and patch removal experiments. Ecological Modelling 221: 2393-2405.
@@ -48,14 +48,7 @@
 #'
 #' #Using raster
 #' data("raster_vegetation_patches", package = "Makurhini")
-#' BCPC <- MK_BCentrality(nodes = raster_vegetation_patches,
-#'            coneforpath = "C:/Users/coneforWin64.exe",
-#'            attribute = NULL,
-#'            distance = list(type = "centroid"),
-#'            metric = "BCPC", probability = 0.5,
-#'            LA = NULL,
-#'            distance_thresholds = 40000) #40 km
-#'
+#' ##Using parallel
 #' BCPC_parallel <- MK_BCentrality(nodes = raster_vegetation_patches,
 #'                     coneforpath = "C:/Users/coneforWin64.exe",
 #'                     id = "id", attribute = NULL,
@@ -65,21 +58,21 @@
 #'                     parallel = 4) #40 and 60 km
 #' }
 #' @importFrom sf st_as_sf
-#' @importFrom progressr handlers handler_pbcol progressor
-#' @importFrom crayon bgWhite white bgCyan
 #' @importFrom utils write.table
 #' @importFrom raster values as.matrix extent raster stack extent<- writeRaster reclassify crs crs<-
 #' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map
 #' @importFrom purrr walk
 #' @importFrom magrittr %>%
-
+#' @importFrom utils installed.packages txtProgressBar setTxtProgressBar
 MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
                         distance = list(type= "centroid", resistance = NULL),
                         metric = c("BC", "BCIIC", "BCPC"), distance_thresholds = NULL,
                         probability = NULL, LA = NULL, coneforpath = NULL,
                         dA = FALSE, dvars = FALSE,
-                        parallel = NULL, rasterparallel = FALSE, write = NULL) {
+                        parallel = NULL,
+                        rasterparallel = FALSE,
+                        write = NULL, intern = TRUE) {
   . = NULL
   if (missing(nodes)) {
     stop("error missing shapefile file of nodes")
@@ -158,7 +151,6 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
     id = NULL
     }
 
-
   nodesfile(nodes, id = id, attribute = attribute, area_unit = area_unit,
             write = paste0(temp.1, "/nodes.txt"))
 
@@ -185,22 +177,15 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
     pairs = "notall"
   }
 
-  x = NULL; loop <- 1:length(distance_thresholds)
-
-  if(length(distance_thresholds)>1){
-    handlers(global = T)
-    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
-                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusiveness = 2))
-    pb <- progressor(along = loop)
-  }
-
-  if(isFALSE(parallel)){
-    BC_metric <- tryCatch(lapply(loop, function(x){
+  x = NULL
+  if(is.null(parallel)){
+    if(length(distance_thresholds)>1 & isTRUE(intern)){
+      pb <- txtProgressBar(0, length(distance_thresholds), style = 3)
+    }
+    BC_metric <- tryCatch(lapply(1:length(distance_thresholds), function(x){
       x <- distance_thresholds[x]
-
-      if(length(distance_thresholds)>1){
-        pb()
+      if(length(distance_thresholds)>1 & isTRUE(intern)){
+        setTxtProgressBar(pb, x)
       }
         dMetric <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
                               coneforpath = coneforpath,
@@ -287,12 +272,8 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
       strat <- future::multisession
     }
     plan(strategy = strat, gc = TRUE, workers = works)
-    BC_metric <- tryCatch(future_map(loop, function(x) {
+    BC_metric <- tryCatch(future_map(1:length(distance_thresholds), function(x) {
       x <- distance_thresholds[x]
-
-      if(length(distance_thresholds)>1){
-        pb()
-      }
       dMetric <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
                             coneforpath = coneforpath,
                             typeconnection = "dist", typepairs = pairs, index = metric,
@@ -350,7 +331,7 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
         }
       }
       return(result_interm)
-    }), error = function(err) err)
+    }, .progress = intern), error = function(err) err)
     close_multiprocess(works)
     }
 

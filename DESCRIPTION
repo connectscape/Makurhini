@@ -1,28 +1,32 @@
 Package: Makurhini
 Type: Package
 Title: Makurhini: Analyzing landscape connectivity
-Version: 2.0.6
+Description: Makurhini (connect in Purépecha language) provides functions designed to estimate 
+    landscape fragmentation and connectivity metrics and includes the ProtConn indicator that is
+    used to report international connectivity targets.
+Version: 3.0
 Authors@R: c(person(given = "Oscar",
               family = "Godínez-Gómez",
               role = c("aut", "cre"),
               email = "osctapir@gmail.com",
               comment = c(ORCID = "0000-0003-3016-739X")
               ),
-          person(given = "Camilo A.",
+              person(given = "Camilo A.",
               family = "Correa Ayram",
               role = c("aut"), 
-              email = "correa.c@javeriana.edu.co", 
               comment = c(ORCID = "0000-0001-8619-0295")
+              ),
+              person(given = "Teresa",
+              family = "Goicolea",
+              role = c("ctb"), 
+              comment = c(ORCID = "0000-0002-4069-6001")
               )
               )
 Maintainer: Oscar Godínez-Gómez <osctapir@gmail.com>
-Description: Makurhini (connect in Purépecha language) provides functions designed to estimate 
-    landscape fragmentation and connectivity metrics and includes the ProtConn indicator that is
-    used to report international connectivity targets.
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 URL: https://github.com/connectscape/Makurhini
 BugReports: https://github.com/connectscape/Makurhini/issues
 Suggests: 
@@ -46,15 +50,15 @@ Imports:
     rlang,
     graph4lg (>= 1.0.1),
     parallel,
-    crayon,
-    progressr,
     terra (>= 1.3.22),
     ggplot2,
-    ggpubr
+    ggpubr,
+    googledrive,
+    rappdirs
 Depends: 
     methods,
     utils,
     stats,
     R (>= 4.0.0),
-    igraph (>= 1.2.6),
+    igraph (>= 2.0.0),
     cppRouting (>= 2.0)

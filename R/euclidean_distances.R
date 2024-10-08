@@ -1,7 +1,7 @@
 #' Euclidian distances
 #'
 #' @param x object of class sf, sfc, sfg or SpatialPolygons. It must be in a projected coordinate system.
-#' @param id character. Column name with the patches+ id.
+#' @param id character. Column name with the patches id.
 #' @param centroid logical. If centroid is TRUE then the Euclidean distance is calculated from patch centroids, if FALSE the Euclidean distance is calculated from patch edges.
 #' @param distance_unit character. Set a distance unit, "Makurhini::unit_covert()" compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".
 #' @param threshold numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.
@@ -28,7 +28,7 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
   if(missing(id)){
     stop("missing id")
   }
-
+  '%!in%' <- function(x,y)!('%in%'(x,y))
   if(missing(x)){
     stop("missing x object")
   }
@@ -84,14 +84,26 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
     }
   } else {
     if(isFALSE(distParallel) | is.null(distParallel) & isFALSE(ActiveParallel)){
-      if(!is.null(keep) & as.character(unique(st_geometry_type(x))) != "POINT"){
+      if(!is.null(keep) & any(as.character(unique(st_geometry_type(x))) != "POINT")){
         x_id <- x[[id]]; x.1 <- tryCatch(ms_simplify(input = x, keep = keep,
                                                      keep_shapes = TRUE,
                                                      explode = FALSE),
                                          error = function(err)err)
-        if(!inherits(x.1, "error")) {
+
+        if(!inherits(x.1, "error")){
+          if(any(st_is_empty(x.1))){
+            x.1 <- rbind(x.1[which(!st_is_empty(x.1)),],
+                         x[which(st_is_empty(x.1)),])
+            x.1 <- x.1[sapply(x_id, function(y){which(x.1[[id]] == y)}),]
+          }
+
           if(nrow(x.1) == nrow(x)){
             x <- x.1; x[which(names(x) == id)] <- x_id
+          } else {
+            x <- rbind(x.1, x[which(x.1[[id]] %!in% x[[id]])])
+            x <- x[sapply(x_id, function(y){which(x[[id]] == y)}),]
+            x[which(names(x) == id)] <- x_id
+            message("It was not possible to simplify the shapes in the estimation of the distances between edges")
           }
         } else {
           stop("error in distParallel and keep parameter")
@@ -121,8 +133,15 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
         if(!is.null(keep) & as.character(unique(st_geometry_type(y))) != "POINT"){
           y.1 <- tryCatch(ms_simplify(input = y, keep = keep, keep_shapes = TRUE, explode = FALSE), error = function(err)err)
           if(!inherits(y.1, "error")) {
+            if(any(st_is_empty(y.1))){
+              y.1 <- rbind(y.1[which(!st_is_empty(y.1)),],
+                           y[which(st_is_empty(y.1)),])
+            }
             if(nrow(y.1) == nrow(y)){
               y <- y.1
+            } else {
+              y.1 <- rbind(y.1, y[which(y.1[[id]] %!in% y[[id]])])
+              y <- y.1[sapply(y[[id]], function(i){which(y.1[[id]] == i)}),]
             }
           } else {
             stop("error in distParallel")

@@ -1,26 +1,28 @@
 #' Estimation of connectivity indexes from CONEFOR
 #'
 #' Use the CONEFOR command line to estimate probabilistic and binary connectivity indexes
-#' @param nodeFile character. Node file name. If prefix is true use the prefix name
-#' @param connectionFile character. Connection file name. If prefix is true use the prefix name
-#' @param coneforpath character. Path to Conefor 2.6 with command line interface
-#' (\url{http://www.conefor.org/coneforsensinode.html}). Example, "C:/Users/coneforWin64.exe".
-#' @param typeconnection character. Indicate if it is distance (dist), probability (prob), adjacency (adj)
-#' @param typepairs character. "all" if all pairs of patches are in the distances file and "notall" if only they are the most important connections
-#' @param index character. Select Binary index (CCP, LCP, IIC, BC, BCIIC, NC, NL, H) or Probabilistic (F, AWF, PC, BCPC)
-#' @param thdist numeric. Distance threshold to establish connections
-#' @param multdist numeric vector. Multiple distance threshold to establish connections (meters). The minimum (min) and maximum (max) distance values to be calculated need to be specified, as well as the value by which the distance value must be increased (step) starting from min until max is reached, e.g. multdist = c(min=10000, max=100000, step=10000)
-#' @param conprob numeric. If a probabilistic index is selected, indicate the probability of connection under the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection
-#' @param onlyoverall logical. Estimate only overall index, default TRUE
-#' @param LA numeric. Maximum landscape attribute
-#' @param nrestauration logical. If TRUE Indicates that there are nodes to add to the initial landscape -restauration effect-. The nodeFile needs a third column with values of 0 or 1 indicating for each node whether it already exists in the landscape (1) or is a candidate to be added to the landscape (0).The onlyoverall option have to be FALSE.
-#' @param prefix character. Used in case of processing several sites at once
-#' @param write character. Full path direction of the folder
-#' @return Four files .txt:"overall_indices", "results_all_EC(PC)", "results_all_overall_indices" y "node_importance"
+#' @param nodeFile \code{character}. Node file name. If the \code{prefix} parameter is used, then use the prefix name.
+#' @param connectionFile \code{character}. Connection file name. If prefix is true use the prefix name.
+#' @param coneforpath \code{character}. Path to \bold{Conefor 2.6 with command line interface}
+#' (for more details and download \url{http://www.conefor.org/coneforsensinode.html}). Example, "C:/Users/coneforWin64.exe".
+#' @param typeconnection \code{character}. Indicate if it is distance (dist), probability (prob), adjacency (adj).
+#' @param typepairs \code{character}. \code{"all"} if all pairs of patches are in the distances file and \code{"notall"} if only they are the most important connections.
+#' @param index \code{character}. Select Binary index (CCP, LCP, IIC, BC, BCIIC, NC, NL, H) or Probabilistic (F, AWF, PC, BCPC).
+#' @param thdist \code{numeric}. Distance threshold to establish connections.
+#' @param multdist \code{numeric}. Multiple distance threshold to establish connections (meters). The minimum (min) and maximum (max) distance values to be calculated need to be specified, as well as the value by which the distance value must be increased (step) starting from min until max is reached, e.g. \code{multdist = c(min=10000, max=100000, step=10000)}.
+#' @param conprob \code{numeric}. If a probabilistic index is selected, indicate the probability of connection under the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection.
+#' @param onlyoverall \code{logical}. Estimate only overall index, default \code{TRUE}.
+#' @param LA \code{numeric}. Maximum landscape attribute.
+#' @param nrestauration \code{logical}. If \code{TRUE} Indicates that there are nodes to add to the initial landscape -restauration effect-. The nodeFile needs a third column with values of 0 or 1 indicating for each node whether it already exists in the landscape (1) or is a candidate to be added to the landscape (0).The onlyoverall option have to be \code{FALSE}.
+#' @param prefix \code{character}. Used in case of processing several sites at once.
+#' @param write \code{character}. Full path direction of the folder.
+#' @returns Four .txt files: "overall_indices", "results_all_EC(PC)", "results_all_overall_indices" y "node_importance".
 #' @examples
 #' \dontrun{
+#' library(Makurhini)
 #' setwd("~")
 #' EstConefor(nodeFile = "nodes.txt",
+#'           coneforpath = "C:/Users/coneforWin64.exe",
 #'           connectionFile = "dist.txt",
 #'           typeconnection = "dist",
 #'           typepairs = "notall",
@@ -47,10 +49,9 @@ EstConefor <- function(nodeFile,
                        conprob = NULL,
                        onlyoverall = TRUE,
                        LA = NULL,
-                       nrestauration = FALSE,#Onlyoverall=FALSE
+                       nrestauration = FALSE,
                        prefix = NULL,
-                       write = NULL
-){
+                       write = NULL){
   if(!file.exists(coneforpath)){
     stop("error, Conefor 2.6 with command line interface does not exist")
   }
@@ -72,8 +73,8 @@ EstConefor <- function(nodeFile,
 
   if (is.null(prefix)){
     p1 <- paste(conefor_exe, "-nodeFile", nodeFile, "-conFile", connectionFile, "-t", typeconnection, typepairs)
-    } else {
-      p1 <- paste(conefor_exe, "-nodeFile", nodeFile, "-conFile", connectionFile, "-t", typeconnection, typepairs, "-*")
+  } else {
+    p1 <- paste(conefor_exe, "-nodeFile", nodeFile, "-conFile", connectionFile, "-t", typeconnection, typepairs, "-*")
   }
 
   binary <- c("CCP", "LCP", "IIC", "BC", "BCIIC", "NC", "NL", "H")
@@ -82,76 +83,76 @@ EstConefor <- function(nodeFile,
   if (index %in% binary){
     if (index == "BCIIC"){
       p2 <- paste("-confAdj", thdist, paste0("-IIC -", index))
-      }else {
-        p2<-paste("-confAdj", thdist, paste0("-", index))
-        }
-    } else if (index %in% probab){
-      if (index == "BCPC"){
-        p2 <- paste("-confProb", thdist, conprob, paste0("-PC -", index))
-        } else {
-          p2 <- paste("-confProb", thdist, conprob, paste0("-", index))
-          }
-      } else {
-        stop("error typeindex")
-      }
+    }else {
+      p2<-paste("-confAdj", thdist, paste0("-", index))
+    }
+  } else if (index %in% probab){
+    if (index == "BCPC"){
+      p2 <- paste("-confProb", thdist, conprob, paste0("-PC -", index))
+    } else {
+      p2 <- paste("-confProb", thdist, conprob, paste0("-", index))
+    }
+  } else {
+    stop("error typeindex")
+  }
 
   if (!is.null(multdist)){
     pM <- paste("-confMultipleValues", multdist[1], multdist[2], multdist[3], sep = " " )
-    }
+  }
 
   if(isTRUE(onlyoverall) & isFALSE(nrestauration)){
     if (is.null(LA)){
       pO <- "onlyoverall"
-      } else {
-        pO <- paste("onlyoverall", "-landArea", LA)
-      }
+    } else {
+      pO <- paste("onlyoverall", "-landArea", LA)
+    }
 
     if(is.null(prefix) & is.null(multdist)){
       result <- shell(paste(p1, p2, pO), intern = TRUE)
-      } else if (is.null(prefix) & !is.null(multdist)){
-        result <- shell(paste(p1, p2, pO, pM), intern = TRUE)
-        } else if (!is.null(prefix) & is.null(multdist)){
-          result <- shell(paste(p1, p2, pO, "-prefix", prefix), intern = TRUE)
-          } else if (!is.null(prefix) & !is.null(multdist)){
-            result <- shell(paste(p1, p2, pO, "-prefix", prefix, pM,  "-*", sep = " "), intern = TRUE)
-          }
-    } else if (isFALSE(onlyoverall) & isFALSE(nrestauration)){
-      if (!is.null(LA)){
-        pO <- paste("-landArea", LA)
-        } else {
-          pO <- ""
-        }
+    } else if (is.null(prefix) & !is.null(multdist)){
+      result <- shell(paste(p1, p2, pO, pM), intern = TRUE)
+    } else if (!is.null(prefix) & is.null(multdist)){
+      result <- shell(paste(p1, p2, pO, "-prefix", prefix), intern = TRUE)
+    } else if (!is.null(prefix) & !is.null(multdist)){
+      result <- shell(paste(p1, p2, pO, "-prefix", prefix, pM,  "-*", sep = " "), intern = TRUE)
+    }
+  } else if (isFALSE(onlyoverall) & isFALSE(nrestauration)){
+    if (!is.null(LA)){
+      pO <- paste("-landArea", LA)
+    } else {
+      pO <- ""
+    }
 
     if (is.null(prefix) & is.null(multdist)){
       result <- shell(paste(p1, p2, pO), intern = TRUE)
-      } else if (is.null(prefix) & !is.null(multdist)){
-        result <- shell(paste(p1, p2, pO, pM), intern = TRUE)
-        } else if (!is.null(prefix) & is.null(multdist)){
-          result <- shell(paste(p1, p2, pO, "-prefix", prefix), intern = TRUE)
-          } else if (!is.null(prefix) & !is.null(multdist)){
-            result <- shell(paste(p1, p2, pO, "-prefix", prefix, pM,  "-*", sep = " "), intern = TRUE)
-            }
-      } else if (isFALSE(onlyoverall) & !isFALSE(nrestauration)){
-        if (!is.null(LA)){
-          pO <- paste("-landArea", LA)
-          } else {
-            pO<-""
-            }
-        if (is.null(prefix) & is.null(multdist)){
-          result <- shell(paste(p1, p2, "-add", pO), intern = TRUE)
-          } else if (is.null(prefix) & !is.null(multdist)){
-            result <- shell(paste(p1, p2, "-add", pO, pM), intern = TRUE)
-            } else if (!is.null(prefix) & is.null(multdist)){
-              result <- shell(paste(p1, p2, "-add", pO, "-prefix", prefix), intern = TRUE)
-              } else if (!is.null(prefix) & !is.null(multdist)){
-                result <- shell(paste(p1, p2, "-add", pO, "-prefix", prefix, pM,  "-*", sep = " "), intern = TRUE)
-              }
-        }
+    } else if (is.null(prefix) & !is.null(multdist)){
+      result <- shell(paste(p1, p2, pO, pM), intern = TRUE)
+    } else if (!is.null(prefix) & is.null(multdist)){
+      result <- shell(paste(p1, p2, pO, "-prefix", prefix), intern = TRUE)
+    } else if (!is.null(prefix) & !is.null(multdist)){
+      result <- shell(paste(p1, p2, pO, "-prefix", prefix, pM,  "-*", sep = " "), intern = TRUE)
+    }
+  } else if (isFALSE(onlyoverall) & !isFALSE(nrestauration)){
+    if (!is.null(LA)){
+      pO <- paste("-landArea", LA)
+    } else {
+      pO<-""
+    }
+    if (is.null(prefix) & is.null(multdist)){
+      result <- shell(paste(p1, p2, "-add", pO), intern = TRUE)
+    } else if (is.null(prefix) & !is.null(multdist)){
+      result <- shell(paste(p1, p2, "-add", pO, pM), intern = TRUE)
+    } else if (!is.null(prefix) & is.null(multdist)){
+      result <- shell(paste(p1, p2, "-add", pO, "-prefix", prefix), intern = TRUE)
+    } else if (!is.null(prefix) & !is.null(multdist)){
+      result <- shell(paste(p1, p2, "-add", pO, "-prefix", prefix, pM,  "-*", sep = " "), intern = TRUE)
+    }
+  }
 
   if (!isFALSE(unique(grepl("Error:", result, fixed = TRUE)))){
     setwd(tt)
     stop("Error. Please check the function parameters and input files")
-    }
+  }
 
   #Export result
   df <- file.info(list.files(getwd(), full.names = TRUE))
@@ -202,6 +203,6 @@ EstConefor <- function(nodeFile,
   unlink(temp, recursive = TRUE)
   setwd(tt)
   return(result_2)
-  }
+}
 
 

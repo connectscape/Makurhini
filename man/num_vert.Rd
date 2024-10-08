@@ -12,3 +12,4 @@ num_vert(poly)
 \description{
 Number of vertices
 }
+\keyword{internal}

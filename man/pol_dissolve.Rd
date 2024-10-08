@@ -14,3 +14,4 @@ pol_dissolve(polygone, attribute)
 \description{
 Dissolve polygones sf or SpatialPolygonsDataFrame
 }
+\keyword{internal}

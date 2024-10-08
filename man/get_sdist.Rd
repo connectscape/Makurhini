@@ -6,6 +6,7 @@
 \usage{
 get_sdist(
   dist_nodes = NULL,
+  graph_nodes = NULL,
   attr_nodes = NULL,
   metric = NULL,
   probability = NULL,
@@ -14,8 +15,8 @@ get_sdist(
   parallel = NULL,
   loop = TRUE,
   G1 = 1000,
-  G2 = 1000,
   min_nodes = 2000,
+  return_graph = FALSE,
   intern = TRUE
 )
 }
@@ -38,8 +39,6 @@ get_sdist(
 
 \item{G1}{numeric}
 
-\item{G2}{numeric}
-
 \item{min_nodes}{numeric}
 
 \item{intern}{logical}
@@ -47,3 +46,4 @@ get_sdist(
 \description{
 Estimate all shortest distance between nodes using weights
 }
+\keyword{internal}

@@ -24,44 +24,39 @@ test_metric_distance(
 )
 }
 \arguments{
-\item{nodes}{Object of class sf, sfc, sfg or SpatialPolygons.}
+\item{nodes}{Object of class \code{sf, sfc, sfg, SpatialPolygons}.}
 
-\item{attribute}{character. Column name with the nodes attribute. If NULL, then the nodes area will be estimated and used as the attribute.}
+\item{attribute}{\code{character}. Column name with the nodes attribute. If NULL, then the nodes area will be estimated and used as the attribute.}
 
-\item{distance1}{list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the distances: "centroid" (faster), "edge",
+\item{distance1}{\code{list}. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the distances: "centroid" (faster), "edge",
 "least-cost distance" or "commute distance". If the type is equal to "least-cost distance" or "commute distance", then you have to use the "resistance" argument. "keep" is a numeric value used for higher processing.
   To See more options consult the help function of distancefile().}
 
-\item{distance2}{list. see distance1 argument}
+\item{distance2}{\code{list}. see distance1 argument}
 
-\item{distance3}{list. see distance1 argument}
+\item{distance3}{\code{list}. see distance1 argument}
 
-\item{distance4}{list. see distance1 argument}
+\item{distance4}{\code{list}. see distance1 argument}
 
-\item{metric}{character. "IIC" to estimate the ECA using the IIC index, "PC" to estimate the ECA using the PC index or "ProtConn" to estimate the ProtConn indicator using the PC index.}
+\item{metric}{A \code{character} indicating the connectivity metric to use: \code{"PC"} (the default and recommended) to calculate the probability of connectivity index, and \code{"IIC"} to calculate the binary integral index of connectivity.}
 
-\item{probability}{numeric. numeric. Connection probability to the selected distance threshold, e.g., 0.5
-(default) that is 50 percentage of probability connection. Use in case of selecting the "PC"
-metric or "ProtConn". If probability = NULL, then it will be the inverse of the mean dispersal distance
-for the species (1/α; Hanski and Ovaskainen 2000).}
+\item{probability}{A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.}
 
-\item{distance_thresholds}{numeric. Distances thresholds (minimum 3) to establish connections. For example, one distance: distance_threshold = 30000; two or more specific distances:
-distance_thresholds = c(30000, 50000, 100000); sequence distances (recommended): distance_thresholds = seq(10000,100000, 10000).}
+\item{distance_thresholds}{A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range. Can be the same length as the \code{distance_thresholds} parameter.}
 
-\item{region}{object of class sf, sfc, sfg or SpatialPolygons. If metric is equal to "ProtConn" then you must provide a region shapefile.}
+\item{region}{object of class \code{sf, sfc, sfg, SpatialPolygons}. If metric is equal to "ProtConn" then you must provide a region polygon.}
 
-\item{LA}{numeric. Maximum landscape attribute (attribute unit, if attribute is NULL then unit is equal to m2).}
+\item{LA}{\code{numeric}. (\emph{optional, default = } \code{NULL}). The maximum landscape attribute, which is the attribute value that would correspond to a hypothetical habitat patch covering all the landscape with the best possible habitat, in which IIC and PC would be equal to 1. For example, if nodes attribute corresponds to the node area, then LA equals total landscape area. If nodes attribute correspond to a quality-weighted area and the quality factor ranges from 0 to 100, LA will be equal to 100 multiplied by total landscape area. The value of LA does not affect at all the importance of the nodes and is only used to calculate the overall landscape connectivity. If no LA value is entered (default) and  \code{overall = TRUE} or \code{onlyoverall = TRUE}, the function will only calculate the numerator of the global connectivity indices and the equivalent connected ECA or EC index.}
 
-\item{transboundary}{numeric. Buffer to select polygones in a second round, their attribute value = 0, see Saura et al. 2017. You can set one transboundary value or one per each threshold distance.}
+\item{transboundary}{\code{numeric}. Buffer to select polygons in a second round, their attribute value = 0, see Saura et al. 2017. You can set one transboundary value or one per each threshold distance.}
 
-\item{area_unit}{character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
-compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "ha".}
+\item{area_unit}{\code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.}
 
-\item{groups}{Selected representative threshold distances (distance just before the biggest changes in connectivity metric)}
+\item{groups}{\code{numeric}. Number of selected representative threshold distances (distance just before the biggest changes in connectivity metric)}
 
-\item{write}{character. Folder path and prefix, for example: "C:/Folder/test".}
+\item{write}{\code{character}. Folder path and prefix, for example: \code{"C:/Folder/test"}.}
 
-\item{intern}{logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
+\item{intern}{\code{logical}. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 }
 \description{
 Test the ECA or ProtConn metrics using multiple dispersal distances

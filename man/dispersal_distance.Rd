@@ -7,20 +7,20 @@
 dispersal_distance(
   home_range = NULL,
   home_range_unit = "ha",
-  dispersal_distance_unit = "m",
-  intern = TRUE
+  dispersal_distance_unit = "m"
 )
 }
 \arguments{
-\item{home_range}{numeric. Species home range}
+\item{home_range}{\code{numeric}. Species home range}
 
-\item{home_range_unit}{character. You can set an area unit (e.g., "km2", "cm2", "ha"; see Makurhini::unit_convert).
-Default equal to hectares "ha".}
+\item{home_range_unit}{\code{character}. You can set an area unit (e.g., "km2", "cm2", "ha"; see \link[Makurhini]{unit_convert}).
+Default equal to hectares \code{"ha"}.}
 
-\item{dispersal_distance_unit}{character. You can set an distance unit (e.g., "km", "m", "cm"; see Makurhini::unit_convert).
-Default equal to meters "m".}
-
-\item{intern}{logical. Show the result, default = TRUE}
+\item{dispersal_distance_unit}{\code{character}. You can set an distance unit (e.g., "km", "m", "cm"; see \link[Makurhini]{unit_convert}).
+Default equal to meters \code{"m"}.}
+}
+\value{
+Returns a class object \code{data.frame} containing the scattering distances for a given home range.
 }
 \description{
 Estimate the dispersal distance using the home range and the equation
@@ -29,8 +29,7 @@ proposed by Bowman, Jaeger and Fahrig (2002)
 \examples{
 dispersal_distance(home_range = 0.6,
                    home_range_unit = "ha",
-                   dispersal_distance_unit = "m",
-                   intern = TRUE)
+                   dispersal_distance_unit = "m")
 }
 \references{
 Bowman, J., Jaeger, J. A., & Fahrig, L. (2002). Dispersal distance of mammals is proportional to home range size. Ecology, 83(7), 2049-2055.

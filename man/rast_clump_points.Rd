@@ -16,3 +16,4 @@ rast_clump_points(x, parallel = NULL, centroid_geometry = FALSE)
 \description{
 Get centroid clumb raster
 }
+\keyword{internal}

@@ -7,7 +7,6 @@
 get_grid(
   region = NULL,
   grid_pol = NULL,
-  grid_id = NULL,
   hexagonal = TRUE,
   cellsize = NULL,
   grid_boundary = FALSE,
@@ -20,8 +19,6 @@ get_grid(
 
 \item{grid_pol}{object of class sf, sfc, sfg or SpatialPolygons. Grid hexagones or squares. The
 shapefile must be in a projected coordinate system.}
-
-\item{grid_id}{character. Column name of the grid ID.}
 
 \item{hexagonal}{logical. If FALSE will be a regular grid of "square".}
 

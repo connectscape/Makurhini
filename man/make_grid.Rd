@@ -9,25 +9,46 @@ make_grid(
   hexagonal = TRUE,
   cell_area,
   clip = FALSE,
-  tolerance = NULL,
-  grid_boundary = FALSE
+  grid_boundary = FALSE,
+  tolerance = NULL
 )
 }
 \arguments{
-\item{x}{Object of class sf, sfc, sfg or SpatialPolygons}
+\item{x}{Object of class \code{sf, sfc, sfg, SpatialPolygons}}
 
-\item{hexagonal}{logical. If TRUE then the geometry grid will be hexagonal othwewise will be square}
+\item{hexagonal}{\code{logical}. If \code{TRUE} then the geometry grid will be hexagonal otherwise it will be square.}
 
-\item{cell_area}{numeric. Grid area in the CRS units of object x.}
+\item{cell_area}{\code{numeric}. Grid area in the CRS units of object \code{x}.}
 
-\item{clip}{logical. If TRUE, the new grid will be clipped to the x area.
+\item{clip}{\code{logical}. If \code{TRUE}, the new grid will be clipped to the \code{x} geometry.
 The operation time will be longer the greater the number of vertices in the polygon of the region.
-If it is a region with many vertices use the argument **tolerance**.}
+If it is a region with many vertices use the parameter \code{tolerance}.}
 
-\item{tolerance}{numeric. If Reduces the number of vertices in the region polygon.}
+\item{grid_boundary}{\code{logical}. If \code{TRUE}, the "hexagons" or "squares" in the boundaries (i.e, that are not completely within the geometry \code{x}) will be removed.}
 
-\item{grid_boundary}{logical.If TRUE, the "hexagons" or "squares" in the boundaries will be removed.}
+\item{tolerance}{\code{numeric}. Reduces the number of vertices in the \code{x} polygon by simplifying its shape (see, \link[sf]{st_simplify}). It must be specified in meters}
+}
+\value{
+Returns a class object \code{sf} with a hexagonal or square polygon grid.
 }
 \description{
 Make grid
+}
+\examples{
+\dontrun{
+library(Makurhini)
+library(sf)
+data("study_area", package = "Makurhini")
+test <- make_grid(x = study_area, hexagonal = TRUE,
+                  cell_area = unit_convert(10, "km2", "m2"))
+plot(test)
+test <- make_grid(x = study_area, hexagonal = TRUE,
+                  cell_area = unit_convert(10, "km2", "m2"),
+                  clip = TRUE)
+plot(test)
+test <- make_grid2(x = study_area, hexagonal = TRUE,
+                   cell_area = unit_convert(10, "km2", "m2"),
+                   grid_boundary = TRUE)
+plot(st_geometry(study_area)); plot(test, add = T)
+}
 }

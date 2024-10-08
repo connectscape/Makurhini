@@ -13,16 +13,19 @@ unit_convert(
 )
 }
 \arguments{
-\item{data_unit}{numeric. Area value to be converted.}
+\item{data_unit}{\code{numeric}. Area value to be converted.}
 
-\item{unit_1}{character. Select an area unit: "m2" = square meter, "Dam2" = square decametre,
+\item{unit_1}{\code{character}. Select an area unit: "m2" = square meter, "Dam2" = square decametre,
 "ha" = hectares, "km2" = square kilometer, "inch2" = square inch, "foot2" = square foot,
 "yard2" = square yard, "mile2" = square mile. Length unit: "m" = meter, "km" = kilometer, "inch", "foot", "yard", "mile"}
 
-\item{unit_2}{character. Select an area unit: "m2" = square meter, "Dam2" = square decametre,
+\item{unit_2}{\code{character}. Select an area unit: "m2" = square meter, "Dam2" = square decametre,
 "ha" = hectares, "km2" = square kilometer, "inch2" = square inch, "foot2" = square foot,
 "yard2" = square yard, "mile2" = square mile. Length unit: "m" = meter, "km" = kilometer, "inch", "foot", "yard", "mile"}
 }
 \description{
 Convert numeric types from one area unit to another
+}
+\examples{
+unit_convert(100, "km2", "ha")
 }

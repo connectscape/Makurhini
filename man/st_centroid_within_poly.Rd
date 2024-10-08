@@ -16,3 +16,4 @@ Polygon centroid
 \url{https://stackoverflow.com/questions/52522872/r-sf-package-centroid-within-polygon}
 \url{https://stackoverflow.com/users/3609772/mitch}.
 }
+\keyword{internal}

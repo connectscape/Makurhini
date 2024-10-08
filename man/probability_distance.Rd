@@ -12,13 +12,13 @@ probability_distance(
 )
 }
 \arguments{
-\item{probability}{numeric. Probability of dispersal at median_distance. If NULL}
+\item{probability}{\code{numeric}. Probability of dispersal at \code{median_distance} parameter.}
 
-\item{median_distance}{numeric. Up to five maximum dispersal distance (km)}
+\item{median_distance}{\code{numeric}. Up to five maximum dispersal distance in km.}
 
-\item{eval_distance}{numeric. Calculate the probability of dispersal at a specific median distances (km). Available when only one median_distance is used.}
+\item{eval_distance}{\code{numeric}. Calculate the probability of dispersal at a specific median distances (km). Available when only one median_distance is used.}
 
-\item{min.prob}{numeric. Value between 0-1, maximum x axe value}
+\item{min.prob}{\code{numeric}. Value between 0-1, maximum \code{x} axe value.}
 }
 \description{
 Negative exponential dispersal kernel to calculate the probability of dispersal between two nodes. Used in probabilistic indexes (e.g., PC, BCPC, ProtConn etc.)

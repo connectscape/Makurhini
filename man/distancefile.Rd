@@ -28,70 +28,67 @@ distancefile(
 )
 }
 \arguments{
-\item{nodes}{object of class sf, SpatialPolygons, RasterLaryer or SpatRaster (terra package). It must be in a projected coordinate system.
-If nodes is a raster layer then raster values (Integer) will be taken as "id".}
+\item{nodes}{object of class \code{sf, SpatialPolygons, RasterLaryer or SpatRaster} (terra package). It must be in a \bold{projected coordinate system}.
+If nodes is a \code{raster} layer then raster values (Integer) will be taken as "id".}
 
-\item{id}{character. If nodes is a shapefile then you must specify the column name with the node ID in the shapefile data table.}
+\item{id}{\code{character}. If nodes is a shapefile then you must specify the column name with the node ID in the shapefile data table.}
 
-\item{type}{character. Choose one of the distances: "centroid" (faster, default), where Euclidean distance is
-calculated from feature centroid; "edge", where Euclidean distance is calculated from feature edges;
-"least-cost" that takes into account obstacles and local friction of the landscape (see, "gdistance" package);
-"commute-time" that is analogous to the resistance distance of circuitscape. The commute-time distance is
-based on the random walk theory and calculated using the electrical circuit theory (See, gdistance package).
-If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument.}
+\item{type}{\code{character}. Choose one of the distance options:\cr
+-    \code{"centroid"} (faster option, default), where Euclidean distance is calculated from feature centroid
+-    \code{"edge"}, where Euclidean distance is calculated from feature edges.\cr
+-    \code{"least-cost"} that takes into account obstacles and local friction of the landscape (see, \bold{gdistance} package).\cr
+-    \code{"commute-time"} that is analogous to the resistance distance of circuitscape. The commute-time distance is
+based on the random walk theory and calculated using the electrical circuit theory (See, \bold{gdistance} package).\cr
+If the type is equal to \code{"least-cost"} or \code{"commute-time"}, then you have to use the \bold{"resistance"} argument.}
 
-\item{distance_unit}{character. If Euclidean distance is selected or resist.units is TRUE then you can set a distance unit, "Makurhini::unit_covert()"
-compatible unit ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m".}
+\item{distance_unit}{\code{character}. If \code{"least-cost"} or \code{"commute-time"} is selected or \code{resist.units = TRUE} then you can set a distance unit
+("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m" (see, \link[Makurhini]{unit_convert}).}
 
-\item{keep}{numeric. Argument for higher processing speed. In case you have selected the "edge" distance, use this option to simplify the geometry and reduce the
-number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to NULL). The higher the value,
+\item{keep}{\code{numeric}. In case you have selected the \code{"edge"} distance, use this option to simplify the geometry and reduce the
+number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to \code{NULL}). The higher the value,
  the higher the speed but less precision.}
 
-\item{resistance}{raster. Raster object with resistance values. NOTE. If least_cost.java is TRUE, then
-resistance must bee an integer raster (i.e., integer values).}
+\item{resistance}{\code{raster}. Raster object with \bold{resistance} values. If \bold{\code{least_cost.java = TRUE}}, then
+resistance must bee an \bold{integer raster} (i.e., integer values).}
 
-\item{resist.units}{logical. If type = "least-cost" then yo can transform cost units to geographic
-units by multiplying the cost by the resolution of the raster.}
+\item{resist.units}{\code{logical}. If \code{resist.units = TRUE} and \code{type = "least-cost"} then cost units are converted to metric units by multiplying the cost by the raster resolution.}
 
-\item{CostFun}{A function to compute the cost to move between cells. Available only if you you have selected
-the "least-cost" or "commute-time" distance. The default is the mean (isotropic cost distance):
-function(x) mean(x). If resistance is a conductance raster then you can use: function(x) 1/mean(x)}
+\item{CostFun}{\code{function}. A function to compute the cost to move between cells. Available only if you you have selected
+the \code{"least-cost"} or \code{"commute-time"} distance. The default is the mean (isotropic cost distance):
+\code{function(x) 1/mean(x)}. If resistance is a conductance raster then you can use: \code{function(x) mean(x)}}
 
-\item{ngh}{numeric.  Neighbor graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood),
-8 (Moore neighborhood) or 16. Available only if you have selected
-the "least-cost" or "commute-time" distance.}
+\item{ngh}{\code{numeric}. Neighbor graph (directions) for distance calculations: 4 (von Neu-mann neighbourhood),
+8 (Moore neighborhood) or 16. Available only if you have selected the \code{"least-cost"} or \code{"commute-time"} distance.}
 
-\item{mask}{object of class sf, sfc, sfg or SpatialPolygons. For higher processing speed of "least-cost" or
-"commute-time" distances. Use this option to clip the resistance at the extent of the mask.}
+\item{mask}{object of class \code{sf, sfc, sfg. SpatialPolygons}. For higher processing speed of \code{"least-cost"} or \code{"commute-time"} distances. Use this option to clip the resistance at the extent of the mask.}
 
-\item{threshold}{numeric. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.}
+\item{threshold}{\code{numeric}. Distance threshold, pairs of nodes with a distance value above this threshold will be discarded.}
 
-\item{geometry_out}{numeric. You can use this argument if you have selected the "least-cost" or "commute-time" distance.
+\item{geometry_out}{\code{numeric}. You can use this argument if you have selected the \code{"least-cost"} or \code{"commute-time"} distance.
 If some spatial geometries are out of the resistance extent, then a buffer zone the large enough to cover
 these spatial geometries and with this numeric value will be added to the resistance, so that it is possible to
 calculate a cost distance value for the pairs of nodes that involve these geometries and avoid an error.
-If NULL, then a Euclidean distance (centroid) will be calculated to find these distances.}
+If NULL, then the Euclidean distance between centroids (\code{type = "centroid"}) will be calculated to find these distances.}
 
-\item{bounding_circles}{numeric. If a value is entered, this will create bounding circles around pairs of core areas
+\item{bounding_circles}{\code{numeric}. If a value is entered, this will create bounding circles around pairs of core areas
 (recommended for speed, large resistance rasters or pixel resolution < 150 m).
-Buffer distances are entered in map units. Also, the function is parallelized using
- and furrr package and multiprocess plan, default = NULL.}
+Buffer distances are entered in map units.}
 
-\item{parallel}{logical or numerical. Recommended for a large number of nodes or very large RasterLayer.}
+\item{parallel}{\code{logical} or \code{numerical}. Recommended for a large number of nodes or very large RasterLayer.}
 
-\item{ActiveParallel}{logical. It should be TRUE if there is already an open parallelization plan.}
+\item{ActiveParallel}{\code{logical}. It should be \code{TRUE} if there is already an open parallelization plan.}
 
-\item{least_cost.java}{logical. If TRUE then the programming language and computing platform 'java' will be used
-to estimate the least-cost distance USING only the FORMULA: function(x) 1/mean(x). It is necessary to have java installed. This option use
-the package 'graph4lg' to reduce computation times.}
+\item{least_cost.java}{\code{logical}. If \code{TRUE} then the programming language and computing platform \bold{'java'} will be used
+to estimate the least-cost distance \bold{using a resistance raster and the following formula}: \code{function(x) 1/mean(x)}. It is necessary to have \bold{java} installed. This option use
+the package \bold{\code{graph4lg}} to reduce computation times.}
 
-\item{cores.java}{numeric. Computer cores used to run the .jar file (see, graph4lg), default = 1.}
+\item{cores.java}{\code{numeric}. Computer cores used to run the .jar file (see, \bold{\code{graph4lg}} ), default = \code{1}.}
 
-\item{ram.java}{numeric. RAM gigabytes to run the .jar file (see, graph4lg), default = NULL.}
+\item{ram.java}{\code{numeric}. RAM gigabytes to run the .jar file (see, \bold{\code{graph4lg}} ), default = \code{NULL}.}
 
-\item{pairwise}{logical. If TRUE a pairwise table is returned (From, To, distance) otherwise it will be a matrix.}
+\item{pairwise}{\code{logical}. If \code{TRUE} a pairwise table of class \code{data.frame} is returned (From, To, distance) otherwise it will be a \code{matrix}.}
 
-\item{write}{character. Output path, with name and extension ".txt".}
+\item{write}{\code{character}. Output path, with name and extension \bold{".txt"}.}
 }
 \value{
 Exports a euclidean or cost distance table between pairs of nodes.

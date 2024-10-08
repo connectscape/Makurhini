@@ -20,7 +20,7 @@ euclidean_distances(
 \arguments{
 \item{x}{object of class sf, sfc, sfg or SpatialPolygons. It must be in a projected coordinate system.}
 
-\item{id}{character. Column name with the patches+ id.}
+\item{id}{character. Column name with the patches id.}
 
 \item{centroid}{logical. If centroid is TRUE then the Euclidean distance is calculated from patch centroids, if FALSE the Euclidean distance is calculated from patch edges.}
 
@@ -49,3 +49,4 @@ Euclidian distances
 \references{
 Douglas, David H. and Peucker, Thomas K. (1973) "Algorithms for the Reduction of the Number of Points Required to Represent a Digitized Line or its Caricature", The Canadian Cartographer, 10(2), pp112-122.
 }
+\keyword{internal}

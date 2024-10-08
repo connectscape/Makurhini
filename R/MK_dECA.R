@@ -1,40 +1,38 @@
 #' Estimate the ECA, rECA, dA and dECA.
 #'
 #' Equivalent Connected Area (ECA; if the area is used as attribute) or Equivalent Connectivity index (EC)
-#' @param nodes list of objects class sf, SpatialPolygonsDataFrame or raster. Nodes of each time to analyze.
-#' The shapefiles must be in a projected coordinate system.
-#' @param attribute character or vector. If nodes is a shappefile then you must specify the column name
-#'  with the attribute in the data table selected for the nodes. If nodes is a raster layer then it must be
-#'  a numeric vector with the node's attribute. The length of the vector must be equal to the number of nodes.
-#'   The numeric vector is multiplied by the area of each node to obtain a weighted habitat index.
-#'   If NULL the node area will be used as a node attribute, the unit area can be selected using the "area_unit" argument.
-#' @param area_unit character. If attribute is NULL you can set an area unit, "Makurhini::unit_covert()"
-#' compatible unit(e.g., "m2", "km2", "ha"). Default equal to hectares "m2".
-#' @param distance list. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the
-#'  distances: "centroid" (faster), "edge", "least-cost" or "commute-time". If the type is equal to "least-cost"
-#'  or "commute-time", then you have to use the "resistance" argument. You can place a list with resistances
-#'  where there must be one resistance for each time/scenario of patches in the **nodes** parameter, for example,
-#'  if nodes has a list with two time patches then you can use two resistances one for time 1 and one for time 2:
-#'  distance(type = "least-cost", resistance = list(resistanceT1, resistanceT2)). To See more arguments consult
-#'  the help function of distancefile().
-#' @param metric character. Choose a connectivity metric: "IIC" considering topologycal distances or "PC"
-#' considering maximum product probabilities.
-#' @param probability numeric. Connection probability to the selected distance threshold, e.g.,
-#' 0.5 that is 50 percentage of probability connection. Use in case of selecting the "PC" metric.
-#' If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).
-#' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters).
-#' For example, distance_threshold = 30000; two or more specific distances:
-#' distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).
-#' @param LA numeric. Maximum landscape attribute ("units" equal to "area_unit", default equal to "ha").
-#' @param plot logical. Also, you can provide the corresponding year for each period of
+#' @param nodes \code{list}. List of objects containing nodes (e.g., habitat patches or fragments) of each time to analyze information. Nodes can be of the following classes:\cr
+#' -   \code{Data.frame} with at least two columns: the first for node IDs and the second for attributes.\cr
+#' -   Spatial data of type vector (class \code{sf, SpatVector, SpatialPolygonsDataFrame}). It must be in a projected coordinate system.\cr
+#' -   Raster (class \code{RasterLayer, SpatRaster}). It must be in a projected coordinate system. The values must be integers representing the ID of each habitat patch or node, with non-habitat areas represented by NA values (see \link[raster]{clump} or \link[terra]{patches}).
+#' @param attribute \code{character} or \code{list}. If \code{NULL} (only applicable when \code{nodes} is of spatial data of vector or raster type) the area of the nodes will be used as the node attribute. The unit of area can be selected using the \code{area_unit} parameter. To use an alternative attribute, consider the class type of the object in the \code{nodes} parameter: \cr
+#' -   If \code{nodes} is \code{list} of spatial vectors or data.frames, specify \bold{the name of the column} containing the attribute for the nodes. The column name must be present in each element of the node list.\cr
+#' -   If \code{nodes} is a \code{list} of raster layers then the list must contain numeric vectors with attributes for each period or element of the list of nodes. The first numeric vector in the list must correspond to the first element of the node list. The length of each vector must be equal to the corresponding number of nodes. If the parameter \bold{weighted} is \code{TRUE} then the numeric vector is multiplied by the area of each node to obtain a weighted habitat index.
+#' @param weighted \code{logical}. If the \code{nodes} are of raster type, you can weight the estimated area of each node by the attribute. When using this parameter the \code{attribute} parameter, which must be a vector of length equal to the number of nodes, usually has values between 0 and 1.
+#' @param LA \code{numeric}. (\emph{optional, default = } \code{NULL}). The maximum landscape attribute, which is the attribute value that would correspond to a hypothetical habitat patch covering all the landscape with the best possible habitat, in which IIC and PC would be equal to 1. For example, if nodes attribute corresponds to the node area, then LA equals total landscape area. If nodes attribute correspond to a quality-weighted area and the quality factor ranges from 0 to 100, LA will be equal to 100 multiplied by total landscape area. The value of LA does not affect at all the importance of the nodes and is only used to calculate the overall landscape connectivity. If no LA value is entered (default) and  \code{overall = TRUE} or \code{onlyoverall = TRUE}, the function will only calculate the numerator of the global connectivity indices and the equivalent connected ECA or EC index.
+#' @param area_unit \code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.
+#' @param distance  A \code{matrix} or \code{list} to establish the distance between each pair of nodes. Distance between nodes may be Euclidean distances (straight-line distance) or effective distances (cost distances) by considering the landscape resistance to the species movements.\cr
+#' - If it is a \code{matrix}, then the number of columns and rows must be equal to the number of nodes. This distance matrix could be generated by the \link[Makurhini]{distancefile} function.\cr
+#' - If it is a \code{list} of parameters, then it must contain the distance parameters necessary to calculate the distance between nodes. For example, two of the most important parameters: \code{“type”} and \code{“resistance”}. For \code{"type"} choose one  of the distances:  \bold{"centroid" (faster), "edge", "least-cost" or "commute-time"}. If the type is equal to \code{"least-cost"} or \code{"commute-time"}, then you must use the \code{"resistance"} argument. For example: \code{distance(type = "least-cost", resistance = raster_resistance)}. To see more arguments see the \link[Makurhini]{distancefile} function.\cr
+#' - You can place a list with resistances where there must be one resistance for each time/scenario of patches in the \code{nodes} parameter, for example,
+#'  if nodes has a list of two times then you can use two resistances one for time 1 and one for time 2:
+#'  \code{distance(type = "least-cost", resistance = list(resistanceT1, resistanceT2))}.
+#' @param metric A \code{character} indicating the connectivity metric to use: \code{"PC"} (the default and recommended) to calculate the probability of connectivity index, and \code{"IIC"} to calculate the binary integral index of connectivity.
+#' @param probability A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.
+#' @param distance_thresholds A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range. Can be the same length as the \code{distance_thresholds} parameter.
+#' @param threshold \code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing.
+#' @param plot \code{logical}. Also, you can provide the corresponding year for each period of
 #' time analyzed, e.g., c("2011", "2014", "2017")
-#' @param parallel numeric. Specify the number of cores to use for parallel processing, default = NULL.
-#' Parallelize the function using furrr package and multiprocess plan.
-#' @param write character. Path and name of the output ".csv" file
-#' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
+#' @param parallel  (\emph{optional, default =} \code{NULL}).
+#' A \code{numeric} specifying the number of cores to parallelize the index estimation of the PC or IIC index and its deltas.Particularly useful when you have more than 1000 nodes. By default the analyses are not parallelized.
+#' @param parallel_mode (\emph{optional, default =} \code{1}).
+#' A \code{numeric} indicating the mode of parallelization: Mode \bold{1} (the default option, and recommended for less than 1000 nodes) parallelizes on the connectivity delta estimate, while Mode \bold{2} (recommended for more than 1000 nodes)
+#' parallelizes on the shortest paths between vertices estimate.
+#' @param write \code{character}. Path and name of the output ".csv" file
+#' @param intern \code{logical}. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @return Table with:\cr\cr
 #' -  Time: name of the time periods, name of the model or scenario (are taken from the name of the elements of the list of nodes or the plot argument)\cr
-#' -  Max. Landscape atrtribute: maximum landscape attribute\cr
+#' -  Max. Landscape attribute: maximum landscape attribute\cr
 #' -  Habitat area,\cr
 #' -  Distance threshold: it is usually a dispersal threshold associated with one or many species and it is set by the user.\cr
 #' -  ECA: Equivalent Connected Area or Equivalent Connectivity
@@ -48,12 +46,12 @@
 #' -  dA/dECA comparisons: comparisons between dA and dECA\cr
 #' -  Type of change: Type of change using the dECAfun() and the difference between dA and dECA.\cr
 #' @references \url{www.conefor.org}\cr\cr
-#' Saura, S., Estreguil, C., Mouton, C., & Rodríguez-Freire, M. (2011). Network analysis to assess landscape connectivity trends: Application to European forests (1990-2000). Ecological Indicators, 11(2), 407–416.
-#' https://doi.org/10.1016/j.ecolind.2010.06.011 \cr\cr
-#' Herrera, L. P., Sabatino, M. C., Jaimes, F. R., & Saura, S. (2017). Landscape connectivity and the role of small habitat patches as stepping stones: an assessment of the grassland biome in South America. Biodiversity and Conservation, 26(14), 3465–3479.
-#' https://doi.org/10.1007/s10531-017-1416-7\cr\cr
-#' Liang, J., Ding, Z., Jiang, Z., Yang, X., Xiao, R., Singh, P. B., ... & Hu, H. (2021). Climate change, habitat connectivity, and conservation gaps: a case study of four ungulate species endemic to the Tibetan Plateau. Landscape Ecology, 36(4), 1071-1087.
-#' Dilts TE, Weisberg PJ, Leitner P, Matocq MD, Inman RD, Nussear KE, Esque TC (2016) Multi-scale connectivity and graph theory highlight critical areas for conservation under climate change. Ecol Appl 26:1223–1237
+#' - Saura, S., Estreguil, C., Mouton, C., & Rodríguez-Freire, M. (2011). Network analysis to assess landscape connectivity trends: Application to European forests (1990-2000). Ecological Indicators, 11(2), 407–416.
+#' https://doi.org/10.1016/j.ecolind.2010.06.011 \cr
+#'  Herrera, L. P., Sabatino, M. C., Jaimes, F. R., & Saura, S. (2017). Landscape connectivity and the role of small habitat patches as stepping stones: an assessment of the grassland biome in South America. Biodiversity and Conservation, 26(14), 3465–3479.
+#' https://doi.org/10.1007/s10531-017-1416-7\cr
+#' - Liang, J., Ding, Z., Jiang, Z., Yang, X., Xiao, R., Singh, P. B., ... & Hu, H. (2021). Climate change, habitat connectivity, and conservation gaps: a case study of four ungulate species endemic to the Tibetan Plateau. Landscape Ecology, 36(4), 1071-1087.\cr
+#' - Dilts TE, Weisberg PJ, Leitner P, Matocq MD, Inman RD, Nussear KE, Esque TC (2016) Multi-scale connectivity and graph theory highlight critical areas for conservation under climate change. Ecol Appl 26:1223–1237
 #' @examples
 #' \dontrun{
 #' library(Makurhini)
@@ -86,12 +84,16 @@
 MK_dECA <- function(nodes,
                     attribute = NULL,
                     area_unit = "m2",
+                    weighted = FALSE,
                     distance = list(type = "centroid", resistance = NULL),
+                    threshold = NULL,
                     metric = "IIC",
                     probability = NULL,
                     distance_thresholds = NULL,
                     LA = NULL,
-                    plot = FALSE, parallel = NULL,
+                    plot = FALSE,
+                    parallel = NULL,
+                    parallel_mode = 1,
                     write = NULL, intern = TRUE){
   . = NULL
   if (missing(nodes)) {
@@ -146,6 +148,14 @@ MK_dECA <- function(nodes,
     parallel <- as.numeric(availableCores())-2
   }
 
+  if(!is.null(attribute)){
+    if(is.list(attribute)){
+      if(length(attribute) != length(nodes)){
+        stop("The list of node attributes must be the same length as the list of nodes.")
+      }
+    }
+  }
+
   options(warn = -1); listT <- compact(nodes)
 
   if(distance$type == "least-cost" | distance$type == "commute-time"){
@@ -194,17 +204,24 @@ MK_dECA <- function(nodes,
 
   #ECA
   x = NULL; y = NULL
-
-  if(isTRUE(intern)){
-    pb <- txtProgressBar(0, length(listT), style = 3)
-  }
-
   if(is.null(parallel)){
+    if(isTRUE(intern)){
+      pb <- txtProgressBar(0, length(listT), style = 3)
+    }
     ECA <- tryCatch(lapply(1:length(listT), function(x){
       x.1 <- listT[[x]]
-
       if(isTRUE(intern)){
         setTxtProgressBar(pb, x)
+      }
+
+      if(!is.null(attribute)){
+        if(!is.character(attribute)){
+          attribute.x <- attribute[[x]]
+        } else {
+          attribute.x <- attribute
+        }
+      } else {
+        attribute.x <- NULL
       }
 
       if(nrow(x.1) < 2){
@@ -225,13 +242,16 @@ MK_dECA <- function(nodes,
             dist_param <- distance
           }
 
-          tab1 <- MK_dPCIIC(nodes = x.1, attribute = attribute,
+          tab1 <- MK_dPCIIC(nodes = x.1, attribute = attribute.x,
+                            weighted = weighted,
                             restoration = NULL,
                             distance = dist_param, area_unit = area_unit,
                             metric = metric, probability = probability,
+                            threshold = threshold,
                             distance_thresholds = y,
                             overall = TRUE, onlyoverall = TRUE,
-                            LA = LA, rasterparallel = FALSE, write = NULL)
+                            LA = LA, write = NULL,
+                            intern = FALSE)
           return(tab1[2,])
         })
         ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[2] <- "ECA"; ECA_metric <- ECA_metric[,2:3]
@@ -239,48 +259,169 @@ MK_dECA <- function(nodes,
       return(ECA_metric)
     }), error = function(err) err)
   } else {
-    works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
-    if(.Platform$OS.type == "unix") {
-      strat <- future::multicore
-    } else {
-      strat <- future::multisession
-    }
-    plan(strategy = strat, gc = TRUE, workers = works)
-    ECA <- tryCatch(future_map(1:length(listT), function(x) {
-      x.1 <- listT[[x]]
-
-      if(nrow(x.1) < 2){
-        x.1 <- unit_convert(sum(st_area(x.1, byid = T)), "m2", area_unit)
-        ECA_metric <- map_dfr(distance_thresholds, function(y) {
-          tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}; tab1 <- data.frame(Value = tab1)
-          return(tab1)})
-        ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[1] <- "ECA"
+    if(parallel_mode == 1){
+      works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
+      if(.Platform$OS.type == "unix") {
+        strat <- future::multicore
       } else {
-        ECA_metric <- map_dfr(distance_thresholds, function(y) {
-          if(distance$type == "least-cost" | distance$type == "commute-time"){
-            if(class(distance$resistance)[1] == "list"){
-              dist_param <- distance; dist_param$resistance <- distance$resistance[[x]]
+        strat <- future::multisession
+      }
+      plan(strategy = strat, gc = TRUE, workers = works)
+      ECA <- tryCatch(future_map(1:length(listT), function(x) {
+        x.1 <- listT[[x]]
+        if(!is.null(attribute)){
+          if(!is.character(attribute)){
+            attribute.x <- attribute[[x]]
+          } else {
+            attribute.x <- attribute
+          }
+        } else {
+          attribute.x <- NULL
+        }
+        if(nrow(x.1) < 2){
+          x.1 <- unit_convert(sum(st_area(x.1, byid = T)), "m2", area_unit)
+          ECA_metric <- map_dfr(distance_thresholds, function(y) {
+            tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}; tab1 <- data.frame(Value = tab1)
+            return(tab1)})
+          ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[1] <- "ECA"
+        } else {
+          ECA_metric <- map_dfr(distance_thresholds, function(y) {
+            if(distance$type == "least-cost" | distance$type == "commute-time"){
+              if(class(distance$resistance)[1] == "list"){
+                dist_param <- distance; dist_param$resistance <- distance$resistance[[x]]
+              } else {
+                dist_param <- distance
+              }
             } else {
               dist_param <- distance
             }
-          } else {
-            dist_param <- distance
-          }
 
-          tab1 <- MK_dPCIIC(nodes = x.1, attribute = attribute,
-                            restoration = NULL,
-                            distance = dist_param, area_unit = area_unit,
-                            metric = metric, probability = probability,
-                            distance_thresholds = y,
-                            overall = TRUE, onlyoverall = TRUE,
-                            LA = LA, rasterparallel = FALSE, write = NULL)
-          return(tab1[2,])
-        })
-        ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[2] <- "ECA"; ECA_metric <- ECA_metric[,2:3]
+            tab1 <- MK_dPCIIC(nodes = x.1, attribute = attribute.x,
+                              restoration = NULL,
+                              distance = dist_param, area_unit = area_unit,
+                              metric = metric, probability = probability,
+                              distance_thresholds = y,
+                              overall = TRUE, onlyoverall = TRUE,
+                              LA = LA, write = NULL,
+                              intern = intern)
+            return(tab1[2,])
+          })
+          ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[2] <- "ECA"; ECA_metric <- ECA_metric[,2:3]
+        }
+        return(ECA_metric)
+      }, .progress = TRUE),  error = function(err) err)
+      close_multiprocess(works)
+    } else if (parallel_mode == 2){
+      if(isTRUE(intern)){
+        pb <- txtProgressBar(0, length(listT), style = 3)
       }
-      return(ECA_metric)
-    }, .progress = TRUE),  error = function(err) err)
-    close_multiprocess(works)
+      ECA <- tryCatch(lapply(1:length(listT), function(x){
+        x.1 <- listT[[x]]
+
+        if(isTRUE(intern)){
+          setTxtProgressBar(pb, x)
+        }
+
+        if(!is.null(attribute)){
+          if(!is.character(attribute)){
+            attribute.x <- attribute[[x]]
+          } else {
+            attribute.x <- attribute
+          }
+        } else {
+          attribute.x <- NULL
+        }
+
+        if(nrow(x.1) < 2){
+          x.1 <- unit_convert(sum(st_area(x.1, byid = T)), "m2", area_unit)
+          ECA_metric <- map_dfr(distance_thresholds, function(y) {
+            tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}; tab1 <- data.frame(Value = tab1)
+            return(tab1)})
+          ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[1] <- "ECA"
+        } else {
+          ECA_metric <- map_dfr(distance_thresholds, function(y) {
+            if(distance$type == "least-cost" | distance$type == "commute-time"){
+              if(class(distance$resistance)[1] == "list"){
+                dist_param <- distance; dist_param$resistance <- distance$resistance[[x]]
+              } else {
+                dist_param <- distance
+              }
+            } else {
+              dist_param <- distance
+            }
+
+            tab1 <- MK_dPCIIC(nodes = x.1, attribute = attribute.x,
+                              restoration = NULL,
+                              distance = dist_param, area_unit = area_unit,
+                              metric = metric, probability = probability,
+                              distance_thresholds = y,
+                              overall = TRUE, onlyoverall = TRUE,
+                              parallel = parallel,
+                              parallel_mode = 1,
+                              LA = LA, write = NULL,
+                              intern = intern)
+            return(tab1[2,])
+          })
+          ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[2] <- "ECA"; ECA_metric <- ECA_metric[,2:3]
+        }
+        return(ECA_metric)
+      }), error = function(err) err)
+    } else {
+      if(isTRUE(intern)){
+        pb <- txtProgressBar(0, length(listT), style = 3)
+      }
+      ECA <- tryCatch(lapply(1:length(listT), function(x){
+        x.1 <- listT[[x]]
+
+        if(isTRUE(intern)){
+          setTxtProgressBar(pb, x)
+        }
+
+        if(!is.null(attribute)){
+          if(!is.character(attribute)){
+            attribute.x <- attribute[[x]]
+          } else {
+            attribute.x <- attribute
+          }
+        } else {
+          attribute.x <- NULL
+        }
+
+        if(nrow(x.1) < 2){
+          x.1 <- unit_convert(sum(st_area(x.1, byid = T)), "m2", area_unit)
+          ECA_metric <- map_dfr(distance_thresholds, function(y) {
+            tab1 <- if((100 * (x.1 / LA)) >= 100){LA}else{x.1}; tab1 <- data.frame(Value = tab1)
+            return(tab1)})
+          ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[1] <- "ECA"
+        } else {
+          ECA_metric <- map_dfr(distance_thresholds, function(y) {
+            if(distance$type == "least-cost" | distance$type == "commute-time"){
+              if(class(distance$resistance)[1] == "list"){
+                dist_param <- distance; dist_param$resistance <- distance$resistance[[x]]
+              } else {
+                dist_param <- distance
+              }
+            } else {
+              dist_param <- distance
+            }
+
+            tab1 <- MK_dPCIIC(nodes = x.1, attribute = attribute.x,
+                              restoration = NULL,
+                              distance = dist_param, area_unit = area_unit,
+                              metric = metric, probability = probability,
+                              distance_thresholds = y,
+                              overall = TRUE, onlyoverall = TRUE,
+                              parallel = parallel,
+                              parallel_mode = 2,
+                              LA = LA, write = NULL,
+                              intern = FALSE)
+            return(tab1[2,])
+          })
+          ECA_metric$Distance <- distance_thresholds; names(ECA_metric)[2] <- "ECA"; ECA_metric <- ECA_metric[,2:3]
+        }
+        return(ECA_metric)
+      }), error = function(err) err)
+    }
   }
 
   if(inherits(ECA, "error")){
@@ -408,7 +549,7 @@ MK_dECA <- function(nodes,
                   legend.title = element_blank(),
                   legend.text = element_text(size = 11)) +
             labs(x = "Time", y = "% of landscape") +
-            ggtitle(paste0("ECA: Dispersal distance = ", dp_text)) +
+            ggtitle(paste0("Normalized ECA (% of LA): Dispersal distance = ", dp_text)) +
             scale_fill_manual(values = pcolors) +
             theme(axis.line = element_line(size = 1, colour = "black"),
                   panel.grid.major = element_line(colour = "#d3d3d3"),
@@ -426,9 +567,9 @@ MK_dECA <- function(nodes,
           return(p4)})
         ECA_result <- list()
         for (i in 1:length(ECA2)){
-          ECA_result[[i]] <- list(ECA2[[i]], ECAplot[[i]])
+          ECA_result[[i]] <- list("dECA_table" = ECA2[[i]],
+                                  "dECA_plot" = ECAplot[[i]])
         }
-
         names(ECA_result) <- paste(distance_thresholds)
         ECA2 <- ECA_result
       }
@@ -439,8 +580,9 @@ MK_dECA <- function(nodes,
 
 
     if(length(distance_thresholds) == 1){
-      if((isTRUE(plot) | is.character(plot))){
-        print(ECA2[[1]][[2]]); ECA2 <- ECA2[[1]][[1]]
+      if((isTRUE(plot) | is.factor(plot))){
+        print(ECA2[[1]][[2]]); ECA2 <- ECA2[[1]]
+        names(ECA2) <- c("dECA_table", "dECA_plot")
       } else {
         ECA2 <- ECA2[[1]]
       }

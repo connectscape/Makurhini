@@ -1,34 +1,34 @@
 #' Multiple Protected Connected (ProtConn)
 #'
 #' Estimate Protected Connected (ProtConn) indicator and fractions for multiple regions.
-#' @param nodes object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
-#' @param regions object of class sf, sfc, sfg or SpatialPolygons. The file must have a projected coordinate system.
-#' @param area_unit character. Attribute area units. You can set an area unit, "Makurhini::unit_covert()" compatible unit ("m2", "Dam2, "km2", "ha", "inch2", "foot2", "yard2", "mile2"). Default equal to hectares "m2".
-#' @param distance list. See \link[Makurhini]{distancefile}. Example, list(type= "centroid", resistance = NULL).
-#' @param distance_thresholds numeric. Distance or distances thresholds to establish connections (meters). For example, one distance: distance_threshold = 30000; two or more specific distances:
-#'  distance_threshold = c(30000, 50000); sequence distances: distance_threshold = seq(10000,100000, 10000).
-#' @param probability numeric. Connection probability to the selected distance threshold, e.g., 0.5 that is 50 percentage of probability connection. numeric.
-#' If probability = NULL, then it will be the inverse of the mean dispersal distance for the species (1/α; Hanski and Ovaskainen 2000).
-#' @param transboundary numeric. Buffer to select polygons in a second round, their attribute value = 0, see Saura et al. 2017.
-#' @param transboundary_type character. Two options: "nodes" or "region". If it is "nodes" the transboundary is built from the limits of the nodes present in the region (default),
-#' if "region" is selected the transboundary is built from the limits of the region.
-#' @param protconn_bound logical. If TRUE then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.
-#' @param geom_simplify logical. Slightly simplify the region and nodes geometries.
-#' @param delta logical. Estimate the contribution of each node to the ProtConn value in the regions.
-#' @param CI character. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values c("norm","basic", "stud", "perc", "bca") or "all" which will compute all five types of intervals (see, \link[boot]{boot.ci})
-#' @param plot logical. Plot the main ProtConn indicators and fractions with their standard deviation, default = FALSE.
-#' @param write character. Output folder including the output file name without extension, e.g., "C:/ProtConn/Protfiles".
-#' @param intern logical. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
-#' @param parallel numeric. Specify the number of cores to use for parallel processing, default = NULL.
-#' Parallelize the function using furrr package and multiprocess plan.
+#' @param nodes object of class \code{sf, sfc, sfg, spatialPolygonsDataFrame}. Spatial data of vector type that normally contains the spatial limits of protected areas. It must be in a projected coordinate system.
+#' @param regions object of class \code{sf, sfc, sfg, spatialPolygonsDataFrame}. Polygon delimiting the \bold{regions} or \bold{study areas}. It must be in a projected coordinate system.
+#' @param area_unit \code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.
+#' @param distance A \code{list} of parameters to establish the distance between each pair of nodes. Distance between nodes may be Euclidean distances (straight-line distance) or effective distances (cost distances) by considering the landscape resistance to the species movements. \cr
+#'  This list must contain the distance parameters necessary to calculate the distance between nodes. For example, two of the most important parameters: \code{“type”} and \code{“resistance”}. For \code{"type"} choose one  of the distances:  \bold{"centroid" (faster), "edge", "least-cost" or "commute-time"}. If the type is equal to \code{"least-cost"} or \code{"commute-time"}, then you must use the \code{"resistance"} argument. For example: \code{distance(type = "least-cost", resistance = raster_resistance)}. \cr
+#' To see more arguments see the \link[Makurhini]{distancefile} function.
+#' @param distance_thresholds A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range. Can be the same length as the \code{distance_thresholds} parameter.
+#' @param probability A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.
+#' @param transboundary \code{numeric}. Buffer to select polygons (e.g., PAs) in a second round. The selected polygons will have an attribute value = 0, i.e., their contribution for connectivity would be as stepping stones (Saura et al. 2017). One cross-border value or one for each threshold distance can be set.
+#' @param transboundary_type \code{character}. Two options: \code{"nodes" (methodology from Saura et al. 2017)} or \code{"region"}.\cr
+#' - If it is \code{"nodes"}, the transboundary is built from the limits of the nodes present in the region (default).
+#' - If it is \code{"region"}, is selected the transboundary is built from the limits of the region.
+#' @param protconn_bound \code{logical}. If \code{TRUE} then the fractions ProtUnConn[design] and ProtConn[bound] will be estimated.
+#' @param geom_simplify \code{logical}. Slightly simplify the region and nodes geometries.
+#' @param delta \code{logical}. Estimate the contribution of each node to the ProtConn value in each region.
+#' @param CI \code{character}. A character vector representing the type of confidence intervals that will be estimated. The value should be any subset of the values \code{c("norm","basic", "stud", "perc", "bca")} or \code{"all"} which will compute all five types of intervals (see, \link[boot]{boot.ci})
+#' @param plot \code{logical}. Plot the main ProtConn indicators and fractions with their standard deviation, default = \code{FALSE}.
+#' @param parallel \code{numeric}. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess plan.
+#' @param write \code{character}. Output folder including the output file name without extension, e.g., \code{"C:/ProtConn/Protfiles"}.
+#' @param intern \code{logical}. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @return
-#' Table with the following ProtConn values: ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
+#' For each region:\cr
+#' - Table with the following ProtConn values: \code{ECA, Prot, ProtConn, ProtUnconn, RelConn, ProtUnConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within],
 #'  ProtConn[Contig], ProtConn[Trans], ProtConn[Unprot], ProtConn[Within][land], ProtConn[Contig][land],
-#'  ProtConn[Unprot][land], ProtConn[Trans][land] \cr
+#'  ProtConn[Unprot][land], ProtConn[Trans][land]} \cr
 #' \cr
-#' *Each indicator is accompanied by six dispersion statistics: standard deviation, standard error and four confidence intervals obtained with a bootstrap-type resampling (Carpenter & Bithell 2000; see, \strong{ProtConnStat()})\cr
-#' \cr
-#' *If plot is not TRUE a list is returned with the ProtConn table and a plots.
+#' - If plot \bold{is not NULL} a \code{list} is returned with the ProtConn table and a plots.
+#' - If \bold{delta} is \code{TRUE} then it returns an sf class object with the importance value (contribution to ProtConn) for each node in the region.
 #' @references Saura, S., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2017). Protected areas in the world’s ecoregions: How well connected are they? Ecological Indicators, 76, 144–158.
 #' Saura, S., Bertzky, B., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2018). Protected area connectivity: Shortfalls in global targets and country-level priorities. Biological Conservation, 219(October 2017), 53–67.
 #' @export
@@ -36,11 +36,10 @@
 #' \dontrun{
 #' library(Makurhini)
 #' library(sf)
-#' data("Protected_areas", package = "Makurhini")
-#' plot(Protected_areas, col="green")
-#'
 #' data("regions", package = "Makurhini")
 #' plot(regions, col=c("blue", "red", "green"))
+#' data("Protected_areas", package = "Makurhini")
+#' plot(st_crop(Protected_areas, regions), col="green")
 #'
 #' test <- MK_ProtConnMult(nodes = Protected_areas,
 #'                         regions = regions,
@@ -54,8 +53,6 @@
 #' }
 #' @importFrom magrittr %>%
 #' @importFrom sf st_as_sf st_zm st_geometry st_geometry<- write_sf
-#' @importFrom progressr handlers handler_pbcol progressor
-#' @importFrom crayon bgWhite white bgCyan
 #' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map future_map_dfr
 #' @importFrom formattable color_tile area style formattable formatter
@@ -78,6 +75,9 @@ MK_ProtConnMult <- function(nodes, regions,
                             plot = FALSE,
                             write = NULL, intern = TRUE,
                             parallel = NULL){
+  if(isTRUE(intern)){
+    message("Step 1. Reviewing parameters")
+  }
   if (missing(nodes)) {
     stop("error missing file of nodes")
   } else {
@@ -117,25 +117,18 @@ MK_ProtConnMult <- function(nodes, regions,
   }
 
   regions <- TopoClean(regions, xsimplify = geom_simplify)
-  loop <- 1:nrow(regions)
-
   if (isTRUE(intern)){
-    handlers(global = T)
-    handlers(handler_pbcol(complete = function(s) crayon::bgYellow(crayon::white(s)),
-                           incomplete = function(s) crayon::bgWhite(crayon::black(s)),
-                           intrusiveness = 2))
-    pb <- progressor(along = loop)
-    message("Step 1. ProtConn estimation")
+    message("Step 2. Processing ProtConn metric. Progress estimated:")
+    pb <- txtProgressBar(0, nrow(regions), style = 3)
   }
 
 
   if(is.null(parallel)){
-    x=2
-    protconn_result <- tryCatch(lapply(loop, function(x){
+    protconn_result <- tryCatch(lapply(1:nrow(regions), function(x){
       Ecoreg_sel <- regions[x,]
 
       if (isTRUE(intern)){
-        pb()
+        setTxtProgressBar(pb, x)
       }
 
       protconn <- tryCatch(MK_ProtConn(nodes = nodes,
@@ -219,9 +212,9 @@ MK_ProtConnMult <- function(nodes, regions,
       strat <- future::multisession
     }
     plan(strategy = strat, gc = TRUE, workers = works)
-    protconn_result <- tryCatch(future_map(loop, function(x){
+    protconn_result <- tryCatch(future_map(1:nrow(regions), function(x){
       if (isTRUE(intern)){
-        pb()
+        setTxtProgressBar(pb, x)
       }
       Ecoreg_sel <- regions[regions$ID_Temp == unique(regions$ID_Temp)[x],]
       protconn <- tryCatch(MK_ProtConn(nodes = nodes,
@@ -402,7 +395,7 @@ MK_ProtConnMult <- function(nodes, regions,
         dacc <- DataProtconn[c(2,1,3), 2:3]
         dacc$name <- c("Unprotected", "Protected", "Protected connected")
         dacc$name <- factor(dacc$name, levels = c("Unprotected", "Protected", "Protected connected"))
-        dacc$col <- c("#C34D51", "#53A768", "#4C72AF")
+        dacc$col <- c("#fc8d62", "#66c2a5", "#8da0cb")
         names(dacc)[1] <- "Values"
         dacc <- dacc[which(dacc$Values > 0), ]
         if(nrow(dacc) > 1){
@@ -424,10 +417,10 @@ MK_ProtConnMult <- function(nodes, regions,
                   legend.text = element_text(colour = "#252525", size = rel(1.2)),
                   axis.text= element_text(colour = "#525252", size = rel(1)))+
             scale_fill_manual(values = dacc$col) +
-            geom_hline(aes(yintercept = 17, linetype = "Aichi Target (17%)"),
-                       colour = 'black', size = 1.2) +
+            geom_hline(aes(yintercept = 17, linetype = "Aichi Target (17%)"), colour = 'black', size = 1.2) +
+            geom_hline(aes(yintercept = 30, linetype = "Kunming-Montreal (30%)"), colour = 'red', size = 1.2)+
             scale_linetype_manual(name = " Aichi Target", values = c(2, 2),
-                                  guide = guide_legend(override.aes = list(color = c("black"), size = 0.8)))
+                                  guide = guide_legend(override.aes = list(color = c("black", 'red'), size = 0.8)))
           plots <- list(plot_protconn1)
         }
 

@@ -498,36 +498,36 @@ MK_dECA <- function(nodes,
 
         ECAplot <- lapply(ECA2, function(x){
           ECA4 <- (x[[3]] * 100)/ LA; Loss <- 100 - ECA4; ECA4 <- cbind(ECA4, Loss) %>% as.data.frame()
-          names(ECA4)[1] <- "Habitat"; ECA4$"Connected habitat" <- x[[7]]; ECA4$Year <- plot
+          names(ECA4) <- c("Habitat", "Habitat lost"); ECA4$"Connected habitat" <- x[[7]]; ECA4$Year <- plot
 
           #Table 1
           ECA5 <- ECA4
           ECA4 <- data.frame(Year = rep(ECA4$Year,3),
                              variable = c(rep("Habitat", length(ECA4$Year)),
-                                          rep("Loss", length(ECA4$Year)),
+                                          rep("Habitat lost", length(ECA4$Year)),
                                           rep("Connected habitat", length(ECA4$Year))),
-                             percentage = c(ECA4$Habitat, ECA4$Loss, ECA4$`Connected habitat`),
+                             percentage = c(ECA4[[1]], ECA4[[2]], ECA4[[3]]),
                              check.names = FALSE)
 
-          ECA4$variable <- factor(ECA4$variable, levels = c("Loss", "Habitat", "Connected habitat"))
+          ECA4$variable <- factor(ECA4$variable, levels = c("Habitat lost", "Habitat", "Connected habitat"))
 
           #Table 2
-          ECA5$`Connected habitat` <- (ECA5$`Connected habitat` * ECA5$Habitat)/100
-          ECA5$Habitat <- ECA5$Habitat - ECA5$`Connected habitat`
+          ECA5$`Connected habitat` <- (ECA5[[3]] * ECA5[[1]])/100
+          ECA5$Habitat <- ECA5[[1]] - ECA5[[3]]
 
           ECA5 <- data.frame(Year = rep(ECA5$Year,3),
                              variable = c(rep("Habitat", length(ECA5$Year)),
-                                          rep("Loss", length(ECA5$Year)),
+                                          rep("Habitat lost", length(ECA5$Year)),
                                           rep("Connected habitat", length(ECA5$Year))),
-                             percentage = c(ECA5$Habitat, ECA5$Loss, ECA5$`Connected habitat`),
+                             percentage = c(ECA5$Habitat, ECA5$`Habitat lost`, ECA5$`Connected habitat`),
                              check.names = FALSE)
-          ECA5$variable <- factor(ECA5$variable, levels = c("Loss", "Habitat", "Connected habitat"))
+          ECA5$variable <- factor(ECA5$variable, levels = c("Habitat lost", "Habitat", "Connected habitat"))
           ECA5$Text <- ECA4$percentage
           ECA5$Text[which(ECA5$variable == "Connected habitat")] <- ECA5$percentage[which(ECA5$variable == "Connected habitat")]
 
           ECA5$pos <- ECA5$percentage/2
           ECA5$pos[which(ECA5$variable == "Habitat")] <- (ECA5$percentage[which(ECA5$variable == "Habitat")]/2) + ECA5$percentage[which(ECA5$variable == "Connected habitat")]
-          ECA5$pos[which(ECA5$variable == "Loss")] <- (ECA5$percentage[which(ECA5$variable == "Loss")]/2) + ECA5$Text[which(ECA5$variable == "Habitat")]
+          ECA5$pos[which(ECA5$variable == "Habitat lost")] <- (ECA5$percentage[which(ECA5$variable == "Habitat lost")]/2) + ECA5$Text[which(ECA5$variable == "Habitat")]
           #Plot
           pcolors <- c("#443A82", "#30678D", "#26AE7F")
 
@@ -551,7 +551,7 @@ MK_dECA <- function(nodes,
             labs(x = "Time", y = "% of landscape") +
             ggtitle(paste0("Normalized ECA (% of LA): Dispersal distance = ", dp_text)) +
             scale_fill_manual(values = pcolors) +
-            theme(axis.line = element_line(size = 1, colour = "black"),
+            theme(axis.line = element_line(size = 0.5, colour = "black"),
                   panel.grid.major = element_line(colour = "#d3d3d3"),
                   panel.grid.minor = element_blank(),
                   panel.border = element_blank(),

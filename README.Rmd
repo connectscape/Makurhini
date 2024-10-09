@@ -230,44 +230,78 @@ test_protconn <- MK_ProtConnMult(nodes = Protected_areas,
                                  CI = NULL, 
                                  parallel = 4, 
                                  intern = FALSE)
-test_protconn[[1]][[1]]
+test_protconn
 ```
 
 ![](man/figures/table_protconn.png)
 
 ProtConn value: ![](man/figures/protconn.png)
 
+
+#### Example incorporated in Makurhini
+
+In this example we estimate the ProtConn for only one ecoregion of central Mexico (black line) using a vector file with the polygons of the country's federal protected areas (green).
+
+```{r eval = TRUE, echo=FALSE, out.width = "80%"}
+data("Protected_areas", package = "Makurhini")
+data("regions", package = "Makurhini")
+region <- regions[2,]
+plot(st_geometry(st_crop(Protected_areas, region)), col = "#2ca25f", 
+     border = 'grey', axes = TRUE)
+plot(st_geometry(region), lty = 1, lwd = 2, add = T)
+```
+
+```{r eval = TRUE}
+test_protconn <- MK_ProtConn(nodes = Protected_areas,
+                             region = region,
+                             area_unit = "ha",
+                             distance = list(type= "centroid"),
+                             distance_thresholds = 5000,
+                             probability = 0.5,
+                             transboundary = 50000,
+                             plot = TRUE,
+                             parallel = NULL,
+                             protconn_bound = TRUE,
+                             delta = FALSE,
+                             write = NULL,
+                             intern = FALSE)
+```
+
+
+```{r echo=FALSE, out.width = "80%"}
+library(classInt)
+diic <- tm_shape(test_protconn$ProtConn_Delta) + tm_fill("dProtConn", palette = RColorBrewer::brewer.pal(5, "RdYlGn"),                                breaks =  c(-0.0000194471, 0, 3.2060153958, 5.8717852689, 9.1473400540, 23.4648579636))+ 
+  tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+```
+
+
+
 ### Equivalent Connectivity Area (ECA) {#equivalent-connectivity-area-eca}
 
 Example in the Biosphere Reserve Mariposa Monarca, Mexico, with
 old-growth vegetation fragments of four times (?list_forest_patches).
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 data("list_forest_patches", package = "Makurhini")
-class(list_forest_patches)
-#[1] "list"
 data("study_area", package = "Makurhini")
-class(study_area)[1]
-#[1] "SpatialPolygonsDataFrame"
+class(list_forest_patches)
 
-Max_attribute <- unit_convert(gArea(study_area), "m2", "ha")
+Max_attribute <- unit_convert(st_area(study_area), "m2", "ha")
 ```
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
                   distance = list(type= "centroid"), metric = "PC",
                   probability = 0.05, distance_thresholds = 5000,
                   LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))
-dECA_test
 ```
 
 ECA table:
 
-![](man/figures/table_eca.PNG)
+```{r eval=TRUE, out.width = "100%"}
+dECA_test$dECA_table
+```
 
-ECA plot:
-
-![](man/figures/ECAplot.png)
 
 Another way to analyze the ECA (and ProtConn indicator) is by using the
 *'MK_Connect_grid()'* that estimates the index values on a grid. An
@@ -296,7 +330,6 @@ head(IIC)
 ```
 
 ```{r echo=FALSE, out.width = "100%"}
-library(classInt)
 tmap_mode("plot")
 c <-9
 diic <- tm_shape(IIC) + tm_fill("dIIC", palette = RColorBrewer::brewer.pal(c, "RdYlGn"),

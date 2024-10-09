@@ -75,7 +75,7 @@ parallelizes on the shortest paths between vertices estimate.}
 -   If you use \bold{multiple distance thresholds} (e.g, \code{distance_thresholds = c(1000, 5000, 80000)}), the resulting data should be returned in the form of a \code{list}, wherein each \code{list} item contains the resulting objects for each distance threshold.
 }
 \description{
-This function calculates the dPC or dIIC index to calculate link importance for conservation and restoration. It calculates the contribution of each individual link to \bold{maintain} (mode: link removal) or \bold{improve} (mode: link change) the overall connectivity under one or several distance thresholds.
+This function calculates the dPC or dIIC index to estimate the link importance for conservation and restoration. It calculates the contribution of each individual link to \bold{maintain} (mode: link removal) or \bold{improve} (mode: link change) the overall connectivity under one or several distance thresholds.
 }
 \details{
 This function calculates the \bold{importance or contribution of each link} to the overall landscape connectivity. The importance of a link is calculated as the variation in the value of the \bold{PC} or \bold{IIC} indices after certain changes affecting that link.

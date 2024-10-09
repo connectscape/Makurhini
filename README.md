@@ -14,6 +14,18 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 ## NEWS
 
 - Thank you for using Makurhini. **We have a new version Makurhini 3.0!**
+- An update was made in the estimation of short distances between
+  nodes, which can improve the processing of the functions that
+  estimate connectivity indices.
+- Two new functions have been added: MK_dPCIIC_links and
+  MK_Focal_nodes. The first one is used to estimate the link
+  importance for conservation and restoration. The second estimates
+  the focal Integral Index of Connectivity (IIC~f~) or the focal
+  Probability of Connectivity (PC~f~) under one or more distance
+  thresholds. Furthermore, this function estimates the composite
+  connectivity index (CCI~f~}; for further details, please see
+  Latorre-Cárdenas et al., 2023.
+  <https://doi.org/10.3390/land12030631>).
 
 ## Overview
 
@@ -261,6 +273,26 @@ region using raster inputs (nodes and region). It uses the
 Compute the ProtConn indicator and fractions, PC or IIC overall
 connectivity metrics (ECA) in a regular grid. It uses the
 ‘distancefile()’.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="font-style: italic">MK_dPCIIC_links </span>
+</td>
+<td style="text-align:left;">
+Estimate the link importance for conservation and restoration. 
+It calculates the contribution of each individual link to maintain
+(mode: link removal) or improve (mode: link change) the overall connectivity.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="font-style: italic">MK_Focal_nodes </span>
+</td>
+<td style="text-align:left;">
+Estimate the focal Integral Index of Connectivity or the focal 
+Probability of Connectivity  and the Composite Connectivity Index 
+under one or more distance thresholds.
 </td>
 </tr>
 <tr>

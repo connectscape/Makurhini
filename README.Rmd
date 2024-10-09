@@ -29,7 +29,20 @@ knitr::opts_chunk$set(
 
 ## NEWS
 
--   Thank you for using Makurhini. **We have a new version Makurhini 3.0!**
+-   Thank you for using Makurhini. **We have a new version Makurhini
+    3.0!**
+-   An update was made in the estimation of short distances between
+    nodes, which can improve the processing of the functions that
+    estimate connectivity indices.
+-   Two new functions have been added: MK_dPCIIC_links and
+    MK_Focal_nodes. The first one is used to estimate the link
+    importance for conservation and restoration. The second estimates
+    the focal Integral Index of Connectivity (IIC~f~) or the focal
+    Probability of Connectivity (PC~f~) under one or more distance
+    thresholds. Furthermore, this function estimates the composite
+    connectivity index (CCI~f~}; for further details, please see
+    Latorre-Cárdenas et al., 2023.
+    <https://doi.org/10.3390/land12030631>).
 
 ## Overview
 
@@ -99,7 +112,7 @@ GitHub: HTTP error 401. Bad credentials
 
 ```
 
-Then you can try the following:
+Then you can **try the following**:
 
 ```{r eval=FALSE}
 Sys.getenv("GITHUB_PAT")
@@ -125,7 +138,9 @@ To install Makurhini on linux consider the following steps:
 
     `sudo apt install libharfbuzz-dev libfribidi-dev`
 
-4)  You can now install the *devtools* and *remotes* packages, and the *terra*, *raster* and *sf* packages directly in your **R or RStudio**. 
+4)  You can now install the *devtools* and *remotes* packages, and the
+    *terra*, *raster* and *sf* packages directly in your **R or
+    RStudio**.
 
     `install.packages(c('remotes', 'devtools', 'terra', 'raster', 'sf'))`
 
@@ -139,7 +154,7 @@ To install Makurhini on linux consider the following steps:
     packages directly in your **R or RStudio.**
 
     `install.packages(c('gdistance', 'graph4lg', 'ggpubr'))`
-    
+
 7)  Now you can install Makurhini directly in your **R or RStudio.**
 
 ```{r echo=TRUE, eval=FALSE}
@@ -148,15 +163,16 @@ library(remotes)
 install_github("connectscape/Makurhini", dependencies = TRUE, upgrade = "never")
 ```
 
-Note that the installation of Makurhini on Linux depends on your version 
-of operating system and that you manage to install the packages that Makurhini
-depends on.
+Note that the installation of Makurhini on Linux depends on your version
+of operating system and that you manage to install the packages that
+Makurhini depends on.
 
 ## Summary of main *Makurhini* functions
 
 ```{r echo=FALSE}
 library(formattable)
-functions_MK <- data.frame(Function = c("MK_Fragmentation", "distancefile", "MK_RMCentrality", "MK_BCentrality",  "MK_dPCIIC", "MK_dECA", "MK_ProtConn", "MK_ProtConnMult", "MK_ProtConn_raster", "MK_Connect_grid", "test_metric_distance"), Purpose = c("Calculate patch and landscape statistics (e.g., mean size patches, edge density, core area percent, shape index, fractal dimension index, effective mesh size).", "Get a table or matrix with the distances between pairs of nodes. Two Euclidean distances ('centroid' and 'edge') and two cost distances that consider the landscape heterogeneity ('least-cost' and 'commute-time, this last is analogous to the resistance distance of circuitscape, see ’gdistance’ package).", "Estimate centrality measures under one or several dispersal distances (e.g., betweenness centrality, node memberships, modularity). It uses the 'distancefile ()' to calculate the distances of the nodes so they can be calculated using Euclidean or cost distances that consider the landscape heterogeneity.", "Calculate the BC, BCIIC and BCPC indexes under one or several distance thresholds using the command line of CONEFOR. It uses the 'distancefile ()' to calculate the distances of the nodes so they can be calculated using Euclidean or cost distances that consider the landscape heterogeneity", "Calculate the integral index of connectivity (IIC) and probability of connectivity (PC) indices under one or several dispersal distances. It computes overall and index fractions (dPC or dIIC, intra, flux and connector) and the effect of restauration in the landscape connectivity when adding new nodes (restoration scenarios). It uses the 'distancefile()'.", "Estimate the Equivalent Connected Area (ECA) and compare the relative change in ECA (dECA) between time periods using one or several dispersal distances. It uses the 'distancefile()'.", "Estimate the Protected Connected (ProtConn) indicator and fractions for one region using one or several dispersal distances and transboundary buffer areas (e.g., ProtConn, ProtUnconn, RelConn, ProtConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within], ProtConn[Contig], ProtConn[Trans], ProtConn[Unprot]). It uses the 'distancefile(). This function estimates what we call the ProtConn delta (dProtConn) which estimates the contribution of each protected area to connectivity in the region (ProtConn value)", "Estimate the ProtConn indicator and fractions for multiple regions. It uses the 'distancefile()'.", "Estimate Protected Connected (ProtConn) indicator and fractions for one region using raster inputs (nodes and region). It uses the 'distancefile()'.", "Compute the ProtConn indicator and fractions, PC or IIC overall connectivity metrics (ECA) in a regular grid. It uses the 'distancefile()'.", "Compare ECA or ProtConn connectivity metrics using one or up to four types of distances, computed in the 'distancefile()' function, and multiple dispersion distances."))
+functions_MK <- data.frame(Function = c("MK_Fragmentation", "distancefile", "MK_RMCentrality", "MK_BCentrality",  "MK_dPCIIC", "MK_dECA", "MK_ProtConn", "MK_ProtConnMult", "MK_ProtConn_raster", "MK_Connect_grid",
+"MK_dPCIIC_links", "MK_Focal_nodes", "test_metric_distance"), Purpose = c("Calculate patch and landscape statistics (e.g., mean size patches, edge density, core area percent, shape index, fractal dimension index, effective mesh size).", "Get a table or matrix with the distances between pairs of nodes. Two Euclidean distances ('centroid' and 'edge') and two cost distances that consider the landscape heterogeneity ('least-cost' and 'commute-time, this last is analogous to the resistance distance of circuitscape, see ’gdistance’ package).", "Estimate centrality measures under one or several dispersal distances (e.g., betweenness centrality, node memberships, modularity). It uses the 'distancefile ()' to calculate the distances of the nodes so they can be calculated using Euclidean or cost distances that consider the landscape heterogeneity.", "Calculate the BC, BCIIC and BCPC indexes under one or several distance thresholds using the command line of CONEFOR. It uses the 'distancefile ()' to calculate the distances of the nodes so they can be calculated using Euclidean or cost distances that consider the landscape heterogeneity", "Calculate the integral index of connectivity (IIC) and probability of connectivity (PC) indices under one or several dispersal distances. It computes overall and index fractions (dPC or dIIC, intra, flux and connector) and the effect of restauration in the landscape connectivity when adding new nodes (restoration scenarios). It uses the 'distancefile()'.", "Estimate the Equivalent Connected Area (ECA) and compare the relative change in ECA (dECA) between time periods using one or several dispersal distances. It uses the 'distancefile()'.", "Estimate the Protected Connected (ProtConn) indicator and fractions for one region using one or several dispersal distances and transboundary buffer areas (e.g., ProtConn, ProtUnconn, RelConn, ProtConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within], ProtConn[Contig], ProtConn[Trans], ProtConn[Unprot]). It uses the 'distancefile(). This function estimates what we call the ProtConn delta (dProtConn) which estimates the contribution of each protected area to connectivity in the region (ProtConn value)", "Estimate the ProtConn indicator and fractions for multiple regions. It uses the 'distancefile()'.", "Estimate Protected Connected (ProtConn) indicator and fractions for one region using raster inputs (nodes and region). It uses the 'distancefile()'.", "Compute the ProtConn indicator and fractions, PC or IIC overall connectivity metrics (ECA) in a regular grid. It uses the 'distancefile()'.", "Estimate the link importance for conservation and restoration. It calculates the contribution of each individual link to maintain (mode: link removal) or improve (mode: link change) the overall connectivity.", "Estimate the focal Integral Index of Connectivity or the focal Probability of Connectivity  and the Composite Connectivity Index under one or more distance thresholds.", "Compare ECA or ProtConn connectivity metrics using one or up to four types of distances, computed in the 'distancefile()' function, and multiple dispersion distances."))
 
 formattable(functions_MK,  align =c("l","l"), list(`Function` = formatter(
               "span", style = ~ style(font.style = "italic"))))

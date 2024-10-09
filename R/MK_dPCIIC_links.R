@@ -2,7 +2,7 @@
 #'
 #' @title Estimate the differential of the connectivity indexes IIC and PC to prioritize links.
 #'
-#' @description This function calculates the dPC or dIIC index to calculate link importance for conservation and restoration. It calculates the contribution of each individual link to \bold{maintain} (mode: link removal) or \bold{improve} (mode: link change) the overall connectivity under one or several distance thresholds.
+#' @description This function calculates the dPC or dIIC index to estimate the link importance for conservation and restoration. It calculates the contribution of each individual link to \bold{maintain} (mode: link removal) or \bold{improve} (mode: link change) the overall connectivity under one or several distance thresholds.
 #'
 #' @param nodes Object containing nodes (e.g., habitat patches or fragments) information. It can be of the following classes:\cr
 #' -   \code{Data.frame} with at least two columns: the first for node IDs and the second for attributes.\cr

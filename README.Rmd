@@ -40,7 +40,7 @@ knitr::opts_chunk$set(
     the focal Integral Index of Connectivity (IIC~f~) or the focal
     Probability of Connectivity (PC~f~) under one or more distance
     thresholds. Furthermore, this function estimates the composite
-    connectivity index (CCI~f~}; for further details, please see
+    connectivity index (CCI~f~; for further details, please see
     Latorre-Cárdenas et al., 2023.
     <https://doi.org/10.3390/land12030631>).
 

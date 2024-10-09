@@ -13,19 +13,19 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 ## NEWS
 
-- Thank you for using Makurhini. **We have a new version Makurhini 3.0!**
-- An update was made in the estimation of short distances between
-  nodes, which can improve the processing of the functions that
-  estimate connectivity indices.
-- Two new functions have been added: MK_dPCIIC_links and
-  MK_Focal_nodes. The first one is used to estimate the link
-  importance for conservation and restoration. The second estimates
-  the focal Integral Index of Connectivity (IIC~f~) or the focal
-  Probability of Connectivity (PC~f~) under one or more distance
-  thresholds. Furthermore, this function estimates the composite
-  connectivity index (CCI~f~}; for further details, please see
-  Latorre-Cárdenas et al., 2023.
-  <https://doi.org/10.3390/land12030631>).
+- Thank you for using Makurhini. **We have a new version Makurhini
+  3.0!**
+- An update was made in the estimation of short distances between nodes,
+  which can improve the processing of the functions that estimate
+  connectivity indices.
+- Two new functions have been added: MK_dPCIIC_links and MK_Focal_nodes.
+  The first one is used to estimate the link importance for conservation
+  and restoration. The second estimates the focal Integral Index of
+  Connectivity (IIC<sub>f</sub>) or the focal Probability of
+  Connectivity (PC<sub>f</sub>) under one or more distance thresholds.
+  Furthermore, this function estimates the composite connectivity index
+  (CCI<sub>f</sub>; for further details, please see Latorre-Cárdenas et
+  al., 2023. <https://doi.org/10.3390/land12030631>).
 
 ## Overview
 
@@ -93,7 +93,7 @@ from envvar GITHUB_PAT Error: Failed to install 'unknown package' from
 GitHub: HTTP error 401. Bad credentials
 ```
 
-Then you can try the following:
+Then you can **try the following**:
 
 ``` r
 Sys.getenv("GITHUB_PAT")
@@ -280,9 +280,9 @@ connectivity metrics (ECA) in a regular grid. It uses the
 <span style="font-style: italic">MK_dPCIIC_links </span>
 </td>
 <td style="text-align:left;">
-Estimate the link importance for conservation and restoration. 
-It calculates the contribution of each individual link to maintain
-(mode: link removal) or improve (mode: link change) the overall connectivity.
+Estimate the link importance for conservation and restoration. It
+calculates the contribution of each individual link to maintain (mode:
+link removal) or improve (mode: link change) the overall connectivity.
 </td>
 </tr>
 <tr>
@@ -290,9 +290,9 @@ It calculates the contribution of each individual link to maintain
 <span style="font-style: italic">MK_Focal_nodes </span>
 </td>
 <td style="text-align:left;">
-Estimate the focal Integral Index of Connectivity or the focal 
-Probability of Connectivity  and the Composite Connectivity Index 
-under one or more distance thresholds.
+Estimate the focal Integral Index of Connectivity or the focal
+Probability of Connectivity and the Composite Connectivity Index under
+one or more distance thresholds.
 </td>
 </tr>
 <tr>
@@ -403,8 +403,14 @@ Example with 142 old-growth vegetation fragments in southeast Mexico
 data("vegetation_patches", package = "Makurhini")
 nrow(vegetation_patches) # Number of patches
 #> [1] 142
+```
+
+``` r
 class(vegetation_patches)[1]
 #> [1] "sf"
+```
+
+``` r
 #[1] "sf"
 
 IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
@@ -482,12 +488,12 @@ head(centrality_test)
 #> # A tibble: 6 × 8
 #>      id degree    eigen close   BWC cluster modules                     geometry
 #>   <int>  <dbl>    <dbl> <dbl> <dbl>   <dbl>   <dbl>                <POLYGON [m]>
-#> 1     1      0 0          NaN     0       1       1 ((3676911 589967.3, 3676931…
-#> 2     2      1 4.54e-17     1     0       2       2 ((3558044 696202.5, 3557972…
-#> 3     3      1 9.08e-17     1     0       3       3 ((3569169 687776.4, 3569146…
-#> 4     4      1 6.81e-17     1     0       2       2 ((3547317 685713.2, 3547363…
-#> 5     5      1 6.81e-17     1     0       3       3 ((3567471 684357.4, 3567380…
-#> 6     6      0 0          NaN     0       4       4 ((3590569 672451.7, 3590090…
+#> 1     1      0 2.27e-17   NaN     0       1       1 ((3676911 589967.3, 3676931…
+#> 2     2      1 3.63e-16     1     0       2       2 ((3558044 696202.5, 3557972…
+#> 3     3      1 3.86e-16     1     0       3       3 ((3569169 687776.4, 3569146…
+#> 4     4      1 3.40e-16     1     0       2       2 ((3547317 685713.2, 3547363…
+#> 5     5      1 3.40e-16     1     0       3       3 ((3567471 684357.4, 3567380…
+#> 6     6      0 2.27e-17   NaN     0       4       4 ((3590569 672451.7, 3590090…
 ```
 
 Examples:
@@ -542,9 +548,15 @@ Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distan
 ``` r
 class(Fragmentation_test)
 #> [1] "list"
+```
+
+``` r
 names(Fragmentation_test)
 #> [1] "Summary landscape metrics (Viewer Panel)"
 #> [2] "Patch statistics shapefile"
+```
+
+``` r
 Fragmentation_test$`Summary landscape metrics (Viewer Panel)`
 ```
 
@@ -618,6 +630,14 @@ Edge density
 </tr>
 <tr>
 <td style="text-align:left;">
+Patch density
+</td>
+<td style="text-align:center;">
+1.1101
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 Total Core Area (km2)
 </td>
 <td style="text-align:center;">
@@ -637,7 +657,7 @@ Cority
 Shape Index (mean)
 </td>
 <td style="text-align:center;">
-138.4898
+2.7918
 </td>
 </tr>
 <tr>
@@ -645,7 +665,7 @@ Shape Index (mean)
 FRAC (mean)
 </td>
 <td style="text-align:center;">
-1.4680
+2.3154
 </td>
 </tr>
 <tr>
@@ -653,7 +673,7 @@ FRAC (mean)
 MESH (km2)
 </td>
 <td style="text-align:center;">
-1543.1460
+1543.1463
 </td>
 </tr>
 </tbody>
@@ -672,19 +692,19 @@ head(Fragmentation_test[[2]])
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
 #> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #>   id      Area        CA CAPercent Perimeter EdgePercent   PARA ShapeIndex
-#> 1  1 4195.5691 3541.3806   84.4076  1412.046     15.5924 2.9713  8212.7666
-#> 2  2   60.2227   11.9415   19.8289   167.982     80.1711 0.3585   117.0545
-#> 3  3   48.8665    6.2099   12.7079   127.049     87.2921 0.3846    79.7484
-#> 4  4   15.1875    7.4210   48.8626    18.536     51.1374 0.8194     6.4864
-#> 5  5   33.2716   13.0877   39.3360    55.038     60.6640 0.6045    28.5066
-#> 6  6   53.1344   11.3564   21.3730   111.123     78.6270 0.4782    72.7339
+#> 1  1 4195.5691 3541.3806   84.4076  1412.046     15.5924 2.9713     6.1496
+#> 2  2   60.2227   11.9415   19.8289   167.982     80.1711 0.3585     6.1063
+#> 3  3   48.8665    6.2099   12.7079   127.049     87.2921 0.3846     5.1270
+#> 4  4   15.1875    7.4210   48.8626    18.536     51.1374 0.8194     1.3417
+#> 5  5   33.2716   13.0877   39.3360    55.038     60.6640 0.6045     2.6917
+#> 6  6   53.1344   11.3564   21.3730   111.123     78.6270 0.4782     4.3004
 #>     FRAC                       geometry
-#> 1 1.4065 POLYGON ((3676911 589967.3,...
-#> 2 1.8241 POLYGON ((3558044 696202.5,...
-#> 3 1.7785 POLYGON ((3569169 687776.4,...
-#> 4 1.1273 POLYGON ((3547317 685713.2,...
-#> 5 1.4961 POLYGON ((3567471 684357.4,...
-#> 6 1.6735 POLYGON ((3590569 672451.7,...
+#> 1 1.7389 POLYGON ((3676911 589967.3,...
+#> 2 2.5006 POLYGON ((3558044 696202.5,...
+#> 3 2.4914 POLYGON ((3569169 687776.4,...
+#> 4 2.1465 POLYGON ((3547317 685713.2,...
+#> 5 2.2872 POLYGON ((3567471 684357.4,...
+#> 6 2.3714 POLYGON ((3590569 672451.7,...
 ```
 
 <img src="man/figures/README-unnamed-chunk-22-1.png" width="100%" />
@@ -700,10 +720,10 @@ core area percentage and edge percentage (% core area + % edge = 100%).
     #>   Edge.distance      Type Percentage
     #> 1           100 Core Area   83.50499
     #> 2           100      Edge   16.49501
-    #> 3           200 Core Area   68.18516
-    #> 4           200      Edge   31.81484
-    #> 5           300 Core Area   54.77231
-    #> 6           300      Edge   45.22769
+    #> 3           200 Core Area   68.18515
+    #> 4           200      Edge   31.81485
+    #> 5           300 Core Area   54.77234
+    #> 6           300      Edge   45.22766
 
 <img src="man/figures/README-unnamed-chunk-24-1.png" width="60%" />
 

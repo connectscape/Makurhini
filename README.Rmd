@@ -179,10 +179,7 @@ formattable(functions_MK,  align =c("l","l"), list(`Function` = formatter(
 
 ```
 
-## Example
-
-This is a basic example which shows you how to solve some common
-problems:
+## Examples
 
 -   [Protected Connected Land
     (ProtConn)](#protected-connected-land-protconn)
@@ -242,6 +239,12 @@ ProtConn value: ![](man/figures/protconn.png)
 
 In this example we estimate the ProtConn for only one ecoregion of central Mexico (black line) using a vector file with the polygons of the country's federal protected areas (green).
 
+```{r eval = TRUE}
+data("Protected_areas", package = "Makurhini")
+data("regions", package = "Makurhini")
+region <- regions[2,]
+```
+
 ```{r eval = TRUE, echo=FALSE, out.width = "80%"}
 data("Protected_areas", package = "Makurhini")
 data("regions", package = "Makurhini")
@@ -298,10 +301,11 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
 
 ECA table:
 
-```{r eval=TRUE, out.width = "100%"}
+```{r eval=FALSE, out.width = "100%"}
 dECA_test$dECA_table
 ```
 
+![](man/figures/table_eca.png)
 
 Another way to analyze the ECA (and ProtConn indicator) is by using the
 *'MK_Connect_grid()'* that estimates the index values on a grid. An

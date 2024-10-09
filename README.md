@@ -308,10 +308,7 @@ multiple dispersion distances.
 </tbody>
 </table>
 
-## Example
-
-This is a basic example which shows you how to solve some common
-problems:
+## Examples
 
 - [Protected Connected Land
   (ProtConn)](#protected-connected-land-protconn)
@@ -359,7 +356,13 @@ In this example we estimate the ProtConn for only one ecoregion of
 central Mexico (black line) using a vector file with the polygons of the
 country’s federal protected areas (green).
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="80%" />
+``` r
+data("Protected_areas", package = "Makurhini")
+data("regions", package = "Makurhini")
+region <- regions[2,]
+```
+
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="80%" />
 
 ``` r
 test_protconn <- MK_ProtConn(nodes = Protected_areas,
@@ -402,7 +405,7 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
 #>   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%  |                                                                              |===================================                                   |  50%  |                                                                              |====================================================                  |  75%  |                                                                              |======================================================================| 100%
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="60%" />
 
 ECA table:
 
@@ -410,204 +413,7 @@ ECA table:
 dECA_test$dECA_table
 ```
 
-<table class="table table-condensed">
-<thead>
-<tr>
-<th style="text-align:left;">
-Time
-</th>
-<th style="text-align:right;">
-Max. Landscape attribute (ha)
-</th>
-<th style="text-align:right;">
-Habitat area (ha)
-</th>
-<th style="text-align:right;">
-Distance threshold
-</th>
-<th style="text-align:right;">
-ECA (ha)
-</th>
-<th style="text-align:right;">
-Normalized ECA (% of LA)
-</th>
-<th style="text-align:right;">
-Normalized ECA (% of habitat area)
-</th>
-<th style="text-align:right;">
-dA
-</th>
-<th style="text-align:right;">
-dECA
-</th>
-<th style="text-align:right;">
-rECA
-</th>
-<th style="text-align:right;">
-dA/dECA comparisons
-</th>
-<th style="text-align:right;">
-Type of change
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-1993
-</td>
-<td style="text-align:right;">
-279164.3
-</td>
-<td style="text-align:right;">
-<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 98.07%">91438.11</span>
-</td>
-<td style="text-align:right;">
-5000
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #eb9a9d">50657.55</span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffb328">18.146</span>
-</td>
-<td style="text-align:right;">
-<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffb226">55.401</span>
-</td>
-<td style="text-align:right;">
-<span style="color: red">-67.246</span>
-</td>
-<td style="text-align:right;">
-<span style="color: red">-81.854</span>
-</td>
-<td style="text-align:right;">
-<span style="color: #404040">1.217232</span>
-</td>
-<td style="text-align:right;">
-dECA \< dA \< 0
-</td>
-<td style="text-align:right;">
-
-- Connectivity loss
-  </td>
-  </tr>
-  <tr>
-  <td style="text-align:left;">
-  2003
-  </td>
-  <td style="text-align:right;">
-  279164.3
-  </td>
-  <td style="text-align:right;">
-  <span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 100.00%">93238.91</span>
-  </td>
-  <td style="text-align:right;">
-  5000
-  </td>
-  <td style="text-align:right;">
-  <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e8878a">53606.27</span>
-  </td>
-  <td style="text-align:right;">
-  <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa500">19.202</span>
-  </td>
-  <td style="text-align:right;">
-  <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa500">57.493</span>
-  </td>
-  <td style="text-align:right;">
-  <span style="color: forestgreen">1.969</span>
-  </td>
-  <td style="text-align:right;">
-  <span style="color: forestgreen">5.821</span>
-  </td>
-  <td style="text-align:right;">
-  <span style="color: #404040">2.956323</span>
-  </td>
-  <td style="text-align:right;">
-  dECA or dA gain
-  </td>
-  <td style="text-align:right;">
-  Habitat or connectivity gain
-  </td>
-  </tr>
-  <tr>
-  <td style="text-align:left;">
-  2007
-  </td>
-  <td style="text-align:right;">
-  279164.3
-  </td>
-  <td style="text-align:right;">
-  <span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 89.57%">83517.49</span>
-  </td>
-  <td style="text-align:right;">
-  5000
-  </td>
-  <td style="text-align:right;">
-  <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fae9ea">38756.64</span>
-  </td>
-  <td style="text-align:right;">
-  <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffedcc">13.883</span>
-  </td>
-  <td style="text-align:right;">
-  <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffedcc">46.405</span>
-  </td>
-  <td style="text-align:right;">
-  <span style="color: red">-10.426</span>
-  </td>
-  <td style="text-align:right;">
-  <span style="color: red">-27.701</span>
-  </td>
-  <td style="text-align:right;">
-  <span style="color: #404040">2.656915</span>
-  </td>
-  <td style="text-align:right;">
-  dECA \< dA \< 0
-  </td>
-  <td style="text-align:right;">
-
-  - Connectivity loss
-    </td>
-    </tr>
-    <tr>
-    <td style="text-align:left;">
-    2011
-    </td>
-    <td style="text-align:right;">
-    279164.3
-    </td>
-    <td style="text-align:right;">
-    <span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #94D8B1; width: 89.94%">83859.71</span>
-    </td>
-    <td style="text-align:right;">
-    5000
-    </td>
-    <td style="text-align:right;">
-    <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f8dfe0">40187.05</span>
-    </td>
-    <td style="text-align:right;">
-    <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffe6b8">14.395</span>
-    </td>
-    <td style="text-align:right;">
-    <span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffe3b0">47.922</span>
-    </td>
-    <td style="text-align:right;">
-    <span style="color: forestgreen">0.410</span>
-    </td>
-    <td style="text-align:right;">
-    <span style="color: forestgreen">3.691</span>
-    </td>
-    <td style="text-align:right;">
-    <span style="color: #404040">9.002439</span>
-    </td>
-    <td style="text-align:right;">
-    dECA or dA gain
-    </td>
-    <td style="text-align:right;">
-    Habitat or connectivity gain
-    </td>
-    </tr>
-    </tbody>
-    </table>
+![](man/figures/table_eca.png)
 
 Another way to analyze the ECA (and ProtConn indicator) is by using the
 *‘MK_Connect_grid()’* that estimates the index values on a grid. An
@@ -662,7 +468,7 @@ head(IIC)
 #> 6 POLYGON ((3590569 672451.7,...
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
 
 ### Probability of connectivity (PC) and fractions (Intra, Flux and Connector)
 
@@ -693,7 +499,7 @@ head(PC)
 #> 6 POLYGON ((3590569 672451.7,...
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-20-1.png" width="100%" />
 
 ### Centrality measures
 
@@ -710,19 +516,19 @@ head(centrality_test)
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
 #> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #> # A tibble: 6 × 8
-#>      id degree    eigen close   BWC cluster modules                     geometry
-#>   <int>  <dbl>    <dbl> <dbl> <dbl>   <dbl>   <dbl>                <POLYGON [m]>
-#> 1     1      0 0          NaN     0       1       1 ((3676911 589967.3, 3676931…
-#> 2     2      1 2.95e-16     1     0       2       2 ((3558044 696202.5, 3557972…
-#> 3     3      1 2.72e-16     1     0       3       3 ((3569169 687776.4, 3569146…
-#> 4     4      1 2.72e-16     1     0       2       2 ((3547317 685713.2, 3547363…
-#> 5     5      1 2.95e-16     1     0       3       3 ((3567471 684357.4, 3567380…
-#> 6     6      0 0          NaN     0       4       4 ((3590569 672451.7, 3590090…
+#>      id degree eigen close   BWC cluster modules                        geometry
+#>   <int>  <dbl> <dbl> <dbl> <dbl>   <dbl>   <dbl>                   <POLYGON [m]>
+#> 1     1      0     0   NaN     0       1       1 ((3676911 589967.3, 3676931 58…
+#> 2     2      1     0     1     0       2       2 ((3558044 696202.5, 3557972 69…
+#> 3     3      1     0     1     0       3       3 ((3569169 687776.4, 3569146 68…
+#> 4     4      1     0     1     0       2       2 ((3547317 685713.2, 3547363 68…
+#> 5     5      1     0     1     0       3       3 ((3567471 684357.4, 3567380 68…
+#> 6     6      0     0   NaN     0       4       4 ((3590569 672451.7, 3590090 67…
 ```
 
 Examples:
 
-<img src="man/figures/README-unnamed-chunk-21-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-22-1.png" width="100%" />
 
 Moreover, you can change distance using the distance
 (<code>?distancefile</code>) argument:
@@ -763,7 +569,7 @@ Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distan
                                        perimeter_unit = "km")
 ```
 
-<img src="man/figures/README-unnamed-chunk-23-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-23-2.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-24-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-24-2.png" width="60%" />
 
 - The results are presented as a list, the first result is called
   *“Summary landscape metrics (Viewer Panel)”* and it has fragmentation
@@ -931,7 +737,7 @@ head(Fragmentation_test[[2]])
 #> 6 2.3714 POLYGON ((3590569 672451.7,...
 ```
 
-<img src="man/figures/README-unnamed-chunk-26-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-27-1.png" width="100%" />
 
 We can make a loop where we explore different edge depths. In the
 following example, We will explore 10 edge depths (*edge_distance
@@ -949,7 +755,7 @@ core area percentage and edge percentage (% core area + % edge = 100%).
     #> 5           300 Core Area   54.77234
     #> 6           300      Edge   45.22766
 
-<img src="man/figures/README-unnamed-chunk-28-1.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-29-1.png" width="60%" />
 
 The average core area percentage (average patch area that has the least
 possible edge effect) for all patches decreases by more than 70% when

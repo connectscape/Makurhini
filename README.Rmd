@@ -301,6 +301,10 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
 ```
 
 
+ECA table: 
+
+![](man/figures/table_eca.png) 
+
 
 
 

@@ -300,7 +300,9 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
                   LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))
 ```
 
-ECA table: ![](man/figures/table_eca.png)
+
+
+
 
 Another way to analyze the ECA (and ProtConn indicator) is by using the
 *'MK_Connect_grid()'* that estimates the index values on a grid. An

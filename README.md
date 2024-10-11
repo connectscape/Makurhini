@@ -375,10 +375,12 @@ test_protconn <- MK_ProtConn(nodes = Protected_areas,
                              plot = TRUE,
                              parallel = NULL,
                              protconn_bound = TRUE,
-                             delta = FALSE,
+                             delta = TRUE,
                              write = NULL,
                              intern = FALSE)
 ```
+
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="80%" />
 
 ### Equivalent Connectivity Area (ECA)
 
@@ -407,13 +409,7 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
 
 <img src="man/figures/README-unnamed-chunk-15-1.png" width="60%" />
 
-ECA table:
-
-``` r
-dECA_test$dECA_table
-```
-
-![](man/figures/table_eca.png)
+ECA table: ![](man/figures/table_eca.png)
 
 Another way to analyze the ECA (and ProtConn indicator) is by using the
 *‘MK_Connect_grid()’* that estimates the index values on a grid. An
@@ -468,7 +464,7 @@ head(IIC)
 #> 6 POLYGON ((3590569 672451.7,...
 ```
 
-<img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
 
 ### Probability of connectivity (PC) and fractions (Intra, Flux and Connector)
 
@@ -499,7 +495,7 @@ head(PC)
 #> 6 POLYGON ((3590569 672451.7,...
 ```
 
-<img src="man/figures/README-unnamed-chunk-20-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
 
 ### Centrality measures
 
@@ -516,19 +512,19 @@ head(centrality_test)
 #> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
 #> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
 #> # A tibble: 6 × 8
-#>      id degree eigen close   BWC cluster modules                        geometry
-#>   <int>  <dbl> <dbl> <dbl> <dbl>   <dbl>   <dbl>                   <POLYGON [m]>
-#> 1     1      0     0   NaN     0       1       1 ((3676911 589967.3, 3676931 58…
-#> 2     2      1     0     1     0       2       2 ((3558044 696202.5, 3557972 69…
-#> 3     3      1     0     1     0       3       3 ((3569169 687776.4, 3569146 68…
-#> 4     4      1     0     1     0       2       2 ((3547317 685713.2, 3547363 68…
-#> 5     5      1     0     1     0       3       3 ((3567471 684357.4, 3567380 68…
-#> 6     6      0     0   NaN     0       4       4 ((3590569 672451.7, 3590090 67…
+#>      id degree    eigen close   BWC cluster modules                     geometry
+#>   <int>  <dbl>    <dbl> <dbl> <dbl>   <dbl>   <dbl>                <POLYGON [m]>
+#> 1     1      0 2.27e-17   NaN     0       1       1 ((3676911 589967.3, 3676931…
+#> 2     2      1 0            1     0       2       2 ((3558044 696202.5, 3557972…
+#> 3     3      1 0            1     0       3       3 ((3569169 687776.4, 3569146…
+#> 4     4      1 0            1     0       2       2 ((3547317 685713.2, 3547363…
+#> 5     5      1 0            1     0       3       3 ((3567471 684357.4, 3567380…
+#> 6     6      0 2.27e-17   NaN     0       4       4 ((3590569 672451.7, 3590090…
 ```
 
 Examples:
 
-<img src="man/figures/README-unnamed-chunk-22-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-21-1.png" width="100%" />
 
 Moreover, you can change distance using the distance
 (<code>?distancefile</code>) argument:
@@ -569,7 +565,7 @@ Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distan
                                        perimeter_unit = "km")
 ```
 
-<img src="man/figures/README-unnamed-chunk-24-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-24-2.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-23-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-23-2.png" width="60%" />
 
 - The results are presented as a list, the first result is called
   *“Summary landscape metrics (Viewer Panel)”* and it has fragmentation
@@ -737,7 +733,7 @@ head(Fragmentation_test[[2]])
 #> 6 2.3714 POLYGON ((3590569 672451.7,...
 ```
 
-<img src="man/figures/README-unnamed-chunk-27-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-26-1.png" width="100%" />
 
 We can make a loop where we explore different edge depths. In the
 following example, We will explore 10 edge depths (*edge_distance
@@ -755,7 +751,7 @@ core area percentage and edge percentage (% core area + % edge = 100%).
     #> 5           300 Core Area   54.77234
     #> 6           300      Edge   45.22766
 
-<img src="man/figures/README-unnamed-chunk-29-1.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-28-1.png" width="60%" />
 
 The average core area percentage (average patch area that has the least
 possible edge effect) for all patches decreases by more than 70% when

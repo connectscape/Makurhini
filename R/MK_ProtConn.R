@@ -147,7 +147,7 @@ MK_ProtConn <- function(nodes = NULL,
                                      xsimplify = geom_simplify), error = function(err)err)
 
   if(inherits(base_param1, "error")){
-    stop("error in nodes or region shapefile")
+    stop(base_param1)
   }
 
   base_param2 <- metric_class(metric = "ProtConn",

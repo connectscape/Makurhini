@@ -29,20 +29,18 @@ knitr::opts_chunk$set(
 
 ## NEWS
 
--   Thank you for using Makurhini. **We have a new version Makurhini
-    3.0!**
--   An update was made in the estimation of short distances between
-    nodes, which can improve the processing of the functions that
-    estimate connectivity indices.
--   Two new functions have been added: MK_dPCIIC_links and
-    MK_Focal_nodes. The first one is used to estimate the link
-    importance for conservation and restoration. The second estimates
-    the focal Integral Index of Connectivity (IIC~f~) or the focal
-    Probability of Connectivity (PC~f~) under one or more distance
-    thresholds. Furthermore, this function estimates the composite
-    connectivity index (CCI~f~; for further details, please see
-    Latorre-Cárdenas et al., 2023.
-    <https://doi.org/10.3390/land12030631>).
+- Thank you for using Makurhini. **We have a new version Makurhini 3.0!**
+- An update was made in the estimation of short distances between
+  nodes, which can improve the processing of the functions that
+  estimate connectivity indices.
+- Two new functions have been added: **MK_dPCIIC_links and
+  MK_Focal_nodes**. The first one is used to estimate the link
+  importance for conservation and restoration. The second estimates
+  the focal Integral Index of Connectivity (IIC~f~) or the focal
+  Probability of Connectivity (PC~f~) under one or more distance
+  thresholds. Furthermore, this function estimates the composite
+  connectivity index (CCI~f~; for further details, please see
+  Latorre-Cárdenas et al., 2023. <https://doi.org/10.3390/land12030631>).
 
 ## Overview
 
@@ -303,7 +301,7 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
 
 ECA table: 
 
-![](man/figures/table_eca.png) 
+![](man/figures/table_eca2.png) 
 
 
 

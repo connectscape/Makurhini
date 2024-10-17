@@ -18,14 +18,15 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 - An update was made in the estimation of short distances between nodes,
   which can improve the processing of the functions that estimate
   connectivity indices.
-- Two new functions have been added: MK_dPCIIC_links and MK_Focal_nodes.
-  The first one is used to estimate the link importance for conservation
-  and restoration. The second estimates the focal Integral Index of
-  Connectivity (IIC<sub>f</sub>) or the focal Probability of
-  Connectivity (PC<sub>f</sub>) under one or more distance thresholds.
-  Furthermore, this function estimates the composite connectivity index
-  (CCI<sub>f</sub>; for further details, please see Latorre-Cárdenas et
-  al., 2023. <https://doi.org/10.3390/land12030631>).
+- Two new functions have been added: **MK_dPCIIC_links and
+  MK_Focal_nodes**. The first one is used to estimate the link
+  importance for conservation and restoration. The second estimates the
+  focal Integral Index of Connectivity (IIC<sub>f</sub>) or the focal
+  Probability of Connectivity (PC<sub>f</sub>) under one or more
+  distance thresholds. Furthermore, this function estimates the
+  composite connectivity index (CCI<sub>f</sub>; for further details,
+  please see Latorre-Cárdenas et al., 2023.
+  <https://doi.org/10.3390/land12030631>).
 
 ## Overview
 
@@ -411,7 +412,7 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
 
 ECA table:
 
-![](man/figures/table_eca.png)
+![](man/figures/table_eca2.png)
 
 Another way to analyze the ECA (and ProtConn indicator) is by using the
 *‘MK_Connect_grid()’* that estimates the index values on a grid. An
@@ -516,12 +517,12 @@ head(centrality_test)
 #> # A tibble: 6 × 8
 #>      id degree    eigen close   BWC cluster modules                     geometry
 #>   <int>  <dbl>    <dbl> <dbl> <dbl>   <dbl>   <dbl>                <POLYGON [m]>
-#> 1     1      0 1.13e-16   NaN     0       1       1 ((3676911 589967.3, 3676931…
-#> 2     2      1 0            1     0       2       2 ((3558044 696202.5, 3557972…
-#> 3     3      1 0            1     0       3       3 ((3569169 687776.4, 3569146…
-#> 4     4      1 0            1     0       2       2 ((3547317 685713.2, 3547363…
-#> 5     5      1 0            1     0       3       3 ((3567471 684357.4, 3567380…
-#> 6     6      0 1.13e-16   NaN     0       4       4 ((3590569 672451.7, 3590090…
+#> 1     1      0 6.81e-17   NaN     0       1       1 ((3676911 589967.3, 3676931…
+#> 2     2      1 2.95e-16     1     0       2       2 ((3558044 696202.5, 3557972…
+#> 3     3      1 3.40e-16     1     0       3       3 ((3569169 687776.4, 3569146…
+#> 4     4      1 3.40e-16     1     0       2       2 ((3547317 685713.2, 3547363…
+#> 5     5      1 3.18e-16     1     0       3       3 ((3567471 684357.4, 3567380…
+#> 6     6      0 6.81e-17   NaN     0       4       4 ((3590569 672451.7, 3590090…
 ```
 
 Examples:

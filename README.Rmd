@@ -29,18 +29,20 @@ knitr::opts_chunk$set(
 
 ## NEWS
 
-- Thank you for using Makurhini. **We have a new version Makurhini 3.0!**
-- An update was made in the estimation of short distances between
-  nodes, which can improve the processing of the functions that
-  estimate connectivity indices.
-- Two new functions have been added: **MK_dPCIIC_links and
-  MK_Focal_nodes**. The first one is used to estimate the link
-  importance for conservation and restoration. The second estimates
-  the focal Integral Index of Connectivity (IIC~f~) or the focal
-  Probability of Connectivity (PC~f~) under one or more distance
-  thresholds. Furthermore, this function estimates the composite
-  connectivity index (CCI~f~; for further details, please see
-  Latorre-Cárdenas et al., 2023. <https://doi.org/10.3390/land12030631>).
+-   Thank you for using Makurhini. **We have a new version Makurhini
+    3.0!**
+-   An update was made in the estimation of short distances between
+    nodes, which can improve the processing of the functions that
+    estimate connectivity indices.
+-   Two new functions have been added: **MK_dPCIIC_links and
+    MK_Focal_nodes**. The first one is used to estimate the link
+    importance for conservation and restoration. The second estimates
+    the focal Integral Index of Connectivity (IIC~f~) or the focal
+    Probability of Connectivity (PC~f~) under one or more distance
+    thresholds. Furthermore, this function estimates the composite
+    connectivity index (CCI~f~; for further details, please see
+    Latorre-Cárdenas et al., 2023.
+    <https://doi.org/10.3390/land12030631>).
 
 ## Overview
 
@@ -228,15 +230,15 @@ test_protconn <- MK_ProtConnMult(nodes = Protected_areas,
 test_protconn
 ```
 
-
 ![](man/figures/table_protconn.png)
 
-ProtConn value: ![](man/figures/protconn.png) 
-
+ProtConn value: ![](man/figures/protconn.png)
 
 #### Example incorporated in Makurhini
 
-In this example we estimate the ProtConn for only one ecoregion of central Mexico (black line) using a vector file with the polygons of the country's federal protected areas (green).
+In this example we estimate the ProtConn for only one ecoregion of
+central Mexico (black line) using a vector file with the polygons of the
+country's federal protected areas (green).
 
 ```{r eval = TRUE}
 data("Protected_areas", package = "Makurhini")
@@ -269,14 +271,11 @@ test_protconn <- MK_ProtConn(nodes = Protected_areas,
                              intern = FALSE)
 ```
 
-
 ```{r echo=FALSE, out.width = "80%"}
 library(classInt)
 tm_shape(test_protconn$ProtConn_Delta) + tm_fill("dProtConn", palette = RColorBrewer::brewer.pal(5, "RdYlGn"),                                breaks =  c(-0.0000194471, 0, 3.2060153958, 5.8717852689, 9.1473400540, 23.4648579636))+ 
   tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
 ```
-
-
 
 ### Equivalent Connectivity Area (ECA) {#equivalent-connectivity-area-eca}
 
@@ -295,16 +294,12 @@ Max_attribute <- unit_convert(st_area(study_area), "m2", "ha")
 dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
                   distance = list(type= "centroid"), metric = "PC",
                   probability = 0.05, distance_thresholds = 5000,
-                  LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"))
+                  LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"), intern = FALSE)
 ```
 
+ECA table:
 
-ECA table: 
-
-![](man/figures/table_eca2.png) 
-
-
-
+![](man/figures/table_eca2.PNG){width="504"}
 
 Another way to analyze the ECA (and ProtConn indicator) is by using the
 *'MK_Connect_grid()'* that estimates the index values on a grid. An

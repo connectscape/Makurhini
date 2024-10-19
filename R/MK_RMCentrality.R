@@ -1,6 +1,6 @@
-#' Estimate centrality measures.
+#' Estimate radial and medial centrality measures.
 #'
-#' Use this function to calculate centrality measures. under one or several distance thresholds.
+#' Use this function to calculate radial and medial centrality measure under one or several distance thresholds.
 #' @param nodes Object containing nodes (e.g., habitat patches or fragments) information. It can be of the following classes:\cr
 #' -   \code{Data.frame} with at least two columns: the first for node IDs and the second for attributes. If the `restoration` argument is used, the data frame must include a third column for restoration values.\cr
 #' -   Spatial data of type vector (class \code{sf, SpatVector, SpatialPolygonsDataFrame}). It must be in a projected coordinate system.\cr
@@ -201,9 +201,7 @@ MK_RMCentrality <- function(nodes,
     }
 
     if(is.null(idT)){
-      rp <- raster::unique(nodes)
-      rp <- as.vector(rp)
-      rp <- rp[which(!is.na(rp))]
+      rp <- raster::unique(nodes); rp <- as.vector(rp); rp <- rp[which(!is.na(rp))]
 
       if(isTRUE(rasterparallel)){
         m <- matrix(nrow = nrow(dist), ncol = 2); m[,1] <- rownames(dist) %>% as.numeric()
@@ -257,7 +255,6 @@ MK_RMCentrality <- function(nodes,
         })
       }
     }
-
     return(nodes.2) })
 
   if (length(distance_thresholds) == 1){

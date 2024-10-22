@@ -2,7 +2,7 @@
 % Please edit documentation in R/MK_RMCentrality.R
 \name{MK_RMCentrality}
 \alias{MK_RMCentrality}
-\title{Estimate centrality measures.}
+\title{Estimate radial and medial centrality measures.}
 \usage{
 MK_RMCentrality(
   nodes,
@@ -37,7 +37,7 @@ MK_RMCentrality(
 \item{intern}{\code{logical}. Show the progress of the process, \code{default = TRUE}. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 }
 \description{
-Use this function to calculate centrality measures. under one or several distance thresholds.
+Use this function to calculate radial and medial centrality measure under one or several distance thresholds.
 }
 \details{
 This function implements Patch-Scale Connectivity or Centrality Measures. Radial measures: degree, strength (using probability argument, for weighted graphs),
@@ -49,10 +49,10 @@ The function builds on functions out of Csardi’s ’igraph’ package.
 \dontrun{
 library(Makurhini)
 library(sf)
-data("vegetation_patches", package = "Makurhini")
-nrow(vegetation_patches) # Number of patches
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes) # Number of patches
 #Two distance threshold,
-centrality_test <- MK_RMCentrality(nodes = vegetation_patches,
+centrality_test <- MK_RMCentrality(nodes = habitat_nodes,
                                 distance = list(type = "centroid"),
                                  distance_thresholds = c(10000, 100000),
                                  probability = 0.05,

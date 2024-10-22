@@ -19,8 +19,8 @@ MK_ProtConnMult(
   CI = "all",
   plot = FALSE,
   write = NULL,
-  intern = TRUE,
-  parallel = NULL
+  parallel = NULL,
+  intern = TRUE
 )
 }
 \arguments{
@@ -56,9 +56,9 @@ To see more arguments see the \link[Makurhini]{distancefile} function.}
 
 \item{write}{\code{character}. Output folder including the output file name without extension, e.g., \code{"C:/ProtConn/Protfiles"}.}
 
-\item{intern}{\code{logical}. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
-
 \item{parallel}{\code{numeric}. Specify the number of cores to use for parallel processing, default = NULL. Parallelize the function using furrr package and multiprocess plan.}
+
+\item{intern}{\code{logical}. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 }
 \value{
 For each region:\cr
@@ -76,13 +76,15 @@ Estimate Protected Connected (ProtConn) indicator and fractions for multiple reg
 \dontrun{
 library(Makurhini)
 library(sf)
-data("regions", package = "Makurhini")
-plot(regions, col=c("blue", "red", "green"))
+data("Ecoregions", package = "Makurhini")#'
+#For this example, we select the first three columns and the first 10 of the ecoregions
+Ecoregions <- Ecoregions[1:15,1:3]
+plot(st_geometry(Ecoregions), col = "#7E6A9F")
 data("Protected_areas", package = "Makurhini")
-plot(st_crop(Protected_areas, regions), col="green")
+#plot(st_geometry(Protected_areas), col="green", add = TRUE) #It may take time to plot all PAs.
 
 test <- MK_ProtConnMult(nodes = Protected_areas,
-                        regions = regions,
+                        regions = Ecoregions,
                         area_unit = "ha",
                         distance = list(type= "centroid"),
                         distance_thresholds = c(10000, 50000),

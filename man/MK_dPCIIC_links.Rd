@@ -89,10 +89,12 @@ The link importance analysis can be much more time consuming than the node impor
 \examples{
 \dontrun{
 library(Makurhini)
-data("vegetation_patches", package = "Makurhini")
-nrow(vegetation_patches) # Number of patches
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes) # Number of patches#'
+#For this example we only select 50 nodes
+habitat_nodes <- habitat_nodes[sample(1:404, 50),]
 #Two distance threshold,
-delta <- MK_dPCIIC_links(nodes = vegetation_patches,
+delta <- MK_dPCIIC_links(nodes = habitat_nodes,
                         attribute = NULL,
                         area_unit = "km2",
                         distance = list(type = "centroid"),
@@ -105,7 +107,7 @@ delta <- MK_dPCIIC_links(nodes = vegetation_patches,
                         intern = TRUE) #20, 40 km
 delta
 #Parallel using mode 1
-delta <- MK_dPCIIC_links(nodes = vegetation_patches,
+delta <- MK_dPCIIC_links(nodes = habitat_nodes,
                         attribute = NULL,
                         area_unit = "km2",
                         distance = list(type = "centroid"),
@@ -119,16 +121,16 @@ delta <- MK_dPCIIC_links(nodes = vegetation_patches,
 delta
 
  #Link change option
-distance_change <- distancefile(nodes = vegetation_patches,
-                                id = "id", type = "centroid",
+distance_change <- distancefile(nodes = habitat_nodes,
+                                id = "Id", type = "centroid",
                                 pairwise = FALSE)
-#Randomly change distances
-sample_distance <- sample(which(upper.tri(distance_change)), 5000)
+#Randomly change distances  of 1000 connections
+sample_distance <- sample(which(upper.tri(distance_change)), 1000)
 reduce_value <- runif(length(sample_distance))
 distance_change[sample_distance] <-distance_change[sample_distance] * reduce_value
 distance_change[lower.tri(distance_change)] <- distance_change[upper.tri(distance_change)]
 
-delta <- MK_dPCIIC_links(nodes = vegetation_patches,
+delta <- MK_dPCIIC_links(nodes = habitat_nodes,
                          attribute = NULL,
                          area_unit = "km2",
                          distance = list(type = "centroid"),

@@ -45,10 +45,10 @@
 #' @examples
 #' \dontrun{
 #' library(Makurhini)
-#' data("vegetation_patches", package = "Makurhini")
-#' nrow(vegetation_patches) # Number of patches
+#' data("habitat_nodes", package = "Makurhini")
+#' nrow(habitat_nodes) # Number of patches
 #' #Two distance threshold,
-#' IIC <- MK_dPCIIC(nodes = vegetation_patches,
+#' IIC <- MK_dPCIIC(nodes = habitat_nodes,
 #'                 attribute = NULL,
 #'                 area_unit = "m2",
 #'                 distance = list(type = "centroid"),
@@ -57,18 +57,23 @@
 #'                 metric = "IIC",
 #'                 distance_thresholds = c(10000, 20000)) #10,20 km
 #' IIC
-#' plot(IIC$d20000["dIIC"], breaks = "jenks")
-#' plot(IIC$d20000["dIICflux"], breaks = "jenks")
-#' plot(IIC$d20000["dIICconnector"], breaks = "jenks")
-#' #Using raster
-#' data("raster_vegetation_patches", package = "Makurhini")
-#' PC <- MK_dPCIIC(nodes = raster_vegetation_patches,
+#' plot(IIC$d20000$node_importances_d20000["dIIC"], breaks = "jenks")
+#' plot(IIC$d20000$node_importances_d20000["dIICintra"], breaks = "jenks")
+#' plot(IIC$d20000$node_importances_d20000["dIICflux"], breaks = "jenks")
+#' plot(IIC$d20000$node_importances_d20000["dIICconnector"], breaks = "jenks")
+#'
+#' #Using raster and resistance
+#' data("habitat_nodes_raster", package = "Makurhini")
+#' data("resistance_matrix", package = "Makurhini")
+#' PC <- MK_dPCIIC(nodes = habitat_nodes_raster,
 #'                 attribute = NULL,
-#'                 distance = list(type = "edge", keep = 0.4),
+#'                 distance = list(type = "least-cost",
+#'                                 resistance = resistance_matrix),
 #'                 metric = "PC", probability = 0.5,
 #'                 overall = TRUE,
 #'                 distance_thresholds = 40000) # 40 km
 #' PC$overall_d40000
+#' PC$node_importances_d40000
 #' plot(PC$node_importances_d40000)
 #' }
 #' @note Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
@@ -179,8 +184,9 @@ MK_dPCIIC <- function(nodes,
                              restoration = restoration,
                              weighted = weighted,
                              write = NULL)
+    id_original <- attribute_1[,1]; attribute_1[,1] <- 1:nrow(attribute_1)
   } else if (class(nodes)[1] == "data.frame"){
-    attribute_1 <- nodes; idT <- NULL
+    attribute_1 <- nodes; idT <- NULL; id_original <- attribute_1[,1]
     attribute_1[,1] <- 1:nrow(nodes); names(attribute_1)[1:2] <- c("IdTemp", "Area")
 
     if(dim(nodes)[2] < 2){
@@ -213,8 +219,12 @@ MK_dPCIIC <- function(nodes,
     rownames(dist) <- 1:nrow(dist); colnames(dist) <- 1:ncol(dist)
   } else {
     if(isTRUE(intern)){
-      if(nrow(attribute_1) > 1000){
-        message("Estimating distances. This may take several minutes depending on the number of nodes")
+      if(!is.null(distance$resistance)){
+        message("Estimating distances. This may take several minutes depending on the number of nodes and raster resolution")
+      } else {
+        if(nrow(attribute_1) > 1000){
+          message("Estimating distances. This may take several minutes depending on the number of nodes")
+        }
       }
     }
     dist <- tryCatch(distancefile(nodes = nodes,
@@ -241,6 +251,10 @@ MK_dPCIIC <- function(nodes,
     if(inherits(dist, "error")){
       close_multiprocess()
       stop(dist)
+    }
+
+    if(is.null(idT)){
+      rownames(dist) <- 1:nrow(dist); colnames(dist) <- 1:ncol(dist)
     }
   }
 
@@ -290,8 +304,6 @@ MK_dPCIIC <- function(nodes,
                                  loop = TRUE, G1 = 1000,
                                  intern = intern), error = function(err)err)
     }
-
-
 
     if(inherits(mat1, "error")){
       stop("Error in short distance estimation")
@@ -368,11 +380,14 @@ MK_dPCIIC <- function(nodes,
         dintra <- round((((attribute_2^2)) / num) * 100, 7); dflux <- round(2*(rowSums(mat1[[1]]) - attribute_2^2)/ num * 100, 7)
         dconnector <- round(map_dbl(delta - ((((attribute_2^2)) / num) * 100) - (2*(rowSums(mat1[[1]]) - attribute_2^2)/ num * 100), function(y){if(y < 0){0} else {y}}), 20)
 
-        metric_conn <- data.frame("IdTemp2" = attribute_1[,1], "delta" = round(delta, 7),
+
+
+        metric_conn <- data.frame("IdTemp2" = if(is.null(idT)){id_original} else{attribute_1[,1]},
+                                  "delta" = round(delta, 7),
                                   "dintra" = dintra, "dflux" = dflux, "dconnector" = dconnector,
                                   check.names = FALSE)
       } else {
-        metric_conn <- data.frame("IdTemp2" = attribute_1[,1],
+        metric_conn <- data.frame("IdTemp2" = if(is.null(idT)){id_original} else{attribute_1[,1]},
                                   check.names = FALSE)
       }
 
@@ -482,7 +497,6 @@ MK_dPCIIC <- function(nodes,
                                                        paste0("d", metric, "res"))
         }
 
-
         if(class(nodes)[1] == "data.frame"){
           nodes.2 <- cbind(nodes, metric_conn); nodes.2$IdTemp <- NULL; nodes.2$IdTemp2 <- NULL
           if(!is.null(id_sel)){
@@ -496,7 +510,7 @@ MK_dPCIIC <- function(nodes,
           rp <- raster::unique(nodes); rp <- as.vector(rp); rp <- rp[which(!is.na(rp))]
 
           if(!is.null(parallel)){
-            m <- matrix(nrow = nrow(attribute_1), ncol = 2); m[,1] <- attribute_1[,1]
+            m <- matrix(nrow = nrow(attribute_1), ncol = 2); m[,1] <- id_original
 
             works <- as.numeric(availableCores())-1; works <-  if(parallel > works){works}else{parallel}
             if(.Platform$OS.type == "unix") {
@@ -516,7 +530,7 @@ MK_dPCIIC <- function(nodes,
             close_multiprocess(works)
 
           } else {
-            m <- matrix(nrow = nrow(attribute_1), ncol = 2); m[,1] <- attribute_1[,1]
+            m <- matrix(nrow = nrow(attribute_1), ncol = 2); m[,1] <- id_original
             r_metric <- lapply(2:ncol(metric_conn), function(c){
               x1 <- metric_conn[,c(1, c)]
               for(i in rp){
@@ -582,7 +596,9 @@ MK_dPCIIC <- function(nodes,
       names(result) <- paste0("d", distance_thresholds)
     }
   }
-
+  if(isTRUE(intern)){
+    message("Done!")
+  }
   return(result)
 }
 

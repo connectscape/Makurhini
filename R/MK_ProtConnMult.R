@@ -36,13 +36,15 @@
 #' \dontrun{
 #' library(Makurhini)
 #' library(sf)
-#' data("regions", package = "Makurhini")
-#' plot(regions, col=c("blue", "red", "green"))
+#' data("Ecoregions", package = "Makurhini")#'
+#' #For this example, we select the first three columns and the first 10 of the ecoregions
+#' Ecoregions <- Ecoregions[1:15,1:3]
+#' plot(st_geometry(Ecoregions), col = "#7E6A9F")
 #' data("Protected_areas", package = "Makurhini")
-#' plot(st_crop(Protected_areas, regions), col="green")
+#' #plot(st_geometry(Protected_areas), col="green", add = TRUE) #It may take time to plot all PAs.
 #'
 #' test <- MK_ProtConnMult(nodes = Protected_areas,
-#'                         regions = regions,
+#'                         regions = Ecoregions,
 #'                         area_unit = "ha",
 #'                         distance = list(type= "centroid"),
 #'                         distance_thresholds = c(10000, 50000),
@@ -73,8 +75,9 @@ MK_ProtConnMult <- function(nodes, regions,
                             delta = FALSE,
                             CI = "all",
                             plot = FALSE,
-                            write = NULL, intern = TRUE,
-                            parallel = NULL){
+                            write = NULL,
+                            parallel = NULL,
+                            intern = TRUE){
   if(isTRUE(intern)){
     message("Step 1. Reviewing parameters")
   }

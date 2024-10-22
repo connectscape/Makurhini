@@ -20,7 +20,7 @@ MK_Focal_nodes(
   simplify_shape = NULL,
   fragmentation = FALSE,
   edge_distance = 500,
-  min_patch_area = 100,
+  min_node_area = 100,
   parallel = NULL,
   write = NULL,
   save_subfiles = FALSE,
@@ -28,7 +28,7 @@ MK_Focal_nodes(
 )
 }
 \arguments{
-\item{nodes}{\code{sf, SpatVector, SpatialPolygonsDataFrame}. Object containing nodes (e.g., habitat patches or fragments) to analyze information. Nodes are spatial data of type vector (class \code{sf, SpatVector, SpatialPolygonsDataFrame}). It must be in a projected coordinate system.}
+\item{nodes}{\code{sf, SpatVector, SpatialPolygonsDataFrame}. Object containing nodes (e.g., habitat nodes or fragments) to analyze information. Nodes are spatial data of type vector (class \code{sf, SpatVector, SpatialPolygonsDataFrame}). It must be in a projected coordinate system.}
 
 \item{id}{\code{character}. Column name with the node ID.}
 
@@ -57,11 +57,11 @@ To see more arguments see the \link[Makurhini]{distancefile} function.}
 
 \item{simplify_shape}{\code{numeric}. It helps to simplify the shape of the focal node by eliminating vertices to buffer and select neighbouring nodes. Its use is recommended when some of the nodes have very complex shapes. See \link[sf]{st_simplify} for details.}
 
-\item{fragmentation}{\code{logic}. Estimates fragmentation statistics for the focal nodes using the function \link[Makurhini]{MK_Fragmentation}. It is necessary to use the parameters \bold{edge_distance} and \bold{min_patch_area}.}
+\item{fragmentation}{\code{logic}. Estimates fragmentation statistics for the focal nodes using the function \link[Makurhini]{MK_Fragmentation}. It is necessary to use the parameters \bold{edge_distance} and \bold{min_node_area}.}
 
 \item{edge_distance}{\code{numeric}. Distance to edge in meters. Default equal 500 m. See \link[Makurhini]{MK_Fragmentation} for details.}
 
-\item{min_patch_area}{\code{numeric}. Minimum patch area used to calculate the number of patches with an area smaller than the one provided. Default equal 100 km\out{<sup>2</sup>}. It uses the area units set in the \bold{area_unit} parameter. See \link[Makurhini]{MK_Fragmentation} for details.}
+\item{min_node_area}{\code{numeric}. Minimum node area used to calculate the number of nodes with an area smaller than the one provided. Default equal 100 km\out{<sup>2</sup>}. It uses the area units set in the \bold{area_unit} parameter. See \link[Makurhini]{MK_Fragmentation} for details.}
 
 \item{parallel}{(\emph{optional, default =} \code{NULL}).
 A \code{numeric} specifying the number of cores to parallelize the index estimation of the PC or IIC index and its deltas.Particularly useful when you have more than 1000 nodes. By default the analyses are not parallelized.}
@@ -76,7 +76,7 @@ A \code{numeric} specifying the number of cores to parallelize the index estimat
 This function enables the calculation of the focal Integral Index of Connectivity (IIC\out{<sub>f</sub>}) or the focal Probability of Connectivity (PC\out{<sub>f</sub>}) under one or more distance thresholds. Furthermore, this function estimates the composite connectivity index (CCI\out{<sub>f</sub>}; for further details, please see Latorre-Cárdenas et al., 2023).
 }
 \details{
-A loop is executed, whereby each of the patches is selected. In each iteration, the following occurs:\cr
+A loop is executed, whereby each of the nodes is selected. In each iteration, the following occurs:\cr
 1-	When node \code{i} is selected, it becomes a \bold{focal node} (\code{f}).\cr
 2-	Then, a buffer is generated with the distance specified in parameter \code{search_buffer}, for example the for example twice the dispersion distance specified in the parameter \code{ distance_thresholds}. This buffer is called \bold{local landscape} and is used to identify neighboring nodes, called \bold{transboundary nodes} (\code{th}).\cr
 3-	Next, the index IIC or PC is estimated according to the selected metric using the focal node and the transboundary nodes. This result is referred to as \bold{IIC\out{<sub>f</sub>}} or\bold{ PC\out{<sub>f</sub>}}. The index value ranges from 0 to 1, with 1 representing the highest connectivity in the local landscape for the focal node.\cr
@@ -92,21 +92,22 @@ Sometimes the advance process does not reach 100 percent when operations are car
 \examples{
 \dontrun{
 library(Makurhini)
-data("vegetation_patches", package = "Makurhini")
-nrow(vegetation_patches) # Number of patches
-test <- MK_focal_nodes(nodes = vegetation_patches,
-                         id = "id",
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes) # Number of patches
+test <- MK_Focal_nodes(nodes = habitat_nodes,
+                         id = "Id",
                          attribute = NULL,
                          raster_attribute = NULL,
                          fun_attribute = NULL,
                          distance = list(type = "centroid"),
                          metric = "PC",
                          probability = 0.5,
-                         parallel = NULL,
+                         parallel = 4,
                          distance_thresholds = 10000,
                          search_buffer = 20000,
                          fragmentation = TRUE)
-test
+plot(test["dPC"], breaks = "jenks")
+plot(test["IComp"], breaks = "jenks")
 }
 }
 \references{

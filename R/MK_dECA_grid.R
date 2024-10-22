@@ -22,7 +22,7 @@
 #' @param threshold \code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing.
 #' @param parallel \code{numeric}. Specify the number of cores to use for parallel processing, \code{default = NULL}. Parallelize the function using furrr package.
 #' @param intern \code{logical}. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
-#' @return Table with:\cr\cr
+#' @return List with sf objects corresponding to the hexagons and each transition between scenarios or node times, each of the following fields:\cr\cr
 #' -  Time: name of the time periods, name of the model or scenario (are taken from the name of the elements of the list of nodes or the plot argument)\cr
 #' -  ECAi: Equivalent Connected Area or Equivalent Connectivity for time i (first time/scenery in the comparison)\cr
 #' -  ECAj: Equivalent Connected Area or Equivalent Connectivity for time j (second time/scenery in the comparison)\cr
@@ -51,6 +51,7 @@
 #' class(list_forest_patches)
 #'
 #' hexagons_dECA <- MK_dECA_grid(nodes = list_forest_patches,
+#'                               nodes_names = c("T1", "T2", "T3", "T4"),
 #'                               region = study_area,
 #'                               area_unit = "ha",
 #'                               metric = "IIC",
@@ -59,12 +60,13 @@
 #'                               distance_threshold = 3000,
 #'                               probability = 0.5,
 #'                               distance = list(type = "centroid"),
-#'                               parallel = NULL
+#'                               parallel = 4,
 #'                               intern = TRUE)
-#' hexagons_dECA
-#' plot(hexagons_dECA["T3.4.dECA"], breaks = "quantile")
-#' plot(hexagons_dECA["T3.4.Type.Change"], key.pos = 1)
+#' names(hexagons_dECA)#List of lenght 3, where each element is a transition.
+#' plot(hexagons_dECA$result_T1.T2 ["dECA"], breaks = "quantile")
+#' plot(hexagons_dECA$result_T3.T4["Type.Change"], key.pos = 1)
 #'}
+#' @return The function returns a list comprising elements corresponding to discrete periods. Thus, if a list of nodes contains three scenarios or times, the function returns a list with two elements. The first element corresponds to the transition between scenarios 1 and 2, and it will include the dECA value for that period. The second element of the list corresponds to the transition between scenarios 2 and 3, and it will include the dECA value for that period.
 #' @importFrom sf st_as_sf st_area st_intersection st_is_empty
 #' @importFrom future plan multicore multisession availableCores
 #' @importFrom furrr future_map_dfr
@@ -160,17 +162,15 @@ MK_dECA_grid <- function(nodes,
       strat <- future::multisession
     }
     plan(strategy = strat, gc = TRUE, workers = works)
-
     nodes <- future_map(nodes, function(x){
       if(class(x)[[1]] == "SpatialPolygonsDataFrame"){
         x <- st_as_sf(x)
       }
       return(x)
     })
-
     result_1 <- future_map_dfr(1:nrow(base_grid@grid), function(x){
       x.1 <- base_grid@grid[x,]
-      dECA.1 <- data.frame("Time" = paste0(1:(length(nodes)-1), ".", 2:length(nodes)),
+      dECA.1 <- data.frame("Time" = paste0(nodes_names[1:(length(nodes)-1)], ".", nodes_names[2:length(nodes)]),
                            "ECAi" = 0,
                            "ECAj" = 0,
                            "dA" = 0,
@@ -263,11 +263,6 @@ MK_dECA_grid <- function(nodes,
       return(dECA.2)
     }, .progress = intern)
     close_multiprocess(works)
-    result_1 <- lapply(unique(result_1$Time), function(x){
-      x.1 <- result_1[result_1$Time == x,]; x.1 <- cbind(base_grid@grid, x.1)
-      x.1$IdTemp  <- NULL
-      return(x.1)
-    })
   } else {
     nodes <- lapply(nodes, function(x){
       if(class(x)[[1]] == "SpatialPolygonsDataFrame"){
@@ -277,7 +272,7 @@ MK_dECA_grid <- function(nodes,
     })
     result_1 <- map_dfr(1:nrow(base_grid@grid), function(x){
       x.1 <- base_grid@grid[x,]
-      dECA.1 <- data.frame("Time" = paste0(1:(length(nodes)-1), ".", 2:length(nodes)),
+      dECA.1 <- data.frame("Time" = paste0(nodes_names[1:(length(nodes)-1)], ".", nodes_names[2:length(nodes)]),
                            "ECAi" = 0,
                            "ECAj" = 0,
                            "dA" = 0,
@@ -369,12 +364,12 @@ MK_dECA_grid <- function(nodes,
       })
       return(dECA.2)
     }, .progress = intern)
-    result_1 <- lapply(unique(result_1$Time), function(x){
-      x.1 <- result_1[result_1$Time == x,]; x.1 <- cbind(base_grid@grid, x.1)
-      x.1$IdTemp  <- NULL
-      return(x.1)
-    })
   }
+  result_1 <- lapply(unique(result_1$Time), function(x){
+    x.1 <- result_1[result_1$Time == x,]; x.1 <- cbind(base_grid@grid, x.1)
+    x.1$IdTemp  <- NULL
+    return(x.1)
+  })
   names(result_1) <- map_chr(result_1, function(x){paste0("result_", x[["Time"]][1])})
   if(length(result_1) == 1){
     result_1 <- result_1[[1]]

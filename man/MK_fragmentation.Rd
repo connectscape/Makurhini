@@ -5,9 +5,9 @@
 \title{Fragmentation Statistics}
 \usage{
 MK_Fragmentation(
-  patches,
+  nodes = NULL,
   edge_distance = 500,
-  min_patch_area = 100,
+  min_node_area = 100,
   landscape_area = NULL,
   area_unit = "ha",
   perimeter_unit = "km",
@@ -16,13 +16,13 @@ MK_Fragmentation(
 )
 }
 \arguments{
-\item{patches}{Object of class \code{sf, sfc, sfg, SpatialPolygons}. Individual patches, the object must be in a projected coordinate system.}
+\item{nodes}{Object of class \code{sf, sfc, sfg, SpatialPolygons}. Individual nodes, the object must be in a projected coordinate system.}
 
 \item{edge_distance}{\code{numeric}. Distance to edge in meters. Default equal 500 m (Haddad et al. 2015)}
 
-\item{min_patch_area}{\code{numeric}. Minimum patch area used to calculate the number of patches with an area smaller than the one provided. Default equal 100 km\out{<sup>2</sup>} (Haddad et al. 2015)}
+\item{min_node_area}{\code{numeric}. Minimum node area used to calculate the number of nodes with an area smaller than the one provided. Default equal 100 km\out{<sup>2</sup>} (Haddad et al. 2015)}
 
-\item{landscape_area}{\code{numeric}. Total area of the study landscape in km\out{<sup>2</sup>} (optional). If NULL the total patch area will be used.}
+\item{landscape_area}{\code{numeric}. Total area of the study landscape in km\out{<sup>2</sup>} (optional). If NULL the total nod area will be used.}
 
 \item{area_unit}{\code{character}. You can set an area unit (e.g., "km2", "cm2", "m2", "ha"; see \link[Makurhini]{unit_convert}). Default equal to square kilometers "km2".}
 
@@ -30,16 +30,16 @@ MK_Fragmentation(
 
 \item{plot}{\code{logical}. Basic histograms and core area - edge map.}
 
-\item{write}{\code{character}. Write the table (landscape statistics), sf object (patch statistics) and plots. It's necessary to specify the path and prefix, for example,
+\item{write}{\code{character}. Write the table (landscape statistics), sf object (patch/node statistics) and plots. It's necessary to specify the path and prefix, for example,
 to save in the path "C:/Folder" with the prefix "Fragmentation": \code{"C:/Folder/Fragmentation"}.}
 }
 \value{
-Patch and landscape statistics:\cr
+Patch/node and landscape statistics:\cr
 1) Patches Area in square kilometers.\cr
 2) Number patches.\cr
 3) Mean size of patches.\cr
-4) Number of patches smaller than the parameter \code{min_patch_area} (default = 100 km\out{<sup>2</sup>}).\cr
-5) Percentage of patches smaller than the parameter \code{min_patch_area} (default = 100 km\out{<sup>2</sup>}).\cr
+4) Number of patches smaller than the parameter \code{min_node_area} (default = 100 km\out{<sup>2</sup>}).\cr
+5) Percentage of patches smaller than the parameter \code{min_node_area} (default = 100 km\out{<sup>2</sup>}).\cr
 6) Total patch edge. Total perimeter of the patches (unit = \code{perimeter_unit}).\cr
 7) Edge density. Total perimeter per unit of area (unit = \code{area_unit}), default = km\out{<sup>2</sup>}. A value of 0 is present when there is no edge in the landscape.\cr
 8) Patch density.\cr
@@ -51,14 +51,15 @@ Patch and landscape statistics:\cr
 14) Core percent (patch level). Percentage of core area in the patch (units = \code{area_unit}) considering the distance set in the parameter \code{edge_distance} (delfault = 500 m).\cr
 15) Edge percent (patch level). Percentage of edge in the patch (units = \code{area_unit}) considering the distance set in the parameter \code{edge_distance} (delfault = 500 m).\cr
 16) PARA (patch level). Ratio of the patch perimeter to area.
+*NOTE.* In the results we use the term patches instead of nodes due to the common use of this term in fragmentation statistics in science.
 }
 \description{
-Calculate patch and landscape statistics
+Calculate patches/nodes and landscape statistics
 }
 \examples{
-data("vegetation_patches", package = "Makurhini")
-nrow(vegetation_patches) # Number of patches
-fragmentation <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 1000, plot = TRUE)
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes) # Number of nodes
+fragmentation <- MK_Fragmentation(nodes = habitat_nodes, edge_distance = 1000, plot = TRUE)
 #Table
 fragmentation$`Summary landscape metrics (Viewer Panel)`
 #Shapefile

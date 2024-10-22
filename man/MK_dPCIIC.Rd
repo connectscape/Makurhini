@@ -98,10 +98,10 @@ Sometimes the advance process does not reach 100 percent when operations are car
 \examples{
 \dontrun{
 library(Makurhini)
-data("vegetation_patches", package = "Makurhini")
-nrow(vegetation_patches) # Number of patches
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes) # Number of patches
 #Two distance threshold,
-IIC <- MK_dPCIIC(nodes = vegetation_patches,
+IIC <- MK_dPCIIC(nodes = habitat_nodes,
                 attribute = NULL,
                 area_unit = "m2",
                 distance = list(type = "centroid"),
@@ -110,18 +110,23 @@ IIC <- MK_dPCIIC(nodes = vegetation_patches,
                 metric = "IIC",
                 distance_thresholds = c(10000, 20000)) #10,20 km
 IIC
-plot(IIC$d20000["dIIC"], breaks = "jenks")
-plot(IIC$d20000["dIICflux"], breaks = "jenks")
-plot(IIC$d20000["dIICconnector"], breaks = "jenks")
-#Using raster
-data("raster_vegetation_patches", package = "Makurhini")
-PC <- MK_dPCIIC(nodes = raster_vegetation_patches,
+plot(IIC$d20000$node_importances_d20000["dIIC"], breaks = "jenks")
+plot(IIC$d20000$node_importances_d20000["dIICintra"], breaks = "jenks")
+plot(IIC$d20000$node_importances_d20000["dIICflux"], breaks = "jenks")
+plot(IIC$d20000$node_importances_d20000["dIICconnector"], breaks = "jenks")
+
+#Using raster and resistance
+data("habitat_nodes_raster", package = "Makurhini")
+data("resistance_matrix", package = "Makurhini")
+PC <- MK_dPCIIC(nodes = habitat_nodes_raster,
                 attribute = NULL,
-                distance = list(type = "edge", keep = 0.4),
+                distance = list(type = "least-cost",
+                                resistance = resistance_matrix),
                 metric = "PC", probability = 0.5,
                 overall = TRUE,
                 distance_thresholds = 40000) # 40 km
 PC$overall_d40000
+PC$node_importances_d40000
 plot(PC$node_importances_d40000)
 }
 }

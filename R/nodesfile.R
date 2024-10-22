@@ -72,7 +72,8 @@ nodesfile <- function(nodes, id = NULL,
         nodes <- as.data.frame(table(nodes[])); nodes$Freq <- attribute
       }
     } else {
-      nres <- unit_convert(res(nodes)[1]^2, "m2", area_unit); nodes <- as.data.frame(table(nodes[]));nodes$Freq <- nodes$Freq * nres
+      nres <- unit_convert(res(nodes)[1]^2, "m2", area_unit)
+      nodes <- as.data.frame(table(nodes[]));nodes$Freq <- nodes$Freq * nres
     }
 
     names(nodes)[1:2] <- c("Id", "attribute"); nodes <- nodes[,1:2]; id = "Id"

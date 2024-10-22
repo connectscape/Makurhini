@@ -123,7 +123,6 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL,
       }
     }
   } else {
-    ###POR AHORA
     if(class(nodes)[1] != "RasterLayer"){
       nodes <- raster::raster(nodes)
     }
@@ -154,7 +153,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL,
       }
     }
 
-    if(type == "centroid"){
+    if(type != "edge"){
       if(class(nodes)[1] == "SpatRaster"){
         nodes <- raster(nodes)
       }
@@ -185,9 +184,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL,
           return(x.1)}, .progress = TRUE)
         nodes <- st_as_sf(nodes, coords = c("x", "y"),  crs = cr, stringsAsFactors = FALSE)
       }
-    }
-
-    if(type == "edge"){
+    } else {
       if(class(nodes)[1] != "SpatRaster"){
         nodes <- rast(nodes)
       }

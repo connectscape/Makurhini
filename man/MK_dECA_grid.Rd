@@ -57,7 +57,7 @@ if nodes has a list with two time patches then you can use two resistances one f
 \item{intern}{\code{logical}. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 }
 \value{
-Table with:\cr\cr
+List with sf objects corresponding to the hexagons and each transition between scenarios or node times, each of the following fields:\cr\cr
 -  Time: name of the time periods, name of the model or scenario (are taken from the name of the elements of the list of nodes or the plot argument)\cr
 -  ECAi: Equivalent Connected Area or Equivalent Connectivity for time i (first time/scenery in the comparison)\cr
 -  ECAj: Equivalent Connected Area or Equivalent Connectivity for time j (second time/scenery in the comparison)\cr
@@ -68,6 +68,8 @@ disproportionately large change in habitat connectivity, while a value lower tha
 changes due to random habitat changes (Saura et al. 2011; Dilts et al. 2016)".\cr
 -  dA/dECA comparisons: comparisons between dA and dECA\cr
 -  Type of change: Type of change using the dECAfun() and the difference between dA and dECA.\cr
+
+The function returns a list comprising elements corresponding to discrete periods. Thus, if a list of nodes contains three scenarios or times, the function returns a list with two elements. The first element corresponds to the transition between scenarios 1 and 2, and it will include the dECA value for that period. The second element of the list corresponds to the transition between scenarios 2 and 3, and it will include the dECA value for that period.
 }
 \description{
 Use the function to compute the ECA, dECA, dA indexes in a regular grid.
@@ -83,6 +85,7 @@ data("study_area", package = "Makurhini")
 class(list_forest_patches)
 
 hexagons_dECA <- MK_dECA_grid(nodes = list_forest_patches,
+                              nodes_names = c("T1", "T2", "T3", "T4"),
                               region = study_area,
                               area_unit = "ha",
                               metric = "IIC",
@@ -91,11 +94,11 @@ hexagons_dECA <- MK_dECA_grid(nodes = list_forest_patches,
                               distance_threshold = 3000,
                               probability = 0.5,
                               distance = list(type = "centroid"),
-                              parallel = NULL
+                              parallel = 4,
                               intern = TRUE)
-hexagons_dECA
-plot(hexagons_dECA["T3.4.dECA"], breaks = "quantile")
-plot(hexagons_dECA["T3.4.Type.Change"], key.pos = 1)
+names(hexagons_dECA)#List of lenght 3, where each element is a transition.
+plot(hexagons_dECA$result_T1.T2 ["dECA"], breaks = "quantile")
+plot(hexagons_dECA$result_T3.T4["Type.Change"], key.pos = 1)
 }
 }
 \references{

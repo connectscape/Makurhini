@@ -42,10 +42,12 @@
 #' @examples
 #' \dontrun{
 #' library(Makurhini)
-#' data("vegetation_patches", package = "Makurhini")
-#' nrow(vegetation_patches) # Number of patches
+#' data("habitat_nodes", package = "Makurhini")
+#' nrow(habitat_nodes) # Number of patches#'
+#' #For this example we only select 50 nodes
+#' habitat_nodes <- habitat_nodes[sample(1:404, 50),]
 #' #Two distance threshold,
-#' delta <- MK_dPCIIC_links(nodes = vegetation_patches,
+#' delta <- MK_dPCIIC_links(nodes = habitat_nodes,
 #'                         attribute = NULL,
 #'                         area_unit = "km2",
 #'                         distance = list(type = "centroid"),
@@ -58,7 +60,7 @@
 #'                         intern = TRUE) #20, 40 km
 #' delta
 #' #Parallel using mode 1
-#' delta <- MK_dPCIIC_links(nodes = vegetation_patches,
+#' delta <- MK_dPCIIC_links(nodes = habitat_nodes,
 #'                         attribute = NULL,
 #'                         area_unit = "km2",
 #'                         distance = list(type = "centroid"),
@@ -72,16 +74,16 @@
 #' delta
 #'
 #'  #Link change option
-#' distance_change <- distancefile(nodes = vegetation_patches,
-#'                                 id = "id", type = "centroid",
+#' distance_change <- distancefile(nodes = habitat_nodes,
+#'                                 id = "Id", type = "centroid",
 #'                                 pairwise = FALSE)
-#' #Randomly change distances
-#' sample_distance <- sample(which(upper.tri(distance_change)), 5000)
+#' #Randomly change distances  of 1000 connections
+#' sample_distance <- sample(which(upper.tri(distance_change)), 1000)
 #' reduce_value <- runif(length(sample_distance))
 #' distance_change[sample_distance] <-distance_change[sample_distance] * reduce_value
 #' distance_change[lower.tri(distance_change)] <- distance_change[upper.tri(distance_change)]
 #'
-#' delta <- MK_dPCIIC_links(nodes = vegetation_patches,
+#' delta <- MK_dPCIIC_links(nodes = habitat_nodes,
 #'                          attribute = NULL,
 #'                          area_unit = "km2",
 #'                          distance = list(type = "centroid"),
@@ -202,9 +204,10 @@ MK_dPCIIC_links <- function(nodes,
                              area_unit = area_unit,
                              restoration = NULL,
                              write = NULL)
+    attribute_1[,1] <- 1:nrow(attribute_1)
   } else if (class(nodes)[1] == "data.frame"){
     attribute_1 <- nodes; idT <- NULL
-
+    attribute_1[,1] <- 1:nrow(attribute_1); names(attribute_1)[1:2] <- c("IdTemp", "Area")
     if(dim(nodes)[2] < 2){
       stop("You need two or three columns, see the ?MK_dPCIIC")
     }
@@ -224,10 +227,15 @@ MK_dPCIIC_links <- function(nodes,
       stop("Distance matrix and nodes have different id")
     }
 
+    rownames(dist) <- 1:nrow(dist); colnames(dist) <- 1:ncol(dist)
   } else {
     if(isTRUE(intern)){
-      if(nrow(attribute_1) > 1000){
-        message("Estimating distances. This may take several minutes depending on the number of nodes")
+      if(!is.null(distance$resistance)){
+        message("Estimating distances. This may take several minutes depending on the number of nodes and raster resolution")
+      } else {
+        if(nrow(attribute_1) > 1000){
+          message("Estimating distances. This may take several minutes depending on the number of nodes")
+        }
       }
     }
 
@@ -255,6 +263,9 @@ MK_dPCIIC_links <- function(nodes,
     if(inherits(dist, "error")){
       close_multiprocess()
       stop(dist)
+    }
+    if(is.null(idT)){
+      rownames(dist) <- 1:nrow(dist); colnames(dist) <- 1:ncol(dist)
     }
   }
 
@@ -451,7 +462,9 @@ MK_dPCIIC_links <- function(nodes,
   } else {
     names(result_d) <- paste0("Link_importances_d", distance_thresholds)
   }
-
+  if(isTRUE(intern)){
+    message("Done!")
+  }
   return(result_d)
 }
 

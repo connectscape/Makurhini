@@ -75,25 +75,25 @@ Betweenness Centrality metrics can be calculated in three different ways:\cr
 \examples{
 \dontrun{
 library(Makurhini)
-data("vegetation_patches", package = "Makurhini")
-nrow(vegetation_patches) #Number of patches
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes) #Number of nodes
 
 #Two distance thresholds
-BCIIC <- MK_BCentrality(nodes = vegetation_patches, id = "id",
-            coneforpath = "C:/Users/coneforWin64.exe",
+BCIIC <- MK_BCentrality(nodes = habitat_nodes, id = "Id",
+            coneforpath = "C:/Users/coneforWin64.exe",#You need to place your path to the conefor .exe
             distance = list(type = "centroid"),
             metric = "BCIIC", LA = NULL,
             distance_thresholds = c(10000, 30000)) #10 and 30 km
 
 #Using raster
-data("raster_vegetation_patches", package = "Makurhini")
+data("habitat_nodes_raster", package = "Makurhini")
 ##Using parallel
-BCPC_parallel <- MK_BCentrality(nodes = raster_vegetation_patches,
-                    coneforpath = "C:/Users/coneforWin64.exe",
+BCPC_parallel <- MK_BCentrality(nodes = habitat_nodes_raster,
+                    coneforpath = "C:/Users//coneforWin64.exe",#You need to place your path to the conefor .exe
                     id = "id", attribute = NULL,
                     distance = list(type = "centroid"),
                     metric = "BCPC", LA = NULL, probability = 0.5,
-                    distance_thresholds = c(40000, 60000),
+                    distance_thresholds = 40000,
                     parallel = 4) #40 and 60 km
 }
 }

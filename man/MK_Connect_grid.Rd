@@ -55,17 +55,16 @@ Use the function to compute the Protected Connected (ProtConn), EC, PC or IIC in
 \dontrun{
 library(Makurhini)
 library(sf)
-
 data("Protected_areas", package = "Makurhini")
-data("regions", package = "Makurhini")
-ecoregion <- regions[2,]
-plot(st_geometry(ecoregion), col="blue")
+data("Ecoregions", package = "Makurhini")
+ecoregion <- Ecoregions[1,]
+plot(st_geometry(ecoregion), col = "#7E6A9F")
 #ProtConn
 hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
                                     region = ecoregion,
                                     area_unit = "ha",
                                     grid = list(hexagonal = TRUE,
-                                                cellsize = unit_convert(1000, "km2", "m2")),
+                                                cellsize = unit_convert(5000, "km2", "m2")),
                                     protconn = TRUE,
                                     distance_threshold = 3000,
                                     probability = 0.5,
@@ -74,7 +73,8 @@ hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
                                     intern = TRUE,
                                     parallel = NULL)
 hexagons_priority
-plot(hexagons_priority["ProtConn"])
+plot(st_geometry(ecoregion), col = "#7E6A9F")
+plot(hexagons_priority["ProtConn"], add = TRUE)
 }
 }
 \references{

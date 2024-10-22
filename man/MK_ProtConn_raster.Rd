@@ -76,8 +76,9 @@ Estimate Protected Connected (ProtConn) indicator and fractions for one region.
 library(Makurhini)
 library(raster)
 data("Protected_areas_raster", package = "Makurhini")
-data("regions", package = "Makurhini")
-region <- regions[2,]
+plot(Protected_areas_raster)
+data("Ecoregions", package = "Makurhini")
+region <- Ecoregions[2,]
 test <- MK_ProtConn_raster(nodes = Protected_areas_raster,
                            region = region,
                            area_unit = "ha",
@@ -85,7 +86,6 @@ test <- MK_ProtConn_raster(nodes = Protected_areas_raster,
                            distance_thresholds = c(50000, 10000),
                            probability = 0.5, transboundary = 50000,
                            plot = FALSE, parallel = NULL,
-                           protconn_bound = TRUE,
                            write = NULL, intern = FALSE)
 test
 

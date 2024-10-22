@@ -25,10 +25,10 @@
 #' \dontrun{
 #' library(Makurhini)
 #' library(sf)
-#' data("vegetation_patches", package = "Makurhini")
-#' nrow(vegetation_patches) # Number of patches
+#' data("habitat_nodes", package = "Makurhini")
+#' nrow(habitat_nodes) # Number of patches
 #' #Two distance threshold,
-#' centrality_test <- MK_RMCentrality(nodes = vegetation_patches,
+#' centrality_test <- MK_RMCentrality(nodes = habitat_nodes,
 #'                                 distance = list(type = "centroid"),
 #'                                  distance_thresholds = c(10000, 100000),
 #'                                  probability = 0.05,
@@ -87,7 +87,15 @@ MK_RMCentrality <- function(nodes,
       idT <- NULL
     }
   }
-
+  if(isTRUE(intern)){
+    if(!is.null(distance$resistance)){
+      message("Estimating distances. This may take several minutes depending on the number of nodes and raster resolution")
+    } else {
+      if(nrow(nodes) > 1000){
+        message("Estimating distances. This may take several minutes depending on the number of nodes")
+      }
+    }
+  }
   dist <- distancefile(nodes = nodes,  id = idT, type = distance$type,
                        distance_unit = distance$distance_unit, keep = distance$keep,
                        resistance = distance$resistance,
@@ -262,7 +270,9 @@ MK_RMCentrality <- function(nodes,
   } else {
     names(centrality_result) <- paste0("d", distance_thresholds)
   }
-
+  if(isTRUE(intern)){
+    message("Done!")
+  }
   return(centrality_result)
 }
 

@@ -34,17 +34,16 @@
 #' \dontrun{
 #' library(Makurhini)
 #' library(sf)
-#'
 #' data("Protected_areas", package = "Makurhini")
-#' data("regions", package = "Makurhini")
-#' ecoregion <- regions[2,]
-#' plot(st_geometry(ecoregion), col="blue")
+#' data("Ecoregions", package = "Makurhini")
+#' ecoregion <- Ecoregions[1,]
+#' plot(st_geometry(ecoregion), col = "#7E6A9F")
 #' #ProtConn
 #' hexagons_priority <- MK_Connect_grid(nodes = Protected_areas,
 #'                                     region = ecoregion,
 #'                                     area_unit = "ha",
 #'                                     grid = list(hexagonal = TRUE,
-#'                                                 cellsize = unit_convert(1000, "km2", "m2")),
+#'                                                 cellsize = unit_convert(5000, "km2", "m2")),
 #'                                     protconn = TRUE,
 #'                                     distance_threshold = 3000,
 #'                                     probability = 0.5,
@@ -53,7 +52,8 @@
 #'                                     intern = TRUE,
 #'                                     parallel = NULL)
 #' hexagons_priority
-#' plot(hexagons_priority["ProtConn"])
+#' plot(st_geometry(ecoregion), col = "#7E6A9F")
+#' plot(hexagons_priority["ProtConn"], add = TRUE)
 #'}
 #' @export
 #' @importFrom magrittr %>%
@@ -61,7 +61,6 @@
 #' @importFrom sf st_as_sf st_zm st_cast st_buffer st_area st_convex_hull
 #' @importFrom future plan multicore multisession availableCores
 #' @importFrom furrr future_map_dfr
-#' @importFrom utils txtProgressBar setTxtProgressBar
 #' @importFrom purrr map_df
 #' @importFrom methods as
 
@@ -147,7 +146,6 @@ MK_Connect_grid <- function(nodes,
   if (isTRUE(protconn)) {
     if (isTRUE(intern)) {
       message("Step 3. Processing ProtConn metric on the grid. Progress estimated:")
-      pb <- txtProgressBar(0,length(loop), style = 3)
     } else {
       message("Step 3. Processing ProtConn metric on the grid")
     }
@@ -248,10 +246,7 @@ MK_Connect_grid <- function(nodes,
         return(ProtConn_grid) }, .progress = intern), error = function(err) err)
       close_multiprocess(works)
     } else {
-      result_1 <- tryCatch(map_df(loop, function(x) {
-        if (isTRUE(intern)) {
-          setTxtProgressBar(pb, x)
-        }
+      result_1 <- tryCatch(map_df(loop, function(x){
         LA <- st_area(base_param4[[3]]@grid[x,]) %>%
           unit_convert(., "m2", base_param4[[1]]@area_unit)
 
@@ -337,12 +332,11 @@ MK_Connect_grid <- function(nodes,
                                       ProtConn_Unprot_land = NA, ProtConn_Trans_land = NA)
         }
         return(ProtConn_grid)
-      }), error = function(err) err)
+      }, .progress = intern), error = function(err) err)
     }
   } else {
     if (isTRUE(intern)) {
       message("Step 3. Processing PC and ECA metrics on the grid. Progress estimated:")
-      pb <- txtProgressBar(0,length(loop), style = 3)
     } else {
       message("Step 3. Processing PC and ECA metrics on the grid")
     }
@@ -422,10 +416,6 @@ MK_Connect_grid <- function(nodes,
       close_multiprocess(works)
     } else {
       result_1 <- tryCatch(map_df(loop, function(x) {
-        if (isTRUE(intern)) {
-          setTxtProgressBar(pb, x)
-        }
-
         LA <- st_area(base_param4[[3]]@grid[x,]) %>%
           unit_convert(., "m2", base_param4[[1]]@area_unit)
 
@@ -488,7 +478,7 @@ MK_Connect_grid <- function(nodes,
           PC_grid[,c(1:2)] <- round(PC_grid[,c(1:2)], 5)
         }
 
-        return(PC_grid)}), error = function(err) err)
+        return(PC_grid)}, .progress = intern), error = function(err) err)
     }
   }
 

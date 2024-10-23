@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>", message=FALSE, warning=FALSE
@@ -10,12 +10,12 @@ library(sf)
 library(ggplot2)
 
 ## ----polygons-----------------------------------------------------------------
-data("vegetation_patches", package = "Makurhini")
-nrow(vegetation_patches) # Number of patches
-plot(st_geometry(vegetation_patches), col = "#00B050")
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes) # Number of nodes
+plot(st_geometry(habitat_nodes), col = "#00B050")
 
 ## -----------------------------------------------------------------------------
-Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500, plot = F, min_patch_area = 100, landscape_area = NULL, area_unit = "km2", perimeter_unit = "km")
+Fragmentation_test <- MK_Fragmentation(nodes = habitat_nodes, edge_distance = 500, plot = TRUE, min_node_area = 100, landscape_area = NULL, area_unit = "km2", perimeter_unit = "km")
 
 ## -----------------------------------------------------------------------------
 names(Fragmentation_test)
@@ -25,24 +25,24 @@ Fragmentation_test$`Summary landscape metrics (Viewer Panel)`
 head(Fragmentation_test[[2]])
 
 ## ----echo=FALSE---------------------------------------------------------------
-plot(Fragmentation_test[[2]]["CAPercent"])
+plot(Fragmentation_test[[2]]["CAPercent"], breaks = "jenks")
 
 ## ----echo=FALSE---------------------------------------------------------------
-plot(Fragmentation_test[[2]]["EdgePercent"])
+plot(Fragmentation_test[[2]]["EdgePercent"], breaks = "jenks")
 
 ## ----echo=FALSE---------------------------------------------------------------
-plot(Fragmentation_test[[2]]["PARA"])
+plot(Fragmentation_test[[2]]["PARA"], breaks = "jenks")
 
 ## ----echo=FALSE---------------------------------------------------------------
-plot(Fragmentation_test[[2]]["ShapeIndex"])
+plot(Fragmentation_test[[2]]["ShapeIndex"], breaks = "jenks")
 
 ## ----echo=FALSE---------------------------------------------------------------
-plot(Fragmentation_test[[2]]["FRAC"])
+plot(Fragmentation_test[[2]]["FRAC"], breaks = "quantile")
 
 ## ----echo=FALSE---------------------------------------------------------------
 library(purrr)
 Fragmentation_test.2 <- map_dfr(seq(100, 1000, 100), function(x){
-  x.1 <- MK_Fragmentation(patches = vegetation_patches, edge_distance = x, plot = FALSE)[[2]]
+  x.1 <- MK_Fragmentation(nodes = habitat_nodes, edge_distance = x, plot = FALSE)[[2]]
   CA <- mean(x.1$CAPercent)
   Edge <- mean(x.1$EdgePercent)
   x.2 <- rbind(data.frame('Edge distance' = x, Type = "Core Area", Percentage = CA),

@@ -1,0 +1,355 @@
+---
+title: "PC and IIC indexes"
+output: rmarkdown::html_document
+vignette: >
+  %\VignetteIndexEntry{Fragmentation statistics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{css, echo=FALSE}
+/* CSS to style chunk headers */
+.chunk-title {
+  background-color: #f0f0f0; /* Background color */
+  border: 1px solid #ccc; /* Border */
+  padding: 8px 10px; /* Padding */
+  margin-top: 20px; /* Top margin */
+  margin-bottom: 10px; /* Bottom margin */
+  font-weight: bold; /* Font weight */
+}
+```
+
+## Example 1: Assessing the overall connectivity and the importance of habitat patches for terrestrial mammals in central Mexico.
+
+In this example, the `MK_dPCIIC()` function was applied to estimate the connectivity of 404 remnant habitat patches, which were modeled to 40 non-volant mammal species of the Trans-Mexican Volcanic System (TMVS) by Correa Ayram et al., (2017). The landscape resistance to dispersal was estimated at a 100-meter resolution using a spatial human footprint index, land use intensity, time of human landscape intervention, biophysical vulnerability, fragmentation, and habitat loss (Correa Ayram et al., 2017). The raster was aggregated by a factor of 5 to change its original resolution from 100m to 500m. To represent different dispersal capacities of multiple species we considered the following median (associated to a probability of 0.5) distance thresholds: 250, 1500, 3000, and 10,000 meters. These four distances group the 40 species according to their dispersal distance requirements
+
+### Load R packages
+
+```{r message=FALSE, warning=FALSE}
+library(Makurhini)
+library(sf)
+library(raster)
+library(ggplot2)
+library(classInt)
+library(ggspatial)
+library(viridis)
+```
+
+### Loading inputs
+
+```{r message=FALSE, warning=FALSE}
+#Habitat nodes
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes)
+
+#Study area
+data("TMVS", package = "Makurhini")
+
+#Resistance
+data("resistance_matrix", package = "Makurhini")
+
+```
+
+```{r message=FALSE, warning=FALSE}
+raster_map <- as(resistance_matrix, "SpatialPixelsDataFrame")
+raster_map <- as.data.frame(raster_map)
+colnames(raster_map) <- c("value", "x", "y")
+ggplot() +  
+  geom_tile(data = raster_map, aes(x = x, y = y, fill = value), alpha = 0.8) + 
+  geom_sf(data = TMVS, aes(color = "Study area"), fill = NA, color = "black") +
+  geom_sf(data = habitat_nodes, aes(color = "Habitat nodes"), fill = "forestgreen") +
+  scale_fill_viridis(option = "B", name = "Resistance")+
+  scale_color_manual(name = "", values = "black")+
+  theme_minimal() +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank())+
+  annotation_scale(
+    location = "bl",
+    bar_cols = c("grey10", "white"),
+    text_family = "ArcherPro Book"
+  ) +
+  annotation_north_arrow(
+    location = "br", which_north = "true",
+    height = unit(1, "cm"),
+    width = unit(1, "cm"),
+    style = north_arrow_orienteering(
+      fill = c("grey10", "white"),
+      line_col = "grey5",
+      text_family = "ArcherPro Book"
+    )
+  )
+```
+
+### Using euclidean distance
+
+One of the most crucial parameters of the Makurhini functions is distance, which is a list of parameters associated with the `distancefile()` function. This function is used to establish the distance between each pair of nodes. The distances between nodes can be classified as either Euclidean distances (also known as straight-line distances) or effective distances (also known as cost distances). In the case of Euclidean distances, two of the most crucial parameters in the list are `type` and `keep`. The type parameter is employed to select one of the distances, namely `"centroid"` (which is faster) or `"edge"`. Meanwhile, `keep` is utilized to streamline the shapes of the polygons representing the nodes. Furthermore, additional simplification of the shape (through vertex removal) can significantly accelerate the processing time, particularly in the case of the `"edge"` type.
+
+In this example we will use centroid distance:
+
+```{r eval=FALSE, message=FALSE, warning=FALSE}
+PC_example_1 <- MK_dPCIIC(nodes = habitat_nodes,
+                        attribute = NULL,
+                        distance = list(type = "centroid"),
+                        parallel = NULL,
+                        metric = "PC",
+                        probability = 0.5,
+                        distance_thresholds = c(250, 1500, 3000, 10000))
+```
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+PC_example_1 <- readRDS("E:/Makurhini/Paper_Makurhini/Ejemplos/PC_example_1.rds")
+```
+
+We obtain a `list` object where each element is a result for each distance threshold.
+
+```{r eval=TRUE, message=FALSE, warning=FALSE}
+class(PC_example_1)
+
+names(PC_example_1)
+
+head(PC_example_1$d10000)
+```
+
+We can use ggplot2 or tmap to map the results:
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+interv <- classIntervals(PC_example_1$d10000$dPC, 9, "jenks")[[2]] #9 intervalos
+ggplot()+
+  geom_sf(data = TMVS)+
+  geom_sf(data = PC_example_1$d10000, aes(fill = cut(dPC, breaks = interv)), color = NA)+
+  scale_fill_brewer(type = "qual",
+                    palette = "RdYlGn",
+                    name = "dPC",
+                    na.translate = FALSE)+
+  theme_minimal() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.1,0.21),
+    legend.key.height = unit(0.2, "cm"),
+    legend.key.width = unit(0.3, "cm"),
+    legend.text = element_text(size = 5.5, family = "Times"),
+    legend.title = element_text(size = 5.5, family = "Times")
+  ) + labs(title="Euclidean distance")
+
+```
+
+### Using least-cost distances between centroids
+
+The landscape resistance to dispersal was estimated at a 100-meter resolution using a spatial human footprint index, land use intensity, time of human landscape intervention, biophysical vulnerability, fragmentation, and habitat loss (Correa Ayram et al., 2017). The raster was aggregated by a factor of 5 to change its original resolution from 100m to 500m.
+
+```{r eval=FALSE, message=FALSE, warning=FALSE}
+PC_example_2 <- MK_dPCIIC(nodes = habitat_nodes,
+                        attribute = NULL,
+                        distance = list(type = "least-cost",
+                                        resistance = resistance_matrix),
+                        parallel = NULL,
+                        metric = "PC",
+                        probability = 0.5,
+                        distance_thresholds = c(250, 1500, 3000, 10000))
+```
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+PC_example_2 <- readRDS("E:/Makurhini/Paper_Makurhini/Ejemplos/PC_example_2.rds")
+```
+
+We obtain a `list` object where each element is a result for each distance threshold.
+
+```{r eval=TRUE, message=FALSE, warning=FALSE}
+class(PC_example_2)
+
+names(PC_example_2)
+
+head(PC_example_2$d10000)
+```
+
+Each element of the list is a vector type object that can be exported using the sf functions and in its vector formats (e.g., shp, gpkg) using the sf package (Pebesma et al., 2024), for example:
+
+```{r eval=FALSE, message=FALSE, warning=FALSE}
+write_sf(PC_example$d10000, “.../dPC_d0000.shp”)
+```
+
+We can use ggplot2 or tmap to map the results:
+
+```{r eval=TRUE, message=FALSE, warning=FALSE}
+#Keep the same range of values of PC_example_1 for comparison, only the highest range changes.
+interv[length(interv)] <- max(PC_example_2$d10000$dPC)
+ggplot()+
+  geom_sf(data = TMVS)+
+  geom_sf(data = PC_example_2$d10000, aes(fill = cut(dPC, breaks = interv)), color = NA)+
+  scale_fill_brewer(type = "qual",
+                    palette = "RdYlGn",
+                    name = "dPC",
+                    na.translate = FALSE)+
+  theme_minimal() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.1, 0.21),
+    legend.key.height = unit(0.2, "cm"),
+    legend.key.width = unit(0.3, "cm"),
+    legend.text = element_text(size = 5.5, family = "Times"),
+    legend.title = element_text(size = 5.5, family = "Times")
+  )+ labs(title="Least-cost distance")
+
+```
+
+In the event that the values of the resistance raster are integers, it is possible to estimate the cost distances between patches by utilizing the Java options that Makurhini integrates with the R package graph4lg (Savary et al., 2023). It is therefore possible to add the options l`east_cost.java` and `cores.java` to the input list within the distance parameter. The first of these activates the Java mode, while the second specifies the number of cores to be used for parallelising the process (the default value is 1):
+
+```{r eval=FALSE, message=FALSE, warning=FALSE}
+PC_example <- MK_dPCIIC(nodes = patches, attribute = NULL, area_unit = "ha",
+                        distance = list(type = "least-cost", 
+                                        resistance = resistance_matrix,
+                                        least_cost.java = TRUE,
+                                        cores.java = 4), 
+                        metric = "PC", overall = TRUE, probability = 0.5, 
+                        distance_thresholds = c(250, 1500, 3000, 10000),
+                        intern = FALSE)
+#155.59 sec elapsed
+```
+
+### Overall connectivity
+
+To obtain the overall connectivity value for the study region we can use the parameter `overall`. At this point it is important to use the parameter `unit_area` to set the area units we will work with, which will be used to interpret the metric EC, also called ECA, the default is `"m2"`. For example, get overall and work with hectares:
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+PC_example_3 <- MK_dPCIIC(nodes = habitat_nodes,
+                        attribute = NULL,
+                        area_unit = "ha",
+                        distance = list(type = "centroid"),
+                        parallel = NULL,
+                        metric = "PC",
+                        probability = 0.5,
+                        distance_thresholds = c(250, 1500, 3000, 10000),
+                        overall = TRUE, intern = FALSE)
+```
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, echo=TRUE}
+PC_example_3 <- MK_dPCIIC(nodes = habitat_nodes,
+                        attribute = NULL,
+                        area_unit = "ha",
+                        distance = list(type = "centroid"),
+                        parallel = NULL,
+                        metric = "PC",
+                        probability = 0.5,
+                        distance_thresholds = c(250, 1500, 3000, 10000),
+                        overall = TRUE)
+
+```
+
+```{r}
+class(PC_example_3)
+class(PC_example_3$d10000$node_importances_d10000)
+class(PC_example_3$d10000$overall_d10000)
+PC_example_3$d10000$overall_d10000
+```
+
+Nodes importance prioritization:
+
+```{r}
+PC_example_3$d10000$node_importances_d10000
+```
+
+Overall:
+
+```{r}
+PC_example_3$d10000$overall_d10000
+```
+
+You can also use the `onlyoverall` parameter to obtain only the global connectivity value without prioritizing the nodes. If the **`LA`** parameter is not included while using `overall` or `onlyoverall` parameter, then the PC or IIC indices **are not obtained**.
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+#Maximum landcape attribute or LA = total area of the estudy area
+Area <- unit_convert( st_area(TMVS), "m2", "ha") #hectares
+PC_example_3 <- MK_dPCIIC(nodes = habitat_nodes,
+                        attribute = NULL,
+                        area_unit = "ha",
+                        distance = list(type = "centroid"),
+                        parallel = NULL,
+                        metric = "PC",
+                        probability = 0.5,
+                        distance_thresholds = c(250, 1500, 3000, 10000),
+                        LA = Area,
+                        onlyoverall = TRUE, intern = FALSE)
+```
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, echo=TRUE}
+#Maximum landcape attribute or LA = total area of the estudy area
+Area <- unit_convert( st_area(TMVS), "m2", "ha") #hectares
+PC_example_3 <- MK_dPCIIC(nodes = habitat_nodes,
+                        attribute = NULL,
+                        area_unit = "ha",
+                        distance = list(type = "centroid"),
+                        parallel = NULL,
+                        metric = "PC",
+                        probability = 0.5,
+                        distance_thresholds = c(250, 1500, 3000, 10000),
+                        LA = Area,
+                        onlyoverall = TRUE)
+```
+
+```{r eval=TRUE}
+class(PC_example_3)
+class(PC_example_3$d10000)
+PC_example_3$d10000
+```
+
+### IIC index
+
+To estimate the IIC index we only need to specify it in the `metric` parameter, as it is a binary index it is not necessary to specify the connection probability.
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+IIC_example_4 <- MK_dPCIIC(nodes = habitat_nodes,
+                        attribute = NULL,
+                        area_unit = "ha",
+                        distance = list(type = "centroid"),
+                        parallel = NULL,
+                        metric = "IIC",
+                        probability = NULL,
+                        distance_thresholds = c(250, 1500, 3000, 10000),
+                        LA = Area,
+                        overall = TRUE, intern = FALSE)
+```
+
+```{r eval=FALSE}
+IIC_example_4 <- MK_dPCIIC(nodes = habitat_nodes,
+                        attribute = NULL,
+                        area_unit = "ha",
+                        distance = list(type = "centroid"),
+                        parallel = NULL,
+                        metric = "IIC",
+                        probability = NULL,
+                        distance_thresholds = c(250, 1500, 3000, 10000),
+                        LA = Area,
+                        overall = TRUE)
+```
+
+```{r eval=TRUE}
+class(IIC_example_4)
+class(IIC_example_4$d10000$node_importances_d10000)
+class(IIC_example_4$d10000$overall_d10000)
+```
+
+Nodes importance prioritization:
+
+```{r}
+IIC_example_4$d10000$node_importances_d10000
+```
+
+Overall:
+
+```{r}
+IIC_example_4$d10000$overall_d10000
+```
+
+## References
+
+-   Correa Ayram, C. A., Mendoza, M. E., Etter, A., & Pérez Salicrup, D. R. (2017). Anthropogenic impact on habitat connectivity: A multidimensional human footprint index evaluated in a highly biodiverse landscape of Mexico. Ecological Indicators, 72, 895-909. <https://doi.org/10.1016/j.ecolind.2016.09.007>
+
+-   Pascual-Hortal, L. & Saura, S. 2006. Comparison and development of new graph-based landscape connectivity indices: towards the priorization of habitat patches and corridors for conservation. Landscape Ecology 21 (7): 959-967.
+
+-   Saura, S. & Pascual-Hortal, L. 2007. A new habitat availability index to integrate connectivity in landscape conservation planning: comparison with existing indices and application to a case study. Landscape and Urban Planning 83 (2-3): 91-103.
+
+-   Savary, P., Vuidel, G., Rudolph, T., & Daniel, A. (2023). graph4lg: Build Graphs for Landscape Genetics Analysis (1.8.0) [Software]. <https://cran.r-project.org/web/packages/graph4lg/index.html>

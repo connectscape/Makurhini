@@ -1,0 +1,237 @@
+---
+title: "ProtConn"
+output: rmarkdown::html_document
+vignette: >
+  %\VignetteIndexEntry{Fragmentation statistics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{css, echo=FALSE}
+/* CSS to style chunk headers */
+.chunk-title {
+  background-color: #f0f0f0; /* Background color */
+  border: 1px solid #ccc; /* Border */
+  padding: 8px 10px; /* Padding */
+  margin-top: 20px; /* Top margin */
+  margin-bottom: 10px; /* Bottom margin */
+  font-weight: bold; /* Font weight */
+}
+```
+
+## Example 2: Connectivity of protected areas in Colombia
+
+In this example, we assess the connectivity of Colombia's protected areas network in 33 ecoregions of great importance to the country using the Protected Connected Indicator (ProtConn). Particularly, we have 1,530 polygons of protected areas. The spatial information utilized in this example is derived from the connectivity assessment study of protected areas in the Andean Amazon region, as conducted by Castillo et al., (2020). In order to estimate the ProtConn index, we employ the `MK_ProtConn()` and `MK_ProtConn_mult()` functions. In this example, we will utilize an organism median dispersal distance threshold of 10 km, a connection probability pij = 0.5, and a transboundary PA search radius of 50 km (for further details, please refer to Castillo et al., 2020; Saura et al., 2017). We used Euclidean distances, particularly the distances between edges to establish the connections between nodes (PAs).
+
+### Load R packages
+
+```{r message=FALSE, warning=FALSE}
+library(Makurhini)
+library(sf)
+library(ggplot2)
+library(classInt)
+library(ggspatial)
+library(rmapshaper)
+```
+
+### Loading inputs
+
+```{r message=FALSE, warning=FALSE}
+#Protected areas
+data("Protected_areas", package = "Makurhini")
+nrow(Protected_areas)
+
+#Ecoregions
+data("Ecoregions", package = "Makurhini")
+nrow(Ecoregions)
+#For practicality we will use the first three columns.
+Ecoregions <- Ecoregions[,1:3]
+
+```
+
+Plot:
+
+```{r warning=FALSE, message=FALSE}
+mask_ecoregions <- ms_dissolve(Ecoregions)
+PAs_national <- ms_clip(Protected_areas, mask_ecoregions)
+PAs_transnational <- ms_erase(Protected_areas, mask_ecoregions)
+PAs_transnational$Type <- "PAs in neighboring countries"
+PAs_subnational <- PAs_national[PAs_national$ESCALA_2 == "Subnacional",]
+PAs_subnational$Type <- "Subnational PAs"
+PAs_national <- PAs_national[PAs_national$ESCALA_2 == "Nacional",]
+PAs_national$Type <- "National PAs"
+PAs <- rbind(PAs_national, PAs_subnational, PAs_transnational)
+PAs$Type <- factor(PAs$Type, levels = c("National PAs", "Subnational PAs", "PAs in neighboring countries"))
+
+ggplot() +
+  geom_sf(data = Ecoregions, aes(fill = "Ecoregions"), color = "black") +
+  geom_sf(data = PAs, aes(fill=Type), color = NA) +
+  scale_fill_manual(name = "Type", values = c("#1DAB80", "#FF00C5", "#E06936", "#8D8BBE"))+
+  theme_minimal() +
+  annotation_scale(
+    location = "bl",
+    bar_cols = c("grey10", "white"),
+    text_family = "ArcherPro Book"
+  ) +
+  annotation_north_arrow(
+    location = "br", which_north = "true",
+    height = unit(1, "cm"),
+    width = unit(1, "cm"),
+    style = north_arrow_orienteering(
+      fill = c("grey10", "white"),
+      line_col = "grey5",
+      text_family = "ArcherPro Book"
+    )
+  )
+```
+
+### MK_ProtConn()
+
+This function calculates the Protected Connected indicator (ProtConn) for a region, its fractions and the importance (contribution) of each protected area to maintain connectivity in the region under one or more distance thresholds. In this example, we use the edge Euclidean distance, a more accurate Euclidean method, but it is also more demanding in terms of RAM consumption and processing time, as it considers all the vertices of the polygons in its estimation. One way to speed up the process of estimating the distances between nodes is to use the "keep" option of the "distance" parameter, which is used to simplify the polygons by reducing the number of vertices. The value can range from 0 to 1 and represents the proportion of points to be retained. A higher value results in increased speed but decreased precision
+
+```{r echo=FALSE}
+ProtConn_1 <- readRDS("E:/Makurhini/Paper_Makurhini/Ejemplos/ProtConn_1.rds")
+```
+
+```{r eval= FALSE, message=FALSE, warning=FALSE}
+#Select first ecoregion
+Ecoregion_1 <- Ecoregions[1,]
+
+#keep = 0.6 simplify the geometry and reduce the number of vertices
+ProtConn_1 <- MK_ProtConn(nodes = Protected_areas, region = Ecoregion_1, 
+                          area_unit = "ha", 
+                          distance = list(type= "edge", keep = 0.6),
+                          distance_thresholds = 10000, probability = 0.5,
+                          transboundary = 50000, plot = TRUE, intern = FALSE)
+
+```
+
+A dynamic table is generated, displaying the ProtConn values and their fractions. Additionally, a graph is produced, illustrating the ProtConn values and comparing them with the percentage of protected and connected area recommended for a region in the Aichi and Kumming-Montreal targets.
+
+```{r}
+class(ProtConn_1)
+names(ProtConn_1)
+```
+
+```{r eval= TRUE, message=FALSE, warning=FALSE}
+ProtConn_1$`Protected Connected (Viewer Panel)`
+```
+
+
+```{r eval= TRUE, message=FALSE, warning=FALSE}
+ProtConn_1$`ProtConn Plot`
+```
+
+
+```{r echo=FALSE}
+ProtConn_1 <- readRDS("E:/Makurhini/Paper_Makurhini/Ejemplos/ProtConn_1a.rds")
+```
+
+We can obtain the ProtConn value for each ecoregion using a loop such as `lapply, for, map,` etc. In this example we will use the `lapply` function.
+
+```{r eval=FALSE, message=FALSE, warning=FALSE}
+ProtConn_1 <- lapply(1:nrow(Ecoregions), function(x){
+  				x.1 <- MK_ProtConn(nodes = Protected_areas, 
+  				                   region = Ecoregions[x,],
+                  area_unit = "ha",
+            			distance = list(type= "edge"),
+            			distance_thresholds = 10000,
+            			probability = 0.5, transboundary = 50000,
+            			LA = NULL, plot = TRUE, intern = FALSE)
+return(x.1) })
+class(ProtConn_1)
+```
+
+Each element of the list will result in the creation of an object of type "formattable" and "data.frame" This object will behaves in a manner similar to a normal data.frame, but canit will be visualized in a sensible and attractive format within the user's RStudio viewer. In order to visualize the results of any of our ecoregions, it is necessary to access the list elements. If the intention is to save the results in the shapefile format, it is possible to use the sapply() function.
+
+```{r eval=FALSE, message=FALSE, warning=FALSE}
+Ecoregions$Protconn <- sapply(x.1, function(x){
+    	      	   x.1 <- as.data.frame(x)
+    	      	   x.1 <- x.1[3, 4] #Extract ProtConn value
+    	      	   return(x.1)})
+head(Ecoregions)
+```
+
+It can be exported using the sf functions and in its vector formats (e.g., shp, gpkg) using the sf package (Pebesma et al., 2024), for example:
+
+```{r eval=FALSE}
+write_sf(Ecoregions, "./Protconn.gpkg") 
+
+```
+
+### MK_ProtConnMult()
+
+In order to facilitate the estimation of the ProtConn index for a variety of geographical regions, the MK_ProtConnMult function has been incorporated into Makurhini, which enables the estimation of the ProtConn indicator and fractions for different regions.
+
+```{r eval=FALSE}
+ProtConn_2 <- MK_ProtConnMult(nodes = Protected_areas, 
+                              region = Ecoregions,
+                              area_unit = "ha",
+                              distance = list(type= "edge"),
+                              distance_thresholds = 10000,
+                              probability = 0.5, transboundary = 50000,
+                              plot = TRUE, parallel = 4)
+```
+
+```{r echo=FALSE}
+ProtConn_2 <- readRDS("E:/Makurhini/Paper_Makurhini/Ejemplos/ProtConn_1b.rds")
+```
+
+A dynamic table and vector (sf class) are generated, displaying the ProtConn values and their fractions. Additionally, a graph is produced, illustrating the ProtConn values and comparing them with the percentage of protected and connected area recommended for a region in the Aichi and Kumming-Montreal targets.
+
+```{r}
+class(ProtConn_2)
+names(ProtConn_2)
+```
+
+Table:
+
+```{r eval=TRUE}
+ProtConn_2$ProtConn_10000$ProtConn_overall10000
+```
+
+
+Plot showing the mean and standard deviation values:
+
+```{r eval=TRUE} 
+ProtConn_2$ProtConn_10000$`ProtConn Plot`
+```
+
+Vector file of class sf:
+
+```{r}
+head(ProtConn_2$ProtConn_10000$ProtConn_10000)
+```
+
+Visualize using ggplot2:
+
+```{r message=FALSE, warning=FALSE}
+interv <- classIntervals(ProtConn_2$ProtConn_10000$ProtConn_10000$ProtConn, 9, "jenks")[[2]]
+
+ggplot()+
+  geom_sf(data = Ecoregions)+
+  geom_sf(data = ProtConn_2$ProtConn_10000$ProtConn_10000, 
+          aes(fill = cut(ProtConn, breaks = interv)), color = NA)+
+  scale_fill_brewer(type = "qual",
+                    palette = "RdYlGn",
+                    name = "ProtConn",
+                    na.translate = FALSE)+
+  theme_minimal() +
+  theme(
+    legend.position.inside = c(0.1,0.21),
+    legend.key.height = unit(0.4, "cm"),
+    legend.key.width = unit(0.5, "cm"),
+    legend.text = element_text(size = 6, family = "Times"),
+    legend.title = element_text(size = 6, family = "Times")
+  )
+```
+
+## References
+
+-   Castillo, L. S., Correa Ayram, C. A., Matallana Tobón, C. L., Corzo, G., Areiza, A., González-M., R., Serrano, F., Chalán Briceño, L., Sánchez Puertas, F., More, A., Franco, O., Bloomfield, H., Aguilera Orrury, V. L., Rivadeneira Canedo, C., Morón-Zambrano, V., Yerena, E., Papadakis, J., Cárdenas, J. J., Golden Kroner, R. E., & Godínez-Gómez, O. (2020). Connectivity of Protected Areas: Effect of Human Pressure and Subnational Contributions in the Ecoregions of Tropical Andean Countries. *Land*, *9*(8), Article 8. https://doi.org/10.3390/land9080239
+
+-   Saura, S., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2017). Protected areas in the world’s ecoregions: How well connected are they? *Ecological Indicators*, *76*, 144-158. https://doi.org/10.1016/j.ecolind.2016.12.047

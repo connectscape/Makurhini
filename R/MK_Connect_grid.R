@@ -34,7 +34,8 @@
 #' \dontrun{
 #' library(Makurhini)
 #' library(sf)
-#' data("Protected_areas", package = "Makurhini")
+#' load(system.file("extdata", "Protected_areas.rda",
+#'                 package = "Makurhini", mustWork = TRUE))
 #' data("Ecoregions", package = "Makurhini")
 #' ecoregion <- Ecoregions[1,]
 #' plot(st_geometry(ecoregion), col = "#7E6A9F")

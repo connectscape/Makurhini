@@ -59,8 +59,10 @@ if nodes has a list with two time patches then you can use two resistances one f
 \value{
 List with sf objects corresponding to the hexagons and each transition between scenarios or node times, each of the following fields:\cr\cr
 -  Time: name of the time periods, name of the model or scenario (are taken from the name of the elements of the list of nodes or the plot argument)\cr
--  ECAi: Equivalent Connected Area or Equivalent Connectivity for time i (first time/scenery in the comparison)\cr
--  ECAj: Equivalent Connected Area or Equivalent Connectivity for time j (second time/scenery in the comparison)\cr
+-  ECA.i: Equivalent Connected Area or Equivalent Connectivity for time i (first time/scenery in the comparison)\cr
+-  ECA.j: Equivalent Connected Area or Equivalent Connectivity for time j (second time/scenery in the comparison)\cr
+-  ECA.i: Normalized_ECA (% of LA) or relative connectivity for time i\cr
+-  ECA.j: Normalized_ECA (% of LA) or relative connectivity for time j\cr
 -  dA: delta Area between times (percentage)\cr
 -  dECA: delta ECA between times (percentage)\cr
 -  rECA: relativized ECA (dECA/dA). According to Liang et al. (2021) "an rECA value greater than 1 indicates that habitat changes result in a

@@ -40,7 +40,8 @@
 #' #For this example, we select the first three columns and the first 10 of the ecoregions
 #' Ecoregions <- Ecoregions[1:15,1:3]
 #' plot(st_geometry(Ecoregions), col = "#7E6A9F")
-#' data("Protected_areas", package = "Makurhini")
+#' load(system.file("extdata", "Protected_areas.rda",
+#'                 package = "Makurhini", mustWork = TRUE))
 #' #plot(st_geometry(Protected_areas), col="green", add = TRUE) #It may take time to plot all PAs.
 #'
 #' test <- MK_ProtConnMult(nodes = Protected_areas,

@@ -39,9 +39,10 @@
 #' data("habitat_nodes", package = "Makurhini")
 #' nrow(habitat_nodes) #Number of nodes
 #'
-#' #Two distance thresholds
+#' #Two distance thresholds.
+#' #You need to place your path to the conefor .exe
 #' BCIIC <- MK_BCentrality(nodes = habitat_nodes, id = "Id",
-#'             coneforpath = "C:/Users/coneforWin64.exe",#You need to place your path to the conefor .exe
+#'             coneforpath = "C:/Users/coneforWin64.exe",
 #'             distance = list(type = "centroid"),
 #'             metric = "BCIIC", LA = NULL,
 #'             distance_thresholds = c(10000, 30000)) #10 and 30 km
@@ -50,7 +51,7 @@
 #' data("habitat_nodes_raster", package = "Makurhini")
 #' ##Using parallel
 #' BCPC_parallel <- MK_BCentrality(nodes = habitat_nodes_raster,
-#'                     coneforpath = "C:/Users//coneforWin64.exe",#You need to place your path to the conefor .exe
+#'                     coneforpath = "C:/Users//coneforWin64.exe",
 #'                     id = "id", attribute = NULL,
 #'                     distance = list(type = "centroid"),
 #'                     metric = "BCPC", LA = NULL, probability = 0.5,

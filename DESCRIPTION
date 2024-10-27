@@ -20,6 +20,11 @@ Authors@R: c(person(given = "Oscar",
               family = "Goicolea",
               role = c("ctb"), 
               comment = c(ORCID = "0000-0002-4069-6001")
+              ),
+              person(given = "Santiago",
+              family = "Saura",
+              role = c("ctb"), 
+              comment = c(ORCID = "0000-0002-5239-0763")
               )
               )
 Maintainer: Oscar Godínez-Gómez <osctapir@gmail.com>

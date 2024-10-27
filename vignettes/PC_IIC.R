@@ -6,9 +6,6 @@ library(Makurhini)
 library(sf)
 library(raster)
 library(ggplot2)
-library(classInt)
-library(ggspatial)
-library(viridis)
 
 ## ----message=FALSE, warning=FALSE---------------------------------------------
 #Habitat nodes
@@ -30,26 +27,13 @@ ggplot() +
   geom_tile(data = raster_map, aes(x = x, y = y, fill = value), alpha = 0.8) + 
   geom_sf(data = TMVS, aes(color = "Study area"), fill = NA, color = "black") +
   geom_sf(data = habitat_nodes, aes(color = "Habitat nodes"), fill = "forestgreen") +
-  scale_fill_viridis(option = "B", name = "Resistance")+
+  scale_fill_gradientn(colors = c("#000004FF", "#1B0C42FF", "#4B0C6BFF", "#781C6DFF",
+                                  "#A52C60FF", "#CF4446FF", "#ED6925FF", "#FB9A06FF",
+                                  "#F7D03CFF", "#FCFFA4FF"))+
   scale_color_manual(name = "", values = "black")+
   theme_minimal() +
   theme(axis.title.x = element_blank(),
-        axis.title.y = element_blank())+
-  annotation_scale(
-    location = "bl",
-    bar_cols = c("grey10", "white"),
-    text_family = "ArcherPro Book"
-  ) +
-  annotation_north_arrow(
-    location = "br", which_north = "true",
-    height = unit(1, "cm"),
-    width = unit(1, "cm"),
-    style = north_arrow_orienteering(
-      fill = c("grey10", "white"),
-      line_col = "grey5",
-      text_family = "ArcherPro Book"
-    )
-  )
+        axis.title.y = element_blank())
 
 ## ----eval=FALSE, message=FALSE, warning=FALSE---------------------------------
 #  PC_example_1 <- MK_dPCIIC(nodes = habitat_nodes,
@@ -61,7 +45,7 @@ ggplot() +
 #                          distance_thresholds = c(250, 1500, 3000, 10000))
 
 ## ----eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE----------------------
-PC_example_1 <- readRDS("E:/Makurhini/Paper_Makurhini/Ejemplos/PC_example_1.rds")
+PC_example_1 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/PC_example_1.rds")
 
 ## ----eval=TRUE, message=FALSE, warning=FALSE----------------------------------
 class(PC_example_1)
@@ -70,8 +54,15 @@ names(PC_example_1)
 
 head(PC_example_1$d10000)
 
-## ----eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE----------------------
-interv <- classIntervals(PC_example_1$d10000$dPC, 9, "jenks")[[2]] #9 intervalos
+## ----eval=TRUE, message=FALSE, warning=FALSE, echo= FALSE---------------------
+interv <- c(0.0000021, 0.0596058, 0.1612625, 0.2943665, 0.4937340, 0.8902072, 1.1303198, 1.7556675, 3.4064392, 80.7958156)
+
+## ----eval=FALSE, message=FALSE, warning=FALSE, echo=TRUE----------------------
+#  #We can use some package to get intervals for example classInt R Packge:
+#  library(classInt)
+#  interv <- classIntervals(PC_example_1$d10000$dPC, 9, "jenks")[[2]] #9 intervalos
+
+## ----eval=TRUE, message=FALSE, warning=FALSE, echo=TRUE-----------------------
 ggplot()+
   geom_sf(data = TMVS)+
   geom_sf(data = PC_example_1$d10000, aes(fill = cut(dPC, breaks = interv)), color = NA)+
@@ -85,8 +76,8 @@ ggplot()+
     legend.position.inside = c(0.1,0.21),
     legend.key.height = unit(0.2, "cm"),
     legend.key.width = unit(0.3, "cm"),
-    legend.text = element_text(size = 5.5, family = "Times"),
-    legend.title = element_text(size = 5.5, family = "Times")
+    legend.text = element_text(size = 5.5),
+    legend.title = element_text(size = 5.5)
   ) + labs(title="Euclidean distance")
 
 
@@ -101,7 +92,7 @@ ggplot()+
 #                          distance_thresholds = c(250, 1500, 3000, 10000))
 
 ## ----eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE----------------------
-PC_example_2 <- readRDS("E:/Makurhini/Paper_Makurhini/Ejemplos/PC_example_2.rds")
+PC_example_2 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/PC_example_2.rds")
 
 ## ----eval=TRUE, message=FALSE, warning=FALSE----------------------------------
 class(PC_example_2)
@@ -113,7 +104,7 @@ head(PC_example_2$d10000)
 ## ----eval=FALSE, message=FALSE, warning=FALSE---------------------------------
 #  write_sf(PC_example$d10000, “.../dPC_d0000.shp”)
 
-## ----eval=TRUE, message=FALSE, warning=FALSE----------------------------------
+## ----eval=TRUE, message=FALSE, warning=FALSE, echo = TRUE---------------------
 #Keep the same range of values of PC_example_1 for comparison, only the highest range changes.
 interv[length(interv)] <- max(PC_example_2$d10000$dPC)
 ggplot()+
@@ -129,8 +120,8 @@ ggplot()+
     legend.position.inside = c(0.1, 0.21),
     legend.key.height = unit(0.2, "cm"),
     legend.key.width = unit(0.3, "cm"),
-    legend.text = element_text(size = 5.5, family = "Times"),
-    legend.title = element_text(size = 5.5, family = "Times")
+    legend.text = element_text(size = 5.5),
+    legend.title = element_text(size = 5.5)
   )+ labs(title="Least-cost distance")
 
 

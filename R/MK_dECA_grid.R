@@ -24,8 +24,10 @@
 #' @param intern \code{logical}. Show the progress of the process, default = TRUE. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @return List with sf objects corresponding to the hexagons and each transition between scenarios or node times, each of the following fields:\cr\cr
 #' -  Time: name of the time periods, name of the model or scenario (are taken from the name of the elements of the list of nodes or the plot argument)\cr
-#' -  ECAi: Equivalent Connected Area or Equivalent Connectivity for time i (first time/scenery in the comparison)\cr
-#' -  ECAj: Equivalent Connected Area or Equivalent Connectivity for time j (second time/scenery in the comparison)\cr
+#' -  ECA.i: Equivalent Connected Area or Equivalent Connectivity for time i (first time/scenery in the comparison)\cr
+#' -  ECA.j: Equivalent Connected Area or Equivalent Connectivity for time j (second time/scenery in the comparison)\cr
+#' -  ECA.i: Normalized_ECA (% of LA) or relative connectivity for time i\cr
+#' -  ECA.j: Normalized_ECA (% of LA) or relative connectivity for time j\cr
 #' -  dA: delta Area between times (percentage)\cr
 #' -  dECA: delta ECA between times (percentage)\cr
 #' -  rECA: relativized ECA (dECA/dA). According to Liang et al. (2021) "an rECA value greater than 1 indicates that habitat changes result in a
@@ -171,8 +173,10 @@ MK_dECA_grid <- function(nodes,
     result_1 <- future_map_dfr(1:nrow(base_grid@grid), function(x){
       x.1 <- base_grid@grid[x,]
       dECA.1 <- data.frame("Time" = paste0(nodes_names[1:(length(nodes)-1)], ".", nodes_names[2:length(nodes)]),
-                           "ECAi" = 0,
-                           "ECAj" = 0,
+                           "ECA.i" = 0,
+                           "ECA.j" = 0,
+                           "ECAnorm.i" = 0,
+                           "ECAnorm.j" = 0,
                            "dA" = 0,
                            "dECA" = 0,
                            "rECA" = 0,
@@ -207,7 +211,6 @@ MK_dECA_grid <- function(nodes,
       } else {
         distance2 <- distance
       }
-
       dECA.2 <- map_dfr(1:(length(nodes.1)-1), function(i){
         i.1 <- dECA.1[i,]; i.1$t <- i.1$Time; i.1 <- i.1[,2:ncol(i.1)]
 
@@ -233,8 +236,8 @@ MK_dECA_grid <- function(nodes,
             } else {
               ECAi <- sum(unit_convert(st_area(nodes.1[[i]]), "m2", area_unit))
             }
-            i.1[,1] <- ECAi; i.1[,3:4] <- -100
-            i.1[,5] <- 1; i.1[,6] <- dECAfun(-100, -100); i.1[,7] <- dECAfun2(-100, -100)
+            i.1[,1] <- ECAi; i.1[,5:6] <- -100; i.1[,3] <- (i.1[,1]*100)/LA
+            i.1[,7] <- 1; i.1[,8] <- dECAfun(-100, -100); i.1[,9] <- dECAfun2(-100, -100)
           } else {  #shp-shp
             dECA.2 <- tryCatch(MK_dECA(nodes = nodes.1[i:(i+1)],
                                        attribute = attribute,
@@ -246,15 +249,16 @@ MK_dECA_grid <- function(nodes,
                                        LA = LA,
                                        plot = FALSE, parallel = NULL,
                                        write = NULL, intern = FALSE), error = function(err)err)
-            i.1[,3:7] <- dECA.2[2,8:12]; i.1[1:2] <- dECA.2[[5]]
+            i.1[,5:9] <- dECA.2[2,8:12]; i.1[1:2] <- dECA.2[[5]]
+            i.1[1:2] <- dECA.2[[5]]; i.1[3:4] <- dECA.2[[6]]
           }
 
         } else {
           if(is.character(nodes.1[[i+1]])){
-            i.1[,1:5] <- NA
+            i.1[,1:7] <- NA
           } else {
-            i.1[,2] <- LA
-            i.1[,3:4] <- 100; i.1[,5] <- 1; i.1[,6] <- dECAfun(100, 100); i.1[,7] <- dECAfun2(100, 100)
+            i.1[,2] <- LA; i.1[,4] <- 100
+            i.1[,5:6] <- 100; i.1[,7] <- 1; i.1[,8] <- dECAfun(100, 100); i.1[,9] <- dECAfun2(100, 100)
           }
         }
         names(i.1)[ncol(i.1)] <- "Time"; i.1 <- i.1[,c(ncol(i.1), 1:(ncol(i.1)-1))]
@@ -273,8 +277,10 @@ MK_dECA_grid <- function(nodes,
     result_1 <- map_dfr(1:nrow(base_grid@grid), function(x){
       x.1 <- base_grid@grid[x,]
       dECA.1 <- data.frame("Time" = paste0(nodes_names[1:(length(nodes)-1)], ".", nodes_names[2:length(nodes)]),
-                           "ECAi" = 0,
-                           "ECAj" = 0,
+                           "ECA.i" = 0,
+                           "ECA.j" = 0,
+                           "ECAnorm.i" = 0,
+                           "ECAnorm.j" = 0,
                            "dA" = 0,
                            "dECA" = 0,
                            "rECA" = 0,
@@ -309,7 +315,6 @@ MK_dECA_grid <- function(nodes,
       } else {
         distance2 <- distance
       }
-
       dECA.2 <- map_dfr(1:(length(nodes.1)-1), function(i){
         i.1 <- dECA.1[i,]; i.1$t <- i.1$Time; i.1 <- i.1[,2:ncol(i.1)]
 
@@ -335,8 +340,8 @@ MK_dECA_grid <- function(nodes,
             } else {
               ECAi <- sum(unit_convert(st_area(nodes.1[[i]]), "m2", area_unit))
             }
-            i.1[,1] <- ECAi; i.1[,3:4] <- -100
-            i.1[,5] <- 1; i.1[,6] <- dECAfun(-100, -100); i.1[,7] <- dECAfun2(-100, -100)
+            i.1[,1] <- ECAi; i.1[,5:6] <- -100; i.1[,3] <- (i.1[,1]*100)/LA
+            i.1[,7] <- 1; i.1[,8] <- dECAfun(-100, -100); i.1[,9] <- dECAfun2(-100, -100)
           } else {  #shp-shp
             dECA.2 <- tryCatch(MK_dECA(nodes = nodes.1[i:(i+1)],
                                        attribute = attribute,
@@ -348,15 +353,16 @@ MK_dECA_grid <- function(nodes,
                                        LA = LA,
                                        plot = FALSE, parallel = NULL,
                                        write = NULL, intern = FALSE), error = function(err)err)
-            i.1[,3:7] <- dECA.2[2,8:12]; i.1[1:2] <- dECA.2[[5]]
+            i.1[,5:9] <- dECA.2[2,8:12]; i.1[1:2] <- dECA.2[[5]]
+            i.1[1:2] <- dECA.2[[5]]; i.1[3:4] <- dECA.2[[6]]
           }
 
         } else {
           if(is.character(nodes.1[[i+1]])){
-            i.1[,1:5] <- NA
+            i.1[,1:7] <- NA
           } else {
-            i.1[,2] <- LA
-            i.1[,3:4] <- 100; i.1[,5] <- 1; i.1[,6] <- dECAfun(100, 100); i.1[,7] <- dECAfun2(100, 100)
+            i.1[,2] <- LA; i.1[,4] <- 100
+            i.1[,5:6] <- 100; i.1[,7] <- 1; i.1[,8] <- dECAfun(100, 100); i.1[,9] <- dECAfun2(100, 100)
           }
         }
         names(i.1)[ncol(i.1)] <- "Time"; i.1 <- i.1[,c(ncol(i.1), 1:(ncol(i.1)-1))]

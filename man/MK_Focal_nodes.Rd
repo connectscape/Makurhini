@@ -73,16 +73,16 @@ A \code{numeric} specifying the number of cores to parallelize the index estimat
 \item{intern}{\code{logical}. Show the progress of the process, \code{default = TRUE}. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.}
 }
 \description{
-This function enables the calculation of the focal Integral Index of Connectivity (IIC\out{<sub>f</sub>}) or the focal Probability of Connectivity (PC\out{<sub>f</sub>}) under one or more distance thresholds. Furthermore, this function estimates the composite connectivity index (CCI\out{<sub>f</sub>}; for further details, please see Latorre-Cárdenas et al., 2023).
+This function enables the calculation of the focal Integral Index of Connectivity (\eqn{\mathbf{IIC}_f}) or the focal Probability of Connectivity (\eqn{\mathbf{PC}_f}) under one or more distance thresholds. Furthermore, this function estimates the composite connectivity index (\eqn{\mathbf{CCI}_f}; for further details, please see Latorre-Cárdenas et al., 2023).
 }
 \details{
 A loop is executed, whereby each of the nodes is selected. In each iteration, the following occurs:\cr
 1-	When node \code{i} is selected, it becomes a \bold{focal node} (\code{f}).\cr
 2-	Then, a buffer is generated with the distance specified in parameter \code{search_buffer}, for example the for example twice the dispersion distance specified in the parameter \code{ distance_thresholds}. This buffer is called \bold{local landscape} and is used to identify neighboring nodes, called \bold{transboundary nodes} (\code{th}).\cr
-3-	Next, the index IIC or PC is estimated according to the selected metric using the focal node and the transboundary nodes. This result is referred to as \bold{IIC\out{<sub>f</sub>}} or\bold{ PC\out{<sub>f</sub>}}. The index value ranges from 0 to 1, with 1 representing the highest connectivity in the local landscape for the focal node.\cr
-4-	Subsequently, the delta \bold{dIIC or dPC} is estimated for the focal node, along with its \code{intra-, flux, and connector} deltas.\cr
-5-	The function calculates the \bold{Composite Connectivity Index} (\code{CCI\out{<sub>f</sub>}}) as a prioritization tool for focal nodes. This is based on their individual contribution, weighted by the connectivity in the local landscape:
-\eqn{CCI_{f} = IIC_{f} \cdot dIIC_{f}} or \eqn{CCI_{f} = PC_{f} \cdot dPC_{f}}. Nodes with higher \code{CCI\out{<sub>f</sub>}} values are found in well-connected local landscapes, making them valuable contributors to connectivity in their immediate landscapes. This makes them ideal candidates for conservation efforts. Conversely, lower \code{CCI\out{<sub>f</sub>}} values may indicate the need for restoration and conservation actions.
+3-	Next, the index IIC or PC is estimated according to the selected metric using the focal node and the transboundary nodes. This result is referred to as \eqn{\mathbf{IIC}_f} or \eqn{\mathbf{PC}_f}. The index value ranges from 0 to 1, with 1 representing the highest connectivity in the local landscape for the focal node.\cr
+4-	Subsequently, the delta \bold{dIIC or dPC} is estimated for the focal node, along with its \code{intra, flux, and connector} deltas.\cr
+5-	The function calculates the \bold{Composite Connectivity Index} (\eqn{\mathbf{CCI}_f}) as a prioritization tool for focal nodes. This is based on their individual contribution, weighted by the connectivity in the local landscape:
+\eqn{\mathbf{CCI}_f = \mathbf{IIC}_f \cdot \mathbf{dIIC}_f} or \eqn{\mathbf{CCI}_f = \mathbf{PC}_f \cdot \mathbf{dPC}_f}. Nodes,  with higher \eqn{\mathbf{CCI}_f} values are found in well-connected local landscapes, making them valuable contributors to connectivity in their immediate landscapes. This makes them ideal candidates for conservation efforts. Conversely, lower \eqn{\mathbf{CCI}_f} values may indicate the need for restoration and conservation actions.
 6- In the final step, if the parameter \code{fragmentation} is set to \code{TRUE}, fragmentation statistics are estimated for the local landscape.\cr\cr
 This process is repeated for each node and stored in an object class sf. For further details, please see Latorre-Cárdenas et al., 2023
 }

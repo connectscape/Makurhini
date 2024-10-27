@@ -5,13 +5,12 @@ knitr::opts_chunk$set(echo = TRUE)
 library(Makurhini)
 library(sf)
 library(ggplot2)
-library(classInt)
-library(ggspatial)
 library(rmapshaper)
 
 ## ----message=FALSE, warning=FALSE---------------------------------------------
 #Protected areas
-data("Protected_areas", package = "Makurhini")
+load(system.file("extdata", "Protected_areas.rda",
+                 package = "Makurhini", mustWork = TRUE))
 nrow(Protected_areas)
 
 #Ecoregions
@@ -37,25 +36,10 @@ ggplot() +
   geom_sf(data = Ecoregions, aes(fill = "Ecoregions"), color = "black") +
   geom_sf(data = PAs, aes(fill=Type), color = NA) +
   scale_fill_manual(name = "Type", values = c("#1DAB80", "#FF00C5", "#E06936", "#8D8BBE"))+
-  theme_minimal() +
-  annotation_scale(
-    location = "bl",
-    bar_cols = c("grey10", "white"),
-    text_family = "ArcherPro Book"
-  ) +
-  annotation_north_arrow(
-    location = "br", which_north = "true",
-    height = unit(1, "cm"),
-    width = unit(1, "cm"),
-    style = north_arrow_orienteering(
-      fill = c("grey10", "white"),
-      line_col = "grey5",
-      text_family = "ArcherPro Book"
-    )
-  )
+  theme_minimal() 
 
 ## ----echo=FALSE---------------------------------------------------------------
-ProtConn_1 <- readRDS("E:/Makurhini/Paper_Makurhini/Ejemplos/ProtConn_1.rds")
+ProtConn_1 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/ProtConn_1.rds")
 
 ## ----eval= FALSE, message=FALSE, warning=FALSE--------------------------------
 #  #Select first ecoregion
@@ -80,7 +64,7 @@ ProtConn_1$`Protected Connected (Viewer Panel)`
 ProtConn_1$`ProtConn Plot`
 
 ## ----echo=FALSE---------------------------------------------------------------
-ProtConn_1 <- readRDS("E:/Makurhini/Paper_Makurhini/Ejemplos/ProtConn_1a.rds")
+ProtConn_1 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/ProtConn_1a.rds")
 
 ## ----eval=FALSE, message=FALSE, warning=FALSE---------------------------------
 #  ProtConn_1 <- lapply(1:nrow(Ecoregions), function(x){
@@ -115,7 +99,7 @@ ProtConn_1 <- readRDS("E:/Makurhini/Paper_Makurhini/Ejemplos/ProtConn_1a.rds")
 #                                plot = TRUE, parallel = 4)
 
 ## ----echo=FALSE---------------------------------------------------------------
-ProtConn_2 <- readRDS("E:/Makurhini/Paper_Makurhini/Ejemplos/ProtConn_1b.rds")
+ProtConn_2 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/ProtConn_1b.rds")
 
 ## -----------------------------------------------------------------------------
 class(ProtConn_2)
@@ -130,9 +114,15 @@ ProtConn_2$ProtConn_10000$`ProtConn Plot`
 ## -----------------------------------------------------------------------------
 head(ProtConn_2$ProtConn_10000$ProtConn_10000)
 
-## ----message=FALSE, warning=FALSE---------------------------------------------
-interv <- classIntervals(ProtConn_2$ProtConn_10000$ProtConn_10000$ProtConn, 9, "jenks")[[2]]
+## ----eval=TRUE, message=FALSE, warning=FALSE, echo= FALSE---------------------
+interv <- c(0.0701, 1.9375, 4.2690, 6.6786, 10.7244, 17.8158, 25.6303, 41.8570, 45.4735, 97.7425)
 
+## ----eval=FALSE, message=FALSE, warning=FALSE, echo=TRUE----------------------
+#  #We can use some package to get intervals for example classInt R Packge:
+#  #library(classInt)
+#  #interv <- classIntervals(ProtConn_2$ProtConn_10000$ProtConn_10000$ProtConn, 9, "jenks")[[2]]
+
+## ----message=FALSE, warning=FALSE---------------------------------------------
 ggplot()+
   geom_sf(data = Ecoregions)+
   geom_sf(data = ProtConn_2$ProtConn_10000$ProtConn_10000, 
@@ -145,8 +135,6 @@ ggplot()+
   theme(
     legend.position.inside = c(0.1,0.21),
     legend.key.height = unit(0.4, "cm"),
-    legend.key.width = unit(0.5, "cm"),
-    legend.text = element_text(size = 6, family = "Times"),
-    legend.title = element_text(size = 6, family = "Times")
+    legend.key.width = unit(0.5, "cm")
   )
 

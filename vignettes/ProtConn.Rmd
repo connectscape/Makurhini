@@ -105,11 +105,9 @@ names(ProtConn_1)
 ProtConn_1$`Protected Connected (Viewer Panel)`
 ```
 
-
 ```{r eval= TRUE, message=FALSE, warning=FALSE}
 ProtConn_1$`ProtConn Plot`
 ```
-
 
 ```{r echo=FALSE}
 ProtConn_1 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/ProtConn_1a.rds")
@@ -178,10 +176,9 @@ Table:
 ProtConn_2$ProtConn_10000$ProtConn_overall10000
 ```
 
-
 Plot showing the mean and standard deviation values:
 
-```{r eval=TRUE} 
+```{r eval=TRUE}
 ProtConn_2$ProtConn_10000$`ProtConn Plot`
 ```
 
@@ -192,6 +189,7 @@ head(ProtConn_2$ProtConn_10000$ProtConn_10000)
 ```
 
 Visualize using ggplot2:
+
 ```{r eval=TRUE, message=FALSE, warning=FALSE, echo= FALSE}
 interv <- c(0.0701, 1.9375, 4.2690, 6.6786, 10.7244, 17.8158, 25.6303, 41.8570, 45.4735, 97.7425)
 ```
@@ -221,6 +219,6 @@ ggplot()+
 
 ## References
 
--   Castillo, L. S., Correa Ayram, C. A., Matallana Tobón, C. L., Corzo, G., Areiza, A., González-M., R., Serrano, F., Chalán Briceño, L., Sánchez Puertas, F., More, A., Franco, O., Bloomfield, H., Aguilera Orrury, V. L., Rivadeneira Canedo, C., Morón-Zambrano, V., Yerena, E., Papadakis, J., Cárdenas, J. J., Golden Kroner, R. E., & Godínez-Gómez, O. (2020). Connectivity of Protected Areas: Effect of Human Pressure and Subnational Contributions in the Ecoregions of Tropical Andean Countries. *Land*, *9*(8), Article 8. https://doi.org/10.3390/land9080239
+-   Castillo, L. S., Correa Ayram, C. A., Matallana Tobón, C. L., Corzo, G., Areiza, A., González-M., R., Serrano, F., Chalán Briceño, L., Sánchez Puertas, F., More, A., Franco, O., Bloomfield, H., Aguilera Orrury, V. L., Rivadeneira Canedo, C., Morón-Zambrano, V., Yerena, E., Papadakis, J., Cárdenas, J. J., Golden Kroner, R. E., & Godínez-Gómez, O. (2020). Connectivity of Protected Areas: Effect of Human Pressure and Subnational Contributions in the Ecoregions of Tropical Andean Countries. *Land*, *9*(8), Article 8. <https://doi.org/10.3390/land9080239>
 
--   Saura, S., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2017). Protected areas in the world’s ecoregions: How well connected are they? *Ecological Indicators*, *76*, 144-158. https://doi.org/10.1016/j.ecolind.2016.12.047
+-   Saura, S., Bastin, L., Battistella, L., Mandrici, A., & Dubois, G. (2017). Protected areas in the world’s ecoregions: How well connected are they? *Ecological Indicators*, *76*, 144-158. <https://doi.org/10.1016/j.ecolind.2016.12.047>

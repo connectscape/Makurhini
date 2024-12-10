@@ -89,59 +89,49 @@ The link importance analysis can be much more time consuming than the node impor
 \examples{
 \dontrun{
 library(Makurhini)
-data("habitat_nodes", package = "Makurhini")
-nrow(habitat_nodes) # Number of patches#'
-#For this example we only select 50 nodes
-habitat_nodes <- habitat_nodes[sample(1:404, 50),]
-#Two distance threshold,
-delta <- MK_dPCIIC_links(nodes = habitat_nodes,
-                        attribute = NULL,
-                        area_unit = "km2",
-                        distance = list(type = "centroid"),
-                        removal = TRUE,
-                        metric = "PC",
-                        probability = 0.5,
-                        distance_thresholds = c(20000, 40000),
-                        parallel = NULL,
-                        parallel_mode = NULL,
-                        intern = TRUE) #20, 40 km
-delta
-#Parallel using mode 1
-delta <- MK_dPCIIC_links(nodes = habitat_nodes,
-                        attribute = NULL,
-                        area_unit = "km2",
-                        distance = list(type = "centroid"),
-                        removal = TRUE,
-                        metric = "PC",
-                        probability = 0.5,
-                        distance_thresholds = c(20000, 40000),
-                        parallel = 4,
-                        parallel_mode = 1,
-                        intern = TRUE) #20, 40 km
-delta
 
- #Link change option
-distance_change <- distancefile(nodes = habitat_nodes,
-                                id = "Id", type = "centroid",
-                                pairwise = FALSE)
-#Randomly change distances  of 1000 connections
-sample_distance <- sample(which(upper.tri(distance_change)), 1000)
-reduce_value <- runif(length(sample_distance))
-distance_change[sample_distance] <-distance_change[sample_distance] * reduce_value
-distance_change[lower.tri(distance_change)] <- distance_change[upper.tri(distance_change)]
+#Link removal option
+data("habitat_nodes_spain", package = "Makurhini")
+nrow(habitat_nodes_spain) # Number of patches
+#For this example we only select first 50 nodes
+nodes_test <- habitat_nodes_spain[1:50,]
 
-delta <- MK_dPCIIC_links(nodes = habitat_nodes,
-                         attribute = NULL,
-                         area_unit = "km2",
-                         distance = list(type = "centroid"),
+#Distance
+data("dist_original", package = "Makurhini")
+#select the distances between the first 50 nodes
+dist_test <- dist_original[1:50,1:50]
+
+#We previusly estimate an Effective median dispersal distance
+#of 980,966.64 m*cost. That is:
+#mean resistance x 10 km of Euclidean median dispersal distance
+delta <- MK_dPCIIC_links(nodes = nodes_test,
+                         attribute = "attribute",
+                         area_unit = "ha",
+                         distance = dist_test,
                          removal = TRUE,
-                         change = distance_change,
                          metric = "PC",
                          probability = 0.5,
-                         distance_thresholds = c(20000, 40000),
-                         parallel = NULL,
-                         parallel_mode = NULL,
-                         intern = TRUE,) #20, 40 km
+                         distance_thresholds = 980966.64,
+                         parallel = 4,
+                         parallel_mode = 1,
+                         intern = TRUE)
+#Link change option
+data("dist_restoration", package = "Makurhini")
+#select the new distances between the first 50 nodes
+dist_test_change <- dist_restoration[1:50,1:50]
+
+delta <- MK_dPCIIC_links(nodes = nodes_test,
+                         attribute = "attribute",
+                         area_unit = "ha",
+                         distance = dist_test,
+                         change = distance_change
+                         removal = TRUE,
+                         metric = "PC",
+                         probability = 0.5,
+                         distance_thresholds = 980966.64,
+                         parallel = 4,
+                         parallel_mode = 1,
+                         intern = TRUE)
 delta
 }
 }

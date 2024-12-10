@@ -13,20 +13,20 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 ## NEWS
 
-- Thank you for using Makurhini. **We have a new version Makurhini
-  3.0!**
-- An update was made in the estimation of short distances between nodes,
-  which can improve the processing of the functions that estimate
-  connectivity indices.
-- Two new functions have been added: **MK_dPCIIC_links and
-  MK_Focal_nodes**. The first one is used to estimate the link
-  importance for conservation and restoration. The second estimates the
-  focal Integral Index of Connectivity (IIC<sub>f</sub>) or the focal
-  Probability of Connectivity (PC<sub>f</sub>) under one or more
-  distance thresholds. Furthermore, this function estimates the
-  composite connectivity index (CCI<sub>f</sub>; for further details,
-  please see Latorre-Cárdenas et al., 2023.
-  <https://doi.org/10.3390/land12030631>).
+Thank you for using Makurhini. **We have a new version Makurhini 3.0!**
+
+An update was made in the estimation of short distances between nodes,
+which can improve the processing of the functions that estimate
+connectivity indices.
+
+Two new functions have been added: **MK_dPCIIC_links and
+MK_Focal_nodes**. The first one is used to estimate the link importance
+for conservation and restoration. The second estimates the focal
+Integral Index of Connectivity (IIC<sub>f</sub>) or the focal
+Probability of Connectivity (PC<sub>f</sub>) under one or more distance
+thresholds. Furthermore, this function estimates the composite
+connectivity index (CCI<sub>f</sub>; for further details, please see
+Latorre-Cárdenas et al., 2023. <https://doi.org/10.3390/land12030631>).
 
 ## Overview
 
@@ -311,77 +311,1058 @@ multiple dispersion distances.
 
 ## Examples
 
-- [Protected Connected Land
-  (ProtConn)](#protected-connected-land-protconn)
-- [Equivalent Connectivity Area
-  (ECA)](#equivalent-connectivity-area-eca)
-- [Integral index of connectivity (IIC) and fractions (Intra, Flux and
-  Connector)](#integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector)
-- [Probability of connectivity (PC) and fractions (Intra, Flux and
-  Connector)](#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector)
-- [Centrality measures](#centrality-measures) (e.g., betweenness
-  centrality, node memberships, and modularity)
-- [Fragmentation statistics](#fragmentation-statistics)
+[Protected Connected Land
+(ProtConn)](#protected-connected-land-protconn) [Equivalent Connectivity
+Area (ECA)](#equivalent-connectivity-area-eca) [Integral index of
+connectivity (IIC) and fractions (Intra, Flux and
+Connector)](#integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector)
+[Probability of connectivity (PC) and fractions (Intra, Flux and
+Connector)](#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector)
+[Centrality measures](#centrality-measures) (e.g., betweenness
+centrality, node memberships, and modularity) [Fragmentation
+statistics](#fragmentation-statistics)
 
 ### Protected Connected Land (ProtConn)
 
-In the following example, we will calculate the connectivity of the
-protected areas network in four ecoregions of the Colombian Amazon
-neighboring countries using the ProtConn indicator and its fractions. We
-considered a transboundary distance of 50 km.
+In this example, we assess the connectivity of Colombia’s protected
+areas network in 33 ecoregions of great importance to the country using
+the Protected Connected Indicator (ProtConn). Particularly, we have
+1,530 polygons of protected areas. The spatial information utilized in
+this example is derived from the connectivity assessment study of
+protected areas in the Andean Amazon region, as conducted by Castillo et
+al., (2020). In order to estimate the ProtConn index, we employ the
+`MK_ProtConn()` and `MK_ProtConn_mult()` functions. In this example, we
+will utilize an organism median dispersal distance threshold of 10 km, a
+connection probability pij = 0.5, and a transboundary PA search radius
+of 50 km (for further details, please refer to Castillo et al., 2020;
+Saura et al., 2017). We used Euclidean distances, particularly the
+distances between edges to establish the connections between nodes
+(PAs).
 
-![](man/figures/Example_PA_Eco.png)
+    #> [1] 1530
+    #> [1] 33
 
-``` r
-test_protconn <- MK_ProtConnMult(nodes = Protected_areas, 
-                                 region = ecoregions,
-                                 area_unit = "ha",
-                                 distance = list(type= "centroid"),
-                                 distance_thresholds = 10000,
-                                 probability = 0.5, 
-                                 transboundary = 50000,
-                                 plot = TRUE, 
-                                 CI = NULL, 
-                                 parallel = 4, 
-                                 intern = FALSE)
-test_protconn
-```
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
-![](man/figures/table_protconn.png)
+#### MK_ProtConn()
 
-ProtConn value: ![](man/figures/protconn.png)
-
-#### Example incorporated in Makurhini
-
-In this example we estimate the ProtConn for only one ecoregion of
-central Mexico (black line) using a vector file with the polygons of the
-country’s federal protected areas (green).
+This function calculates the Protected Connected indicator (ProtConn)
+for a region, its fractions and the importance (contribution) of each
+protected area to maintain connectivity in the region under one or more
+distance thresholds.
 
 ``` r
-data("Protected_areas", package = "Makurhini")
-data("regions", package = "Makurhini")
-region <- regions[2,]
+#Select first ecoregion
+Ecoregion_1 <- Ecoregions[1,]
+
+#keep = 0.6 simplify the geometry and reduce the number of vertices
+ProtConn_1 <- MK_ProtConn(nodes = Protected_areas, region = Ecoregion_1, 
+                          area_unit = "ha", 
+                          distance = list(type= "edge", keep = 0.6),
+                          distance_thresholds = 10000, probability = 0.5,
+                          transboundary = 50000, plot = TRUE, 
+                          delta = TRUE, intern = FALSE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="80%" />
+A dynamic table is generated, displaying the ProtConn values and their
+fractions. Additionally, a graph is produced, illustrating the ProtConn
+values and comparing them with the percentage of protected and connected
+area recommended for a region in the Aichi and Kumming-Montreal targets.
 
 ``` r
-test_protconn <- MK_ProtConn(nodes = Protected_areas,
-                             region = region,
-                             area_unit = "ha",
-                             distance = list(type= "centroid"),
-                             distance_thresholds = 5000,
-                             probability = 0.5,
-                             transboundary = 50000,
-                             plot = TRUE,
-                             parallel = NULL,
-                             protconn_bound = TRUE,
-                             delta = TRUE,
-                             write = NULL,
-                             intern = FALSE)
+class(ProtConn_1)
+#> [1] "list"
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="80%" />
+``` r
+names(ProtConn_1)
+#> [1] "Protected Connected (Viewer Panel)" "ProtConn Plot"                     
+#> [3] "ProtConn_Delta"
+```
+
+``` r
+ProtConn_1$`Protected Connected (Viewer Panel)`
+```
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:left;">
+Index
+</th>
+<th style="text-align:center;">
+Value
+</th>
+<th style="text-align:left;">
+ProtConn indicator
+</th>
+<th style="text-align:center;">
+Percentage
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">EC(PC) </span>
+</td>
+<td style="text-align:center;">
+4407396.27
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">Prot </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffd17f">36.7627</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">PC </span>
+</td>
+<td style="text-align:center;">
+6.5700e-02
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">Unprotected </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffb93a">63.2373</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">Maximum landscape
+attribute</span>
+</td>
+<td style="text-align:center;">
+17196418.45
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffdc9b">25.6297</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">Protected surface
+</span>
+</td>
+<td style="text-align:center;">
+6321860.45
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtUnconn </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffe9c1">11.1329</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">RelConn </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffb329">69.7168</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Prot </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa500">85.7949</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Trans </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff1d9">1.8411</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Unprot </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffe8be">12.3640</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Within </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa500">85.7256</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Contig </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffe6b9">14.2744</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Within_land</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffdfa5">21.9712</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Contig_land</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff0d4">3.6585</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Unprot_land</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff0d6">3.1688</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Trans_land
+</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff3dd">0.4719</span>
+</td>
+</tr>
+</tbody>
+</table>
+
+``` r
+ProtConn_1$`ProtConn Plot`
+```
+
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+
+ProtConn delta or the higher contribution to ProtConn value in the
+ecoregion (grey polygon):
+
+``` r
+ggplot()+
+  geom_sf(data = Ecoregion_1)+
+  geom_sf(data = ProtConn_1$ProtConn_Delta, 
+          aes(fill = cut(dProtConn, breaks = classIntervals(ProtConn_1$ProtConn_Delta$dProtConn, 5, "jenks")[[2]])), color = NA)+
+  scale_fill_brewer(type = "qual",
+                    palette = "RdYlGn",
+                    name = "dProtConn",
+                    na.translate = FALSE)+
+  theme_minimal() +
+  theme(
+    legend.position.inside = c(0.1,0.21),
+    legend.key.height = unit(0.4, "cm"),
+    legend.key.width = unit(0.5, "cm")
+  )
+```
+
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="60%" />
+
+#### MK_ProtConnMult()
+
+In order to facilitate the estimation of the ProtConn index for a
+variety of geographical regions, the MK_ProtConnMult function has been
+incorporated into Makurhini, which enables the estimation of the
+ProtConn indicator and fractions for different regions.
+
+``` r
+ProtConn_2 <- MK_ProtConnMult(nodes = Protected_areas, 
+                              region = Ecoregions,
+                              area_unit = "ha",
+                              distance = list(type= "edge"),
+                              distance_thresholds = 10000,
+                              probability = 0.5, transboundary = 50000,
+                              plot = TRUE, parallel = 4)
+```
+
+A dynamic table and vector (sf class) are generated, displaying the
+ProtConn values and their fractions. Additionally, a graph is produced,
+illustrating the ProtConn values and comparing them with the percentage
+of protected and connected area recommended for a region in the Aichi
+and Kumming-Montreal targets.
+
+``` r
+class(ProtConn_2)
+#> [1] "list"
+```
+
+``` r
+names(ProtConn_2)
+#> [1] "ProtConn_10000"
+```
+
+Table:
+
+``` r
+ProtConn_2$ProtConn_10000$ProtConn_overall10000
+```
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+ProtConn indicator
+</th>
+<th style="text-align:right;">
+Values (%)
+</th>
+<th style="text-align:right;">
+SD
+</th>
+<th style="text-align:right;">
+SEM
+</th>
+<th style="text-align:right;">
+normal.lower
+</th>
+<th style="text-align:right;">
+normal.upper
+</th>
+<th style="text-align:right;">
+basic.lower
+</th>
+<th style="text-align:right;">
+basic.upper
+</th>
+<th style="text-align:right;">
+percent.lower
+</th>
+<th style="text-align:right;">
+percent.upper
+</th>
+<th style="text-align:right;">
+bca.lower
+</th>
+<th style="text-align:right;">
+bca.upper
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">Prot </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fde7d0">16.850</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e3a3c6">20.205</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faeff5">3.517</span>
+</td>
+<td style="text-align:right;">
+10.450
+</td>
+<td style="text-align:right;">
+23.565
+</td>
+<td style="text-align:right;">
+10.144
+</td>
+<td style="text-align:right;">
+23.013
+</td>
+<td style="text-align:right;">
+10.687
+</td>
+<td style="text-align:right;">
+23.556
+</td>
+<td style="text-align:right;">
+11.994
+</td>
+<td style="text-align:right;">
+26.502
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+4
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">Unprotected </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88b13">83.150</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e3a3c6">20.205</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faeff5">3.517</span>
+</td>
+<td style="text-align:right;">
+76.435
+</td>
+<td style="text-align:right;">
+89.550
+</td>
+<td style="text-align:right;">
+76.987
+</td>
+<td style="text-align:right;">
+89.856
+</td>
+<td style="text-align:right;">
+76.444
+</td>
+<td style="text-align:right;">
+89.313
+</td>
+<td style="text-align:right;">
+73.498
+</td>
+<td style="text-align:right;">
+88.006
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdeddb">12.796</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e5a9ca">18.949</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf0f6">3.299</span>
+</td>
+<td style="text-align:right;">
+6.868
+</td>
+<td style="text-align:right;">
+19.068
+</td>
+<td style="text-align:right;">
+6.570
+</td>
+<td style="text-align:right;">
+18.109
+</td>
+<td style="text-align:right;">
+7.482
+</td>
+<td style="text-align:right;">
+19.021
+</td>
+<td style="text-align:right;">
+8.490
+</td>
+<td style="text-align:right;">
+22.404
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtUnconn </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef9f4">4.054</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e2ed">6.338</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdfafc">1.103</span>
+</td>
+<td style="text-align:right;">
+1.911
+</td>
+<td style="text-align:right;">
+6.169
+</td>
+<td style="text-align:right;">
+1.754
+</td>
+<td style="text-align:right;">
+5.938
+</td>
+<td style="text-align:right;">
+2.171
+</td>
+<td style="text-align:right;">
+6.354
+</td>
+<td style="text-align:right;">
+2.425
+</td>
+<td style="text-align:right;">
+6.913
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+7
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">RelConn </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fab060">56.111</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ce5d9b">35.608</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e3ee">6.199</span>
+</td>
+<td style="text-align:right;">
+44.054
+</td>
+<td style="text-align:right;">
+68.028
+</td>
+<td style="text-align:right;">
+43.221
+</td>
+<td style="text-align:right;">
+68.126
+</td>
+<td style="text-align:right;">
+44.095
+</td>
+<td style="text-align:right;">
+69.001
+</td>
+<td style="text-align:right;">
+43.661
+</td>
+<td style="text-align:right;">
+68.590
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+8
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Prot </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f8972d">74.027</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #d370a6">31.381</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6f0">5.463</span>
+</td>
+<td style="text-align:right;">
+63.387
+</td>
+<td style="text-align:right;">
+85.165
+</td>
+<td style="text-align:right;">
+63.818
+</td>
+<td style="text-align:right;">
+86.275
+</td>
+<td style="text-align:right;">
+61.778
+</td>
+<td style="text-align:right;">
+84.235
+</td>
+<td style="text-align:right;">
+59.889
+</td>
+<td style="text-align:right;">
+83.739
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+9
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Trans </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef9f3">4.455</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f3d9e7">8.406</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdf9fb">1.463</span>
+</td>
+<td style="text-align:right;">
+1.632
+</td>
+<td style="text-align:right;">
+7.209
+</td>
+<td style="text-align:right;">
+1.412
+</td>
+<td style="text-align:right;">
+6.995
+</td>
+<td style="text-align:right;">
+1.916
+</td>
+<td style="text-align:right;">
+7.499
+</td>
+<td style="text-align:right;">
+2.304
+</td>
+<td style="text-align:right;">
+8.206
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Unprot </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef2e5">9.397</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f1d3e4">9.631</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fcf8fa">1.677</span>
+</td>
+<td style="text-align:right;">
+6.181
+</td>
+<td style="text-align:right;">
+12.529
+</td>
+<td style="text-align:right;">
+6.037
+</td>
+<td style="text-align:right;">
+12.391
+</td>
+<td style="text-align:right;">
+6.403
+</td>
+<td style="text-align:right;">
+12.757
+</td>
+<td style="text-align:right;">
+6.534
+</td>
+<td style="text-align:right;">
+12.830
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+11
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Within </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f99c35">71.013</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #d36ea5">31.782</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6ef">5.533</span>
+</td>
+<td style="text-align:right;">
+60.339
+</td>
+<td style="text-align:right;">
+82.255
+</td>
+<td style="text-align:right;">
+60.864
+</td>
+<td style="text-align:right;">
+83.601
+</td>
+<td style="text-align:right;">
+58.426
+</td>
+<td style="text-align:right;">
+81.163
+</td>
+<td style="text-align:right;">
+57.382
+</td>
+<td style="text-align:right;">
+80.824
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+12
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Contig </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fde7d0">16.865</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e6accb">18.255</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf1f6">3.178</span>
+</td>
+<td style="text-align:right;">
+10.604
+</td>
+<td style="text-align:right;">
+22.906
+</td>
+<td style="text-align:right;">
+10.287
+</td>
+<td style="text-align:right;">
+22.692
+</td>
+<td style="text-align:right;">
+11.038
+</td>
+<td style="text-align:right;">
+23.444
+</td>
+<td style="text-align:right;">
+11.009
+</td>
+<td style="text-align:right;">
+23.413
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+13
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Within_land</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef4e9">7.954</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f0cee0">10.850</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fcf7fa">1.889</span>
+</td>
+<td style="text-align:right;">
+4.231
+</td>
+<td style="text-align:right;">
+11.549
+</td>
+<td style="text-align:right;">
+3.801
+</td>
+<td style="text-align:right;">
+11.277
+</td>
+<td style="text-align:right;">
+4.630
+</td>
+<td style="text-align:right;">
+12.107
+</td>
+<td style="text-align:right;">
+4.939
+</td>
+<td style="text-align:right;">
+12.968
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+14
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Contig_land</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfb">1.620</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fcf5f9">2.264</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.394</span>
+</td>
+<td style="text-align:right;">
+0.864
+</td>
+<td style="text-align:right;">
+2.363
+</td>
+<td style="text-align:right;">
+0.793
+</td>
+<td style="text-align:right;">
+2.343
+</td>
+<td style="text-align:right;">
+0.897
+</td>
+<td style="text-align:right;">
+2.446
+</td>
+<td style="text-align:right;">
+0.986
+</td>
+<td style="text-align:right;">
+2.531
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+15
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Unprot_land</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefd">0.879</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdfafc">1.156</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.201</span>
+</td>
+<td style="text-align:right;">
+0.490
+</td>
+<td style="text-align:right;">
+1.261
+</td>
+<td style="text-align:right;">
+0.492
+</td>
+<td style="text-align:right;">
+1.230
+</td>
+<td style="text-align:right;">
+0.527
+</td>
+<td style="text-align:right;">
+1.265
+</td>
+<td style="text-align:right;">
+0.541
+</td>
+<td style="text-align:right;">
+1.318
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+16
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Trans_land
+</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.439</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdfafc">1.089</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.190</span>
+</td>
+<td style="text-align:right;">
+0.073
+</td>
+<td style="text-align:right;">
+0.800
+</td>
+<td style="text-align:right;">
+0.013
+</td>
+<td style="text-align:right;">
+0.725
+</td>
+<td style="text-align:right;">
+0.153
+</td>
+<td style="text-align:right;">
+0.866
+</td>
+<td style="text-align:right;">
+0.198
+</td>
+<td style="text-align:right;">
+1.080
+</td>
+</tr>
+</tbody>
+</table>
+
+Plot showing the mean and standard deviation values:
+
+``` r
+ProtConn_2$ProtConn_10000$`ProtConn Plot`
+```
+
+<img src="man/figures/README-unnamed-chunk-19-1.png" width="60%" />
+
+Vector file of class sf:
+
+``` r
+head(ProtConn_2$ProtConn_10000$ProtConn_10000)
+#> Simple feature collection with 6 features and 19 fields
+#> Geometry type: GEOMETRY
+#> Dimension:     XY
+#> Bounding box:  xmin: -7873906 ymin: -194383.9 xmax: -6935273 ymax: 1382091
+#> Projected CRS: World_Mollweide
+#>   ECO_ID_U ECO_CODE                                ECO_NAME     EC(PC)
+#> 1    10319   NT0107                   Caqueta Moist Forests 4407499.00
+#> 2    10320   NT0108                 Catatumbo Moist Forests   68241.03
+#> 3    10321   NT0109            Cauca Valley Montane Forests  188885.91
+#> 4    10327   NT0115              Chocó-Darién Moist Forests  220615.52
+#> 5    10330   NT0118     Cordillera Oriental Montane Forests  634964.37
+#> 6    10333   NT0121 Eastern Cordillera Real Montane Forests  180919.61
+#>           PC    Prot Unprotected ProtConn ProtUnconn RelConn ProtConn_Prot
+#> 1 6.5700e-02 36.7627     63.2373  25.6303    11.1323 69.7184       85.7928
+#> 2 1.0300e-02 10.1265     89.8735  10.1251     0.0014 99.9865       91.1015
+#> 3 3.5000e-03 14.0252     85.9748   5.8789     8.1463 41.9167       63.0300
+#> 4 1.3000e-03  7.0816     92.9184   3.6713     3.4103 51.8430       79.6504
+#> 5 1.1500e-02 22.8199     77.1801  10.7244    12.0956 46.9956       63.1873
+#> 6 2.7500e-02 23.1047     76.8953  16.5873     6.5174 71.7919       78.1763
+#>   ProtConn_Trans ProtConn_Unprot ProtConn_Within ProtConn_Contig
+#> 1         1.8427         12.3645         85.7235         14.2765
+#> 2         1.0256          7.8729         90.7351          9.2649
+#> 3         4.5807         32.3893         42.6304         57.3696
+#> 4         5.9092         14.4404         64.0252         35.9748
+#> 5        22.5662         14.2465         61.2057         38.7943
+#> 6         3.3240         18.4996         61.7719         38.2281
+#>   ProtConn_Within_land ProtConn_Contig_land ProtConn_Unprot_land
+#> 1              21.9712               3.6591               3.1691
+#> 2               9.1870               0.9381               0.7971
+#> 3               2.5062               3.3727               1.9041
+#> 4               2.3506               1.3208               0.5302
+#> 5               6.5639               4.1604               1.5278
+#> 6              10.2463               6.3410               3.0686
+#>   ProtConn_Trans_land                       geometry
+#> 1              0.4723 MULTIPOLYGON (((-7354073 34...
+#> 2              0.1038 POLYGON ((-7208574 1001585,...
+#> 3              0.2693 MULTIPOLYGON (((-7480526 88...
+#> 4              0.2169 MULTIPOLYGON (((-7692447 10...
+#> 5              2.4201 POLYGON ((-7154131 1377384,...
+#> 6              0.5514 POLYGON ((-7676692 240705.2...
+```
+
+Visualize using ggplot2:
+
+``` r
+#We can use some package to get intervals for example classInt R Packge:
+#library(classInt)
+#interv <- classIntervals(ProtConn_2$ProtConn_10000$ProtConn_10000$ProtConn, 9, "jenks")[[2]]
+```
+
+``` r
+ggplot()+
+  geom_sf(data = Ecoregions)+
+  geom_sf(data = ProtConn_2$ProtConn_10000$ProtConn_10000, 
+          aes(fill = cut(ProtConn, breaks = interv)), color = NA)+
+  scale_fill_brewer(type = "qual",
+                    palette = "RdYlGn",
+                    name = "ProtConn",
+                    na.translate = FALSE)+
+  theme_minimal() +
+  theme(
+    legend.position.inside = c(0.1,0.21),
+    legend.key.height = unit(0.4, "cm"),
+    legend.key.width = unit(0.5, "cm")
+  )
+```
+
+<img src="man/figures/README-unnamed-chunk-23-1.png" width="100%" />
 
 ### Equivalent Connectivity Area (ECA)
 
@@ -407,7 +1388,7 @@ dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "
                   LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"), intern = FALSE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-25-1.png" width="60%" />
 
 ECA table:
 
@@ -424,85 +1405,143 @@ Andean-Amazon connectivity.
 
 ### Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector)
 
-Example with 142 old-growth vegetation fragments in southeast Mexico
-(?vegetation_patches).
+In this example, the `MK_dPCIIC()` function was applied to estimate the
+connectivity of 404 remnant habitat patches, which were modeled to 40
+non-volant mammal species of the Trans-Mexican Volcanic System (TMVS) by
+Correa Ayram et al., (2017). The landscape resistance to dispersal was
+estimated at a 100-meter resolution using a spatial human footprint
+index, land use intensity, time of human landscape intervention,
+biophysical vulnerability, fragmentation, and habitat loss (Correa Ayram
+et al., 2017). The raster was aggregated by a factor of 5 to change its
+original resolution from 100m to 500m. To represent different dispersal
+capacities of multiple species we considered the following median
+(associated to a probability of 0.5) distance thresholds: 250, 1500,
+3000, and 10,000 meters. These four distances group the 40 species
+according to their dispersal distance requirements
 
 ``` r
-data("vegetation_patches", package = "Makurhini")
-nrow(vegetation_patches) # Number of patches
-#> [1] 142
+#Habitat nodes
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes)
+#> [1] 404
 ```
 
 ``` r
-class(vegetation_patches)[1]
-#> [1] "sf"
+
+#Study area
+data("TMVS", package = "Makurhini")
+
+#Resistance
+data("resistance_matrix", package = "Makurhini")
 ```
 
 ``` r
-#[1] "sf"
+raster_map <- as(resistance_matrix, "SpatialPixelsDataFrame")
+raster_map <- as.data.frame(raster_map)
+colnames(raster_map) <- c("value", "x", "y")
+ggplot() +  
+  geom_tile(data = raster_map, aes(x = x, y = y, fill = value), alpha = 0.8) + 
+  geom_sf(data = TMVS, aes(color = "Study area"), fill = NA, color = "black") +
+  geom_sf(data = habitat_nodes, aes(color = "Habitat nodes"), fill = "forestgreen") +
+  scale_fill_gradientn(colors = c("#000004FF", "#1B0C42FF", "#4B0C6BFF", "#781C6DFF",
+                                  "#A52C60FF", "#CF4446FF", "#ED6925FF", "#FB9A06FF",
+                                  "#F7D03CFF", "#FCFFA4FF"))+
+  scale_color_manual(name = "", values = "black")+
+  theme_minimal() +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank())
+```
 
-IIC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
-                distance = list(type = "centroid"),
-                metric = "IIC", distance_thresholds = 10000) #10 km
-head(IIC)
-#> Simple feature collection with 6 features and 5 fields
+<img src="man/figures/README-unnamed-chunk-27-1.png" width="100%" />
+
+``` r
+PC_example_2 <- MK_dPCIIC(nodes = habitat_nodes,
+                        attribute = NULL,
+                        distance = list(type = "least-cost",
+                                        resistance = resistance_matrix),
+                        parallel = NULL,
+                        metric = "PC",
+                        probability = 0.5,
+                        distance_thresholds = c(250, 1500, 3000, 10000))
+```
+
+We obtain a `list` object where each element is a result for each
+distance threshold.
+
+``` r
+class(PC_example_2)
+#> [1] "list"
+```
+
+``` r
+
+names(PC_example_2)
+#> [1] "d250"   "d1500"  "d3000"  "d10000"
+```
+
+``` r
+
+head(PC_example_2$d10000)
+#> Simple feature collection with 6 features and 6 fields
 #> Geometry type: POLYGON
 #> Dimension:     XY
-#> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
-#> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
-#>   id       dIIC  dIICintra  dIICflux dIICconnector
-#> 1  1 88.6878612 88.6878612 0.0000000   0.00000e+00
-#> 2  2  0.0228809  0.0182727 0.0046082   0.00000e+00
-#> 3  3  0.0202227  0.0120311 0.0081916   0.00000e+00
-#> 4  4  0.0057703  0.0011621 0.0046082   0.00000e+00
-#> 5  5  0.0137690  0.0055774 0.0081916   2.91434e-15
-#> 6  6  0.0142244  0.0142244 0.0000000   0.00000e+00
+#> Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668
+#> Projected CRS: NAD_1927_Albers
+#>   Id core_id       dPC  dPCintra   dPCflux dPCconnector
+#> 1  0       1 0.0000236 0.0000039 0.0000196            0
+#> 2  0       2 0.0001155 0.0000259 0.0000896            0
+#> 3  0       3 0.0674997 0.0648563 0.0026434            0
+#> 4  0       4 0.0000722 0.0000078 0.0000644            0
+#> 5  0       5 0.0001142 0.0000182 0.0000959            0
+#> 6  0       6 0.0000277 0.0000004 0.0000273            0
 #>                         geometry
-#> 1 POLYGON ((3676911 589967.3,...
-#> 2 POLYGON ((3558044 696202.5,...
-#> 3 POLYGON ((3569169 687776.4,...
-#> 4 POLYGON ((3547317 685713.2,...
-#> 5 POLYGON ((3567471 684357.4,...
-#> 6 POLYGON ((3590569 672451.7,...
+#> 1 POLYGON ((54911.05 2035815,...
+#> 2 POLYGON ((44591.28 2042209,...
+#> 3 POLYGON ((46491.11 2042467,...
+#> 4 POLYGON ((54944.49 2048163,...
+#> 5 POLYGON ((80094.28 2064140,...
+#> 6 POLYGON ((69205.24 2066394,...
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
-
-### Probability of connectivity (PC) and fractions (Intra, Flux and Connector)
+Each element of the list is a vector type object that can be exported
+using the sf functions and in its vector formats (e.g., shp, gpkg) using
+the sf package (Pebesma et al., 2024), for example:
 
 ``` r
-PC <- MK_dPCIIC(nodes = vegetation_patches, attribute = NULL,
-                distance = list(type = "centroid"),
-                metric = "PC", probability = 0.05,
-                distance_thresholds = 10000)
-head(PC)
-#> Simple feature collection with 6 features and 5 fields
-#> Geometry type: POLYGON
-#> Dimension:     XY
-#> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
-#> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
-#>   id        dPC   dPCintra   dPCflux dPCconnector
-#> 1  1 89.0768714 89.0760927 0.0007786  0.00000e+00
-#> 2  2  0.0192790  0.0183527 0.0009263  0.00000e+00
-#> 3  3  0.0136652  0.0120837 0.0015814  0.00000e+00
-#> 4  4  0.0017528  0.0011672 0.0005856  0.00000e+00
-#> 5  5  0.0069526  0.0056018 0.0013508  4.42528e-15
-#> 6  6  0.0143397  0.0142867 0.0000531  0.00000e+00
-#>                         geometry
-#> 1 POLYGON ((3676911 589967.3,...
-#> 2 POLYGON ((3558044 696202.5,...
-#> 3 POLYGON ((3569169 687776.4,...
-#> 4 POLYGON ((3547317 685713.2,...
-#> 5 POLYGON ((3567471 684357.4,...
-#> 6 POLYGON ((3590569 672451.7,...
+write_sf(PC_example_2$d10000, “.../dPC_d0000.shp”)
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
+We can use, for example, ggplot2 or tmap R packages, to map the results:
+
+``` r
+#Keep the same range of values of PC_example_1 for comparison, only the highest range changes.
+interv[length(interv)] <- max(PC_example_2$d10000$dPC)
+ggplot()+
+  geom_sf(data = TMVS)+
+  geom_sf(data = PC_example_2$d10000, aes(fill = cut(dPC, breaks = interv)), color = NA)+
+  scale_fill_brewer(type = "qual",
+                    palette = "RdYlGn",
+                    name = "dPC",
+                    na.translate = FALSE)+
+  theme_minimal() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.1, 0.21),
+    legend.key.height = unit(0.2, "cm"),
+    legend.key.width = unit(0.3, "cm"),
+    legend.text = element_text(size = 5.5),
+    legend.title = element_text(size = 5.5)
+  )+ labs(title="Least-cost distance")
+```
+
+<img src="man/figures/README-unnamed-chunk-33-1.png" width="100%" />
+
+<img src="man/figures/README-unnamed-chunk-34-1.png" width="100%" />
 
 ### Centrality measures
 
 ``` r
-centrality_test <- MK_RMCentrality(nodes = vegetation_patches,
+centrality_test <- MK_RMCentrality(nodes = habitat_nodes,
                                 distance = list(type = "centroid"),
                                  distance_thresholds = 10000,
                                  probability = 0.05,
@@ -511,22 +1550,22 @@ head(centrality_test)
 #> Simple feature collection with 6 features and 7 fields
 #> Geometry type: POLYGON
 #> Dimension:     XY
-#> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
-#> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
+#> Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668
+#> Projected CRS: NAD_1927_Albers
 #> # A tibble: 6 × 8
-#>      id degree    eigen close   BWC cluster modules                     geometry
-#>   <int>  <dbl>    <dbl> <dbl> <dbl>   <dbl>   <dbl>                <POLYGON [m]>
-#> 1     1      0 2.27e-17   NaN     0       1       1 ((3676911 589967.3, 3676931…
-#> 2     2      1 0            1     0       2       2 ((3558044 696202.5, 3557972…
-#> 3     3      1 0            1     0       3       3 ((3569169 687776.4, 3569146…
-#> 4     4      1 0            1     0       2       2 ((3547317 685713.2, 3547363…
-#> 5     5      1 0            1     0       3       3 ((3567471 684357.4, 3567380…
-#> 6     6      0 2.27e-17   NaN     0       4       4 ((3590569 672451.7, 3590090…
+#>      Id degree    eigen    close   BWC cluster modules                  geometry
+#>   <int>  <dbl>    <dbl>    <dbl> <dbl>   <dbl>   <dbl>             <POLYGON [m]>
+#> 1     1      1 0        0.333        0       1       1 ((54911.05 2035815, 5490…
+#> 2     2      1 0        0.333        0       1       1 ((44591.28 2042209, 4458…
+#> 3     3      2 0        0.5          1       1       1 ((46491.11 2042467, 4649…
+#> 4     4      1 0        1            0       2       2 ((54944.49 2048163, 5488…
+#> 5     5      2 0.000252 0.000240     0       3       3 ((80094.28 2064140, 8007…
+#> 6     6      7 0.00257  0.000254    57       3       3 ((69205.24 2066394, 6925…
 ```
 
 Examples:
 
-<img src="man/figures/README-unnamed-chunk-21-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-36-1.png" width="100%" />
 
 Moreover, you can change distance using the distance
 (<code>?distancefile</code>) argument:
@@ -545,29 +1584,29 @@ Least cost distances:
 ### Fragmentation statistics
 
 *‘MK_Fragmentation()’* estimates fragmentation statistics at the
-landscape and patch level.
+landscape and patch/node level.
 
 Example:
 
 ``` r
-data("vegetation_patches", package = "Makurhini")
-nrow(vegetation_patches) # Number of patches
-#> [1] 142
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes) # Number of nodes
+#> [1] 404
 ```
 
-To define the edge of the patches we can use, for example, a distance of
-500 m from the limit of the patches.
+To define the edge of the nodes we can use, for example, a distance of
+500 m from the limit of the nodes.
 
 ![](man/figures/Imagen1.png)
 
 ``` r
-Fragmentation_test <- MK_Fragmentation(patches = vegetation_patches, edge_distance = 500,
-                                       plot = TRUE, min_patch_area = 100, 
+Fragmentation_test <- MK_Fragmentation(nodes = habitat_nodes, edge_distance = 500,
+                                       plot = TRUE, min_node_area = 100, 
                                        landscape_area = NULL, area_unit = "km2", 
                                        perimeter_unit = "km")
 ```
 
-<img src="man/figures/README-unnamed-chunk-23-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-23-2.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-38-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-38-2.png" width="60%" />
 
 - The results are presented as a list, the first result is called
   *“Summary landscape metrics (Viewer Panel)”* and it has fragmentation
@@ -605,7 +1644,7 @@ Value
 Patch area (km2)
 </td>
 <td style="text-align:center;">
-12792.2046
+12735.7391
 </td>
 </tr>
 <tr>
@@ -613,7 +1652,7 @@ Patch area (km2)
 Number of patches
 </td>
 <td style="text-align:center;">
-142.0000
+404.0000
 </td>
 </tr>
 <tr>
@@ -621,7 +1660,7 @@ Number of patches
 Size (mean)
 </td>
 <td style="text-align:center;">
-90.0859
+31.5241
 </td>
 </tr>
 <tr>
@@ -629,7 +1668,7 @@ Size (mean)
 Patches \< minimum patch area
 </td>
 <td style="text-align:center;">
-126.0000
+383.0000
 </td>
 </tr>
 <tr>
@@ -637,7 +1676,7 @@ Patches \< minimum patch area
 Patches \< minimum patch area (%)
 </td>
 <td style="text-align:center;">
-30.8017
+28.8879
 </td>
 </tr>
 <tr>
@@ -645,7 +1684,7 @@ Patches \< minimum patch area (%)
 Total edge
 </td>
 <td style="text-align:center;">
-12297.5330
+17920.4740
 </td>
 </tr>
 <tr>
@@ -653,7 +1692,7 @@ Total edge
 Edge density
 </td>
 <td style="text-align:center;">
-0.9613
+1.4071
 </td>
 </tr>
 <tr>
@@ -661,7 +1700,7 @@ Edge density
 Patch density
 </td>
 <td style="text-align:center;">
-1.1101
+3.1722
 </td>
 </tr>
 <tr>
@@ -669,7 +1708,7 @@ Patch density
 Total Core Area (km2)
 </td>
 <td style="text-align:center;">
-7622.3940
+6315.9513
 </td>
 </tr>
 <tr>
@@ -677,7 +1716,7 @@ Total Core Area (km2)
 Cority
 </td>
 <td style="text-align:center;">
-1.0000
+0.6040
 </td>
 </tr>
 <tr>
@@ -685,7 +1724,7 @@ Cority
 Shape Index (mean)
 </td>
 <td style="text-align:center;">
-2.7918
+2.2073
 </td>
 </tr>
 <tr>
@@ -693,7 +1732,7 @@ Shape Index (mean)
 FRAC (mean)
 </td>
 <td style="text-align:center;">
-2.3154
+8.4400
 </td>
 </tr>
 <tr>
@@ -701,7 +1740,7 @@ FRAC (mean)
 MESH (km2)
 </td>
 <td style="text-align:center;">
-1543.1463
+1443.4320
 </td>
 </tr>
 </tbody>
@@ -717,25 +1756,25 @@ head(Fragmentation_test[[2]])
 #> Simple feature collection with 6 features and 9 fields
 #> Geometry type: POLYGON
 #> Dimension:     XY
-#> Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5
-#> Projected CRS: +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs
-#>   id      Area        CA CAPercent Perimeter EdgePercent   PARA ShapeIndex
-#> 1  1 4195.5691 3541.3806   84.4076  1412.046     15.5924 2.9713     6.1496
-#> 2  2   60.2227   11.9415   19.8289   167.982     80.1711 0.3585     6.1063
-#> 3  3   48.8665    6.2099   12.7079   127.049     87.2921 0.3846     5.1270
-#> 4  4   15.1875    7.4210   48.8626    18.536     51.1374 0.8194     1.3417
-#> 5  5   33.2716   13.0877   39.3360    55.038     60.6640 0.6045     2.6917
-#> 6  6   53.1344   11.3564   21.3730   111.123     78.6270 0.4782     4.3004
-#>     FRAC                       geometry
-#> 1 1.7389 POLYGON ((3676911 589967.3,...
-#> 2 2.5006 POLYGON ((3558044 696202.5,...
-#> 3 2.4914 POLYGON ((3569169 687776.4,...
-#> 4 2.1465 POLYGON ((3547317 685713.2,...
-#> 5 2.2872 POLYGON ((3567471 684357.4,...
-#> 6 2.3714 POLYGON ((3590569 672451.7,...
+#> Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668
+#> Projected CRS: NAD_1927_Albers
+#>   Id     Area     CA CAPercent Perimeter EdgePercent   PARA ShapeIndex     FRAC
+#> 1  1   0.8584  0.000    0.0000     5.989    100.0000 0.1433     1.8235 -23.4460
+#> 2  2   2.2022  0.000    0.0000    11.346    100.0000 0.1941     2.1568   6.1533
+#> 3  3 110.1997 53.378   48.4375   184.969     51.5625 0.5958     4.9705   2.2203
+#> 4  4   1.2100  0.000    0.0000     6.974    100.0000 0.1735     1.7885  20.3776
+#> 5  5   1.8472  0.000    0.0000    14.452    100.0000 0.1278     2.9996   8.7044
+#> 6  6   0.2631  0.000    0.0000     4.685    100.0000 0.0562     2.5766  -2.3133
+#>                         geometry
+#> 1 POLYGON ((54911.05 2035815,...
+#> 2 POLYGON ((44591.28 2042209,...
+#> 3 POLYGON ((46491.11 2042467,...
+#> 4 POLYGON ((54944.49 2048163,...
+#> 5 POLYGON ((80094.28 2064140,...
+#> 6 POLYGON ((69205.24 2066394,...
 ```
 
-<img src="man/figures/README-unnamed-chunk-26-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-41-1.png" width="100%" />
 
 We can make a loop where we explore different edge depths. In the
 following example, We will explore 10 edge depths (*edge_distance
@@ -745,22 +1784,27 @@ distances and then, we will extract the core area percentage and edge
 percentage statistics. Finally, we will plot the average of the patch
 core area percentage and edge percentage (% core area + % edge = 100%).
 
-    #>   Edge.distance      Type Percentage
-    #> 1           100 Core Area   83.50499
-    #> 2           100      Edge   16.49501
-    #> 3           200 Core Area   68.18515
-    #> 4           200      Edge   31.81485
-    #> 5           300 Core Area   54.77234
-    #> 6           300      Edge   45.22766
+``` r
+library(purrr)
+Fragmentation_test.2 <- map_dfr(seq(100, 1000, 100), function(x){
+  x.1 <- MK_Fragmentation(nodes = habitat_nodes, 
+                          edge_distance = x, plot = FALSE)[[2]]
+  CA <- mean(x.1$CAPercent)
+  Edge <- mean(x.1$EdgePercent)
+  x.2 <- rbind(data.frame('Edge distance' = x, Type = "Core Area", Percentage = CA),
+                     data.frame('Edge distance' = x, Type = "Edge", Percentage = Edge))
+  return(x.2)
+})
+```
 
-<img src="man/figures/README-unnamed-chunk-28-1.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-43-1.png" width="60%" />
 
-The average core area percentage (average patch area that has the least
-possible edge effect) for all patches decreases by more than 70% when
-considering an edge effect with an edge depth distance of 1 km.
+The mean core area percentage (the mean node/patch area that exhibits
+the least possible edge effect) for all patches is observed to decline
+by over 60% when an edge depth distance of 1 km is considered.
 
 | Edge depth distance (m) | Core Area (%) |
 |-------------------------|:-------------:|
-| 100                     |     83.5%     |
-| 500                     |    34.14%     |
-| 1000                    |     9.78%     |
+| 100                     |    65.76%     |
+| 500                     |    12.86%     |
+| 1000                    |     3.63%     |

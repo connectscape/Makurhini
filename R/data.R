@@ -89,3 +89,34 @@
 #'https://ecoregions2017.appspot.com
 "Ecoregions"
 
+#' @title File of habitat nodes in Spain
+#'
+#' @description A \code{data.frame} with 359 habitat patches/nodes identified as
+#' the areas covered by forest according to the CORINE land cover map from Spain.
+#' @format A \code{data.frame} with 359 files and 2 columns.
+#' \describe{
+#' \item{ID}{nodes identifier}
+#' \item{attribute}{area in ha}
+#' }
+#' @references
+#' European Commission. (2020). COMMUNICATION FROM THE COMMISSION TO THE EUROPEAN PARLIAMENT, THE COUNCIL, THE EUROPEAN ECONOMIC AND SOCIAL COMMITTEE AND THE COMMITTEE OF THE REGIONS EU Biodiversity Strategy for 2030 Bringing nature back into our lives. https://ec.europa.eu/research/environment/index.cfm?pg=nbs \cr
+#' Goicolea, T., Cisneros-Araújo, P., Vega, C.A. et al. Landscape connectivity for predicting the spread of ASF in the European wild boar population. Sci Rep 14, 3414 (2024). https://doi.org/10.1038/s41598-024-53869-5
+"habitat_nodes_spain"
+
+
+#' @title Distance matrix between habitat nodes in Spain
+#'
+#' @description A \code{Large matrix} with 128881 elements or 359 files and 359 columns. The distance file gives the current effective distance of corridors between patches.
+#' @format A \code{matrix} with 359 files and 359 columns.
+#' @references
+#' Goicolea, T., Cisneros-Araújo, P., Vega, C.A. et al. Landscape connectivity for predicting the spread of ASF in the European wild boar population. Sci Rep 14, 3414 (2024). https://doi.org/10.1038/s41598-024-53869-5
+"dist_original"
+
+
+#' @title Distance matrix between habitat nodes in Spain after an hypothetical restoration
+#'
+#' @description A \code{Large matrix} with 128881 elements or 359 files and 359 columns. The distance file gives the potential (after hypothetical restoration measures) effective distance of corridors between patches.
+#' @format A \code{matrix} with 359 files and 359 columns.
+#' @references
+#' Goicolea, T., Cisneros-Araújo, P., Vega, C.A. et al. Landscape connectivity for predicting the spread of ASF in the European wild boar population. Sci Rep 14, 3414 (2024). https://doi.org/10.1038/s41598-024-53869-5
+"dist_restoration"

@@ -12,7 +12,7 @@
 #' @keywords internal
 
 moveme <- function (invec, movecommand){
-  movecommand <- lapply(strsplit(strsplit(movecommand, ";")[[1]],",|\\s+"), function(x) x[x != ""])
+  movecommand <- lapply(strsplit(strsplit(movecommand, ";")[[1]],",|\\s+"), function(x){x[x != ""]})
   movelist <- lapply(movecommand, function(x){
     Where <- x[which(x %in% c("before", "after", "first", "last")):length(x)]
     ToMove <- base::setdiff(x, Where)

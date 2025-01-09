@@ -68,7 +68,7 @@ euclidean_distances <- function(x, id, centroid = TRUE, distance_unit = "m",
         plan(strategy = strat, gc = TRUE, workers = works)
       }
 
-      if(as.character(unique(st_geometry_type(x))) != "POINT"){
+      if(any(as.character(unique(st_geometry_type(x))) != "POINT")){
         x <- future_map_dfr(split(x, ceiling(1:nrow(x)/10)), function(y){
           y <- st_centroid_within_poly(y); return(y)})
       }

@@ -8,7 +8,7 @@ Version: 3.0
 Authors@R: c(person(given = "Oscar",
               family = "Godínez-Gómez",
               role = c("aut", "cre"),
-              email = "osctapir@gmail.com",
+              email = "connectscape.project@gmail.com",
               comment = c(ORCID = "0000-0003-3016-739X")
               ),
               person(given = "Camilo A.",
@@ -27,7 +27,7 @@ Authors@R: c(person(given = "Oscar",
               comment = c(ORCID = "0000-0002-5239-0763")
               )
               )
-Maintainer: Oscar Godínez-Gómez <osctapir@gmail.com>
+Maintainer: Oscar Godínez-Gómez <connectscape.project@gmail.com>
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true

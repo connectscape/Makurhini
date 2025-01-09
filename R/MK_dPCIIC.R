@@ -90,6 +90,7 @@
 #' @importFrom igraph delete_vertices distances
 #' @importFrom sf write_sf st_as_sf
 #' @importFrom stats median
+#' @importFrom terra unique rast classify writeRaster
 MK_dPCIIC <- function(nodes,
                       attribute  = NULL,
                       weighted = FALSE,
@@ -173,8 +174,12 @@ MK_dPCIIC <- function(nodes,
                              area_unit = area_unit,
                              restoration = restoration,
                              write = NULL)
-  } else if (class(nodes)[1] == "RasterLayer"){
-    if(length(raster::unique(nodes)) < 2){
+  } else if (any(class(nodes)[1] == "RasterLayer" | class(nodes)[1] == "SpatRaster")){
+    rcl <- class(nodes)[1]
+    if( rcl == "RasterLayer"){
+      nodes <- terra::rast(nodes)
+    }
+    if(length(terra::unique(nodes)[[1]]) < 2){
       stop("error, you need more than 2 nodes")
     }
     idT <- NULL
@@ -507,9 +512,12 @@ MK_dPCIIC <- function(nodes,
             write.csv(nodes.2, paste0(write, "_", "d", x.1,  ".csv"), row.names = FALSE)
           }
         } else {
-          rp <- raster::unique(nodes); rp <- as.vector(rp); rp <- rp[which(!is.na(rp))]
+          rp <- unique(nodes)[[1]]; rp <- as.vector(rp); rp <- rp[which(!is.na(rp))]
 
           if(!is.null(parallel)){
+            if(class(nodes)[1] == "SpatRaster"){
+              nodes <- raster(nodes)
+            }
             m <- matrix(nrow = nrow(attribute_1), ncol = 2); m[,1] <- id_original
 
             works <- as.numeric(availableCores())-1; works <-  if(parallel > works){works}else{parallel}
@@ -523,20 +531,20 @@ MK_dPCIIC <- function(nodes,
             r_metric <- tryCatch(future_map(2:ncol(metric_conn), function(c){
               x1 <- metric_conn[,c(1, c)]
               for(i in rp){
-                m[which(m == i),2] <- x1[which(x1[,1]== i),2]
+                m[which(m[,1] == i),2] <- x1[which(x1[,1]== i),2]
               }
               x1 <- reclassify(nodes, rcl = m)
               return(x1)}, .progress = TRUE), error = function(err) err)
             close_multiprocess(works)
-
+            r_metric <- lapply(r_metric, rast); nodes <- rast(nodes)
           } else {
             m <- matrix(nrow = nrow(attribute_1), ncol = 2); m[,1] <- id_original
             r_metric <- lapply(2:ncol(metric_conn), function(c){
               x1 <- metric_conn[,c(1, c)]
               for(i in rp){
-                m[which(m == i),2] <- x1[which(x1[,1]== i),2]
+                m[which(m[,1] == i),2] <- x1[which(x1[,1]== i),2]
               }
-              x1 <- reclassify(nodes, rcl = m)
+              x1 <- classify(nodes, rcl = m)
               return(x1)})
           }
 
@@ -545,7 +553,7 @@ MK_dPCIIC <- function(nodes,
             nodes.2[[i]] <- r_metric[[i-1]]
           }
 
-          nodes.2[[1]] <- nodes; nodes.2 <- stack(nodes.2)
+          nodes.2[[1]] <- nodes; nodes.2 <- rast(nodes.2)
           names(nodes.2) <- names(metric_conn); names(nodes.2)[1] <- "Id"
 
           if (!is.null(write)){
@@ -554,6 +562,10 @@ MK_dPCIIC <- function(nodes,
               writeRaster(x1, filename = paste0(write, "_", n[w], "_",  x.1, ".tif"),
                           overwrite = TRUE, options = c("COMPRESS=LZW", "TFW=YES"))
             })
+          }
+
+          if(rcl != "SpatRaster"){
+            nodes.2 <- lapply(nodes.2, raster) |> stack(x = _)
           }
         }
       }

@@ -41,10 +41,12 @@
 #' }
 #' @importFrom magrittr %>%
 #' @importFrom sf write_sf st_as_sf
-#' @importFrom igraph graph_from_adjacency_matrix strength evcent closeness betweenness clusters cluster_louvain degree
-#' @importFrom raster as.matrix extent raster stack extent<- writeRaster reclassify crs crs<- unique
+#' @importFrom igraph graph_from_adjacency_matrix strength eigen_centrality closeness betweenness cluster_louvain degree components
+#' @importFrom raster as.matrix raster stack
 #' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map
+#' @importFrom purrr map
+#' @importFrom terra rast unique writeRaster crs crs<- classify
 MK_RMCentrality <- function(nodes,
                             distance = list(type = "centroid"),
                             distance_thresholds = NULL,
@@ -64,6 +66,10 @@ MK_RMCentrality <- function(nodes,
     stop("error missing numeric distance threshold(s)")
   }
 
+  if(!is.null(probability) & isTRUE(binary)){
+    binary <- FALSE
+  }
+
   if(!is.null(write)) {
     if (!dir.exists(dirname(write))) {
       stop("error, output folder does not exist")
@@ -76,8 +82,10 @@ MK_RMCentrality <- function(nodes,
     } else {
       nodes <- st_as_sf(nodes); nodes$IdTemp <- 1:nrow(nodes); idT <- "IdTemp"
     }
+    nodes.2 <- nodes
   } else {
-    if(class(nodes)[1] == "RasterLayer"){
+    rcl <- class(nodes)[1]
+    if( rcl == "RasterLayer"){
       nodes <- terra::rast(nodes)
     }
     t_uniq <- terra::unique(nodes)
@@ -86,6 +94,7 @@ MK_RMCentrality <- function(nodes,
     } else {
       idT <- NULL
     }
+    nodes.2 <- t_uniq; names(nodes.2) <- "IdTemp"
   }
   if(isTRUE(intern)){
     if(!is.null(distance$resistance)){
@@ -112,19 +121,12 @@ MK_RMCentrality <- function(nodes,
                        write = NULL)
   if(!is.null(idT)){
     rownames(dist) <- nodes$IdTemp; colnames(dist) <- nodes$IdTemp
+  } else {
+    rownames(dist) <- t_uniq[[1]]; colnames(dist) <- t_uniq[[1]]
   }
 
-  if(length(distance_thresholds) > 1 & isTRUE(intern)){
-    pb <- txtProgressBar(0, length(distance_thresholds), style = 3)
-  }
-
-  centrality_result <- lapply(1:length(distance_thresholds), function(x){
+  centrality_result <- map(1:length(distance_thresholds), function(x){
     x <- distance_thresholds[x]
-    if(length(distance_thresholds) > 1 & isTRUE(intern)){
-      setTxtProgressBar(pb, x)
-    }
-    nodes.2 <- nodes
-
     if(isTRUE(binary)){
       Adj_matr <- dist*0; Adj_matr[dist < x] <- 1; diag(Adj_matr) <- 0
       graph_nodes <- tryCatch(igraph::graph_from_adjacency_matrix(Adj_matr, mode = "undirected"), error = function(err) err)
@@ -145,10 +147,10 @@ MK_RMCentrality <- function(nodes,
 
     if(isFALSE(binary)){
       metric.strength <- strength(graph_nodes, weights = 1 / E(graph_nodes)$weight)
-      metric.eigen <- evcent(graph_nodes, weights = 1 / E(graph_nodes)$weight)
+      metric.eigen <- eigen_centrality(graph_nodes, weights = 1 / E(graph_nodes)$weight)
       metric.close <- closeness(graph_nodes, weights = 1 / E(graph_nodes)$weight, normalized = TRUE)
       metric.between <- betweenness(graph_nodes, weights = 1 / E(graph_nodes)$weight)
-      metric.Membcomponents <- clusters(graph_nodes)$membership
+      metric.Membcomponents <- components(graph_nodes)$membership
       metric.modularity <- cluster_louvain(graph_nodes, weights = 1 / E(graph_nodes)$weight)
       modules <- rep(0, nrow(dist))
       for(i in 1:length(metric.modularity)){
@@ -160,29 +162,11 @@ MK_RMCentrality <- function(nodes,
                            metric.between, metric.Membcomponents,
                            modules) %>% as.data.frame()
       names(metric_conn) <- c("id", "strength", "eigen", "close", "BWC", "cluster", "modules")
-
-      if(!is.null(idT)){
-        nodes.2$strength <- metric.strength
-        nodes.2$eigen <- metric.eigen$vector
-        nodes.2$close <- metric.close
-        nodes.2$BWC <- metric.between
-        nodes.2$cluster <- metric.Membcomponents
-        nodes.2$modules <- modules
-
-        nodes.2 <- nodes.2[moveme(names(nodes.2), "geometry last")]
-        nodes.2$IdTemp <- NULL
-
-        if(!is.null(write)){
-          write_sf(nodes.2, paste0(write, "_", "d", x,  ".shp"), delete_layer = TRUE)
-        }
-      }
-
     } else {
-      metric.degree <- degree(graph_nodes); metric.eigen <- evcent(graph_nodes)
+      metric.degree <- degree(graph_nodes); metric.eigen <- eigen_centrality(graph_nodes)
       metric.close <- closeness(graph_nodes); metric.between <- betweenness(graph_nodes)
-      metric.Membcomponents <- clusters(graph_nodes)$membership; metric.modularity <- cluster_louvain(graph_nodes)
+      metric.Membcomponents <- components(graph_nodes)$membership; metric.modularity <- cluster_louvain(graph_nodes)
       modules <- rep(0, nrow(dist))
-
       for(i in 1:length(metric.modularity)){
         n <- metric.modularity[[i]] %>% as.numeric()
         modules[which(nodes.2$IdTemp %in% n)] <- i
@@ -191,27 +175,28 @@ MK_RMCentrality <- function(nodes,
                            metric.between, metric.Membcomponents,
                            modules) %>% as.data.frame()
       names(metric_conn) <- c("id", "degree", "eigen", "close", "BWC", "cluster", "modules")
-
-      if(!is.null(idT)){
-        nodes.2$degree <- metric.degree
-        nodes.2$eigen <- metric.eigen$vector
-        nodes.2$close <- metric.close
-        nodes.2$BWC <- metric.between
-        nodes.2$cluster <- metric.Membcomponents
-        nodes.2$modules <- modules
-
-        nodes.2 <- nodes.2[moveme(names(nodes.2), "geometry last")]
-        nodes.2$IdTemp <- NULL
-        if(!is.null(write)){
-          write_sf(nodes.2, paste0(write, "_", "d", x,  ".shp"), delete_layer = TRUE)
-        }
-      }
     }
 
-    if(is.null(idT)){
-      rp <- raster::unique(nodes); rp <- as.vector(rp); rp <- rp[which(!is.na(rp))]
-
+    if(!is.null(idT)){
+      if(isFALSE(binary)){
+        nodes.2$strength <- metric.strength
+      } else {
+        nodes.2$degree <- metric.degree
+      }
+      nodes.2$eigen <- metric.eigen$vector
+      nodes.2$close <- metric.close; nodes.2$BWC <- metric.between
+      nodes.2$cluster <- metric.Membcomponents; nodes.2$modules <- modules
+      nodes.2 <- nodes.2[moveme(names(nodes.2), "geometry last")]
+      nodes.2$IdTemp <- NULL
+      if(!is.null(write)){
+        write_sf(nodes.2, paste0(write, "_", "d", x,  ".shp"), delete_layer = TRUE)
+      }
+    } else {
+      rp <- unique(nodes)[[1]]; rp <- as.vector(rp); rp <- rp[which(!is.na(rp))]
       if(isTRUE(rasterparallel)){
+        if(class(nodes)[1] == "SpatRaster"){
+          nodes <- raster(nodes)
+        }
         m <- matrix(nrow = nrow(dist), ncol = 2); m[,1] <- rownames(dist) %>% as.numeric()
         works <- as.numeric(availableCores())-1
         if(.Platform$OS.type == "unix") {
@@ -224,46 +209,45 @@ MK_RMCentrality <- function(nodes,
           x1 <- metric_conn[, c(1, c)]
           for(i in rp){
             n <- x1[[which(x1[,1]== i), 2]] %>% as.character() %>% as.numeric()
-            m[which(m == i),2] <- n
+            m[which(m[,1] == i),2] <- n
           }
           x1 <- reclassify(nodes, rcl = m)
           return(x1)}, .progress = TRUE), error = function(err) err)
         close_multiprocess(works)
-
+        r_metric <- lapply(r_metric, rast); nodes <- rast(nodes)
       } else {
-        m <- matrix(nrow = nrow(dist), ncol = 2)
-        m[,1] <- rownames(dist) %>% as.numeric()
-
+        m <- matrix(nrow = nrow(dist), ncol = 2); m[,1] <- rownames(dist) %>% as.numeric()
         r_metric <- lapply(2:ncol(metric_conn), function(c){
           x1 <- metric_conn[, c(1, c)]
           for(i in rp){
             n <- x1[[which(x1[,1]== i), 2]] %>% as.character() %>% as.numeric()
-            m[which(m == i),2] <- n
+            m[which(m[,1] == i),2] <- n
           }
-          x1 <- reclassify(nodes, rcl = m)
+          x1 <- classify(nodes, rcl = m)
           return(x1)})
       }
 
       nodes.2 <- list()
-
       for(i in 2:(length(r_metric)+1)){
         nodes.2[[i]] <- r_metric[[i-1]]
       }
 
-      nodes.2[[1]] <- nodes
-      nodes.2 <- stack(nodes.2)
+      nodes.2[[1]] <- nodes; nodes.2 <- rast(nodes.2)
       names(nodes.2) <- names(metric_conn)
 
       if (!is.null(write)){
         n <- names(metric_conn)
         n <- lapply(as.list(2:length(n)), function(w){
-          x1 <- nodes.2[[w]]
-          crs(x1) <- crs(nodes.2)
+          x1 <- nodes.2[[w]]; crs(x1) <- crs(nodes.2)
           writeRaster(x1, filename = paste0(write, "_", n[w], "_",  x, ".tif"), overwrite = TRUE, options = c("COMPRESS=LZW", "TFW=YES"))
         })
       }
+
+      if(rcl != "SpatRaster"){
+        nodes.2 <- lapply(nodes.2, raster) %>% stack()
+      }
     }
-    return(nodes.2) })
+    return(nodes.2) }, .progress = intern)
 
   if (length(distance_thresholds) == 1){
     centrality_result <- centrality_result[[1]]

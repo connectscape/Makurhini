@@ -80,9 +80,10 @@ test_metric_distance(nodes = list_forest_patches[[1]],
                      groups = 0)
 
 
-data("Protected_areas", package = "Makurhini")
-data("regions", package = "Makurhini")
-region <- regions[1,]
+load(system.file("extdata", "Protected_areas.rda",
+                package = "Makurhini", mustWork = TRUE))
+data("Ecoregions", package = "Makurhini")
+region <- Ecoregions[1,]
 
 test_metric_distance(nodes = Protected_areas,
                      distance1 =list(type= "centroid"),

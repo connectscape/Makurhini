@@ -39,9 +39,10 @@
 #'                      groups = 0)
 #'
 #'
-#' data("Protected_areas", package = "Makurhini")
-#' data("regions", package = "Makurhini")
-#' region <- regions[1,]
+#'load(system.file("extdata", "Protected_areas.rda",
+#'                 package = "Makurhini", mustWork = TRUE))
+#'data("Ecoregions", package = "Makurhini")
+#'region <- Ecoregions[1,]
 #'
 #' test_metric_distance(nodes = Protected_areas,
 #'                      distance1 =list(type= "centroid"),
@@ -138,7 +139,7 @@ test_metric_distance <- function(nodes,
 
   conn_metric <- map_dfr(1:length(distances_test), function(x){
     x.1 <- distances_test[[x]]
-    ECA_metric <-  map_dfr(distance_thresholds, function(y){
+    ECA_metric <- map_dfr(distance_thresholds, function(y){
       tab1 <- tryCatch(MK_dPCIIC(nodes = nodes, attribute = attribute,
                                  restoration = NULL,
                                  distance = x.1, area_unit = area_unit,
@@ -146,7 +147,7 @@ test_metric_distance <- function(nodes,
                                  probability = probability,
                                  distance_thresholds = y,
                                  overall = TRUE, onlyoverall = TRUE,
-                                 LA = LA, write = NULL), error = function(err)err)
+                                 LA = LA, write = NULL, intern = FALSE), error = function(err)err)
 
       if (inherits(tab1, "error")){
         stop(tab1)
@@ -159,7 +160,7 @@ test_metric_distance <- function(nodes,
       }
 
       return(data.frame(Value = tab1))
-    })
+    }, .progress = intern)
 
     if(length(distances_test)>1 & isTRUE(intern)){
       setTxtProgressBar(pb, x)

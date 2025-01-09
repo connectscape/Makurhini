@@ -11,10 +11,9 @@ An object of class \code{RasterLayer} of dimension 2536 x 2027 x 1.
 Protected_areas_raster
 }
 \description{
-raster \code{raster} with 706 polygons of Protected Areas in Mexico.
+raster \code{raster} with with 957 protected areas (PAs) in these ecoregions of Colombia.
 }
 \references{
-UNEP-WCMC (2019). Protected Area Profile for Mexico from the World Database of Protected Areas, May 2019.
-Available at: www.protectedplanet.net
+UNEP-WCMC. Manual de Usuario para la Base de Datos Mundial Sobre Áreas Protegidas y Base de Datos Mundial Sobre Otras Medidas Eficaces de Conservación Basadas en Áreas: 1.6; UNEP-WCMC: Cambridge, UK, 2020
 }
 \keyword{datasets}

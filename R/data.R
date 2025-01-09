@@ -69,20 +69,16 @@
 
 #' @title Protected areas raster for analysis
 #'
-#' @description raster \code{raster} with 706 polygons of Protected Areas in Mexico.
+#' @description raster \code{raster} with with 957 protected areas (PAs) in these ecoregions of Colombia.
 #' @references
-#' UNEP-WCMC (2019). Protected Area Profile for Mexico from the World Database of Protected Areas, May 2019.
-#' Available at: www.protectedplanet.net
+#' UNEP-WCMC. Manual de Usuario para la Base de Datos Mundial Sobre Áreas Protegidas y Base de Datos Mundial Sobre Otras Medidas Eficaces de Conservación Basadas en Áreas: 1.6; UNEP-WCMC: Cambridge, UK, 2020
 "Protected_areas_raster"
 
 
-#' @title Ecoregions shapefile for analysis
+#' @title Ecoregions vector for analysis
 #'
-#' @description A Spatial Polygons DataFrame \code{SpatialPolygonsDataFrame} with 3 ecoregions of Mexico.
+#' @description A simple feature collection \code{sf}  with 33 ecoregions of Colombia.
 #' @format A \code{SpatialPolygonsDataFrame} with 3 features and 3 fields, which are:
-#' \describe{
-#' \item{OBJECTID}{Ecoregions identifier.}
-#'  }
 #' @references
 #'Dinerstein, E., Olson, D., Joshi, A., Vynne, C., Burgess, N. D., Wikramanayake, E., and Kindt, R. (2017).
 #'An Ecoregion-Based Approach to Protecting Half the Terrestrial Realm. BioScience, 67(6), 534?545. https://doi.org/10.1093/biosci/bix014

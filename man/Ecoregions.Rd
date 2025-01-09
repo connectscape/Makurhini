@@ -3,18 +3,15 @@
 \docType{data}
 \name{Ecoregions}
 \alias{Ecoregions}
-\title{Ecoregions shapefile for analysis}
+\title{Ecoregions vector for analysis}
 \format{
 A \code{SpatialPolygonsDataFrame} with 3 features and 3 fields, which are:
-\describe{
-\item{OBJECTID}{Ecoregions identifier.}
- }
 }
 \usage{
 Ecoregions
 }
 \description{
-A Spatial Polygons DataFrame \code{SpatialPolygonsDataFrame} with 3 ecoregions of Mexico.
+A simple feature collection \code{sf}  with 33 ecoregions of Colombia.
 }
 \references{
 Dinerstein, E., Olson, D., Joshi, A., Vynne, C., Burgess, N. D., Wikramanayake, E., and Kindt, R. (2017).

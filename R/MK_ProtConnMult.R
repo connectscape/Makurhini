@@ -217,9 +217,6 @@ MK_ProtConnMult <- function(nodes, regions,
     }
     plan(strategy = strat, gc = TRUE, workers = works)
     protconn_result <- tryCatch(future_map(1:nrow(regions), function(x){
-      if (isTRUE(intern)){
-        setTxtProgressBar(pb, x)
-      }
       Ecoreg_sel <- regions[regions$ID_Temp == unique(regions$ID_Temp)[x],]
       protconn <- tryCatch(MK_ProtConn(nodes = nodes,
                                        region = Ecoreg_sel,
@@ -239,7 +236,7 @@ MK_ProtConnMult <- function(nodes, regions,
         stop(protconn)
       }
 
-      return(protconn)}), error = function(err)err)
+      return(protconn)}, .progress = intern), error = function(err)err)
 
     if(inherits(protconn_result, "error")){
       close_multiprocess(works)

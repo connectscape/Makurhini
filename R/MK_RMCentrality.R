@@ -150,24 +150,24 @@ MK_RMCentrality <- function(nodes,
       metric.eigen <- eigen_centrality(graph_nodes, weights = 1 / E(graph_nodes)$weight)
       metric.close <- closeness(graph_nodes, weights = 1 / E(graph_nodes)$weight, normalized = TRUE)
       metric.between <- betweenness(graph_nodes, weights = 1 / E(graph_nodes)$weight)
-      #metric.Membcomponents <- components(graph_nodes)$membership
+      metric.Membcomponents <- components(graph_nodes)$membership
       community.1 <- cluster_walktrap(graph_nodes) |> membership(communities = _)
       community.2 <- cluster_louvain(graph_nodes, weights = 1 / E(graph_nodes)$weight) |>
         membership(communities = _)
       metric_conn <- cbind(rownames(dist), metric.strength, metric.eigen$vector, metric.close,
-                           metric.between, community.1, community.2) %>% as.data.frame()
-      names(metric_conn) <- c("id", "strength", "eigen", "close", "BWC", "memb.rw", "memb.louvain")
+                           metric.between, metric.Membcomponents, community.1, community.2) %>% as.data.frame()
+      names(metric_conn) <- c("id", "strength", "eigen", "close", "BWC", "cluster", "memb.rw", "memb.louvain")
       metric_conn
 
     } else {
       metric.degree <- degree(graph_nodes); metric.eigen <- eigen_centrality(graph_nodes)
       metric.close <- closeness(graph_nodes); metric.between <- betweenness(graph_nodes)
-      #metric.Membcomponents <- components(graph_nodes)$membership
+      metric.Membcomponents <- components(graph_nodes)$membership
       community.1 <- cluster_walktrap(graph_nodes)|> membership(communities = _)
       community.2 <- cluster_louvain(graph_nodes)|> membership(communities = _)
       metric_conn <- cbind(rownames(dist), metric.strength, metric.eigen$vector, metric.close,
-                           metric.between, community.1, community.2) %>% as.data.frame()
-      names(metric_conn) <- c("id", "degree", "eigen", "close", "BWC", "memb.rw", "memb.louvain")
+                           metric.between, metric.Membcomponents, community.1, community.2) %>% as.data.frame()
+      names(metric_conn) <- c("id", "degree", "eigen", "close", "BWC", "cluster", "memb.rw", "memb.louvain")
     }
 
     metric_conn <- data.frame(lapply(metric_conn,as.numeric))

@@ -608,17 +608,19 @@ ProtConn_1$`ProtConn Plot`
 
 <img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
+![](images/example_protconnplot2.png)
+
 ProtConn delta or the higher contribution to ProtConn value in the
 ecoregion (grey polygon):
 
 ``` r
 ggplot()+
-  geom_sf(data = Ecoregion_1)+
+  geom_sf(data = Ecoregion_1, col = "black")+
   geom_sf(data = ProtConn_1$ProtConn_Delta, 
-          aes(fill = cut(dProtConn, breaks = classIntervals(ProtConn_1$ProtConn_Delta$dProtConn, 5, "jenks")[[2]])), color = NA)+
+          aes(fill = cut(dProtConn, breaks = classIntervals(ProtConn_1$ProtConn_Delta$dProtConn, 7, "jenks")[[2]])), color = NA)+
   scale_fill_brewer(type = "qual",
-                    palette = "RdYlGn",
-                    name = "dProtConn",
+                    palette = "YlOrRd",
+                    name = "dProtConn PAs",
                     na.translate = FALSE)+
   theme_minimal() +
   theme(
@@ -1298,6 +1300,8 @@ ProtConn_2$ProtConn_10000$`ProtConn Plot`
 ```
 
 <img src="man/figures/README-unnamed-chunk-19-1.png" width="60%" />
+
+![](images/example_protconnplot1.png)
 
 Vector file of class sf:
 

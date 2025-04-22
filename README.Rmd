@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Makurhini: Analyzing landscape connectivity.
+# Makurhini: An R package for comprehensive analysis of landscape fragmentation and connectivity.
 
 ![](man/figures/LOGO_MAKHURINI.png)
 
@@ -46,11 +46,11 @@ further details, please see Latorre-Cárdenas et al., 2023.
 
 ## Overview
 
-<strong>Makurhini</strong> *(Connect in Purépecha language)* is an R
-package for calculating fragmentation and landscape connectivity indices
-used in conservation planning. Makurhini provides a set of functions to
-identify connectivity of protected areas networks and the importance of
-landscape elements for maintaining connectivity. This package allows the
+**Makurhini** *(Connect in Purépecha language)* is an R package for
+calculating fragmentation and landscape connectivity indices used in
+conservation planning. Makurhini provides a set of functions to identify
+connectivity of protected areas networks and the importance of landscape
+elements for maintaining connectivity. This package allows the
 evaluation of scenarios under landscape connectivity changes and
 presents an additional improvement, the inclusion of landscape
 heterogeneity as a constraining factor for connectivity.
@@ -72,14 +72,22 @@ and monitoring of global conservation targets.
 
 ### Citing Makurhini package
 
-A formal paper detailing this package is forthcoming, but until it is
-published, please use the something like the following to cite if you
-use it in your work:
+We will soon publish a paper about this package. Until then, please use
+one of the following resources:
 
-<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini:
-Analyzing landscape connectivity.
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3771605.svg)](https://doi.org/10.5281/zenodo.3771605)
-</code> </i>
+**Preprint:**
+
+Godínez-Gómez, O., Correa-Ayram, C., Goicolea, T., & Saura, S. (2025).
+Makurhini: An R package for comprehensive analysis of landscape
+fragmentation and connectivity. Research Square.
+<https://doi.org/10.21203/rs.3.rs-6398746/v1>
+
+**Zenodo:**
+
+Godínez-Gómez, O., Correa Ayram, C. A., Goicolea, T., & Saura, S.
+(2025). Makurhini: An R package for comprehensive analysis of landscape
+fragmentation and connectivity (3.0.0). Zenodo.
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14940436.svg)](https://doi.org/10.5281/zenodo.14940436)
 
 ## Installation
 
@@ -450,14 +458,14 @@ data("resistance_matrix", package = "Makurhini")
 
 ```
 
-```{r message=FALSE, warning=FALSE, out.width = "100%"}
+```{r eval = FALSE, message=FALSE, warning=FALSE, out.width = "100%"}
 raster_map <- as(resistance_matrix, "SpatialPixelsDataFrame")
 raster_map <- as.data.frame(raster_map)
 colnames(raster_map) <- c("value", "x", "y")
 ggplot() +  
   geom_tile(data = raster_map, aes(x = x, y = y, fill = value), alpha = 0.8) + 
   geom_sf(data = TMVS, aes(color = "Study area"), fill = NA, color = "black") +
-  geom_sf(data = habitat_nodes, aes(color = "Habitat nodes"), fill = "forestgreen") +
+  geom_sf(data = habitat_nodes, aes(color = "Habitat nodes"), fill = "forestgreen", linewidth = 0.5) +
   scale_fill_gradientn(colors = c("#000004FF", "#1B0C42FF", "#4B0C6BFF", "#781C6DFF",
                                   "#A52C60FF", "#CF4446FF", "#ED6925FF", "#FB9A06FF",
                                   "#F7D03CFF", "#FCFFA4FF"))+
@@ -466,6 +474,8 @@ ggplot() +
   theme(axis.title.x = element_blank(),
         axis.title.y = element_blank())
 ```
+
+![](images/example_patches-02.png)
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE}
 PC_example_2 <- MK_dPCIIC(nodes = habitat_nodes,
@@ -529,20 +539,47 @@ ggplot()+
 
 ```
 
-```{r echo=FALSE, out.width = "100%"}
+![](images/example_PC.png)
+
+```{r eval = FALSE, echo=FALSE, out.width = "100%"}
 tmap_mode("plot")
-c <-9
-dPC <- tm_shape(PC_example_2$d10000) + tm_fill("dPC", palette = RColorBrewer::brewer.pal(c, "RdYlGn"),
-                            breaks =  classIntervals(PC_example_2$d10000$dPC, c, "jenks")[[2]])+ 
-  tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+c <- 9
+dPC <- tm_shape(PC_example_2$d10000) + tm_fill("dPC", 
+                                               fill.scale = tm_scale(breaks =  classIntervals(PC_example_2$d10000$dPC, c, "jenks")[[2]],
+                                                                     values = RColorBrewer::brewer.pal(c, "RdYlGn"))) + 
+  tm_shape(TMVS) + tm_borders(lwd = 1.5)+ tm_layout(legend.width = 4.3, 
+                                                    legend.height = 5.6,
+                                                    legend.position = c(-0.01, 0.3),
+                                                    legend.text.size = 1,
+                                                    legend.title.size = 0.7) 
 
-dintra <- tm_shape(PC_example_2$d10000) + tm_fill("dPCintra", palette = RColorBrewer::brewer.pal(c, "RdYlGn"), breaks =  classIntervals(PC_example_2$d10000$dPCintra, c, "jenks")[[2]])+ 
-  tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+dintra <- tm_shape(PC_example_2$d10000) + tm_fill("dPCintra", 
+                                                  fill.scale = tm_scale(values = RColorBrewer::brewer.pal(c, "RdYlGn"), 
+                                                                        breaks =  classIntervals(PC_example_2$d10000$dPCintra, c, "jenks")[[2]]))+ 
+  tm_shape(TMVS) + tm_borders(lwd = 1.5)+ tm_layout(legend.width = 4.3, 
+                                                    legend.height = 5.6,
+                                                    legend.position = c(-0.01, 0.3),
+                                                    legend.text.size = 1,
+                                                    legend.title.size = 0.7) 
 
-dflux <- tm_shape(PC_example_2$d10000) + tm_fill("dPCflux", palette = RColorBrewer::brewer.pal(c, "RdYlGn"), breaks =  classIntervals(PC_example_2$d10000$dPCflux, c, "jenks")[[2]])+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+dflux <- tm_shape(PC_example_2$d10000) + tm_fill("dPCflux",
+                                                 fill.scale = tm_scale(values = RColorBrewer::brewer.pal(c, "RdYlGn"), 
+                                                                       breaks =  classIntervals(PC_example_2$d10000$dPCflux, c, "jenks")[[2]]))+
+  tm_shape(TMVS) + tm_borders(lwd = 1.5)+ tm_layout(legend.width = 4.3, 
+                                                    legend.height = 5.6,
+                                                    legend.position = c(-0.01, 0.3),
+                                                    legend.text.size = 1,
+                                                    legend.title.size = 0.7)  
 
-dconect <- tm_shape(PC_example_2$d10000) + tm_fill("dPCconnector", palette = RColorBrewer::brewer.pal(c, "RdYlGn"), breaks =  classIntervals(PC_example_2$d10000$dPCconnector, c, "jenks")[[2]])+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
-  
+dconect <- tm_shape(PC_example_2$d10000) + tm_fill("dPCconnector", 
+                                                   fill.scale = tm_scale(values = RColorBrewer::brewer.pal(c, "RdYlGn"), 
+                                                                         breaks =  classIntervals(PC_example_2$d10000$dPCconnector, c, "jenks")[[2]]))+ 
+  tm_shape(TMVS) + tm_borders(lwd = 1.5)+ tm_layout(legend.width = 4.3, 
+                                                    legend.height = 5.6,
+                                                    legend.position = c(-0.01, 0.3),
+                                                    legend.text.size = 1,
+                                                    legend.title.size = 0.7) 
+
 tmap_arrange(dPC, dintra, dflux, dconect)
 
 ```
@@ -551,21 +588,37 @@ tmap_arrange(dPC, dintra, dflux, dconect)
 
 ```{r }
 centrality_test <- MK_RMCentrality(nodes = habitat_nodes,
-                                distance = list(type = "centroid"),
+                                 distance = list(type = "centroid"),
                                  distance_thresholds = 10000,
-                                 probability = 0.05,
+                                 probability = 0.5,
                                  write = NULL)
 head(centrality_test)
 ```
 
 Examples:
 
-```{r echo=FALSE, out.width = "100%"}
-clustertest <- tm_shape(centrality_test) + tm_fill("cluster", palette = RColorBrewer::brewer.pal(c, "PuOr"), breaks =  classIntervals(centrality_test$cluster, c, "jenks")[[2]])+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+![](images/example_Centrality.png)
 
-modules <- tm_shape(centrality_test) + tm_fill("modules", palette = RColorBrewer::brewer.pal(c, "PuOr"), breaks =  classIntervals(centrality_test$modules, c, "jenks")[[2]])+ tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+```{r eval = FALSE, echo=FALSE, out.width = "100%"}
+cluster.randomwalk <- tm_shape(centrality_test) + 
+  tm_fill("memb.rw", 
+          fill.scale = tm_scale_discrete(ticks =  1:length(unique(centrality_test$memb.rw)), 
+                                         values = RColorBrewer::brewer.pal(length(unique(centrality_test$memb.rw)), "PuOr"))) + 
+  tm_shape(TMVS) + tm_borders(lwd = 2)+  
+  tm_title("Random Walk Community Detection", position = c("center", "top"))+
+  tm_layout(legend.width = 8.5, legend.height = 10,
+            legend.position = c(0.01, 0.3)) 
 
-tmap_arrange(clustertest, modules)
+BWC <- tm_shape(centrality_test) + 
+  tm_fill("BWC", 
+          fill.scale = tm_scale(breaks = classIntervals(centrality_test$BWC, 9, "jenks")[[2]], 
+                                values = RColorBrewer::brewer.pal(9, "PuOr"))) + 
+  tm_shape(TMVS) + tm_borders(lwd = 2)+ 
+  tm_title("Betweenness centrality", position = c("center", "top"))+
+  tm_layout(legend.width = 8.5, legend.height = 10,
+            legend.position = c(0.01, 0.3))
+  
+tmap_arrange(cluster.randomwalk, BWC, ncol = 2)
 ```
 
 Moreover, you can change distance using the distance
@@ -627,29 +680,57 @@ Fragmentation_test$`Summary landscape metrics (Viewer Panel)`
 head(Fragmentation_test[[2]])
 ```
 
-```{r echo=FALSE, out.width = "100%", message=FALSE, warning=FALSE}
+```{r eval = FALSE, echo=FALSE, out.width = "100%", message=FALSE, warning=FALSE}
 library(classInt)
 tmap_mode("plot")
 c <-9
-CAP <- tm_shape(Fragmentation_test[[2]]) + tm_fill("CAPercent", palette = RColorBrewer::brewer.pal(c, "RdYlGn"),
-                                breaks =  classIntervals(Fragmentation_test[[2]]$CAPercent, c, "jenks")[[2]])+ 
-  tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+CAP <- tm_shape(Fragmentation_test[[2]]) + 
+  tm_fill("CAPercent", 
+          fill.scale = tm_scale(breaks = classIntervals(Fragmentation_test[[2]]$CAPercent, c, "jenks")[[2]],
+                                values = RColorBrewer::brewer.pal(c, "RdYlGn")))+ 
+  tm_shape(TMVS) + tm_borders(lwd = 1.5)+ tm_layout(legend.width = 4.3, 
+                                                    legend.height = 5.6,
+                                                    legend.position = c(-0.01, 0.3),
+                                                    legend.text.size = 1,
+                                                    legend.title.size = 0.7) 
+  #tm_title("Core Area %", position = c("center", "top"))+
 
-Per <- tm_shape(Fragmentation_test[[2]]) + tm_fill("Perimeter", palette = rev(RColorBrewer::brewer.pal(c, "RdYlGn")),
-                                                   breaks =  classIntervals(Fragmentation_test[[2]]$Perimeter, c, "jenks")[[2]])+ 
-  tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+Per <- tm_shape(Fragmentation_test[[2]]) + 
+  tm_fill("Perimeter", 
+          fill.scale = tm_scale(breaks = classIntervals(Fragmentation_test[[2]]$Perimeter, c, "jenks")[[2]],
+                                values = RColorBrewer::brewer.pal(c, "RdYlGn")))+ 
+  tm_shape(TMVS) + tm_borders(lwd = 1.5)+ tm_layout(legend.width = 4.3, 
+                                                    legend.height = 5.6,
+                                                    legend.position = c(-0.01, 0.3),
+                                                    legend.text.size = 1,
+                                                    legend.title.size = 0.7) 
 
-SH <- tm_shape(Fragmentation_test[[2]]) + tm_fill("ShapeIndex", palette = rev(RColorBrewer::brewer.pal(c, "PRGn")),
-                                                   breaks =  classIntervals(Fragmentation_test[[2]]$ShapeIndex, c, "jenks")[[2]])+ 
-  tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
+SH <- tm_shape(Fragmentation_test[[2]]) + 
+  tm_fill("ShapeIndex", 
+          fill.scale = tm_scale(breaks = classIntervals(Fragmentation_test[[2]]$ShapeIndex, c, "jenks")[[2]],
+                                values = RColorBrewer::brewer.pal(c, "RdYlGn")))+ 
+  tm_shape(TMVS) + tm_borders(lwd = 1.5)+ tm_layout(legend.width = 4.3, 
+                                                    legend.height = 5.6,
+                                                    legend.position = c(-0.01, 0.3),
+                                                    legend.text.size = 1,
+                                                    legend.title.size = 0.7) 
 
-Frac <- tm_shape(Fragmentation_test[[2]]) + tm_fill("FRAC", palette = rev(RColorBrewer::brewer.pal(c, "PRGn")),
-                                                  breaks =  classIntervals(Fragmentation_test[[2]]$FRAC, c, "quantile")[[2]])+ 
-  tm_style("cobalt")+ tm_layout(legend.width = 0.43, legend.height = 0.43)
-
+Frac <- tm_shape(Fragmentation_test[[2]]) + 
+  tm_fill("FRAC", 
+          fill.scale = tm_scale(breaks = classIntervals(Fragmentation_test[[2]]$FRAC, c, "quantile")[[2]],
+                                values = RColorBrewer::brewer.pal(c, "RdYlGn"),
+                                midpoint = NA))+ 
+  tm_shape(TMVS) + tm_borders(lwd = 1.5)+ tm_layout(legend.width = 4.3, 
+                                                    legend.height = 5.6,
+                                                    legend.position = c(-0.01, 0.3),
+                                                    legend.text.size = 1,
+                                                    legend.title.size = 0.7) 
 
 tmap_arrange(CAP, Per, SH, Frac)
+
 ```
+
+![](images/example_fragm.png)
 
 We can make a loop where we explore different edge depths. In the
 following example, We will explore 10 edge depths (*edge_distance

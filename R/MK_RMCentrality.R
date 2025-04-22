@@ -15,7 +15,7 @@
 #' @param intern \code{logical}. Show the progress of the process, \code{default = TRUE}. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @details This function implements Patch-Scale Connectivity or Centrality Measures. Radial measures: degree, strength (using probability argument, for weighted graphs),
 #' eigenvector centrality (eigen), and closeness centrality (close). Medial measures: betweenness centrality (BWC),
-#' node memberships (cluster), and modularity (modules, using probability argument).
+#' node memberships via short random walks ("memb.rw") and Louvain algorithm ("memb.louvain").
 #' The function builds on functions out of Csardi’s ’igraph’ package.
 #' @references
 #' Borgatti, S. P., & Everett, M. G. (2006). A Graph-theoretic perspective on centrality. Social Networks, 28(4), 466–484. https://doi.org/10.1016/j.socnet.2005.11.005\cr
@@ -31,17 +31,17 @@
 #' centrality_test <- MK_RMCentrality(nodes = habitat_nodes,
 #'                                 distance = list(type = "centroid"),
 #'                                  distance_thresholds = c(10000, 100000),
-#'                                  probability = 0.05,
+#'                                  probability = 0.5,
 #'                                  write = NULL)
 #' centrality_test
-#' plot(centrality_test$d10000["degree"], breaks = "jenks")
+#' plot(centrality_test$d10000["strength"], breaks = "jenks")
 #' plot(centrality_test$d10000["BWC"], breaks = "jenks")
-#' plot(centrality_test$d10000["cluster"], breaks = "jenks")
-#' plot(centrality_test$d10000["modules"], breaks = "jenks")
+#' plot(centrality_test$d10000["memb.rw"], breaks = "jenks")
+#' plot(centrality_test$d10000["memb.louvain"], breaks = "jenks")
 #' }
 #' @importFrom magrittr %>%
 #' @importFrom sf write_sf st_as_sf
-#' @importFrom igraph graph_from_adjacency_matrix strength eigen_centrality closeness betweenness cluster_louvain degree components
+#' @importFrom igraph graph_from_adjacency_matrix strength eigen_centrality closeness betweenness cluster_louvain degree cluster_walktrap membership
 #' @importFrom raster as.matrix raster stack
 #' @importFrom future multicore multisession plan availableCores
 #' @importFrom furrr future_map
@@ -150,46 +150,33 @@ MK_RMCentrality <- function(nodes,
       metric.eigen <- eigen_centrality(graph_nodes, weights = 1 / E(graph_nodes)$weight)
       metric.close <- closeness(graph_nodes, weights = 1 / E(graph_nodes)$weight, normalized = TRUE)
       metric.between <- betweenness(graph_nodes, weights = 1 / E(graph_nodes)$weight)
-      metric.Membcomponents <- components(graph_nodes)$membership
-      metric.modularity <- cluster_louvain(graph_nodes, weights = 1 / E(graph_nodes)$weight)
-      modules <- rep(0, nrow(dist))
-      for(i in 1:length(metric.modularity)){
-        n <- metric.modularity[[i]] %>% as.numeric()
-        modules[which(nodes.2$IdTemp %in% n)] <- i
-      }
-
+      #metric.Membcomponents <- components(graph_nodes)$membership
+      community.1 <- cluster_walktrap(graph_nodes) |> membership(communities = _)
+      community.2 <- cluster_louvain(graph_nodes, weights = 1 / E(graph_nodes)$weight) |>
+        membership(communities = _)
       metric_conn <- cbind(rownames(dist), metric.strength, metric.eigen$vector, metric.close,
-                           metric.between, metric.Membcomponents,
-                           modules) %>% as.data.frame()
-      names(metric_conn) <- c("id", "strength", "eigen", "close", "BWC", "cluster", "modules")
+                           metric.between, community.1, community.2) %>% as.data.frame()
+      names(metric_conn) <- c("id", "strength", "eigen", "close", "BWC", "memb.rw", "memb.louvain")
+      metric_conn
+
     } else {
       metric.degree <- degree(graph_nodes); metric.eigen <- eigen_centrality(graph_nodes)
       metric.close <- closeness(graph_nodes); metric.between <- betweenness(graph_nodes)
-      metric.Membcomponents <- components(graph_nodes)$membership; metric.modularity <- cluster_louvain(graph_nodes)
-      modules <- rep(0, nrow(dist))
-      for(i in 1:length(metric.modularity)){
-        n <- metric.modularity[[i]] %>% as.numeric()
-        modules[which(nodes.2$IdTemp %in% n)] <- i
-      }
-      metric_conn <- cbind(rownames(dist), metric.degree, metric.eigen$vector, metric.close,
-                           metric.between, metric.Membcomponents,
-                           modules) %>% as.data.frame()
-      names(metric_conn) <- c("id", "degree", "eigen", "close", "BWC", "cluster", "modules")
+      #metric.Membcomponents <- components(graph_nodes)$membership
+      community.1 <- cluster_walktrap(graph_nodes)|> membership(communities = _)
+      community.2 <- cluster_louvain(graph_nodes)|> membership(communities = _)
+      metric_conn <- cbind(rownames(dist), metric.strength, metric.eigen$vector, metric.close,
+                           metric.between, community.1, community.2) %>% as.data.frame()
+      names(metric_conn) <- c("id", "degree", "eigen", "close", "BWC", "memb.rw", "memb.louvain")
     }
 
+    metric_conn <- data.frame(lapply(metric_conn,as.numeric))
+
     if(!is.null(idT)){
-      if(isFALSE(binary)){
-        nodes.2$strength <- metric.strength
-      } else {
-        nodes.2$degree <- metric.degree
-      }
-      nodes.2$eigen <- metric.eigen$vector
-      nodes.2$close <- metric.close; nodes.2$BWC <- metric.between
-      nodes.2$cluster <- metric.Membcomponents; nodes.2$modules <- modules
-      nodes.2 <- nodes.2[moveme(names(nodes.2), "geometry last")]
+      nodes.2 <- cbind(nodes.2, metric_conn[,2:ncol(metric_conn)])
       nodes.2$IdTemp <- NULL
       if(!is.null(write)){
-        write_sf(nodes.2, paste0(write, "_", "d", x,  ".shp"), delete_layer = TRUE)
+        write_sf(nodes.2, paste0(write, "_", "d", x,  ".gpkg"), delete_layer = TRUE)
       }
     } else {
       rp <- unique(nodes)[[1]]; rp <- as.vector(rp); rp <- rp[which(!is.na(rp))]

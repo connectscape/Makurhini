@@ -7,7 +7,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Makurhini: Analyzing landscape connectivity.
+# Makurhini: An R package for comprehensive analysis of landscape fragmentation and connectivity.
 
 ![](man/figures/LOGO_MAKHURINI.png)
 
@@ -30,11 +30,11 @@ Latorre-Cárdenas et al., 2023. <https://doi.org/10.3390/land12030631>).
 
 ## Overview
 
-<strong>Makurhini</strong> *(Connect in Purépecha language)* is an R
-package for calculating fragmentation and landscape connectivity indices
-used in conservation planning. Makurhini provides a set of functions to
-identify connectivity of protected areas networks and the importance of
-landscape elements for maintaining connectivity. This package allows the
+**Makurhini** *(Connect in Purépecha language)* is an R package for
+calculating fragmentation and landscape connectivity indices used in
+conservation planning. Makurhini provides a set of functions to identify
+connectivity of protected areas networks and the importance of landscape
+elements for maintaining connectivity. This package allows the
 evaluation of scenarios under landscape connectivity changes and
 presents an additional improvement, the inclusion of landscape
 heterogeneity as a constraining factor for connectivity.
@@ -56,14 +56,22 @@ and monitoring of global conservation targets.
 
 ### Citing Makurhini package
 
-A formal paper detailing this package is forthcoming, but until it is
-published, please use the something like the following to cite if you
-use it in your work:
+We will soon publish a paper about this package. Until then, please use
+one of the following resources:
 
-<code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini:
-Analyzing landscape connectivity.
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3771605.svg)](https://doi.org/10.5281/zenodo.3771605)
-</code> </i>
+**Preprint:**
+
+Godínez-Gómez, O., Correa-Ayram, C., Goicolea, T., & Saura, S. (2025).
+Makurhini: An R package for comprehensive analysis of landscape
+fragmentation and connectivity. Research Square.
+<https://doi.org/10.21203/rs.3.rs-6398746/v1>
+
+**Zenodo:**
+
+Godínez-Gómez, O., Correa Ayram, C. A., Goicolea, T., & Saura, S.
+(2025). Makurhini: An R package for comprehensive analysis of landscape
+fragmentation and connectivity (3.0.0). Zenodo.
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14940436.svg)](https://doi.org/10.5281/zenodo.14940436)
 
 ## Installation
 
@@ -1442,7 +1450,7 @@ colnames(raster_map) <- c("value", "x", "y")
 ggplot() +  
   geom_tile(data = raster_map, aes(x = x, y = y, fill = value), alpha = 0.8) + 
   geom_sf(data = TMVS, aes(color = "Study area"), fill = NA, color = "black") +
-  geom_sf(data = habitat_nodes, aes(color = "Habitat nodes"), fill = "forestgreen") +
+  geom_sf(data = habitat_nodes, aes(color = "Habitat nodes"), fill = "forestgreen", linewidth = 0.5) +
   scale_fill_gradientn(colors = c("#000004FF", "#1B0C42FF", "#4B0C6BFF", "#781C6DFF",
                                   "#A52C60FF", "#CF4446FF", "#ED6925FF", "#FB9A06FF",
                                   "#F7D03CFF", "#FCFFA4FF"))+
@@ -1452,7 +1460,7 @@ ggplot() +
         axis.title.y = element_blank())
 ```
 
-<img src="man/figures/README-unnamed-chunk-27-1.png" width="100%" />
+![](images/example_patches-02.png)
 
 ``` r
 PC_example_2 <- MK_dPCIIC(nodes = habitat_nodes,
@@ -1536,15 +1544,15 @@ ggplot()+
 
 <img src="man/figures/README-unnamed-chunk-33-1.png" width="100%" />
 
-<img src="man/figures/README-unnamed-chunk-34-1.png" width="100%" />
+![](images/example_PC.png)
 
 ### Centrality measures
 
 ``` r
 centrality_test <- MK_RMCentrality(nodes = habitat_nodes,
-                                distance = list(type = "centroid"),
+                                 distance = list(type = "centroid"),
                                  distance_thresholds = 10000,
-                                 probability = 0.05,
+                                 probability = 0.5,
                                  write = NULL)
 head(centrality_test)
 #> Simple feature collection with 6 features and 7 fields
@@ -1552,20 +1560,25 @@ head(centrality_test)
 #> Dimension:     XY
 #> Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668
 #> Projected CRS: NAD_1927_Albers
-#> # A tibble: 6 × 8
-#>      Id degree    eigen    close   BWC cluster modules                  geometry
-#>   <int>  <dbl>    <dbl>    <dbl> <dbl>   <dbl>   <dbl>             <POLYGON [m]>
-#> 1     1      1 0        0.333        0       1       1 ((54911.05 2035815, 5490…
-#> 2     2      1 0        0.333        0       1       1 ((44591.28 2042209, 4458…
-#> 3     3      2 0        0.5          1       1       1 ((46491.11 2042467, 4649…
-#> 4     4      1 0        1            0       2       2 ((54944.49 2048163, 5488…
-#> 5     5      2 0.000252 0.000240     0       3       3 ((80094.28 2064140, 8007…
-#> 6     6      7 0.00257  0.000254    57       3       3 ((69205.24 2066394, 6925…
+#>   Id strength        eigen      close BWC memb.rw memb.louvain
+#> 1  1 30228524 0.0010435836 0.03840356   0       6            1
+#> 2  2 21600031 0.0006195356 0.03995935   1       6            2
+#> 3  3 29320545 0.0009026418 0.03831019   0       6            2
+#> 4  4 16499522 0.0005867564 0.04187906  23       6            2
+#> 5  5 26068911 0.0011987437 0.04240465   0       6            1
+#> 6  6 12737692 0.0005630043 0.04627714  17       6            1
+#>                         geometry
+#> 1 POLYGON ((54911.05 2035815,...
+#> 2 POLYGON ((44591.28 2042209,...
+#> 3 POLYGON ((46491.11 2042467,...
+#> 4 POLYGON ((54944.49 2048163,...
+#> 5 POLYGON ((80094.28 2064140,...
+#> 6 POLYGON ((69205.24 2066394,...
 ```
 
 Examples:
 
-<img src="man/figures/README-unnamed-chunk-36-1.png" width="100%" />
+![](images/example_Centrality.png)
 
 Moreover, you can change distance using the distance
 (<code>?distancefile</code>) argument:
@@ -1774,7 +1787,7 @@ head(Fragmentation_test[[2]])
 #> 6 POLYGON ((69205.24 2066394,...
 ```
 
-<img src="man/figures/README-unnamed-chunk-41-1.png" width="100%" />
+![](images/example_fragm.png)
 
 We can make a loop where we explore different edge depths. In the
 following example, We will explore 10 edge depths (*edge_distance

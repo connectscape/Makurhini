@@ -42,7 +42,7 @@ Use this function to calculate radial and medial centrality measure under one or
 \details{
 This function implements Patch-Scale Connectivity or Centrality Measures. Radial measures: degree, strength (using probability argument, for weighted graphs),
 eigenvector centrality (eigen), and closeness centrality (close). Medial measures: betweenness centrality (BWC),
-node memberships (cluster), and modularity (modules, using probability argument).
+node memberships via short random walks ("memb.rw") and Louvain algorithm ("memb.louvain").
 The function builds on functions out of Csardi’s ’igraph’ package.
 }
 \examples{
@@ -55,13 +55,13 @@ nrow(habitat_nodes) # Number of patches
 centrality_test <- MK_RMCentrality(nodes = habitat_nodes,
                                 distance = list(type = "centroid"),
                                  distance_thresholds = c(10000, 100000),
-                                 probability = 0.05,
+                                 probability = 0.5,
                                  write = NULL)
 centrality_test
-plot(centrality_test$d10000["degree"], breaks = "jenks")
+plot(centrality_test$d10000["strength"], breaks = "jenks")
 plot(centrality_test$d10000["BWC"], breaks = "jenks")
-plot(centrality_test$d10000["cluster"], breaks = "jenks")
-plot(centrality_test$d10000["modules"], breaks = "jenks")
+plot(centrality_test$d10000["memb.rw"], breaks = "jenks")
+plot(centrality_test$d10000["memb.louvain"], breaks = "jenks")
 }
 }
 \references{

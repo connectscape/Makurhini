@@ -73,7 +73,7 @@ and monitoring of global conservation targets.
 ### Citing Makurhini package
 
 We will soon publish a paper about this package. Until then, please use
-one of the following resources:
+one of the following preprint:
 
 **Preprint:**
 
@@ -81,13 +81,6 @@ Godínez-Gómez, O., Correa-Ayram, C., Goicolea, T., & Saura, S. (2025).
 Makurhini: An R package for comprehensive analysis of landscape
 fragmentation and connectivity. Research Square.
 <https://doi.org/10.21203/rs.3.rs-6398746/v1>
-
-**Zenodo:**
-
-Godínez-Gómez, O., Correa Ayram, C. A., Goicolea, T., & Saura, S.
-(2025). Makurhini: An R package for comprehensive analysis of landscape
-fragmentation and connectivity (3.0.0). Zenodo.
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14940436.svg)](https://doi.org/10.5281/zenodo.14940436)
 
 ## Installation
 

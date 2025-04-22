@@ -293,7 +293,7 @@ names(ProtConn_1)
 ProtConn_1$`Protected Connected (Viewer Panel)`
 ```
 
-```{r eval= TRUE, message=FALSE, warning=FALSE, out.width = "100%"}
+```{r eval= FALSE, message=FALSE, warning=FALSE, out.width = "100%"}
 ProtConn_1$`ProtConn Plot`
 ```
 
@@ -360,7 +360,7 @@ ProtConn_2$ProtConn_10000$ProtConn_overall10000
 
 Plot showing the mean and standard deviation values:
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 ProtConn_2$ProtConn_10000$`ProtConn Plot`
 ```
 

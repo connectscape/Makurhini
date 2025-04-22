@@ -606,8 +606,6 @@ attribute</span>
 ProtConn_1$`ProtConn Plot`
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
-
 ![](images/example_protconnplot2.png)
 
 ProtConn delta or the higher contribution to ProtConn value in the
@@ -1299,8 +1297,6 @@ Plot showing the mean and standard deviation values:
 ProtConn_2$ProtConn_10000$`ProtConn Plot`
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="60%" />
-
 ![](images/example_protconnplot1.png)
 
 Vector file of class sf:
@@ -1559,18 +1555,18 @@ centrality_test <- MK_RMCentrality(nodes = habitat_nodes,
                                  probability = 0.5,
                                  write = NULL)
 head(centrality_test)
-#> Simple feature collection with 6 features and 7 fields
+#> Simple feature collection with 6 features and 8 fields
 #> Geometry type: POLYGON
 #> Dimension:     XY
 #> Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668
 #> Projected CRS: NAD_1927_Albers
-#>   Id strength        eigen      close BWC memb.rw memb.louvain
-#> 1  1 30228524 0.0010435836 0.03840356   0       6            1
-#> 2  2 21600031 0.0006195356 0.03995935   1       6            2
-#> 3  3 29320545 0.0009026418 0.03831019   0       6            2
-#> 4  4 16499522 0.0005867564 0.04187906  23       6            2
-#> 5  5 26068911 0.0011987437 0.04240465   0       6            1
-#> 6  6 12737692 0.0005630043 0.04627714  17       6            1
+#>   Id strength        eigen      close BWC cluster memb.rw memb.louvain
+#> 1  1 30228524 0.0010435836 0.03840356   0       1       6            1
+#> 2  2 21600031 0.0006195356 0.03995935   1       1       6            2
+#> 3  3 29320545 0.0009026418 0.03831019   0       1       6            2
+#> 4  4 16499522 0.0005867564 0.04187906  23       1       6            2
+#> 5  5 26068911 0.0011987437 0.04240465   0       1       6            1
+#> 6  6 12737692 0.0005630043 0.04627714  17       1       6            1
 #>                         geometry
 #> 1 POLYGON ((54911.05 2035815,...
 #> 2 POLYGON ((44591.28 2042209,...

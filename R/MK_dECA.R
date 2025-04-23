@@ -425,9 +425,9 @@ MK_dECA <- function(nodes,
   }
 
   if(inherits(ECA, "error")){
-    stop("review ECA parameters: nodes, distance file or LA")
+    stop("error 1. Review ECA parameters: nodes, distance file or LA")
   } else {
-    ECA2 <- lapply(distance_thresholds, function(x){
+    ECA2 <- tryCatch(lapply(distance_thresholds, function(x){
       DECA.2 <- cbind(DECA, map_dfr(ECA, function(y){y[which(y$Distance == x),]}))
       AO.2 <- DECA.2$Area; nl <- nrow(DECA.2)
       AO <- LA; dArea <- (AO.2 *100)/LA
@@ -475,7 +475,11 @@ MK_dECA <- function(nodes,
                                  `dA` = formatter("span",style = ~ style(color = ifelse(`dA` > 0, "forestgreen", "red"))),
                                  `dECA` = formatter("span",style = ~ style(color = ifelse(`dECA` > 0, "forestgreen", "red"))),
                                  `rECA` = formatter("span",style = ~ style(color = ifelse(`rECA` > 0, "#404040", "red")))))
-      return(DECA.4)})
+      return(DECA.4)}), error = function(err) err)
+
+    if(inherits(ECA2, "error")){
+      stop("error 2. Review ECA parameters and topological errors of the nodes")
+    }
 
     if (!is.null(write)){
       write.csv(do.call(rbind, ECA2), write, row.names = FALSE)
@@ -488,7 +492,7 @@ MK_dECA <- function(nodes,
         }
         plot <- factor(plot, levels = plot)
 
-        ECAplot <- lapply(ECA2, function(x){
+        ECAplot <- tryCatch(lapply(ECA2, function(x){
           ECA4 <- (x[[3]] * 100)/ LA; Loss <- 100 - ECA4; ECA4 <- cbind(ECA4, Loss) %>% as.data.frame()
           names(ECA4) <- c("Habitat", "Habitat lost"); ECA4$"Connected habitat" <- x[[7]]; ECA4$Year <- plot
 
@@ -556,14 +560,19 @@ MK_dECA <- function(nodes,
           if(!is.null(write)){
             ggsave(paste0(write, "_", unique(x$Distance), '_ECA.tif'), plot = p4, device = "tiff", width = 14,
                    height = 10, compression = "lzw", dpi = "retina", scale = 0.7)}
-          return(p4)})
-        ECA_result <- list()
-        for (i in 1:length(ECA2)){
-          ECA_result[[i]] <- list("dECA_table" = ECA2[[i]],
-                                  "dECA_plot" = ECAplot[[i]])
+          return(p4)}), error = function(err) err)
+        if(inherits(ECAplot, "error")){
+          message("Error while plotting, this step will be skipped, review ggplot2 package")
+          plot = FALSE
+        } else {
+          ECA_result <- list()
+          for (i in 1:length(ECA2)){
+            ECA_result[[i]] <- list("dECA_table" = ECA2[[i]],
+                                    "dECA_plot" = ECAplot[[i]])
+          }
+          names(ECA_result) <- paste(distance_thresholds)
+          ECA2 <- ECA_result
         }
-        names(ECA_result) <- paste(distance_thresholds)
-        ECA2 <- ECA_result
       }
     } else {
       message("You need install ggplot2 to plot dECA")

@@ -428,33 +428,26 @@ MK_dECA <- function(nodes,
     stop("review ECA parameters: nodes, distance file or LA")
   } else {
     ECA2 <- lapply(distance_thresholds, function(x){
-      Tab_ECA <- map_dfr(ECA, function(y){ y[which(y$Distance == x),] })
-      DECA.2 <- cbind(DECA, Tab_ECA)
-
-      AO <- LA; dArea <- (DECA.2$Area *100)/LA
-      DECA.2$Normalized_ECA1 <- (DECA.2$ECA* dArea)/DECA.2$Area
-      DECA.2$Normalized_ECA2 <- (DECA.2$ECA*100)/DECA.2$Area
-      AO.2 <- DECA.2$Area; ECA.2 <- cbind(DECA.2[, 4])
-      DECA.2$dA[1] <- (((DECA.2$Area[1] - AO)/AO) * 100)
-      DECA.2$dA[2:nrow(DECA.2)] <- ((DECA.2$Area[2:nrow(DECA.2)] - AO.2)/AO.2) *100
-
-      DECA.2$dECA[1] <- (((DECA.2$ECA[1] - AO)/AO) * 100)
-      DECA.2$dECA[2:nrow(DECA.2)] <- ((DECA.2$ECA[2:nrow(DECA.2)] - ECA.2)/ECA.2) * 100
-
-      DECA.2[,2:ncol(DECA.2)] <- round(DECA.2[,2:ncol(DECA.2)], 3)
-
+      DECA.2 <- cbind(DECA, map_dfr(ECA, function(y){y[which(y$Distance == x),]}))
+      AO.2 <- DECA.2$Area; nl <- nrow(DECA.2)
+      AO <- LA; dArea <- (AO.2 *100)/LA
+      DECA.2$Normalized_ECA1 <- (DECA.2$ECA* dArea)/AO.2
+      DECA.2$Normalized_ECA2 <- (DECA.2$ECA*100)/AO.2
+      ECA.2 <- DECA.2$ECA
+      DECA.2$dA <- (((DECA.2$Area[1] - AO)/AO) * 100)
+      DECA.2$dA[2:nl] <- ((DECA.2$Area[2:nl] - AO.2[1:(nl-1)])/AO.2[1:(nl-1)]) *100
+      DECA.2$dECA <- (((DECA.2$ECA[1] - AO)/AO) * 100)
+      DECA.2$dECA[2:nl] <- ((DECA.2$ECA[2:nl] - ECA.2[1:(nl-1)])/ECA.2[1:(nl-1)]) * 100
+      DECA.2[,2:nl] <- round(DECA.2[,2:nl], 3)
       DECA.3 <- data.frame(time = DECA.2$time, Type_Change = "", Type ="")
-
       for(i in 1:nrow(DECA.2)){
         DECA.3[i,2] <- dECAfun(DECA.2$dECA[i], DECA.2$dA[i])
         DECA.3[i,3] <- dECAfun2(DECA.2$dECA[i], DECA.2$dA[i])
       }
-
       names(DECA.3)[2:3] <- c("dA/dECA comparisons", "Type of change")
       DECA.2 <- DECA.2[,c(1:3, 5, 4, 6:ncol(DECA.2))]
       DECA.2$rECA <- DECA.2$dECA/DECA.2$dA
       DECA.4 <- cbind(DECA.2, DECA.3); DECA.4[11] <- NULL
-
       names(DECA.4)[c(1:7)] <- c("Time",
                                  paste0("Max. Landscape attribute (",area_unit,")"),
                                  paste0("Habitat area (",area_unit,")"),
@@ -472,7 +465,6 @@ MK_dECA <- function(nodes,
           DECA.4$Time <- names(listT)
         }
       }
-
       rownames(DECA.4) <- NULL
 
       DECA.4 <- formattable(DECA.4, align = c("l", rep("r", NCOL(DECA.4) - 1)),
@@ -484,7 +476,7 @@ MK_dECA <- function(nodes,
                                  `dECA` = formatter("span",style = ~ style(color = ifelse(`dECA` > 0, "forestgreen", "red"))),
                                  `rECA` = formatter("span",style = ~ style(color = ifelse(`rECA` > 0, "#404040", "red")))))
       return(DECA.4)})
-    #
+
     if (!is.null(write)){
       write.csv(do.call(rbind, ECA2), write, row.names = FALSE)
     }

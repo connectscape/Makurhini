@@ -78,6 +78,10 @@ cost_distances <- function(x, id,
   if (is.null(resistance)){
     stop("Error, you need a resistance raster")
   }
+
+  if(grepl("SpatRaster", class(resistance))){
+    resistance <- raster(resistance)
+  }
   . = NULL
   cord <- st_centroid_within_poly(x) %>% st_coordinates(.)
   coordenates_1 <- x; coordenates_1$lon <- cord[,1]; coordenates_1$lat <- cord[,2]

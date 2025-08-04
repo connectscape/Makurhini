@@ -15,7 +15,7 @@ input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimpl
                                                          area_unit = "character"),
                               where = class_cache)
 
-  if(class(landscape)[1] == "SpatialPolygonsDataFrame" | class(landscape)[1] == "sf"){
+  if(any(class(landscape)[1] == "SpatialPolygonsDataFrame" | class(landscape)[1] == "sf")){
     landscape <- TopoClean(x = landscape, xsimplify = xsimplify)
   } else {
     stop("landscape class should be SpatialPolygonDataframe or sf")

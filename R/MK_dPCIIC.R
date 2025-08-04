@@ -147,16 +147,20 @@ MK_dPCIIC <- function(nodes,
 
   if(isFALSE(parallel)){
     parallel <- NULL
+    parallel_mode <- 0
   } else if (isTRUE(parallel)){
     message(paste0("The number of available cores is ", as.numeric(availableCores()),
                    ", so ", as.numeric(availableCores()), " cores will be used."))
     parallel <- as.numeric(availableCores())-2
+    if(any(parallel_mode == 0 | is.null(parallel_mode))){parallel_mode <- 1}
   } else if((!is.null(parallel))){
     if(!is.numeric(parallel)){
       stop("if you use parallel argument then you need a numeric value")
     }
+    if(any(parallel_mode == 0 | is.null(parallel_mode))){parallel_mode <- 1}
   } else {
     parallel <- NULL
+    parallel_mode <- 0
   }
 
   #Nodes
@@ -274,7 +278,7 @@ MK_dPCIIC <- function(nodes,
   if(length(distance_thresholds) > 1 & isTRUE(intern)){
     pb <- txtProgressBar(0,length(distance_thresholds), style = 3)
   }
-
+#x=1
   result <- lapply(1:length(distance_thresholds), function(x){
     x.1 <- distance_thresholds[x]
 
@@ -293,7 +297,7 @@ MK_dPCIIC <- function(nodes,
                                  igraph_Dijkstra = instr_dist,
                                  parallel = parallel,
                                  return_graph = TRUE,
-                                 min_nodes = 2000,
+                                 min_nodes = 0,
                                  loop = TRUE, G1 = 1000,
                                  intern = intern), error = function(err)err)
     } else {
@@ -305,7 +309,7 @@ MK_dPCIIC <- function(nodes,
                                  igraph_Dijkstra = instr_dist,
                                  parallel = parallel,
                                  return_graph = TRUE,
-                                 min_nodes = 2000,
+                                 min_nodes = 0,
                                  loop = TRUE, G1 = 1000,
                                  intern = intern), error = function(err)err)
     }
@@ -347,7 +351,7 @@ MK_dPCIIC <- function(nodes,
     }
 
     if(isFALSE(onlyoverall)){
-      modo <- if(nrow(attribute_1) < 1000 | is.null(parallel_mode)){
+      modo <- if(is.null(parallel_mode)){
         0
       } else {
         if(is.null(parallel)){0} else {parallel_mode}
@@ -366,7 +370,7 @@ MK_dPCIIC <- function(nodes,
                              attrib_n = attribute_2,
                              num = num,
                              G1 = 1000,
-                             min_nodes = 2000,
+                             min_nodes = 0,
                              parallel = parallel,
                              parallel_mode = modo,
                              intern = intern)
@@ -376,7 +380,7 @@ MK_dPCIIC <- function(nodes,
                               id_sel = id_sel,
                               num = num,
                               G1 = 1000,
-                              min_nodes = 2000,
+                              min_nodes = 0,
                               parallel = parallel,
                               parallel_mode = modo,
                               intern = intern)
@@ -384,8 +388,6 @@ MK_dPCIIC <- function(nodes,
 
         dintra <- round((((attribute_2^2)) / num) * 100, 7); dflux <- round(2*(rowSums(mat1[[1]]) - attribute_2^2)/ num * 100, 7)
         dconnector <- round(map_dbl(delta - ((((attribute_2^2)) / num) * 100) - (2*(rowSums(mat1[[1]]) - attribute_2^2)/ num * 100), function(y){if(y < 0){0} else {y}}), 20)
-
-
 
         metric_conn <- data.frame("IdTemp2" = if(is.null(idT)){id_original} else{attribute_1[,1]},
                                   "delta" = round(delta, 7),
@@ -395,7 +397,6 @@ MK_dPCIIC <- function(nodes,
         metric_conn <- data.frame("IdTemp2" = if(is.null(idT)){id_original} else{attribute_1[,1]},
                                   check.names = FALSE)
       }
-
 
       if(!is.null(restoration)){
         IdT0 <- attribute_1[which(attribute_1[,3] == 0), 1]
@@ -421,8 +422,8 @@ MK_dPCIIC <- function(nodes,
                                       attrib_n = attribute_2,
                                       num = num_p1,
                                       G1 = 1000,
-                                      min_nodes = 2000,
-                                      parallel = NULL,
+                                      min_nodes = 0,
+                                      parallel = parallel,
                                       parallel_mode = modo,
                                       intern = intern)
         } else {
@@ -446,8 +447,8 @@ MK_dPCIIC <- function(nodes,
                                       attrib_n = attribute_2,
                                       num = num_p1,
                                       G1 = 1000,
-                                      min_nodes = 2000,
-                                      parallel = NULL,
+                                      min_nodes = 0,
+                                      parallel = parallel,
                                       parallel_mode = modo,
                                       intern = intern)
           }
@@ -950,7 +951,6 @@ nodes_dIIC_res <- function(idres = NULL,
 #' @importFrom purrr map_dbl map_dfc
 #' @importFrom cppRouting get_distance_matrix
 #' @keywords internal
-
 nodes_dPC <- function(graph_n = NULL,
                       id_sel = NULL,
                       attrib_n = NULL,
@@ -960,10 +960,7 @@ nodes_dPC <- function(graph_n = NULL,
                       parallel = NULL,
                       parallel_mode = 0,
                       intern = FALSE){
-  if(length(attrib_n) < min_nodes){
-    parallel_mode = 0
-  }
-  if(!is.null(id_sel)){
+  if(any(length(attrib_n) < min_nodes | !is.null(id_sel))){
     parallel_mode = 0
   }
   if(parallel_mode == 0){
@@ -1128,13 +1125,10 @@ nodes_dIIC <- function(graph_n = NULL,
                        parallel = NULL,
                        parallel_mode = 0,
                        intern = FALSE){
-  if(length(attrib_n) < min_nodes){
+  if(any(length(attrib_n) < min_nodes | !is.null(id_sel))){
     parallel_mode = 0
   }
 
-  if(!is.null(id_sel)){
-    parallel_mode = 0
-  }
   if(parallel_mode == 0){
     if(is.null(id_sel)){
       delta <- map_dbl(1:length(attrib_n), function(i) {
@@ -1201,28 +1195,6 @@ nodes_dIIC <- function(graph_n = NULL,
       }
 
       plan(strategy = strat, gc = TRUE, workers = works)
-      # delta <- future_map_dbl(1:length(attrib_n), function(i) {
-      #   graph_nodes.i <- graph_n; attribute.i <- attrib_n[-i]
-      #   delet.i <- tryCatch(igraph::delete_vertices(graph_nodes.i, i),
-      #                       error = function(err) err)
-      #
-      #   if(!inherits(delet.i, "error")){
-      #     graph_nodes.i <- delet.i
-      #   }
-      #
-      #   smat.i <- tryCatch(igraph::distances(graph_nodes.i,
-      #                                        weights = NULL),
-      #                      error = function(err) err)
-      #
-      #   if (inherits(smat.i, "error")) {
-      #     stop("Error in short distance estimation")
-      #   } else {
-      #     smat2 <- outer(attribute.i, attribute.i) / (1 + smat.i); smat2[which(is.infinite(smat.i))] <- 0
-      #     num.i <- sum(smat2, na.rm = TRUE); dC <- (num - num.i)/num * 100
-      #     return(dC)
-      #   }
-      # }, .progress = intern); close_multiprocess(works)
-
       delta <- future_map_dbl(1:length(attrib_n), function(i) {
         graph_nodes.i <- graph_n; attribute.i <- attrib_n[-i]
         delet.i <- tryCatch(igraph::delete_vertices(graph_nodes.i, i),

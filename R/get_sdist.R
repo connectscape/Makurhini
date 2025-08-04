@@ -35,7 +35,6 @@ get_sdist <- function(dist_nodes = NULL,
   if(isTRUE(igraph_Dijkstra)){
     if(is.null(graph_nodes)){
       Adj_matr <- dist_nodes * 0
-
       if(metric == "IIC"){
         Adj_matr[dist_nodes < distance_threshold] <- 1
       } else {
@@ -45,11 +44,9 @@ get_sdist <- function(dist_nodes = NULL,
           Adj_matr <- exp((dist_nodes * log(probability))/distance_threshold)
         }
       }
-
-      diag(Adj_matr) <- 0; mode(Adj_matr) <- "numeric"
-      Adj_matr[is.na(dist_nodes)] <- 0
+      diag(Adj_matr) <- 0; mode(Adj_matr) <- "numeric"; Adj_matr[is.na(dist_nodes)] <- 0
       graph_nodes <- igraph::graph_from_adjacency_matrix(Adj_matr, mode = "undirected",
-                                  weighted = if(metric == "IIC"){NULL}else{TRUE})
+                                                         weighted = if(metric == "IIC"){NULL}else{TRUE})
     }
     toV <- as_ids(V(graph_nodes))
 
@@ -75,9 +72,9 @@ get_sdist <- function(dist_nodes = NULL,
         plan(strategy = strat, gc = TRUE, workers = works)
         smat <- tryCatch(future_map_dfc(seq_n, function(y){
           toV.i <- toV[y:(y + G1-1)];y.1 <- igraph::distances(graph_nodes,
-                                                           to = toV.i[which(!is.na(toV.i))],
-                                                           weights = if(metric == "IIC"){NULL
-                                                           } else {-log(E(graph_nodes)$weight)})
+                                                              to = toV.i[which(!is.na(toV.i))],
+                                                              weights = if(metric == "IIC"){NULL
+                                                              } else {-log(E(graph_nodes)$weight)})
           return(y.1)})|> as.matrix(x = _),
           error = function(err) err); close_multiprocess(works)
 
@@ -99,7 +96,7 @@ get_sdist <- function(dist_nodes = NULL,
             return(y.1)})|> do.call(cbind, args = _)
         }
       } else {
-        if(length(seq_n) > 1 & isTRUE(intern)){
+        if(intern){
           pb <- txtProgressBar(0,length(seq_n), style = 3)
         }
         smat <- lapply(seq_n, function(y){
@@ -107,73 +104,59 @@ get_sdist <- function(dist_nodes = NULL,
             setTxtProgressBar(pb, which(seq_n == y))
           }
           toV.i <- toV[y:(y + G1-1)];y.1 <- igraph::distances(graph_nodes,
-                                                           to = toV.i[which(!is.na(toV.i))],
-                                                           weights = if(metric == "IIC"){NULL
-                                                           } else {-log(E(graph_nodes)$weight)})
+                                                              to = toV.i[which(!is.na(toV.i))],
+                                                              weights = if(metric == "IIC"){NULL
+                                                              } else {-log(E(graph_nodes)$weight)})
           return(y.1)})|> do.call(cbind, args = _)
       }
     } else {
       smat <- tryCatch(igraph::distances(graph_nodes,
-                                      weights = if(metric == "IIC"){NULL
-                                      } else {-log(E(graph_nodes)$weight)}),
+                                         weights = if(metric == "IIC"){NULL
+                                         } else {-log(E(graph_nodes)$weight)}),
                        error = function(err) err)
     }
 
   } else {
-    if(is.null(graph_nodes)){
-      if(metric == "IIC"){
-        correg <- dist_nodes; dist_nodes <- dist_nodes * 0; dist_nodes[correg < distance_threshold] <- 1
-        if(is.matrix(dist_nodes)){
-          dist_nodes[lower.tri(dist_nodes, diag = TRUE)] <- NA; dist_nodes <- as.data.frame(as.table(dist_nodes))
-          dist_nodes <- na.omit(dist_nodes); dist_nodes[,1] <- as.numeric(as.character(dist_nodes[,1]))
-          dist_nodes[,2] <- as.numeric(as.character(dist_nodes[,2])); names(dist_nodes) <- c("From", "To", "Distance")
-        }
+    if (is.null(graph_nodes)) {
+      if (metric == "IIC") {
+        dist_nodes[dist_nodes >= distance_threshold] <- NA; dist_nodes[!is.na(dist_nodes)] <- 1
       } else {
-        if(is.matrix(dist_nodes)){
-          dist_nodes[lower.tri(dist_nodes, diag = TRUE)] <- NA; dist_nodes <- as.data.frame(as.table(dist_nodes))
-          dist_nodes <- na.omit(dist_nodes); dist_nodes[,1] <- as.numeric(as.character(dist_nodes[,1]))
-          dist_nodes[,2] <- as.numeric(as.character(dist_nodes[,2])); names(dist_nodes) <- c("From", "To", "Distance")
-        }
-
         if(is.null(probability)){
-          k <- (1 / distance_threshold); dist_nodes$Distance <- -log(exp(-k * dist_nodes$Distance))
+          dist_nodes <- -log(exp(-((1 / distance_threshold)) * dist_nodes))
         } else {
-          dist_nodes$Distance <- -log(exp((dist_nodes$Distance * log(probability))/distance_threshold))
+          dist_nodes <- -log(exp((dist_nodes * log(probability))/distance_threshold))
         }
       }
-      graph_nodes <- makegraph(dist_nodes, directed = FALSE)
+
+      # Convert distance matrix to edge list
+      if (is.matrix(dist_nodes)) {
+        dist_nodes[lower.tri(dist_nodes, diag = TRUE)] <- NA
+        dist_df <- na.omit(as.data.frame(as.table(dist_nodes)))
+        names(dist_df) <- c("From", "To", "Distance")
+        dist_df$From <- as.numeric(as.character(dist_df$From))
+        dist_df$To <- as.numeric(as.character(dist_df$To))
+        graph_nodes <- makegraph(dist_df, directed = FALSE)
+      }
     }
 
-    toV <- as.numeric(graph_nodes$dict$ref)
+    toV <- as.numeric(graph_nodes$dict$ref); chunk_idx <- split(seq_along(toV), ceiling(seq_along(toV) / G1))
 
-    if(length(toV) >= min_nodes & isTRUE(loop)){
-      seq_n <- seq(1,length(toV), G1)
-      if(is.null(parallel)){
-        if(length(seq_n) > 1 & isTRUE(intern)){
-          pb <- txtProgressBar(0,length(seq_n), style = 3)
-        }
+    get_chunk_dist <- function(i) {
+      get_distance_matrix(graph_nodes,
+                          from = toV,
+                          to = toV[chunk_idx[[i]]],
+                          algorithm = "phast",
+                          allcores = FALSE)
+    }
 
-        smat <- lapply(seq_n, function(y){
-            if(length(seq_n) > 1 & isTRUE(intern)){
-              setTxtProgressBar(pb, which(seq_n == y))
-            }
-            toV.i <- toV[y:(y + G1-1)];y.1 <- get_distance_matrix(Graph = graph_nodes,
-                                                                  from = toV,
-                                                                  to = toV.i[which(!is.na(toV.i))],
-                                                                  allcores = FALSE,
-                                                                  algorithm = "phast")
-            return(y.1)
-          }) |> do.call(cbind, args = _)
-
-      } else {
-        works <- as.numeric(availableCores())-1; works <- if(parallel > works){works}else{parallel}
-
+    if (length(toV) >= min_nodes && isTRUE(loop)) {
+      if (!is.null(parallel)) {
+        works <- as.numeric(availableCores())-1;works <- if(parallel > works){works}else{parallel}
         if(.Platform$OS.type == "unix") {
           strat <- future::multicore
         } else {
           strat <- future::multisession
         }
-
         m <- as.numeric(object.size(graph_nodes))* 0.001
 
         if(m > 500){
@@ -181,66 +164,47 @@ get_sdist <- function(dist_nodes = NULL,
           options(future.globals.maxSize= m)
         }
 
-        invisible(gc()); plan(strategy = strat, gc = TRUE, workers = works)
-        smat <- tryCatch(future_map_dfc(seq_n, function(y){
-          toV.i <- toV[y:(y + G1-1)];y.1 <- get_distance_matrix(Graph = graph_nodes,
-                                                                from = toV, to = toV.i[which(!is.na(toV.i))],
-                                                                allcores=FALSE, algorithm = "phast")
-          invisible(gc())
-          return(y.1)
-        }, .progress = intern)|> as.matrix(x = _), error = function(err)err); close_multiprocess(works)
-
-        if(inherits(smat, "error")){
-          close_multiprocess(works)
-          message("error probably due to the lack of memory in the parallel process. Makurhini will try using sequential process or you can change allocated memory (e.g., options(future.globals.maxSize= 2118123520)),
-        before run again this function")
-          smat <- lapply(seq_n, function(y){
-            toV.i <- toV[y:(y + G1-1)];y.1 <- get_distance_matrix(Graph = graph_nodes,
-                                                                  from = toV, to = toV.i[which(!is.na(toV.i))],
-                                                                  allcores=FALSE, algorithm = "phast")
-            return(y.1)
+        plan(strategy = strat, gc = TRUE, workers = works)
+        smat <- tryCatch({
+          future_map_dfc(seq_along(chunk_idx), get_chunk_dist, .progress = intern)|> as.matrix(x = _)
+        }, error = function(e) {
+          message("Parallel error. Retrying sequentially...")
+          if (intern){pb <- txtProgressBar(min = 0, max = length(chunk_idx), style = 3)}
+          lapply(seq_along(chunk_idx), function(i) {
+            if (intern) setTxtProgressBar(pb, i)
+            get_chunk_dist(i)
           }) |> do.call(cbind, args = _)
-        }
+        })
+        close_multiprocess(works)
+      } else {
+        if (intern){pb <- txtProgressBar(min = 0, max = length(chunk_idx), style = 3)}
+        smat <- lapply(seq_along(chunk_idx), function(i) {
+          if (intern) setTxtProgressBar(pb, i)
+          get_chunk_dist(i)
+        }) |> do.call(cbind, args = _)
       }
     } else {
-      smat <- get_distance_matrix(Graph = graph_nodes, from = toV, to = toV, algorithm = "phast")
+      smat <- get_distance_matrix(graph_nodes, from = toV, to = toV, algorithm = "phast")
     }
 
-    if(metric == "IIC"){
-      correg1 <- smat * 0; correg1[correg < distance_threshold] <- 1; smat[which(correg1 == 0)] <- Inf; diag(smat) <- 0
+    if (metric == "IIC") {
+      smat[smat >= distance_threshold] <- Inf; diag(smat) <- 0
     }
   }
 
+  smat[is.infinite(smat)] <- 0
   if(metric == "PC"){
-    smat <- exp(-smat); smat[is.infinite(smat)] <- 0
+    smat <- exp(-smat)
     if(!is.null(attr_nodes)){
       smat <- outer(attr_nodes, attr_nodes) * smat
     }
-    invisible(gc())
-    if(isTRUE(return_graph)){
-      return(list("shortest distances" = smat, "graph" = graph_nodes))
-    } else {
-      return(smat)
-    }
   } else {
-    if(!is.null(attr_nodes)){
-      smat2 <- outer(attr_nodes, attr_nodes) / (1 + smat); smat2[which(is.infinite(smat))] <- 0
-      #mat2.i[which(mat.i == 1e-07)] <- 0
-      invisible(gc());
-      if(isTRUE(return_graph)){
-        return(list("shortest distances" = smat2, "graph" = graph_nodes))
-      } else {
-        return(smat2)
-      }
-    } else {
-      smat[which(is.infinite(smat))] <- 0; invisible(gc())
-      if(isTRUE(return_graph)){
-        return(list("shortest distances" = smat, "graph" = graph_nodes))
-      } else {
-        return(smat)
-      }
-    }
+    smat <- outer(attr_nodes, attr_nodes) / (1 + smat);
+    #mat2.i[which(mat.i == 1e-07)] <- 0
+  }
+  if(isTRUE(return_graph)){
+    return(list("shortest distances" = smat, "graph" = graph_nodes))
+  } else {
+    return(smat)
   }
 }
-
-

@@ -22,7 +22,7 @@
 #' @param distance_thresholds A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range.
 #' @param threshold \code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing.
 #' @param removal \code{logical} indicating whether the link removal mode should be used to calculate link importance (see details). Default is TRUE.
-#' @param change (\emph{optional, default} \code{NULL}). A \code{numeric} indicating the new distances  used to calculate link importance under the link change mode should be (see details). By default, link change is not calculated.
+#' @param change (\emph{optional, default} \code{NULL}). A \code{matrix} indicating the new distances  used to calculate link importance under the link change mode should be (see details). By default, link change is not calculated.
 #' @param overall \code{logical}. If \code{TRUE}, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE
 #' @param parallel  (\emph{optional, default =} \code{NULL}).
 #' A \code{numeric} specifying the number of cores to parallelize the index estimation of the PC or IIC index and its deltas.Particularly useful when you have more than 1000 nodes. By default the analyses are not parallelized.
@@ -71,13 +71,13 @@
 #' #Link change option
 #' data("dist_restoration", package = "Makurhini")
 #' #select the new distances between the first 50 nodes
-#' dist_test_change <- dist_restoration[1:50,1:50]
+#' dist_change <- dist_restoration[1:50,1:50]
 #'
 #' delta <- MK_dPCIIC_links(nodes = nodes_test,
 #'                          attribute = "attribute",
 #'                          area_unit = "ha",
 #'                          distance = dist_test,
-#'                          change = distance_change
+#'                          change = dist_change,
 #'                          removal = TRUE,
 #'                          metric = "PC",
 #'                          probability = 0.5,
@@ -154,20 +154,20 @@ MK_dPCIIC_links <- function(nodes,
 
   if(isFALSE(parallel)){
     parallel <- NULL
+    parallel_mode <- 0
   } else if (isTRUE(parallel)){
     message(paste0("The number of available cores is ", as.numeric(availableCores()),
                    ", so ", as.numeric(availableCores()), " cores will be used."))
     parallel <- as.numeric(availableCores())-2
-    parallel_mode <- 1
+    if(any(parallel_mode == 0 | is.null(parallel_mode))){parallel_mode <- 1}
   } else if((!is.null(parallel))){
     if(!is.numeric(parallel)){
       stop("if you use parallel argument then you need a numeric value")
     }
-    if(is.null(parallel_mode)){
-      parallel_mode <- 1
-    }
+    if(any(parallel_mode == 0 | is.null(parallel_mode))){parallel_mode <- 1}
   } else {
     parallel <- NULL
+    parallel_mode <- 0
   }
 
   #Nodes
@@ -272,7 +272,7 @@ MK_dPCIIC_links <- function(nodes,
   }
 
   if(length(threshold) > 1){dist.i <- dist}
-
+#x=1
   result_d <- lapply(1:length(distance_thresholds), function(x) {
     x.1 <- distance_thresholds[x]
 
@@ -372,17 +372,17 @@ MK_dPCIIC_links <- function(nodes,
       names(metric_conn)[ncol(metric_conn)] <- paste0("d", metric, "_removal")
 
       if(isTRUE(overall)){
-        resultp[[2]] <- metric_conn; names(resultp)[2] <- paste0("Link_removal_importances_d", x.1)
+        resultp[[2]] <- metric_conn; names(resultp)[2] <- paste0("Link_removal_importances_d", round(x.1))
       } else {
         if(!is.null(change)){
-          resultp <- list(metric_conn); names(resultp) <- paste0("Link_removal_importances_d", x.1)
+          resultp <- list(metric_conn); names(resultp) <- paste0("Link_removal_importances_d", round(x.1))
         } else {
           resultp <- metric_conn
         }
       }
 
       if(!is.null(write)){
-        write.csv(metric_conn, file = paste0(write, "_Link_removal_d", x.1,  ".csv"), row.names = FALSE)
+        write.csv(metric_conn, file = paste0(write, "_Link_removal_d", round(x.1),  ".csv"), row.names = FALSE)
       }
     }
 
@@ -430,14 +430,14 @@ MK_dPCIIC_links <- function(nodes,
                                 check.names = FALSE)
       names(metric_conn)[ncol(metric_conn)] <- paste0("d", metric,"_change")
 
-      if(is.list(resultp)){
-        resultp[[length(resultp)+1]] <- metric_conn; names(resultp)[length(resultp)] <- paste0("Link_change_importances_d", x.1)
+      if(any(isTRUE(overall) | isTRUE(removal))){
+        resultp[[length(resultp)+1]] <- metric_conn; names(resultp)[length(resultp)] <- paste0("Link_change_importances_d", round(x.1))
       } else {
         resultp <- metric_conn
       }
 
       if (!is.null(write)){
-        write.csv(metric_conn, file = paste0(write, "_Link_change_d", x.1,  ".csv"), row.names = FALSE)
+        write.csv(metric_conn, file = paste0(write, "_Link_change_d", round(x.1),  ".csv"), row.names = FALSE)
       }
     }
 
@@ -450,7 +450,7 @@ MK_dPCIIC_links <- function(nodes,
   if(length(distance_thresholds) == 1){
     result_d <- result_d[[1]]
   } else {
-    names(result_d) <- paste0("Link_importances_d", distance_thresholds)
+    names(result_d) <- paste0("Link_importances_d", round(distance_thresholds))
   }
   if(isTRUE(intern)){
     message("Done!")

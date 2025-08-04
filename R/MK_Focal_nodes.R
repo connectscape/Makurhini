@@ -8,7 +8,7 @@
 #' @param raster_attribute \code{raster, rast}. Raster object used to assign the attribute values of each node using the function specified in the \bold{fun_attribute} parameter.
 #' @param fun_attribute \code{function}. Specifies the function to estimate the node attribute when the \bold{raster_attribute} parameter is not NULL. The function extracts the raster values in the \code{raster_attribute} parameter for each node, then applies the selected function to this parameter to obtain a single value for each node. For example, mean, sum, modal, min or max. Two of the most popular functions are mean and sum, \code{Default = mean}.
 #' @param weighted \code{logical}. If the parameters \bold{raster_attribute and weighted} are \code{TRUE} then the value of the raster attribute for each node is multiplied by its area to obtain an attribute similar to a weighted habitat index.
-#' @param area_unit \code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.
+#' @param area_unit \code{character}. (\emph{optional, default = } \code{"ha"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2", "km2", "cm2", or "ha" (the default);  See \link[Makurhini]{unit_convert} for details.
 #' @param distance A \code{list} of parameters to establish the distance between each pair of nodes. Distance between nodes may be Euclidean distances (straight-line distance) or effective distances (cost distances) by considering the landscape resistance to the species movements. \cr
 #'  This list must contain the distance parameters necessary to calculate the distance between nodes. For example, two of the most important parameters: \code{“type”} and \code{“resistance”}. For \code{"type"} choose one  of the distances:  \bold{"centroid" (faster), "edge", "least-cost" or "commute-time"}. If the type is equal to \code{"least-cost"} or \code{"commute-time"}, then you must use the \code{"resistance"} argument. For example: \code{distance(type = "least-cost", resistance = raster_resistance)}. \cr
 #' To see more arguments see the \link[Makurhini]{distancefile} function.
@@ -33,7 +33,7 @@
 #' 3-	Next, the index IIC or PC is estimated according to the selected metric using the focal node and the transboundary nodes. This result is referred to as \eqn{\mathbf{IIC}_f} or \eqn{\mathbf{PC}_f}. The index value ranges from 0 to 1, with 1 representing the highest connectivity in the local landscape for the focal node.\cr
 #' 4-	Subsequently, the delta \bold{dIIC or dPC} is estimated for the focal node, along with its \code{intra, flux, and connector} deltas.\cr
 #' 5-	The function calculates the \bold{Composite Connectivity Index} (\eqn{\mathbf{CCI}_f}) as a prioritization tool for focal nodes. This is based on their individual contribution, weighted by the connectivity in the local landscape:
-#' \eqn{\mathbf{CCI}_f = \mathbf{IIC}_f \cdot \mathbf{dIIC}_f} or \eqn{\mathbf{CCI}_f = \mathbf{PC}_f \cdot \mathbf{dPC}_f}. Nodes,  with higher \eqn{\mathbf{CCI}_f} values are found in well-connected local landscapes, making them valuable contributors to connectivity in their immediate landscapes. This makes them ideal candidates for conservation efforts. Conversely, lower \eqn{\mathbf{CCI}_f} values may indicate the need for restoration and conservation actions.
+#' \eqn{\mathbf{CCI}_f = \mathbf{IIC}_f \cdot \mathbf{dIIC}_f} or \eqn{\mathbf{CCI}_f = \mathbf{PC}_f \cdot \mathbf{dPC}_f}. Nodes,  with higher \eqn{\mathbf{CCI}_f} values are found in well-connected local landscapes, making them valuable contributors to connectivity in their immediate landscapes. This makes them ideal candidates for conservation efforts. Conversely, lower \eqn{\mathbf{CCI}_f} values may indicate the need for restoration and conservation actions.\cr
 #' 6- In the final step, if the parameter \code{fragmentation} is set to \code{TRUE}, fragmentation statistics are estimated for the local landscape.\cr\cr
 #' This process is repeated for each node and stored in an object class sf. For further details, please see Latorre-Cárdenas et al., 2023
 #' @export
@@ -716,7 +716,7 @@ MK_Focal_nodes <- function(nodes = NULL,
         } else {
           c(1:(ncol(x.1)-2), ncol(x.1))
         }
-        x.1 <- x.1[,select_column]
+        x.1 <- x.1[,select_column]; names(x.1)[which(names(x.1) == "indice_val")] <- "Attrib_val"
         if(!is.null(write)){
           salida <- paste0(write, "_d", distance_thresholds[x], ".gpkg") |> gsub("__", "_", x = _)
           write_sf(IIC_dIIC, salida)
@@ -742,7 +742,7 @@ MK_Focal_nodes <- function(nodes = NULL,
       } else {
         c(1:(ncol(IIC_dIIC)-2),ncol(IIC_dIIC))
       }
-      IIC_dIIC <- IIC_dIIC[,select_column]
+      IIC_dIIC <- IIC_dIIC[,select_column]; names(x.1)[which(names(x.1) == "indice_val")] <- "Attrib_val"
       if(!is.null(write)){
         salida <- paste0(write, "_", distance_thresholds, ".gpkg") |> gsub("__", "_", x = _)
         write_sf(IIC_dIIC, salida)

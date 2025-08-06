@@ -742,7 +742,7 @@ MK_Focal_nodes <- function(nodes = NULL,
       } else {
         c(1:(ncol(IIC_dIIC)-2),ncol(IIC_dIIC))
       }
-      IIC_dIIC <- IIC_dIIC[,select_column]; names(x.1)[which(names(x.1) == "indice_val")] <- "Attrib_val"
+      IIC_dIIC <- IIC_dIIC[,select_column]; names(IIC_dIIC)[which(names(IIC_dIIC) == "indice_val")] <- "Attrib_val"
       if(!is.null(write)){
         salida <- paste0(write, "_", distance_thresholds, ".gpkg") |> gsub("__", "_", x = _)
         write_sf(IIC_dIIC, salida)

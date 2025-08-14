@@ -31,18 +31,25 @@ knitr::opts_chunk$set(
 
 Thank you for using Makurhini. **We have a new version Makurhini 3.0!**
 
-An update was made in the estimation of short distances between nodes,
-which can improve the processing of the functions that estimate
-connectivity indices.
+1.  We have a new preprint: Godínez-Gómez, O., Correa-Ayram, C.,
+    Goicolea, T., & Saura, S. (2025). **Makurhini: An R package for
+    comprehensive analysis of landscape fragmentation and
+    connectivity.** Research Square.
+    <https://doi.org/10.21203/rs.3.rs-6398746/v1>
 
-Two new functions have been added: **MK_dPCIIC_links and
-MK_Focal_nodes**. The first one is used to estimate the link importance
-for conservation and restoration. The second estimates the focal
-Integral Index of Connectivity (IIC~f~) or the focal Probability of
-Connectivity (PC~f~) under one or more distance thresholds. Furthermore,
-this function estimates the composite connectivity index (CCI~f~; for
-further details, please see Latorre-Cárdenas et al., 2023.
-<https://doi.org/10.3390/land12030631>).
+2.  An update was made in the estimation of short distances between
+    nodes, which can improve the processing of the functions that
+    estimate connectivity indices.
+
+3.  Two new functions have been added: **MK_dPCIIC_links and
+    MK_Focal_nodes**. The first one is used to estimate the link
+    importance for conservation and restoration. The second estimates
+    the focal Integral Index of Connectivity (IIC~f~) or the focal
+    Probability of Connectivity (PC~f~) under one or more distance
+    thresholds. Furthermore, this function estimates the composite
+    connectivity index (CCI~f~; for further details, please see
+    Latorre-Cárdenas et al., 2023.
+    <https://doi.org/10.3390/land12030631>).
 
 ## Overview
 
@@ -182,17 +189,21 @@ formattable(functions_MK,  align =c("l","l"), list(`Function` = formatter(
 
 ## Examples
 
-[Protected Connected Land
-(ProtConn)](#protected-connected-land-protconn) [Equivalent Connectivity
-Area (ECA)](#equivalent-connectivity-area-eca) [Integral index of
-connectivity (IIC) and fractions (Intra, Flux and
-Connector)](#integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector)
-[Probability of connectivity (PC) and fractions (Intra, Flux and
-Connector)](#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector)
-[Centrality measures] (e.g., betweenness centrality, node memberships,
-and modularity) [Fragmentation statistics]
+-   [Protected Connected Land
+    (ProtConn)](#protected-connected-land-protconn)
 
-### Protected Connected Land (ProtConn) {#protected-connected-land-protconn}
+-   [Equivalent Connectivity Area
+    (ECA)](#equivalent-connectivity-area-eca)
+
+-   [Probability of connectivity (PC) and fractions (Intra, Flux and
+    Connector)](#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector)
+
+-   [Centrality measures] (e.g., betweenness centrality, node
+    memberships, and modularity)
+
+-   [Fragmentation statistics]
+
+    ### Protected Connected Land (ProtConn) {#protected-connected-land-protconn}
 
 ```{r echo=FALSE}
 library(Makurhini)
@@ -219,17 +230,18 @@ Saura et al., 2017). We used Euclidean distances, particularly the
 distances between edges to establish the connections between nodes
 (PAs).
 
-```{r echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+```{r echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
 #Protected areas
 load(system.file("extdata", "Protected_areas.rda",
                  package = "Makurhini", mustWork = TRUE))
 nrow(Protected_areas)
 
+```
+
+```{r message=FALSE, warning=FALSE}
 #Ecoregions
 data("Ecoregions", package = "Makurhini")
 nrow(Ecoregions)
-#For practicality we will use the first three columns.
-Ecoregions <- Ecoregions[,1:3]
 ```
 
 ```{r warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%"}
@@ -427,7 +439,7 @@ Andean-Amazon connectivity.
 
 ![](man/figures/grid_example.png)
 
-### Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector) {#integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector}
+### Probability of connectivity (PC) and fractions (Intra, Flux and Connector) {#probability of connectivity (PC) and fractions (Intra, Flux and Connector)}
 
 In this example, the `MK_dPCIIC()` function was applied to estimate the
 connectivity of 404 remnant habitat patches, which were modeled to 40
@@ -619,20 +631,19 @@ BWC <- tm_shape(centrality_test) +
 tmap_arrange(cluster.randomwalk, BWC, ncol = 2)
 ```
 
-Moreover, you can change distance using the distance
-(<code>?distancefile</code>) argument:
+**Moreover, you can change distance using the distance
+(**<code>**?distancefile**</code>**) argument:**
 
-Euclidean distances:
+**Euclidean distances:**
 
 -   distance = list(type= "centroid")
 -   distance = list(type= "edge")
 
-Least cost distances:
+**Least cost distances:**
 
--   distance = list(type= "least-cost", resistance = "resistance
-    raster")
--   distance = list(type= "commute-time", resistance = "resistance
-    raster")
+-   distance = list(type= "least-cost", resistance = resistance raster)
+-   distance = list(type= "commute-time", resistance = resistance
+    raster)
 
 ### Fragmentation statistics
 

@@ -23,9 +23,9 @@ MK_ProtConn_raster(
 )
 }
 \arguments{
-\item{nodes}{raster. The file must have a projected coordinate system.}
+\item{nodes}{Object of class  \code{raster, rast}. The file must have a projected coordinate system.}
 
-\item{region}{object of class \code{raster, rast, sf, sfc, sfg, spatialPolygonsDataFrame}. Polygon delimiting the region or study area. It must be
+\item{region}{object of class \code{raster, rast, sf, sfc, sfg,  SpatVector, spatialPolygonsDataFrame}. Polygon delimiting the region or study area. It must be
 in a projected coordinate system.}
 
 \item{area_unit}{\code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.}

@@ -24,12 +24,12 @@ test_metric_distance(
 )
 }
 \arguments{
-\item{nodes}{Object of class \code{sf, sfc, sfg, SpatialPolygons}.}
+\item{nodes}{Object of class \code{sf, sfc, sfg, SpatVect, SpatialPolygons}.}
 
 \item{attribute}{\code{character}. Column name with the nodes attribute. If NULL, then the nodes area will be estimated and used as the attribute.}
 
 \item{distance1}{\code{list}. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the distances: "centroid" (faster), "edge",
-"least-cost distance" or "commute distance". If the type is equal to "least-cost distance" or "commute distance", then you have to use the "resistance" argument. "keep" is a numeric value used for higher processing.
+"least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument. "keep" is a numeric value used for higher processing.
   To See more options consult the help function of distancefile().}
 
 \item{distance2}{\code{list}. see distance1 argument}

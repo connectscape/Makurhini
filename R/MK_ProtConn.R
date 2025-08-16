@@ -2,8 +2,8 @@
 #'
 #' @description
 #' This function calculates the Protected Connected indicator (ProtConn) for a region, its fractions and the importance (contribution) of each protected area to maintain connectivity in the region under one or more distance thresholds.
-#' @param nodes object of class \code{sf, sfc, sfg, spatialPolygonsDataFrame}. Spatial data of vector type that normally contains the spatial limits of protected areas. It must be in a projected coordinate system.
-#' @param region object of class \code{sf, sfc, sfg, spatialPolygonsDataFrame}. Polygon delimiting the region or study area. It must be in a projected coordinate system.
+#' @param nodes object of class \code{sf, sfc, sfg, SpatVector, spatialPolygonsDataFrame}. Spatial data of vector type that normally contains the spatial limits of protected areas. It must be in a projected coordinate system.
+#' @param region object of class \code{sf, sfc, sfg, SpatVector, spatialPolygonsDataFrame}. Polygon delimiting the region or study area. It must be in a projected coordinate system.
 #' @param area_unit \code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.
 #' @param distance A \code{list} of parameters to establish the distance between each pair of nodes. Distance between nodes may be Euclidean distances (straight-line distance) or effective distances (cost distances) by considering the landscape resistance to the species movements. \cr
 #'  This list must contain the distance parameters necessary to calculate the distance between nodes. For example, two of the most important parameters: \code{“type”} and \code{“resistance”}. For \code{"type"} choose one  of the distances:  \bold{"centroid" (faster), "edge", "least-cost" or "commute-time"}. If the type is equal to \code{"least-cost"} or \code{"commute-time"}, then you must use the \code{"resistance"} argument. For example: \code{distance(type = "least-cost", resistance = raster_resistance)}. \cr

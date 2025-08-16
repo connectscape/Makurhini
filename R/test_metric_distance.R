@@ -1,9 +1,9 @@
 #' Test the ECA or ProtConn metrics using multiple dispersal distances
 #'
-#' @param nodes Object of class \code{sf, sfc, sfg, SpatialPolygons}.
+#' @param nodes Object of class \code{sf, sfc, sfg, SpatVect, SpatialPolygons}.
 #' @param attribute \code{character}. Column name with the nodes attribute. If NULL, then the nodes area will be estimated and used as the attribute.
 #' @param distance1 \code{list}. Distance parameters. For example: type, resistance,or keep. For "type" choose one of the distances: "centroid" (faster), "edge",
-#' "least-cost distance" or "commute distance". If the type is equal to "least-cost distance" or "commute distance", then you have to use the "resistance" argument. "keep" is a numeric value used for higher processing.
+#' "least-cost" or "commute-time". If the type is equal to "least-cost" or "commute-time", then you have to use the "resistance" argument. "keep" is a numeric value used for higher processing.
 #'   To See more options consult the help function of distancefile().
 #' @param distance2 \code{list}. see distance1 argument
 #' @param distance3 \code{list}. see distance1 argument

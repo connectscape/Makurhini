@@ -189,468 +189,42 @@ formattable(functions_MK,  align =c("l","l"), list(`Function` = formatter(
 
 ## Examples
 
--   [Protected Connected Land
-    (ProtConn)](#protected-connected-land-protconn)
-
--   [Equivalent Connectivity Area
-    (ECA)](#equivalent-connectivity-area-eca)
-
--   [Probability of connectivity (PC) and fractions (Intra, Flux and
-    Connector)](#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector)
+-   [Fragmentation statistics]
 
 -   [Centrality measures] (e.g., betweenness centrality, node
     memberships, and modularity)
 
--   [Fragmentation statistics]
+-   [Probability of connectivity (PC) and fractions (Intra, Flux and
+    Connector)](#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector)
 
-    ### Protected Connected Land (ProtConn) {#protected-connected-land-protconn}
+-   [Equivalent Connectivity Area
+    (ECA)](#equivalent-connectivity-area-eca)
 
-```{r echo=FALSE}
+-   [Protected Connected Land
+    (ProtConn)](#protected-connected-land-protconn)
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 library(Makurhini)
 library(sf)
+library(raster)
+library(terra)
 library(tmap)
 library(mapview)
 library(classInt)
 library(ggplot2)
 library(rmapshaper)
+setwd(getwd())
 ```
-
-In this example, we assess the connectivity of Colombia's protected
-areas network in 33 ecoregions of great importance to the country using
-the Protected Connected Indicator (ProtConn). Particularly, we have
-1,530 polygons of protected areas. The spatial information utilized in
-this example is derived from the connectivity assessment study of
-protected areas in the Andean Amazon region, as conducted by Castillo et
-al., (2020). In order to estimate the ProtConn index, we employ the
-`MK_ProtConn()` and `MK_ProtConn_mult()` functions. In this example, we
-will utilize an organism median dispersal distance threshold of 10 km, a
-connection probability pij = 0.5, and a transboundary PA search radius
-of 50 km (for further details, please refer to Castillo et al., 2020;
-Saura et al., 2017). We used Euclidean distances, particularly the
-distances between edges to establish the connections between nodes
-(PAs).
-
-```{r echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
-#Protected areas
-load(system.file("extdata", "Protected_areas.rda",
-                 package = "Makurhini", mustWork = TRUE))
-nrow(Protected_areas)
-
-```
-
-```{r message=FALSE, warning=FALSE}
-#Ecoregions
-data("Ecoregions", package = "Makurhini")
-nrow(Ecoregions)
-```
-
-```{r warning=FALSE, message=FALSE, echo=FALSE, out.width = "100%"}
-mask_ecoregions <- ms_dissolve(Ecoregions)
-PAs_national <- ms_clip(Protected_areas, mask_ecoregions)
-PAs_transnational <- ms_erase(Protected_areas, mask_ecoregions)
-PAs_transnational$Type <- "PAs in neighboring countries"
-PAs_subnational <- PAs_national[PAs_national$ESCALA_2 == "Subnacional",]
-PAs_subnational$Type <- "Subnational PAs"
-PAs_national <- PAs_national[PAs_national$ESCALA_2 == "Nacional",]
-PAs_national$Type <- "National PAs"
-PAs <- rbind(PAs_national, PAs_subnational, PAs_transnational)
-PAs$Type <- factor(PAs$Type, levels = c("National PAs", "Subnational PAs", "PAs in neighboring countries"))
-
-ggplot() +
-  geom_sf(data = Ecoregions, aes(fill = "Ecoregions"), color = "black") +
-  geom_sf(data = PAs, aes(fill=Type), color = NA) +
-  scale_fill_manual(name = "Type", values = c("#1DAB80", "#FF00C5", "#E06936", "#8D8BBE"))+
-  theme_minimal() 
-```
-
-#### MK_ProtConn()
-
-This function calculates the Protected Connected indicator (ProtConn)
-for a region, its fractions and the importance (contribution) of each
-protected area to maintain connectivity in the region under one or more
-distance thresholds.
-
-```{r eval=TRUE, message=FALSE, warning=FALSE}
-#Select first ecoregion
-Ecoregion_1 <- Ecoregions[1,]
-
-#keep = 0.6 simplify the geometry and reduce the number of vertices
-ProtConn_1 <- MK_ProtConn(nodes = Protected_areas, region = Ecoregion_1, 
-                          area_unit = "ha", 
-                          distance = list(type= "edge", keep = 0.6),
-                          distance_thresholds = 10000, probability = 0.5,
-                          transboundary = 50000, plot = TRUE, 
-                          delta = TRUE, intern = FALSE)
-
-```
-
-A dynamic table is generated, displaying the ProtConn values and their
-fractions. Additionally, a graph is produced, illustrating the ProtConn
-values and comparing them with the percentage of protected and connected
-area recommended for a region in the Aichi and Kumming-Montreal targets.
-
-```{r}
-class(ProtConn_1)
-names(ProtConn_1)
-```
-
-```{r eval= TRUE, message=FALSE, warning=FALSE}
-ProtConn_1$`Protected Connected (Viewer Panel)`
-```
-
-```{r eval= FALSE, message=FALSE, warning=FALSE, out.width = "100%"}
-ProtConn_1$`ProtConn Plot`
-```
-
-![](images/example_protconnplot2.png)
-
-ProtConn delta or the higher contribution to ProtConn value in the
-ecoregion (grey polygon):
-
-```{r}
-ggplot()+
-  geom_sf(data = Ecoregion_1, col = "black")+
-  geom_sf(data = ProtConn_1$ProtConn_Delta, 
-          aes(fill = cut(dProtConn, breaks = classIntervals(ProtConn_1$ProtConn_Delta$dProtConn, 7, "jenks")[[2]])), color = NA)+
-  scale_fill_brewer(type = "qual",
-                    palette = "YlOrRd",
-                    name = "dProtConn PAs",
-                    na.translate = FALSE)+
-  theme_minimal() +
-  theme(
-    legend.position.inside = c(0.1,0.21),
-    legend.key.height = unit(0.4, "cm"),
-    legend.key.width = unit(0.5, "cm")
-  )
-
-```
-
-#### MK_ProtConnMult()
-
-In order to facilitate the estimation of the ProtConn index for a
-variety of geographical regions, the MK_ProtConnMult function has been
-incorporated into Makurhini, which enables the estimation of the
-ProtConn indicator and fractions for different regions.
-
-```{r eval=FALSE}
-ProtConn_2 <- MK_ProtConnMult(nodes = Protected_areas, 
-                              region = Ecoregions,
-                              area_unit = "ha",
-                              distance = list(type= "edge"),
-                              distance_thresholds = 10000,
-                              probability = 0.5, transboundary = 50000,
-                              plot = TRUE, parallel = 4)
-```
-
-```{r echo=FALSE}
-ProtConn_2 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/ProtConn_1b.rds")
-```
-
-A dynamic table and vector (sf class) are generated, displaying the
-ProtConn values and their fractions. Additionally, a graph is produced,
-illustrating the ProtConn values and comparing them with the percentage
-of protected and connected area recommended for a region in the Aichi
-and Kumming-Montreal targets.
-
-```{r}
-class(ProtConn_2)
-names(ProtConn_2)
-```
-
-Table:
-
-```{r eval=TRUE}
-ProtConn_2$ProtConn_10000$ProtConn_overall10000
-```
-
-Plot showing the mean and standard deviation values:
-
-```{r eval=FALSE}
-ProtConn_2$ProtConn_10000$`ProtConn Plot`
-```
-
-![](images/example_protconnplot1.png)
-
-Vector file of class sf:
-
-```{r}
-head(ProtConn_2$ProtConn_10000$ProtConn_10000)
-```
-
-Visualize using ggplot2:
-
-```{r eval=TRUE, message=FALSE, warning=FALSE, echo= FALSE}
-interv <- c(0.0701, 1.9375, 4.2690, 6.6786, 10.7244, 17.8158, 25.6303, 41.8570, 45.4735, 97.7425)
-```
-
-```{r eval=FALSE, message=FALSE, warning=FALSE, echo=TRUE}
-#We can use some package to get intervals for example classInt R Packge:
-#library(classInt)
-#interv <- classIntervals(ProtConn_2$ProtConn_10000$ProtConn_10000$ProtConn, 9, "jenks")[[2]]
-```
-
-```{r message=FALSE, warning=FALSE, out.width = "100%"}
-ggplot()+
-  geom_sf(data = Ecoregions)+
-  geom_sf(data = ProtConn_2$ProtConn_10000$ProtConn_10000, 
-          aes(fill = cut(ProtConn, breaks = interv)), color = NA)+
-  scale_fill_brewer(type = "qual",
-                    palette = "RdYlGn",
-                    name = "ProtConn",
-                    na.translate = FALSE)+
-  theme_minimal() +
-  theme(
-    legend.position.inside = c(0.1,0.21),
-    legend.key.height = unit(0.4, "cm"),
-    legend.key.width = unit(0.5, "cm")
-  )
-```
-
-### Equivalent Connectivity Area (ECA) {#equivalent-connectivity-area-eca}
-
-Example in the Biosphere Reserve Mariposa Monarca, Mexico, with
-old-growth vegetation fragments of four times (?list_forest_patches).
-
-```{r eval=TRUE}
-data("list_forest_patches", package = "Makurhini")
-data("study_area", package = "Makurhini")
-class(list_forest_patches)
-
-Max_attribute <- unit_convert(st_area(study_area), "m2", "ha")
-```
-
-```{r eval=TRUE, message=FALSE, warning=FALSE}
-dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
-                  distance = list(type= "centroid"), metric = "PC",
-                  probability = 0.05, distance_thresholds = 5000,
-                  LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"), intern = FALSE)
-```
-
-ECA table:
-
-![](man/figures/table_eca2.PNG){width="504"}
-
-Another way to analyze the ECA (and ProtConn indicator) is by using the
-*'MK_Connect_grid()'* that estimates the index values on a grid. An
-example of its application is the following, on the Andean-Amazon
-Piedmont. The analysis was performed using a grid of hexagons each with
-an area of 10,000 ha and a forest/non-forest map to measure changes in
-Andean-Amazon connectivity.
-
-![](man/figures/grid_example.png)
-
-### Probability of connectivity (PC) and fractions (Intra, Flux and Connector) {#probability of connectivity (PC) and fractions (Intra, Flux and Connector)}
-
-In this example, the `MK_dPCIIC()` function was applied to estimate the
-connectivity of 404 remnant habitat patches, which were modeled to 40
-non-volant mammal species of the Trans-Mexican Volcanic System (TMVS) by
-Correa Ayram et al., (2017). The landscape resistance to dispersal was
-estimated at a 100-meter resolution using a spatial human footprint
-index, land use intensity, time of human landscape intervention,
-biophysical vulnerability, fragmentation, and habitat loss (Correa Ayram
-et al., 2017). The raster was aggregated by a factor of 5 to change its
-original resolution from 100m to 500m. To represent different dispersal
-capacities of multiple species we considered the following median
-(associated to a probability of 0.5) distance thresholds: 250, 1500,
-3000, and 10,000 meters. These four distances group the 40 species
-according to their dispersal distance requirements
-
-```{r message=FALSE, warning=FALSE}
-#Habitat nodes
-data("habitat_nodes", package = "Makurhini")
-nrow(habitat_nodes)
-
-#Study area
-data("TMVS", package = "Makurhini")
-
-#Resistance
-data("resistance_matrix", package = "Makurhini")
-
-```
-
-```{r eval = FALSE, message=FALSE, warning=FALSE, out.width = "100%"}
-raster_map <- as(resistance_matrix, "SpatialPixelsDataFrame")
-raster_map <- as.data.frame(raster_map)
-colnames(raster_map) <- c("value", "x", "y")
-ggplot() +  
-  geom_tile(data = raster_map, aes(x = x, y = y, fill = value), alpha = 0.8) + 
-  geom_sf(data = TMVS, aes(color = "Study area"), fill = NA, color = "black") +
-  geom_sf(data = habitat_nodes, aes(color = "Habitat nodes"), fill = "forestgreen", linewidth = 0.5) +
-  scale_fill_gradientn(colors = c("#000004FF", "#1B0C42FF", "#4B0C6BFF", "#781C6DFF",
-                                  "#A52C60FF", "#CF4446FF", "#ED6925FF", "#FB9A06FF",
-                                  "#F7D03CFF", "#FCFFA4FF"))+
-  scale_color_manual(name = "", values = "black")+
-  theme_minimal() +
-  theme(axis.title.x = element_blank(),
-        axis.title.y = element_blank())
-```
-
-![](images/example_patches-02.png)
-
-```{r eval=FALSE, message=FALSE, warning=FALSE}
-PC_example_2 <- MK_dPCIIC(nodes = habitat_nodes,
-                        attribute = NULL,
-                        distance = list(type = "least-cost",
-                                        resistance = resistance_matrix),
-                        parallel = NULL,
-                        metric = "PC",
-                        probability = 0.5,
-                        distance_thresholds = c(250, 1500, 3000, 10000))
-```
-
-```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
-PC_example_2 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/PC_example_2.rds")
-```
-
-We obtain a `list` object where each element is a result for each
-distance threshold.
-
-```{r eval=TRUE, message=FALSE, warning=FALSE}
-class(PC_example_2)
-
-names(PC_example_2)
-
-head(PC_example_2$d10000)
-```
-
-Each element of the list is a vector type object that can be exported
-using the sf functions and in its vector formats (e.g., shp, gpkg) using
-the sf package (Pebesma et al., 2024), for example:
-
-```{r eval=FALSE, message=FALSE, warning=FALSE}
-write_sf(PC_example_2$d10000, “.../dPC_d0000.shp”)
-```
-
-We can use, for example, ggplot2 or tmap R packages, to map the results:
-
-```{r eval=TRUE, message=FALSE, warning=FALSE, echo= FALSE}
-interv <- c(0.0000021, 0.0596058, 0.1612625, 0.2943665, 0.4937340, 0.8902072, 1.1303198, 1.7556675, 3.4064392, 80.7958156)
-```
-
-```{r eval=TRUE, message=FALSE, warning=FALSE, echo = TRUE, out.width = "100%"}
-#Keep the same range of values of PC_example_1 for comparison, only the highest range changes.
-interv[length(interv)] <- max(PC_example_2$d10000$dPC)
-ggplot()+
-  geom_sf(data = TMVS)+
-  geom_sf(data = PC_example_2$d10000, aes(fill = cut(dPC, breaks = interv)), color = NA)+
-  scale_fill_brewer(type = "qual",
-                    palette = "RdYlGn",
-                    name = "dPC",
-                    na.translate = FALSE)+
-  theme_minimal() +
-  theme(
-    legend.position = "inside",
-    legend.position.inside = c(0.1, 0.21),
-    legend.key.height = unit(0.2, "cm"),
-    legend.key.width = unit(0.3, "cm"),
-    legend.text = element_text(size = 5.5),
-    legend.title = element_text(size = 5.5)
-  )+ labs(title="Least-cost distance")
-
-```
-
-![](images/example_PC.png)
-
-```{r eval = FALSE, echo=FALSE, out.width = "100%"}
-tmap_mode("plot")
-c <- 9
-dPC <- tm_shape(PC_example_2$d10000) + tm_fill("dPC", 
-                                               fill.scale = tm_scale(breaks =  classIntervals(PC_example_2$d10000$dPC, c, "jenks")[[2]],
-                                                                     values = RColorBrewer::brewer.pal(c, "RdYlGn"))) + 
-  tm_shape(TMVS) + tm_borders(lwd = 1.5)+ tm_layout(legend.width = 4.3, 
-                                                    legend.height = 5.6,
-                                                    legend.position = c(-0.01, 0.3),
-                                                    legend.text.size = 1,
-                                                    legend.title.size = 0.7) 
-
-dintra <- tm_shape(PC_example_2$d10000) + tm_fill("dPCintra", 
-                                                  fill.scale = tm_scale(values = RColorBrewer::brewer.pal(c, "RdYlGn"), 
-                                                                        breaks =  classIntervals(PC_example_2$d10000$dPCintra, c, "jenks")[[2]]))+ 
-  tm_shape(TMVS) + tm_borders(lwd = 1.5)+ tm_layout(legend.width = 4.3, 
-                                                    legend.height = 5.6,
-                                                    legend.position = c(-0.01, 0.3),
-                                                    legend.text.size = 1,
-                                                    legend.title.size = 0.7) 
-
-dflux <- tm_shape(PC_example_2$d10000) + tm_fill("dPCflux",
-                                                 fill.scale = tm_scale(values = RColorBrewer::brewer.pal(c, "RdYlGn"), 
-                                                                       breaks =  classIntervals(PC_example_2$d10000$dPCflux, c, "jenks")[[2]]))+
-  tm_shape(TMVS) + tm_borders(lwd = 1.5)+ tm_layout(legend.width = 4.3, 
-                                                    legend.height = 5.6,
-                                                    legend.position = c(-0.01, 0.3),
-                                                    legend.text.size = 1,
-                                                    legend.title.size = 0.7)  
-
-dconect <- tm_shape(PC_example_2$d10000) + tm_fill("dPCconnector", 
-                                                   fill.scale = tm_scale(values = RColorBrewer::brewer.pal(c, "RdYlGn"), 
-                                                                         breaks =  classIntervals(PC_example_2$d10000$dPCconnector, c, "jenks")[[2]]))+ 
-  tm_shape(TMVS) + tm_borders(lwd = 1.5)+ tm_layout(legend.width = 4.3, 
-                                                    legend.height = 5.6,
-                                                    legend.position = c(-0.01, 0.3),
-                                                    legend.text.size = 1,
-                                                    legend.title.size = 0.7) 
-
-tmap_arrange(dPC, dintra, dflux, dconect)
-
-```
-
-### Centrality measures
-
-```{r }
-centrality_test <- MK_RMCentrality(nodes = habitat_nodes,
-                                 distance = list(type = "centroid"),
-                                 distance_thresholds = 10000,
-                                 probability = 0.5,
-                                 write = NULL)
-head(centrality_test)
-```
-
-Examples:
-
-![](images/example_Centrality.png)
-
-```{r eval = FALSE, echo=FALSE, out.width = "100%"}
-cluster.randomwalk <- tm_shape(centrality_test) + 
-  tm_fill("memb.rw", 
-          fill.scale = tm_scale_discrete(ticks =  1:length(unique(centrality_test$memb.rw)), 
-                                         values = RColorBrewer::brewer.pal(length(unique(centrality_test$memb.rw)), "PuOr"))) + 
-  tm_shape(TMVS) + tm_borders(lwd = 2)+  
-  tm_title("Random Walk Community Detection", position = c("center", "top"))+
-  tm_layout(legend.width = 8.5, legend.height = 10,
-            legend.position = c(0.01, 0.3)) 
-
-BWC <- tm_shape(centrality_test) + 
-  tm_fill("BWC", 
-          fill.scale = tm_scale(breaks = classIntervals(centrality_test$BWC, 9, "jenks")[[2]], 
-                                values = RColorBrewer::brewer.pal(9, "PuOr"))) + 
-  tm_shape(TMVS) + tm_borders(lwd = 2)+ 
-  tm_title("Betweenness centrality", position = c("center", "top"))+
-  tm_layout(legend.width = 8.5, legend.height = 10,
-            legend.position = c(0.01, 0.3))
-  
-tmap_arrange(cluster.randomwalk, BWC, ncol = 2)
-```
-
-**Moreover, you can change distance using the distance
-(**<code>**?distancefile**</code>**) argument:**
-
-**Euclidean distances:**
-
--   distance = list(type= "centroid")
--   distance = list(type= "edge")
-
-**Least cost distances:**
-
--   distance = list(type= "least-cost", resistance = resistance raster)
--   distance = list(type= "commute-time", resistance = resistance
-    raster)
 
 ### Fragmentation statistics
 
 *'MK_Fragmentation()'* estimates fragmentation statistics at the
 landscape and patch/node level.
 
-Example:
+In this example, the `MK_Fragmentation()` function was applied to
+estimate fragmentation indices on 404 remaining habitat fragments, which
+were modeled for 40 species of non-flying mammals of the Trans-Mexican
+Volcanic System (TMVS) by Correa Ayram et al., (2017).
 
 ```{r }
 data("habitat_nodes", package = "Makurhini")
@@ -744,7 +318,7 @@ tmap_arrange(CAP, Per, SH, Frac)
 We can make a loop where we explore different edge depths. In the
 following example, We will explore 10 edge depths (*edge_distance
 argument*): 100, 200, 300, 400, 500, 600, 700, 800, 900 and 1000 meters.
-We will apply the *'MK_Fragmentation'* function using the previous
+We will apply the *'MK_Fragmentation()'* function using the previous
 distances and then, we will extract the core area percentage and edge
 percentage statistics. Finally, we will plot the average of the patch
 core area percentage and edge percentage (% core area + % edge = 100%).
@@ -783,3 +357,461 @@ by over 60% when an edge depth distance of 1 km is considered.
 | 100                     |    65.76%     |
 | 500                     |    12.86%     |
 | 1000                    |     3.63%     |
+
+### Centrality measures
+
+In this example, we continue to use the 404 remaining habitat fragments
+to estimate centrality indices using the `MK_RMCentrality()` function.
+
+```{r }
+centrality_test <- MK_RMCentrality(nodes = habitat_nodes,
+                                 distance = list(type = "centroid"),
+                                 distance_thresholds = 10000,
+                                 probability = 0.5,
+                                 write = NULL)
+head(centrality_test)
+```
+
+Examples:
+
+![](images/example_Centrality.png)
+
+```{r eval = FALSE, echo=FALSE, out.width = "100%"}
+cluster.randomwalk <- tm_shape(centrality_test) + 
+  tm_fill("memb.rw", 
+          fill.scale = tm_scale_discrete(ticks =  1:length(unique(centrality_test$memb.rw)), 
+                                         values = RColorBrewer::brewer.pal(length(unique(centrality_test$memb.rw)), "PuOr"))) + 
+  tm_shape(TMVS) + tm_borders(lwd = 2)+  
+  tm_title("Random Walk Community Detection", position = c("center", "top"))+
+  tm_layout(legend.width = 8.5, legend.height = 10,
+            legend.position = c(0.01, 0.3)) 
+
+BWC <- tm_shape(centrality_test) + 
+  tm_fill("BWC", 
+          fill.scale = tm_scale(breaks = classIntervals(centrality_test$BWC, 9, "jenks")[[2]], 
+                                values = RColorBrewer::brewer.pal(9, "PuOr"))) + 
+  tm_shape(TMVS) + tm_borders(lwd = 2)+ 
+  tm_title("Betweenness centrality", position = c("center", "top"))+
+  tm_layout(legend.width = 8.5, legend.height = 10,
+            legend.position = c(0.01, 0.3))
+  
+tmap_arrange(cluster.randomwalk, BWC, ncol = 2)
+```
+
+**Moreover, you can change distance using the distance
+(**<code>**?distancefile**</code>**) argument:**
+
+**Euclidean distances:**
+
+-   distance = list(type= "centroid")
+-   distance = list(type= "edge")
+
+**Least cost distances:**
+
+-   distance = list(type= "least-cost", resistance = resistance raster)
+-   distance = list(type= "commute-time", resistance = resistance
+    raster)
+
+### Probability of connectivity (PC) and fractions (Intra, Flux and Connector) {#probability of connectivity (PC) and fractions (Intra, Flux and Connector)}
+
+In this example, the `MK_dPCIIC()` function was applied to estimate the
+connectivity of the 404 habitat fragments. In addition, we used a raster
+of dispersion resistance in the landscape that was estimated at a
+100-meter resolution using a spatial human footprint index, land use
+intensity, time of human landscape intervention, biophysical
+vulnerability, fragmentation, and habitat loss (Correa Ayram et al.,
+2017). The raster was aggregated by a factor of 5 to change its original
+resolution from 100m to 500m. To represent different dispersal
+capacities of multiple species we considered the following median
+(associated to a probability of 0.5) distance thresholds: 250, 1500,
+3000, and 10,000 meters. These four distances group the 40 species
+according to their dispersal distance requirements.
+
+```{r message=FALSE, warning=FALSE}
+#Habitat nodes
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes)
+
+#Study area
+data("TMVS", package = "Makurhini")
+
+#Resistance
+data("resistance_matrix", package = "Makurhini")
+
+```
+
+```{r eval = FALSE, message=FALSE, warning=FALSE, out.width = "100%"}
+raster_map <- as(resistance_matrix, "SpatialPixelsDataFrame")
+raster_map <- as.data.frame(raster_map)
+colnames(raster_map) <- c("value", "x", "y")
+ggplot() +  
+  geom_tile(data = raster_map, aes(x = x, y = y, fill = value), alpha = 0.8) + 
+  geom_sf(data = TMVS, aes(color = "Study area"), fill = NA, color = "black") +
+  geom_sf(data = habitat_nodes, aes(color = "Habitat nodes"), fill = "forestgreen", linewidth = 0.5) +
+  scale_fill_gradientn(colors = c("#000004FF", "#1B0C42FF", "#4B0C6BFF", "#781C6DFF",
+                                  "#A52C60FF", "#CF4446FF", "#ED6925FF", "#FB9A06FF",
+                                  "#F7D03CFF", "#FCFFA4FF"))+
+  scale_color_manual(name = "", values = "black")+
+  theme_minimal() +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank())
+```
+
+![](images/example_patches-02.png)
+
+```{r eval=FALSE, message=FALSE, warning=FALSE}
+PC_example <- MK_dPCIIC(nodes = habitat_nodes,
+                        attribute = NULL,
+                        distance = list(type = "least-cost",
+                                        resistance = resistance_matrix),
+                        parallel = NULL,
+                        metric = "PC",
+                        probability = 0.5,
+                        distance_thresholds = c(250, 1500, 3000, 10000))
+```
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+PC_example <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/PC_example_2.rds")
+```
+
+We obtain a `list` object where each element is a result for each
+distance threshold.
+
+```{r eval=TRUE, message=FALSE, warning=FALSE}
+class(PC_example)
+
+names(PC_example)
+
+head(PC_example$d10000)
+```
+
+Each element of the list is a vector type object that can be exported
+using the sf functions and in its vector formats (e.g., shp, gpkg) using
+the sf package (Pebesma et al., 2024), for example:
+
+```{r eval=FALSE, message=FALSE, warning=FALSE}
+write_sf(PC_example$d10000, “.../dPC_d0000.shp”)
+```
+
+We can use, for example, ggplot2 to map the results:
+
+```{r message=FALSE, warning=FALSE, out.width = "90%"}
+library(classInt)
+library(dplyr)
+library(ggplot2)
+
+PC <- PC_example$d10000 #Result 10 km
+
+# Calcular los intervalos de Jenks para strength
+breaks <- classInt::classIntervals(PC$dPC, n = 9, style = "jenks")
+
+# Crear una nueva variable categórica con los intervalos
+PC <- PC %>%
+  mutate(dPC_q = cut(dPC,
+                          breaks = breaks$brks,
+                          include.lowest = TRUE,
+                          dig.lab = 5))  
+
+# Graficar en ggplot2 usando las clases Jenks
+ggplot() +  
+  geom_sf(data = TMVS, color = "black") +
+  geom_sf(data = PC, aes(fill = dPC_q), color = "black", size = 0.1) +
+  scale_fill_brewer(palette = "RdYlGn", direction = 1, name = "dPC (jenks)") +
+  theme_minimal() +
+  labs(
+    title = "dPC Least-cost distance",
+    fill = "dPC"
+  ) +
+  theme(
+    legend.position = "right",
+    plot.title = element_text(hjust = 0.5)
+  )
+
+```
+
+
+### Focal probability of connectivity (*PC~f~*)
+
+The function `MK_focal_nodes()` enables the calculation of the focal
+Integral Index of Connectivity (IICf) or the focal Probability of
+Connectivity (PCf​) under one or more distance thresholds. Furthermore,
+this function estimates the composite connectivity index (CCIf​; for
+further details, please see Latorre-Cárdenas et al., 2023). In this
+example, we apply the `MK_focal_nodes()` to the 404 habitat patches.
+
+```{r eval=FALSE}
+focal_example <- MK_Focal_nodes(nodes = habitat_nodes,
+                       id = "Id",
+                       attribute = NULL,
+                       raster_attribute = NULL,
+                       fun_attribute = NULL,
+                       distance = list(type = "least-cost",
+                                       resistance = resistance_matrix),
+                       metric = "PC",
+                       probability = 0.5,
+                       parallel = 4,
+                       distance_thresholds = 10000,
+                       search_buffer = 20000,
+                       intern = FALSE)
+head(focal_example)
+```
+
+```{r echo=FALSE, eval=TRUE}
+focal_example <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/PCfocal.rds")
+
+head(focal_example)
+```
+
+```{r message=FALSE, warning=FALSE, out.width = "90%"}
+# Calcular los intervalos de Jenks para strength
+breaks <- classInt::classIntervals(focal_example$IComp, n = 9, style = "jenks")
+
+# Crear una nueva variable categórica con los intervalos
+focal_example <- focal_example %>%
+  mutate(IComp_q = cut(IComp,
+                     breaks = breaks$brks,
+                     include.lowest = TRUE,
+                     dig.lab = 5))  
+
+# Graficar en ggplot2 usando las clases Jenks
+ggplot() +  
+  geom_sf(data = TMVS, color = "black") +
+  geom_sf(data = focal_example, aes(fill = IComp_q), color = "black", size = 0.1) +
+  scale_fill_brewer(palette = "RdYlGn", direction = 1, name = "IComp (jenks)") +
+  theme_minimal() +
+  labs(
+    title = "Composite connectivity index (IComp)",
+    fill = "IComp"
+  ) +
+  theme(
+    legend.position = "right",
+    plot.title = element_text(hjust = 0.5)
+  )
+
+```
+
+### Equivalent Connectivity Area (ECA) {#equivalent-connectivity-area-eca}
+
+Example in the Biosphere Reserve Mariposa Monarca, Mexico, with
+old-growth vegetation fragments of four times (?list_forest_patches).
+
+```{r eval=TRUE}
+data("list_forest_patches", package = "Makurhini")
+data("study_area", package = "Makurhini")
+class(list_forest_patches)
+
+Max_attribute <- unit_convert(st_area(study_area), "m2", "ha")
+```
+
+```{r eval=TRUE, message=FALSE, warning=FALSE}
+dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
+                  distance = list(type= "centroid"), metric = "PC",
+                  probability = 0.05, distance_thresholds = 5000,
+                  LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"), intern = FALSE)
+```
+
+ECA table:
+
+![](man/figures/table_eca2.PNG){width="504"}
+
+Another way to analyze the ECA (and ProtConn indicator) is by using the
+*'MK_Connect_grid()'* that estimates the index values on a grid. An
+example of its application is the following, on the Andean-Amazon
+Piedmont. The analysis was performed using a grid of hexagons each with
+an area of 10,000 ha and a forest/non-forest map to measure changes in
+Andean-Amazon connectivity.
+
+![](man/figures/grid_example.png)
+
+### Protected Connected Land (ProtConn) {#protected-connected-land-protconn}
+
+In this example, we assess the connectivity of Colombia's protected
+areas network in 33 ecoregions of great importance to the country using
+the Protected Connected Indicator (ProtConn). Particularly, we have
+1,530 polygons of protected areas. The spatial information utilized in
+this example is derived from the connectivity assessment study of
+protected areas in the Andean Amazon region, as conducted by Castillo et
+al., (2020). In order to estimate the ProtConn index, we employ the
+`MK_ProtConn()` and `MK_ProtConn_mult()` functions. In this example, we
+will utilize an organism median dispersal distance threshold of 10 km, a
+connection probability pij = 0.5, and a transboundary PA search radius
+of 50 km (for further details, please refer to Castillo et al., 2020;
+Saura et al., 2017). We used Euclidean distances, particularly the
+distances between edges to establish the connections between nodes
+(PAs).
+
+```{r echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+#Protected areas
+load(system.file("extdata", "Protected_areas.rda",
+                 package = "Makurhini", mustWork = TRUE))
+nrow(Protected_areas)
+
+```
+
+```{r message=FALSE, warning=FALSE}
+#Ecoregions
+data("Ecoregions", package = "Makurhini")
+nrow(Ecoregions)
+```
+
+```{r warning=FALSE, message=FALSE, echo=FALSE, out.width = "90%"}
+mask_ecoregions <- ms_dissolve(Ecoregions)
+PAs_national <- ms_clip(Protected_areas, mask_ecoregions)
+PAs_transnational <- ms_erase(Protected_areas, mask_ecoregions)
+PAs_transnational$Type <- "PAs in neighboring countries"
+PAs_subnational <- PAs_national[PAs_national$ESCALA_2 == "Subnacional",]
+PAs_subnational$Type <- "Subnational PAs"
+PAs_national <- PAs_national[PAs_national$ESCALA_2 == "Nacional",]
+PAs_national$Type <- "National PAs"
+PAs <- rbind(PAs_national, PAs_subnational, PAs_transnational)
+PAs$Type <- factor(PAs$Type, levels = c("National PAs", "Subnational PAs", "PAs in neighboring countries"))
+
+ggplot() +
+  geom_sf(data = Ecoregions, aes(fill = "Ecoregions"), color = "black") +
+  geom_sf(data = PAs, aes(fill=Type), color = NA) +
+  scale_fill_manual(name = "Type", values = c("#1DAB80", "#FF00C5", "#E06936", "#8D8BBE"))+
+  theme_minimal() 
+```
+
+#### MK_ProtConn()
+
+This function calculates the Protected Connected indicator (ProtConn)
+for a region, its fractions and the importance (contribution) of each
+protected area to maintain connectivity in the region under one or more
+distance thresholds.
+
+```{r eval=TRUE, message=FALSE, warning=FALSE}
+#Select first ecoregion
+Ecoregion_1 <- Ecoregions[1,]
+
+#keep = 0.6 simplify the geometry and reduce the number of vertices
+ProtConn_1 <- MK_ProtConn(nodes = Protected_areas, region = Ecoregion_1, 
+                          area_unit = "ha", 
+                          distance = list(type= "edge", keep = 0.6),
+                          distance_thresholds = 10000, probability = 0.5,
+                          transboundary = 50000, plot = TRUE, 
+                          delta = TRUE, intern = FALSE)
+
+```
+
+A dynamic table is generated, displaying the ProtConn values and their
+fractions. Additionally, a graph is produced, illustrating the ProtConn
+values and comparing them with the percentage of protected and connected
+area recommended for a region in the Aichi and Kumming-Montreal targets.
+
+```{r}
+class(ProtConn_1)
+names(ProtConn_1)
+```
+
+```{r eval= TRUE, message=FALSE, warning=FALSE}
+ProtConn_1$`Protected Connected (Viewer Panel)`
+```
+
+```{r eval= FALSE, message=FALSE, warning=FALSE, out.width = "100%"}
+ProtConn_1$`ProtConn Plot`
+```
+
+![](images/example_protconnplot2.png)
+
+ProtConn delta or the higher contribution to ProtConn value in the
+ecoregion (grey polygon):
+
+```{r message=FALSE, warning=FALSE, out.width = "90%"}
+ggplot()+
+  geom_sf(data = Ecoregion_1, col = "black")+
+  geom_sf(data = ProtConn_1$ProtConn_Delta, 
+          aes(fill = cut(dProtConn, breaks = classIntervals(ProtConn_1$ProtConn_Delta$dProtConn, 7, "jenks")[[2]])), color = NA)+
+  scale_fill_brewer(type = "qual",
+                    palette = "YlOrRd",
+                    name = "dProtConn PAs",
+                    na.translate = FALSE)+
+  theme_minimal() +
+  theme(
+    legend.position.inside = c(0.1,0.21),
+    legend.key.height = unit(0.4, "cm"),
+    legend.key.width = unit(0.5, "cm")
+  )
+
+```
+
+#### MK_ProtConnMult()
+
+In order to facilitate the estimation of the ProtConn index for a
+variety of geographical regions, the MK_ProtConnMult function has been
+incorporated into Makurhini, which enables the estimation of the
+ProtConn indicator and fractions for different regions.
+
+```{r eval=FALSE}
+ProtConn_2 <- MK_ProtConnMult(nodes = Protected_areas, 
+                              region = Ecoregions,
+                              area_unit = "ha",
+                              distance = list(type= "edge"),
+                              distance_thresholds = 10000,
+                              probability = 0.5, transboundary = 50000,
+                              plot = TRUE, parallel = 4)
+```
+
+```{r echo=FALSE}
+ProtConn_2 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/ProtConn_1b.rds")
+```
+
+A dynamic table and vector (sf class) are generated, displaying the
+ProtConn values and their fractions. Additionally, a graph is produced,
+illustrating the ProtConn values and comparing them with the percentage
+of protected and connected area recommended for a region in the Aichi
+and Kumming-Montreal targets.
+
+```{r}
+class(ProtConn_2)
+names(ProtConn_2)
+```
+
+Table:
+
+```{r eval=TRUE}
+ProtConn_2$ProtConn_10000$ProtConn_overall10000
+```
+
+Plot showing the mean and standard deviation values:
+
+```{r eval=FALSE}
+ProtConn_2$ProtConn_10000$`ProtConn Plot`
+```
+
+![](images/example_protconnplot1.png)
+
+Vector file of class sf:
+
+```{r}
+head(ProtConn_2$ProtConn_10000$ProtConn_10000)
+```
+
+Visualize using ggplot2:
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, echo= FALSE}
+interv <- c(0.0701, 1.9375, 4.2690, 6.6786, 10.7244, 17.8158, 25.6303, 41.8570, 45.4735, 97.7425)
+```
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, echo=TRUE}
+#We can use some package to get intervals for example classInt R Packge:
+#library(classInt)
+#interv <- classIntervals(ProtConn_2$ProtConn_10000$ProtConn_10000$ProtConn, 9, "jenks")[[2]]
+```
+
+```{r message=FALSE, warning=FALSE, out.width = "90%"}
+ggplot()+
+  geom_sf(data = Ecoregions)+
+  geom_sf(data = ProtConn_2$ProtConn_10000$ProtConn_10000, 
+          aes(fill = cut(ProtConn, breaks = interv)), color = NA)+
+  scale_fill_brewer(type = "qual",
+                    palette = "RdYlGn",
+                    name = "ProtConn",
+                    na.translate = FALSE)+
+  theme_minimal() +
+  theme(
+    legend.position.inside = c(0.1,0.21),
+    legend.key.height = unit(0.4, "cm"),
+    legend.key.width = unit(0.5, "cm")
+  )
+```

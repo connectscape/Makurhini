@@ -1,8 +1,8 @@
 #' Protected Connected (ProtConn) using raster nodes
 #'
 #' Estimate Protected Connected (ProtConn) indicator and fractions for one region.
-#' @param nodes raster. The file must have a projected coordinate system.
-#' @param region object of class \code{raster, rast, sf, sfc, sfg, spatialPolygonsDataFrame}. Polygon delimiting the region or study area. It must be
+#' @param nodes Object of class  \code{raster, rast}. The file must have a projected coordinate system.
+#' @param region object of class \code{raster, rast, sf, sfc, sfg,  SpatVector, spatialPolygonsDataFrame}. Polygon delimiting the region or study area. It must be
 #'  in a projected coordinate system.
 #' @param area_unit \code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.
 #' @param distance  A \code{matrix} or \code{list} to establish the distance between each pair of nodes. Distance between nodes may be Euclidean distances (straight-line distance) or effective distances (cost distances) by considering the landscape resistance to the species movements. \cr

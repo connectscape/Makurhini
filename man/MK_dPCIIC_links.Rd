@@ -52,7 +52,7 @@ To see more arguments see the \link[Makurhini]{distancefile} function.}
 
 \item{removal}{\code{logical} indicating whether the link removal mode should be used to calculate link importance (see details). Default is TRUE.}
 
-\item{change}{(\emph{optional, default} \code{NULL}). A \code{numeric} indicating the new distances  used to calculate link importance under the link change mode should be (see details). By default, link change is not calculated.}
+\item{change}{(\emph{optional, default} \code{NULL}). A \code{matrix} indicating the new distances  used to calculate link importance under the link change mode should be (see details). By default, link change is not calculated.}
 
 \item{overall}{\code{logical}. If \code{TRUE}, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE}
 
@@ -118,13 +118,13 @@ delta <- MK_dPCIIC_links(nodes = nodes_test,
 #Link change option
 data("dist_restoration", package = "Makurhini")
 #select the new distances between the first 50 nodes
-dist_test_change <- dist_restoration[1:50,1:50]
+dist_change <- dist_restoration[1:50,1:50]
 
 delta <- MK_dPCIIC_links(nodes = nodes_test,
                          attribute = "attribute",
                          area_unit = "ha",
                          distance = dist_test,
-                         change = distance_change
+                         change = dist_change,
                          removal = TRUE,
                          metric = "PC",
                          probability = 0.5,

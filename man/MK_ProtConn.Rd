@@ -23,9 +23,9 @@ MK_ProtConn(
 )
 }
 \arguments{
-\item{nodes}{object of class \code{sf, sfc, sfg, spatialPolygonsDataFrame}. Spatial data of vector type that normally contains the spatial limits of protected areas. It must be in a projected coordinate system.}
+\item{nodes}{object of class \code{sf, sfc, sfg, SpatVector, spatialPolygonsDataFrame}. Spatial data of vector type that normally contains the spatial limits of protected areas. It must be in a projected coordinate system.}
 
-\item{region}{object of class \code{sf, sfc, sfg, spatialPolygonsDataFrame}. Polygon delimiting the region or study area. It must be in a projected coordinate system.}
+\item{region}{object of class \code{sf, sfc, sfg, SpatVector, spatialPolygonsDataFrame}. Polygon delimiting the region or study area. It must be in a projected coordinate system.}
 
 \item{area_unit}{\code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.}
 

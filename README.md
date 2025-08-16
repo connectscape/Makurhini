@@ -15,18 +15,25 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 Thank you for using Makurhini. **We have a new version Makurhini 3.0!**
 
-An update was made in the estimation of short distances between nodes,
-which can improve the processing of the functions that estimate
-connectivity indices.
+1.  We have a new preprint: Godínez-Gómez, O., Correa-Ayram, C.,
+    Goicolea, T., & Saura, S. (2025). **Makurhini: An R package for
+    comprehensive analysis of landscape fragmentation and
+    connectivity.** Research Square.
+    <https://doi.org/10.21203/rs.3.rs-6398746/v1>
 
-Two new functions have been added: **MK_dPCIIC_links and
-MK_Focal_nodes**. The first one is used to estimate the link importance
-for conservation and restoration. The second estimates the focal
-Integral Index of Connectivity (IIC<sub>f</sub>) or the focal
-Probability of Connectivity (PC<sub>f</sub>) under one or more distance
-thresholds. Furthermore, this function estimates the composite
-connectivity index (CCI<sub>f</sub>; for further details, please see
-Latorre-Cárdenas et al., 2023. <https://doi.org/10.3390/land12030631>).
+2.  An update was made in the estimation of short distances between
+    nodes, which can improve the processing of the functions that
+    estimate connectivity indices.
+
+3.  Two new functions have been added: **MK_dPCIIC_links and
+    MK_Focal_nodes**. The first one is used to estimate the link
+    importance for conservation and restoration. The second estimates
+    the focal Integral Index of Connectivity (IIC<sub>f</sub>) or the
+    focal Probability of Connectivity (PC<sub>f</sub>) under one or more
+    distance thresholds. Furthermore, this function estimates the
+    composite connectivity index (CCI<sub>f</sub>; for further details,
+    please see Latorre-Cárdenas et al., 2023.
+    <https://doi.org/10.3390/land12030631>).
 
 ## Overview
 
@@ -312,16 +319,558 @@ multiple dispersion distances.
 
 ## Examples
 
-[Protected Connected Land
-(ProtConn)](#protected-connected-land-protconn) [Equivalent Connectivity
-Area (ECA)](#equivalent-connectivity-area-eca) [Integral index of
-connectivity (IIC) and fractions (Intra, Flux and
-Connector)](#integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector)
-[Probability of connectivity (PC) and fractions (Intra, Flux and
-Connector)](#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector)
-[Centrality measures](#centrality-measures) (e.g., betweenness
-centrality, node memberships, and modularity) [Fragmentation
-statistics](#fragmentation-statistics)
+- [Fragmentation statistics](#fragmentation-statistics)
+
+- [Centrality measures](#centrality-measures) (e.g., betweenness
+  centrality, node memberships, and modularity)
+
+- [Probability of connectivity (PC) and fractions (Intra, Flux and
+  Connector)](#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector)
+
+- [Equivalent Connectivity Area
+  (ECA)](#equivalent-connectivity-area-eca)
+
+- [Protected Connected Land
+  (ProtConn)](#protected-connected-land-protconn)
+
+### Fragmentation statistics
+
+*‘MK_Fragmentation()’* estimates fragmentation statistics at the
+landscape and patch/node level.
+
+In this example, the `MK_Fragmentation()` function was applied to
+estimate fragmentation indices on 404 remaining habitat fragments, which
+were modeled for 40 species of non-flying mammals of the Trans-Mexican
+Volcanic System (TMVS) by Correa Ayram et al., (2017).
+
+``` r
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes) # Number of nodes
+#> [1] 404
+```
+
+To define the edge of the nodes we can use, for example, a distance of
+500 m from the limit of the nodes.
+
+![](man/figures/Imagen1.png)
+
+``` r
+Fragmentation_test <- MK_Fragmentation(nodes = habitat_nodes, edge_distance = 500,
+                                       plot = TRUE, min_node_area = 100, 
+                                       landscape_area = NULL, area_unit = "km2", 
+                                       perimeter_unit = "km")
+```
+
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-9-2.png" width="60%" />
+
+- The results are presented as a list, the first result is called
+  *“Summary landscape metrics (Viewer Panel)”* and it has fragmentation
+  statistics at landscape level.
+
+``` r
+class(Fragmentation_test)
+#> [1] "list"
+```
+
+``` r
+names(Fragmentation_test)
+#> [1] "Summary landscape metrics (Viewer Panel)"
+#> [2] "Patch statistics shapefile"
+```
+
+``` r
+Fragmentation_test$`Summary landscape metrics (Viewer Panel)`
+```
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:left;">
+Metric
+</th>
+<th style="text-align:center;">
+Value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Patch area (km2)
+</td>
+<td style="text-align:center;">
+12735.7391
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Number of patches
+</td>
+<td style="text-align:center;">
+404.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Size (mean)
+</td>
+<td style="text-align:center;">
+31.5241
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Patches \< minimum patch area
+</td>
+<td style="text-align:center;">
+383.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Patches \< minimum patch area (%)
+</td>
+<td style="text-align:center;">
+28.8879
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Total edge
+</td>
+<td style="text-align:center;">
+17920.4740
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Edge density
+</td>
+<td style="text-align:center;">
+1.4071
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Patch density
+</td>
+<td style="text-align:center;">
+3.1722
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Total Core Area (km2)
+</td>
+<td style="text-align:center;">
+6315.9513
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cority
+</td>
+<td style="text-align:center;">
+0.6040
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Shape Index (mean)
+</td>
+<td style="text-align:center;">
+2.2073
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FRAC (mean)
+</td>
+<td style="text-align:center;">
+8.4400
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MESH (km2)
+</td>
+<td style="text-align:center;">
+1443.4320
+</td>
+</tr>
+</tbody>
+</table>
+
+- The second output *“Patch statistics shapefile”* is a shapefile with
+  patch level fragmentation statistics that can be saved using
+  write_sf() from *‘sf’* package
+  (<https://cran.r-project.org/web/packages/sf/index.html>).
+
+``` r
+head(Fragmentation_test[[2]])
+#> Simple feature collection with 6 features and 9 fields
+#> Geometry type: POLYGON
+#> Dimension:     XY
+#> Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668
+#> Projected CRS: NAD_1927_Albers
+#>   Id     Area     CA CAPercent Perimeter EdgePercent   PARA ShapeIndex     FRAC
+#> 1  1   0.8584  0.000    0.0000     5.989    100.0000 0.1433     1.8235 -23.4460
+#> 2  2   2.2022  0.000    0.0000    11.346    100.0000 0.1941     2.1568   6.1533
+#> 3  3 110.1997 53.378   48.4375   184.969     51.5625 0.5958     4.9705   2.2203
+#> 4  4   1.2100  0.000    0.0000     6.974    100.0000 0.1735     1.7885  20.3776
+#> 5  5   1.8472  0.000    0.0000    14.452    100.0000 0.1278     2.9996   8.7044
+#> 6  6   0.2631  0.000    0.0000     4.685    100.0000 0.0562     2.5766  -2.3133
+#>                         geometry
+#> 1 POLYGON ((54911.05 2035815,...
+#> 2 POLYGON ((44591.28 2042209,...
+#> 3 POLYGON ((46491.11 2042467,...
+#> 4 POLYGON ((54944.49 2048163,...
+#> 5 POLYGON ((80094.28 2064140,...
+#> 6 POLYGON ((69205.24 2066394,...
+```
+
+![](images/example_fragm.png)
+
+We can make a loop where we explore different edge depths. In the
+following example, We will explore 10 edge depths (*edge_distance
+argument*): 100, 200, 300, 400, 500, 600, 700, 800, 900 and 1000 meters.
+We will apply the *‘MK_Fragmentation()’* function using the previous
+distances and then, we will extract the core area percentage and edge
+percentage statistics. Finally, we will plot the average of the patch
+core area percentage and edge percentage (% core area + % edge = 100%).
+
+``` r
+library(purrr)
+Fragmentation_test.2 <- map_dfr(seq(100, 1000, 100), function(x){
+  x.1 <- MK_Fragmentation(nodes = habitat_nodes, 
+                          edge_distance = x, plot = FALSE)[[2]]
+  CA <- mean(x.1$CAPercent)
+  Edge <- mean(x.1$EdgePercent)
+  x.2 <- rbind(data.frame('Edge distance' = x, Type = "Core Area", Percentage = CA),
+                     data.frame('Edge distance' = x, Type = "Edge", Percentage = Edge))
+  return(x.2)
+})
+```
+
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="60%" />
+
+The mean core area percentage (the mean node/patch area that exhibits
+the least possible edge effect) for all patches is observed to decline
+by over 60% when an edge depth distance of 1 km is considered.
+
+| Edge depth distance (m) | Core Area (%) |
+|-------------------------|:-------------:|
+| 100                     |    65.76%     |
+| 500                     |    12.86%     |
+| 1000                    |     3.63%     |
+
+### Centrality measures
+
+In this example, we continue to use the 404 remaining habitat fragments
+to estimate centrality indices using the `MK_RMCentrality()` function.
+
+``` r
+centrality_test <- MK_RMCentrality(nodes = habitat_nodes,
+                                 distance = list(type = "centroid"),
+                                 distance_thresholds = 10000,
+                                 probability = 0.5,
+                                 write = NULL)
+head(centrality_test)
+#> Simple feature collection with 6 features and 8 fields
+#> Geometry type: POLYGON
+#> Dimension:     XY
+#> Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668
+#> Projected CRS: NAD_1927_Albers
+#>   Id strength        eigen      close BWC cluster memb.rw memb.louvain
+#> 1  1 30228524 0.0010435836 0.03840356   0       1       6            1
+#> 2  2 21600031 0.0006195356 0.03995935   1       1       6            2
+#> 3  3 29320545 0.0009026418 0.03831019   0       1       6            2
+#> 4  4 16499522 0.0005867564 0.04187906  23       1       6            2
+#> 5  5 26068911 0.0011987437 0.04240465   0       1       6            1
+#> 6  6 12737692 0.0005630043 0.04627714  17       1       6            1
+#>                         geometry
+#> 1 POLYGON ((54911.05 2035815,...
+#> 2 POLYGON ((44591.28 2042209,...
+#> 3 POLYGON ((46491.11 2042467,...
+#> 4 POLYGON ((54944.49 2048163,...
+#> 5 POLYGON ((80094.28 2064140,...
+#> 6 POLYGON ((69205.24 2066394,...
+```
+
+Examples:
+
+![](images/example_Centrality.png)
+
+**Moreover, you can change distance using the distance
+(**<code>**?distancefile**</code>**) argument:**
+
+**Euclidean distances:**
+
+- distance = list(type= “centroid”)
+- distance = list(type= “edge”)
+
+**Least cost distances:**
+
+- distance = list(type= “least-cost”, resistance = resistance raster)
+- distance = list(type= “commute-time”, resistance = resistance raster)
+
+### Probability of connectivity (PC) and fractions (Intra, Flux and Connector) {#probability of connectivity (PC) and fractions (Intra, Flux and Connector)}
+
+In this example, the `MK_dPCIIC()` function was applied to estimate the
+connectivity of the 404 habitat fragments. In addition, we used a raster
+of dispersion resistance in the landscape that was estimated at a
+100-meter resolution using a spatial human footprint index, land use
+intensity, time of human landscape intervention, biophysical
+vulnerability, fragmentation, and habitat loss (Correa Ayram et al.,
+2017). The raster was aggregated by a factor of 5 to change its original
+resolution from 100m to 500m. To represent different dispersal
+capacities of multiple species we considered the following median
+(associated to a probability of 0.5) distance thresholds: 250, 1500,
+3000, and 10,000 meters. These four distances group the 40 species
+according to their dispersal distance requirements.
+
+``` r
+#Habitat nodes
+data("habitat_nodes", package = "Makurhini")
+nrow(habitat_nodes)
+#> [1] 404
+```
+
+``` r
+
+#Study area
+data("TMVS", package = "Makurhini")
+
+#Resistance
+data("resistance_matrix", package = "Makurhini")
+```
+
+``` r
+raster_map <- as(resistance_matrix, "SpatialPixelsDataFrame")
+raster_map <- as.data.frame(raster_map)
+colnames(raster_map) <- c("value", "x", "y")
+ggplot() +  
+  geom_tile(data = raster_map, aes(x = x, y = y, fill = value), alpha = 0.8) + 
+  geom_sf(data = TMVS, aes(color = "Study area"), fill = NA, color = "black") +
+  geom_sf(data = habitat_nodes, aes(color = "Habitat nodes"), fill = "forestgreen", linewidth = 0.5) +
+  scale_fill_gradientn(colors = c("#000004FF", "#1B0C42FF", "#4B0C6BFF", "#781C6DFF",
+                                  "#A52C60FF", "#CF4446FF", "#ED6925FF", "#FB9A06FF",
+                                  "#F7D03CFF", "#FCFFA4FF"))+
+  scale_color_manual(name = "", values = "black")+
+  theme_minimal() +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank())
+```
+
+![](images/example_patches-02.png)
+
+``` r
+PC_example <- MK_dPCIIC(nodes = habitat_nodes,
+                        attribute = NULL,
+                        distance = list(type = "least-cost",
+                                        resistance = resistance_matrix),
+                        parallel = NULL,
+                        metric = "PC",
+                        probability = 0.5,
+                        distance_thresholds = c(250, 1500, 3000, 10000))
+```
+
+We obtain a `list` object where each element is a result for each
+distance threshold.
+
+``` r
+class(PC_example)
+#> [1] "list"
+```
+
+``` r
+
+names(PC_example)
+#> [1] "d250"   "d1500"  "d3000"  "d10000"
+```
+
+``` r
+
+head(PC_example$d10000)
+#> Simple feature collection with 6 features and 6 fields
+#> Geometry type: POLYGON
+#> Dimension:     XY
+#> Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668
+#> Projected CRS: NAD_1927_Albers
+#>   Id core_id       dPC  dPCintra   dPCflux dPCconnector
+#> 1  0       1 0.0000236 0.0000039 0.0000196            0
+#> 2  0       2 0.0001155 0.0000259 0.0000896            0
+#> 3  0       3 0.0674997 0.0648563 0.0026434            0
+#> 4  0       4 0.0000722 0.0000078 0.0000644            0
+#> 5  0       5 0.0001142 0.0000182 0.0000959            0
+#> 6  0       6 0.0000277 0.0000004 0.0000273            0
+#>                         geometry
+#> 1 POLYGON ((54911.05 2035815,...
+#> 2 POLYGON ((44591.28 2042209,...
+#> 3 POLYGON ((46491.11 2042467,...
+#> 4 POLYGON ((54944.49 2048163,...
+#> 5 POLYGON ((80094.28 2064140,...
+#> 6 POLYGON ((69205.24 2066394,...
+```
+
+Each element of the list is a vector type object that can be exported
+using the sf functions and in its vector formats (e.g., shp, gpkg) using
+the sf package (Pebesma et al., 2024), for example:
+
+``` r
+write_sf(PC_example$d10000, “.../dPC_d0000.shp”)
+```
+
+We can use, for example, ggplot2 to map the results:
+
+``` r
+library(classInt)
+library(dplyr)
+library(ggplot2)
+
+PC <- PC_example$d10000 #Result 10 km
+
+# Calcular los intervalos de Jenks para strength
+breaks <- classInt::classIntervals(PC$dPC, n = 9, style = "jenks")
+
+# Crear una nueva variable categórica con los intervalos
+PC <- PC %>%
+  mutate(dPC_q = cut(dPC,
+                          breaks = breaks$brks,
+                          include.lowest = TRUE,
+                          dig.lab = 5))  
+
+# Graficar en ggplot2 usando las clases Jenks
+ggplot() +  
+  geom_sf(data = TMVS, color = "black") +
+  geom_sf(data = PC, aes(fill = dPC_q), color = "black", size = 0.1) +
+  scale_fill_brewer(palette = "RdYlGn", direction = 1, name = "dPC (jenks)") +
+  theme_minimal() +
+  labs(
+    title = "dPC Least-cost distance",
+    fill = "dPC"
+  ) +
+  theme(
+    legend.position = "right",
+    plot.title = element_text(hjust = 0.5)
+  )
+```
+
+<img src="man/figures/README-unnamed-chunk-23-1.png" width="90%" />
+
+### Focal probability of connectivity (*PC<sub>f</sub>*)
+
+The function `MK_focal_nodes()` enables the calculation of the focal
+Integral Index of Connectivity (IICf) or the focal Probability of
+Connectivity (PCf​) under one or more distance thresholds. Furthermore,
+this function estimates the composite connectivity index (CCIf​; for
+further details, please see Latorre-Cárdenas et al., 2023). In this
+example, we apply the `MK_focal_nodes()` to the 404 habitat patches.
+
+``` r
+focal_example <- MK_Focal_nodes(nodes = habitat_nodes,
+                       id = "Id",
+                       attribute = NULL,
+                       raster_attribute = NULL,
+                       fun_attribute = NULL,
+                       distance = list(type = "least-cost",
+                                       resistance = resistance_matrix),
+                       metric = "PC",
+                       probability = 0.5,
+                       parallel = 4,
+                       distance_thresholds = 10000,
+                       search_buffer = 20000,
+                       intern = FALSE)
+head(focal_example)
+```
+
+    #> Simple feature collection with 6 features and 9 fields
+    #> Geometry type: POLYGON
+    #> Dimension:     XY
+    #> Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668
+    #> Projected CRS: NAD_1927_Albers
+    #>   Id  indice_val    EC.PC.         PC        dPC   dPCintra dPCflux
+    #> 1  1    85.83680  31436.43 0.03140833  0.0007456  0.0007456   0e+00
+    #> 2  2   220.21679  34543.75 0.02958872  0.0040641  0.0040641   0e+00
+    #> 3  3 11019.96679  34543.75 0.02958872 10.1770431 10.1770431   0e+00
+    #> 4  4   121.00179 410905.11 0.04028525  0.0000087  0.0000087   0e+00
+    #> 5  5   184.72261 409450.69 0.11498190  0.0000204  0.0000204   0e+00
+    #> 6  6    26.30524 410757.69 0.04821207  0.0000005  0.0000004   1e-07
+    #>   dPCconnector        IComp                       geometry
+    #> 1  0.00000e+00 2.341805e-05 POLYGON ((54911.05 2035815,...
+    #> 2  0.00000e+00 1.202515e-04 POLYGON ((44591.28 2042209,...
+    #> 3  4.55473e-15 3.011257e-01 POLYGON ((46491.11 2042467,...
+    #> 4  2.30330e-16 3.504816e-07 POLYGON ((54944.49 2048163,...
+    #> 5  4.38100e-15 2.345631e-06 POLYGON ((80094.28 2064140,...
+    #> 6  3.69578e-15 2.410604e-08 POLYGON ((69205.24 2066394,...
+
+``` r
+# Calcular los intervalos de Jenks para strength
+breaks <- classInt::classIntervals(focal_example$IComp, n = 9, style = "jenks")
+
+# Crear una nueva variable categórica con los intervalos
+focal_example <- focal_example %>%
+  mutate(IComp_q = cut(IComp,
+                     breaks = breaks$brks,
+                     include.lowest = TRUE,
+                     dig.lab = 5))  
+
+# Graficar en ggplot2 usando las clases Jenks
+ggplot() +  
+  geom_sf(data = TMVS, color = "black") +
+  geom_sf(data = focal_example, aes(fill = IComp_q), color = "black", size = 0.1) +
+  scale_fill_brewer(palette = "RdYlGn", direction = 1, name = "IComp (jenks)") +
+  theme_minimal() +
+  labs(
+    title = "Composite connectivity index (IComp)",
+    fill = "IComp"
+  ) +
+  theme(
+    legend.position = "right",
+    plot.title = element_text(hjust = 0.5)
+  )
+```
+
+<img src="man/figures/README-unnamed-chunk-26-1.png" width="90%" />
+
+### Equivalent Connectivity Area (ECA)
+
+Example in the Biosphere Reserve Mariposa Monarca, Mexico, with
+old-growth vegetation fragments of four times (?list_forest_patches).
+
+``` r
+data("list_forest_patches", package = "Makurhini")
+data("study_area", package = "Makurhini")
+class(list_forest_patches)
+#> [1] "list"
+```
+
+``` r
+
+Max_attribute <- unit_convert(st_area(study_area), "m2", "ha")
+```
+
+``` r
+dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
+                  distance = list(type= "centroid"), metric = "PC",
+                  probability = 0.05, distance_thresholds = 5000,
+                  LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"), intern = FALSE)
+```
+
+<img src="man/figures/README-unnamed-chunk-28-1.png" width="60%" />
+
+ECA table:
+
+<img src="man/figures/table_eca2.PNG" width="504" />
+
+Another way to analyze the ECA (and ProtConn indicator) is by using the
+*‘MK_Connect_grid()’* that estimates the index values on a grid. An
+example of its application is the following, on the Andean-Amazon
+Piedmont. The analysis was performed using a grid of hexagons each with
+an area of 10,000 ha and a forest/non-forest map to measure changes in
+Andean-Amazon connectivity.
+
+![](man/figures/grid_example.png)
 
 ### Protected Connected Land (ProtConn)
 
@@ -340,10 +889,22 @@ Saura et al., 2017). We used Euclidean distances, particularly the
 distances between edges to establish the connections between nodes
 (PAs).
 
-    #> [1] 1530
-    #> [1] 33
+``` r
+#Protected areas
+load(system.file("extdata", "Protected_areas.rda",
+                 package = "Makurhini", mustWork = TRUE))
+nrow(Protected_areas)
+#> [1] 1530
+```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+``` r
+#Ecoregions
+data("Ecoregions", package = "Makurhini")
+nrow(Ecoregions)
+#> [1] 33
+```
+
+<img src="man/figures/README-unnamed-chunk-31-1.png" width="90%" />
 
 #### MK_ProtConn()
 
@@ -621,7 +1182,7 @@ ggplot()+
   )
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-36-1.png" width="90%" />
 
 #### MK_ProtConnMult()
 
@@ -1363,454 +1924,4 @@ ggplot()+
   )
 ```
 
-<img src="man/figures/README-unnamed-chunk-23-1.png" width="100%" />
-
-### Equivalent Connectivity Area (ECA)
-
-Example in the Biosphere Reserve Mariposa Monarca, Mexico, with
-old-growth vegetation fragments of four times (?list_forest_patches).
-
-``` r
-data("list_forest_patches", package = "Makurhini")
-data("study_area", package = "Makurhini")
-class(list_forest_patches)
-#> [1] "list"
-```
-
-``` r
-
-Max_attribute <- unit_convert(st_area(study_area), "m2", "ha")
-```
-
-``` r
-dECA_test <- MK_dECA(nodes= list_forest_patches, attribute = NULL, area_unit = "ha",
-                  distance = list(type= "centroid"), metric = "PC",
-                  probability = 0.05, distance_thresholds = 5000,
-                  LA = Max_attribute, plot= c("1993", "2003", "2007", "2011"), intern = FALSE)
-```
-
-<img src="man/figures/README-unnamed-chunk-25-1.png" width="60%" />
-
-ECA table:
-
-<img src="man/figures/table_eca2.PNG" width="504" />
-
-Another way to analyze the ECA (and ProtConn indicator) is by using the
-*‘MK_Connect_grid()’* that estimates the index values on a grid. An
-example of its application is the following, on the Andean-Amazon
-Piedmont. The analysis was performed using a grid of hexagons each with
-an area of 10,000 ha and a forest/non-forest map to measure changes in
-Andean-Amazon connectivity.
-
-![](man/figures/grid_example.png)
-
-### Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector)
-
-In this example, the `MK_dPCIIC()` function was applied to estimate the
-connectivity of 404 remnant habitat patches, which were modeled to 40
-non-volant mammal species of the Trans-Mexican Volcanic System (TMVS) by
-Correa Ayram et al., (2017). The landscape resistance to dispersal was
-estimated at a 100-meter resolution using a spatial human footprint
-index, land use intensity, time of human landscape intervention,
-biophysical vulnerability, fragmentation, and habitat loss (Correa Ayram
-et al., 2017). The raster was aggregated by a factor of 5 to change its
-original resolution from 100m to 500m. To represent different dispersal
-capacities of multiple species we considered the following median
-(associated to a probability of 0.5) distance thresholds: 250, 1500,
-3000, and 10,000 meters. These four distances group the 40 species
-according to their dispersal distance requirements
-
-``` r
-#Habitat nodes
-data("habitat_nodes", package = "Makurhini")
-nrow(habitat_nodes)
-#> [1] 404
-```
-
-``` r
-
-#Study area
-data("TMVS", package = "Makurhini")
-
-#Resistance
-data("resistance_matrix", package = "Makurhini")
-```
-
-``` r
-raster_map <- as(resistance_matrix, "SpatialPixelsDataFrame")
-raster_map <- as.data.frame(raster_map)
-colnames(raster_map) <- c("value", "x", "y")
-ggplot() +  
-  geom_tile(data = raster_map, aes(x = x, y = y, fill = value), alpha = 0.8) + 
-  geom_sf(data = TMVS, aes(color = "Study area"), fill = NA, color = "black") +
-  geom_sf(data = habitat_nodes, aes(color = "Habitat nodes"), fill = "forestgreen", linewidth = 0.5) +
-  scale_fill_gradientn(colors = c("#000004FF", "#1B0C42FF", "#4B0C6BFF", "#781C6DFF",
-                                  "#A52C60FF", "#CF4446FF", "#ED6925FF", "#FB9A06FF",
-                                  "#F7D03CFF", "#FCFFA4FF"))+
-  scale_color_manual(name = "", values = "black")+
-  theme_minimal() +
-  theme(axis.title.x = element_blank(),
-        axis.title.y = element_blank())
-```
-
-![](images/example_patches-02.png)
-
-``` r
-PC_example_2 <- MK_dPCIIC(nodes = habitat_nodes,
-                        attribute = NULL,
-                        distance = list(type = "least-cost",
-                                        resistance = resistance_matrix),
-                        parallel = NULL,
-                        metric = "PC",
-                        probability = 0.5,
-                        distance_thresholds = c(250, 1500, 3000, 10000))
-```
-
-We obtain a `list` object where each element is a result for each
-distance threshold.
-
-``` r
-class(PC_example_2)
-#> [1] "list"
-```
-
-``` r
-
-names(PC_example_2)
-#> [1] "d250"   "d1500"  "d3000"  "d10000"
-```
-
-``` r
-
-head(PC_example_2$d10000)
-#> Simple feature collection with 6 features and 6 fields
-#> Geometry type: POLYGON
-#> Dimension:     XY
-#> Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668
-#> Projected CRS: NAD_1927_Albers
-#>   Id core_id       dPC  dPCintra   dPCflux dPCconnector
-#> 1  0       1 0.0000236 0.0000039 0.0000196            0
-#> 2  0       2 0.0001155 0.0000259 0.0000896            0
-#> 3  0       3 0.0674997 0.0648563 0.0026434            0
-#> 4  0       4 0.0000722 0.0000078 0.0000644            0
-#> 5  0       5 0.0001142 0.0000182 0.0000959            0
-#> 6  0       6 0.0000277 0.0000004 0.0000273            0
-#>                         geometry
-#> 1 POLYGON ((54911.05 2035815,...
-#> 2 POLYGON ((44591.28 2042209,...
-#> 3 POLYGON ((46491.11 2042467,...
-#> 4 POLYGON ((54944.49 2048163,...
-#> 5 POLYGON ((80094.28 2064140,...
-#> 6 POLYGON ((69205.24 2066394,...
-```
-
-Each element of the list is a vector type object that can be exported
-using the sf functions and in its vector formats (e.g., shp, gpkg) using
-the sf package (Pebesma et al., 2024), for example:
-
-``` r
-write_sf(PC_example_2$d10000, “.../dPC_d0000.shp”)
-```
-
-We can use, for example, ggplot2 or tmap R packages, to map the results:
-
-``` r
-#Keep the same range of values of PC_example_1 for comparison, only the highest range changes.
-interv[length(interv)] <- max(PC_example_2$d10000$dPC)
-ggplot()+
-  geom_sf(data = TMVS)+
-  geom_sf(data = PC_example_2$d10000, aes(fill = cut(dPC, breaks = interv)), color = NA)+
-  scale_fill_brewer(type = "qual",
-                    palette = "RdYlGn",
-                    name = "dPC",
-                    na.translate = FALSE)+
-  theme_minimal() +
-  theme(
-    legend.position = "inside",
-    legend.position.inside = c(0.1, 0.21),
-    legend.key.height = unit(0.2, "cm"),
-    legend.key.width = unit(0.3, "cm"),
-    legend.text = element_text(size = 5.5),
-    legend.title = element_text(size = 5.5)
-  )+ labs(title="Least-cost distance")
-```
-
-<img src="man/figures/README-unnamed-chunk-33-1.png" width="100%" />
-
-![](images/example_PC.png)
-
-### Centrality measures
-
-``` r
-centrality_test <- MK_RMCentrality(nodes = habitat_nodes,
-                                 distance = list(type = "centroid"),
-                                 distance_thresholds = 10000,
-                                 probability = 0.5,
-                                 write = NULL)
-head(centrality_test)
-#> Simple feature collection with 6 features and 8 fields
-#> Geometry type: POLYGON
-#> Dimension:     XY
-#> Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668
-#> Projected CRS: NAD_1927_Albers
-#>   Id strength        eigen      close BWC cluster memb.rw memb.louvain
-#> 1  1 30228524 0.0010435836 0.03840356   0       1       6            1
-#> 2  2 21600031 0.0006195356 0.03995935   1       1       6            2
-#> 3  3 29320545 0.0009026418 0.03831019   0       1       6            2
-#> 4  4 16499522 0.0005867564 0.04187906  23       1       6            2
-#> 5  5 26068911 0.0011987437 0.04240465   0       1       6            1
-#> 6  6 12737692 0.0005630043 0.04627714  17       1       6            1
-#>                         geometry
-#> 1 POLYGON ((54911.05 2035815,...
-#> 2 POLYGON ((44591.28 2042209,...
-#> 3 POLYGON ((46491.11 2042467,...
-#> 4 POLYGON ((54944.49 2048163,...
-#> 5 POLYGON ((80094.28 2064140,...
-#> 6 POLYGON ((69205.24 2066394,...
-```
-
-Examples:
-
-![](images/example_Centrality.png)
-
-Moreover, you can change distance using the distance
-(<code>?distancefile</code>) argument:
-
-Euclidean distances:
-
-- distance = list(type= “centroid”)
-- distance = list(type= “edge”)
-
-Least cost distances:
-
-- distance = list(type= “least-cost”, resistance = “resistance raster”)
-- distance = list(type= “commute-time”, resistance = “resistance
-  raster”)
-
-### Fragmentation statistics
-
-*‘MK_Fragmentation()’* estimates fragmentation statistics at the
-landscape and patch/node level.
-
-Example:
-
-``` r
-data("habitat_nodes", package = "Makurhini")
-nrow(habitat_nodes) # Number of nodes
-#> [1] 404
-```
-
-To define the edge of the nodes we can use, for example, a distance of
-500 m from the limit of the nodes.
-
-![](man/figures/Imagen1.png)
-
-``` r
-Fragmentation_test <- MK_Fragmentation(nodes = habitat_nodes, edge_distance = 500,
-                                       plot = TRUE, min_node_area = 100, 
-                                       landscape_area = NULL, area_unit = "km2", 
-                                       perimeter_unit = "km")
-```
-
-<img src="man/figures/README-unnamed-chunk-38-1.png" width="60%" /><img src="man/figures/README-unnamed-chunk-38-2.png" width="60%" />
-
-- The results are presented as a list, the first result is called
-  *“Summary landscape metrics (Viewer Panel)”* and it has fragmentation
-  statistics at landscape level.
-
-``` r
-class(Fragmentation_test)
-#> [1] "list"
-```
-
-``` r
-names(Fragmentation_test)
-#> [1] "Summary landscape metrics (Viewer Panel)"
-#> [2] "Patch statistics shapefile"
-```
-
-``` r
-Fragmentation_test$`Summary landscape metrics (Viewer Panel)`
-```
-
-<table class="table table-condensed">
-<thead>
-<tr>
-<th style="text-align:left;">
-Metric
-</th>
-<th style="text-align:center;">
-Value
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-Patch area (km2)
-</td>
-<td style="text-align:center;">
-12735.7391
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Number of patches
-</td>
-<td style="text-align:center;">
-404.0000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Size (mean)
-</td>
-<td style="text-align:center;">
-31.5241
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Patches \< minimum patch area
-</td>
-<td style="text-align:center;">
-383.0000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Patches \< minimum patch area (%)
-</td>
-<td style="text-align:center;">
-28.8879
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Total edge
-</td>
-<td style="text-align:center;">
-17920.4740
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Edge density
-</td>
-<td style="text-align:center;">
-1.4071
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Patch density
-</td>
-<td style="text-align:center;">
-3.1722
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Total Core Area (km2)
-</td>
-<td style="text-align:center;">
-6315.9513
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Cority
-</td>
-<td style="text-align:center;">
-0.6040
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Shape Index (mean)
-</td>
-<td style="text-align:center;">
-2.2073
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-FRAC (mean)
-</td>
-<td style="text-align:center;">
-8.4400
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-MESH (km2)
-</td>
-<td style="text-align:center;">
-1443.4320
-</td>
-</tr>
-</tbody>
-</table>
-
-- The second output *“Patch statistics shapefile”* is a shapefile with
-  patch level fragmentation statistics that can be saved using
-  write_sf() from *‘sf’* package
-  (<https://cran.r-project.org/web/packages/sf/index.html>).
-
-``` r
-head(Fragmentation_test[[2]])
-#> Simple feature collection with 6 features and 9 fields
-#> Geometry type: POLYGON
-#> Dimension:     XY
-#> Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668
-#> Projected CRS: NAD_1927_Albers
-#>   Id     Area     CA CAPercent Perimeter EdgePercent   PARA ShapeIndex     FRAC
-#> 1  1   0.8584  0.000    0.0000     5.989    100.0000 0.1433     1.8235 -23.4460
-#> 2  2   2.2022  0.000    0.0000    11.346    100.0000 0.1941     2.1568   6.1533
-#> 3  3 110.1997 53.378   48.4375   184.969     51.5625 0.5958     4.9705   2.2203
-#> 4  4   1.2100  0.000    0.0000     6.974    100.0000 0.1735     1.7885  20.3776
-#> 5  5   1.8472  0.000    0.0000    14.452    100.0000 0.1278     2.9996   8.7044
-#> 6  6   0.2631  0.000    0.0000     4.685    100.0000 0.0562     2.5766  -2.3133
-#>                         geometry
-#> 1 POLYGON ((54911.05 2035815,...
-#> 2 POLYGON ((44591.28 2042209,...
-#> 3 POLYGON ((46491.11 2042467,...
-#> 4 POLYGON ((54944.49 2048163,...
-#> 5 POLYGON ((80094.28 2064140,...
-#> 6 POLYGON ((69205.24 2066394,...
-```
-
-![](images/example_fragm.png)
-
-We can make a loop where we explore different edge depths. In the
-following example, We will explore 10 edge depths (*edge_distance
-argument*): 100, 200, 300, 400, 500, 600, 700, 800, 900 and 1000 meters.
-We will apply the *‘MK_Fragmentation’* function using the previous
-distances and then, we will extract the core area percentage and edge
-percentage statistics. Finally, we will plot the average of the patch
-core area percentage and edge percentage (% core area + % edge = 100%).
-
-``` r
-library(purrr)
-Fragmentation_test.2 <- map_dfr(seq(100, 1000, 100), function(x){
-  x.1 <- MK_Fragmentation(nodes = habitat_nodes, 
-                          edge_distance = x, plot = FALSE)[[2]]
-  CA <- mean(x.1$CAPercent)
-  Edge <- mean(x.1$EdgePercent)
-  x.2 <- rbind(data.frame('Edge distance' = x, Type = "Core Area", Percentage = CA),
-                     data.frame('Edge distance' = x, Type = "Edge", Percentage = Edge))
-  return(x.2)
-})
-```
-
-<img src="man/figures/README-unnamed-chunk-43-1.png" width="60%" />
-
-The mean core area percentage (the mean node/patch area that exhibits
-the least possible edge effect) for all patches is observed to decline
-by over 60% when an edge depth distance of 1 km is considered.
-
-| Edge depth distance (m) | Core Area (%) |
-|-------------------------|:-------------:|
-| 100                     |    65.76%     |
-| 500                     |    12.86%     |
-| 1000                    |     3.63%     |
+<img src="man/figures/README-unnamed-chunk-45-1.png" width="90%" />

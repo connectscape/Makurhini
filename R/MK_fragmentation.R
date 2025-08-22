@@ -125,6 +125,10 @@ MK_Fragmentation <- function(nodes = NULL, edge_distance = 500, min_node_area = 
 
   if(isTRUE("ggplot2" %in% rownames(installed.packages())) &
      isTRUE("ggpubr" %in% rownames(installed.packages()))){
+    data2 <- data
+    data2$Area <- ifelse(data$Area <= 0, 0, log10(data$Area))
+    data2$CA <- ifelse(data$CA <= 0, 0, log10(data$CA))
+    data2$Perimeter <- ifelse(data$Perimeter <= 0, 0, log10(data$Perimeter))
     if(!is.null(write) & isTRUE(plot)) {
       par(mfrow = c(1,1))
       p0 <- ggplot(data = patches) +
@@ -136,25 +140,25 @@ MK_Fragmentation <- function(nodes = NULL, edge_distance = 500, min_node_area = 
       ggsave(paste0(write, '_CoreEdge.tif'), plot = p0, device = "tiff", width = 15,
              height = 11, compression = "lzw")
 
-      p1 <- ggplot(data, aes(x = log10(data$Area))) +
+      p1 <- ggplot(data2, aes(x = data2$Area)) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T) +
-        labs(x = "log10 (km2)", y = "Frequency", title = "Size") +
+        labs(x = paste0("log10 (", area_unit, ")"), y = "Frequency", title = "Size") +
         theme(plot.title = element_text(size=20, face = "bold"),
               axis.title.x = element_text(size = 20),
               axis.title.y = element_text(size = 20))+
         theme(text = element_text(size = 20),
               axis.text.x = element_text(hjust = 1))
-      p2 <- ggplot(data, aes(x = log10(data$Perimeter))) +
+      p2 <- ggplot(data2, aes(x = data2$Perimeter)) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T)+
-        labs(x = "log10 (km)", y ="Frequency", title = "Perimeter") +
+        labs(x = paste0("log10 (", perimeter_unit, ")"), y ="Frequency", title = "Perimeter") +
         theme(plot.title = element_text(size = 20, face = "bold"),
               axis.title.x = element_text(size = 20),
               axis.title.y = element_text(size = 20))+
         theme(text = element_text(size = 20),
               axis.text.x = element_text(hjust = 1))
-      p3 <- ggplot(data, aes(x = data$ShapeIndex)) +
+      p3 <- ggplot(data2, aes(x = data2$ShapeIndex)) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T) +
         labs(x = "Shape Index", y = "Frequency", title = "Shape Index") +
@@ -163,10 +167,10 @@ MK_Fragmentation <- function(nodes = NULL, edge_distance = 500, min_node_area = 
               axis.title.y = element_text(size = 20))+
         theme(text = element_text(size = 20),
               axis.text.x = element_text(hjust = 1))
-      p4 <- ggplot(data, aes(x = log10(data$CA))) +
+      p4 <- ggplot(data2, aes(x = data2$CA)) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T)+
-        labs(x = "log10 (km2)", y = "Frequency", title = "Core Area") +
+        labs(x = paste0("log10 (", area_unit, ")"), y = "Frequency", title = "Core Area") +
         theme(plot.title = element_text(size = 20, face = "bold"),
               axis.title.x = element_text(size = 20),
               axis.title.y = element_text(size = 20)) +
@@ -182,32 +186,31 @@ MK_Fragmentation <- function(nodes = NULL, edge_distance = 500, min_node_area = 
         geom_sf(data = CoreA[which(!st_is_empty(CoreA)),], colour = "#1a9641", aes(fill = "Core"))+
         scale_fill_manual(name = "Legend", values = colors)+
         theme_bw()
-
-      p1 <- ggplot(data, aes(x = log10(data$Area))) +
+      p1 <- ggplot(data2, aes(x = data2$Area)) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T) +
-        labs(x = "log10 (km2)", y = "Frequency", title = "Size") +
+        labs(x = paste0("log10 (", area_unit, ")"), y = "Frequency", title = "Size") +
         theme(plot.title = element_text(size = 14, face = "bold"),
               axis.title.x = element_text(size = 14),
               axis.title.y = element_text(size = 14))
-      p2 <- ggplot(data, aes(x = log10(data$Perimeter))) +
+      p2 <- ggplot(data2, aes(x = data2$Perimeter)) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T) +
-        labs(x = "log10(km)", y ="Frequency", title = "Perimeter") +
+        labs(x = paste0("log10 (", perimeter_unit, ")"), y ="Frequency", title = "Perimeter") +
         theme(plot.title = element_text(size=14, face="bold"),
               axis.title.x = element_text(size = 14),
               axis.title.y = element_text(size = 14))
-      p3 <- ggplot(data, aes(x = data$ShapeIndex)) +
+      p3 <- ggplot(data2, aes(x = data2$ShapeIndex)) +
         geom_histogram(color = "black", fill = vcol, bins = 10,
                        position = "dodge", na.rm = T) +
         labs(x = "Shape Index", y ="Frequency", title = "Shape Index") +
         theme(plot.title = element_text(size = 14, face = "bold"),
               axis.title.x = element_text(size = 14),
               axis.title.y = element_text(size = 14))
-      p4 <- ggplot(data, aes(x = log10(data$CA))) +
+      p4 <- ggplot(data2, aes(x = data2$CA)) +
         geom_histogram(color = "black", fill = vcol,
                        bins = 10, position = "dodge", na.rm = T) +
-        labs(x = "log10 (km2)", y ="Frequency", title = "Core Area")+
+        labs(x = paste0("log10 (", area_unit, ")"), y ="Frequency", title = "Core Area")+
         theme(plot.title = element_text(size=14, face ="bold"),
               axis.title.x = element_text(size = 14),
               axis.title.y = element_text(size = 14))
@@ -215,6 +218,7 @@ MK_Fragmentation <- function(nodes = NULL, edge_distance = 500, min_node_area = 
       p5 <- suppressWarnings(ggarrange(p1, p2, p3, p4))
 
     }
+    rm(data2)
   } else {
     message("To make the plots you need to install the packages ggplot2 and ggpubr")
     plot = FALSE

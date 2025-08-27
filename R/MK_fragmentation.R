@@ -79,7 +79,7 @@ MK_Fragmentation <- function(nodes = NULL, edge_distance = 500, min_node_area = 
   ###Patch metrics
   CoreA <- st_buffer(nodes, dist = -(edge_distance))
   data <- data.frame(IdTemp = nodes$IdTemp,
-                     Area = round(unit_convert(st_area(nodes, byid = T), "m2", area_unit), 4),
+                     Area = round(unit_convert(st_area(nodes, by_element = TRUE), "m2", area_unit), 4),
                      CA = round(unit_convert(st_area(CoreA), "m2", area_unit), 4))
   data$CAPercent <- round((data$CA * 100) / data$Area, 4)
   data$Perimeter <- round(unit_convert(st_length(st_boundary(nodes)), "m", perimeter_unit), 3) %>% as.numeric()
@@ -90,7 +90,7 @@ MK_Fragmentation <- function(nodes = NULL, edge_distance = 500, min_node_area = 
   patches <- base::merge(nodes, data, by = "IdTemp", all = T)
   patches$IdTemp <- NULL
 
-  ###Landscape metrics
+  #Landscape metrics
   if (is.null(landscape_area)){
     landscape_area <- round(sum(data$Area, na.rm = TRUE), 4)
   }
@@ -224,7 +224,7 @@ MK_Fragmentation <- function(nodes = NULL, edge_distance = 500, min_node_area = 
     plot = FALSE
   }
 
-  ###Write outputs
+  #Write outputs
   if (!is.null(write)) {
     write.csv(LM, paste0(write, '_LandscapeMetrics.csv'))
     write.csv(data, paste0(write, '_PatchMetrics.csv'))
@@ -235,11 +235,11 @@ MK_Fragmentation <- function(nodes = NULL, edge_distance = 500, min_node_area = 
     write_sf(patches_2, paste0(write, '_PatchMetrics.shp'), delete_layer = TRUE)
   }
 
-  ###Return
+  #Return
   LM <- formattable(LM,
-              align = c("l","c"),
-              list(`Indicator Name` = formatter("span",
-                           style = ~ style(color = "grey", font.weight = "bold"))))
+                    align = c("l","c"),
+                    list(`Indicator Name` = formatter("span",
+                                                      style = ~ style(color = "grey", font.weight = "bold"))))
 
   if (isTRUE(plot)){
     base::print(p0); base::print(p5)

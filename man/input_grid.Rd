@@ -9,7 +9,8 @@ input_grid(
   landscape = NULL,
   unit = "ha",
   bdist = NULL,
-  xsimplify = FALSE
+  xsimplify = FALSE,
+  intern = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ input_grid(
 \item{bdist}{numeric}
 
 \item{xsimplify}{logical or numeric}
+
+\item{intern}{logical}
 }
 \description{
 ProtConn: input files

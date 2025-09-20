@@ -2,11 +2,12 @@
 #'
 #' @param x Object of class sf, sfc, sfg or SpatialPolygons
 #' @param xsimplify logical or numeric.
-#' @importFrom sf st_as_sf st_is_valid st_is_empty st_zm
+#' @param intern logical
+#' @importFrom sf st_area st_as_sf st_boundary st_buffer st_cast st_collection_extract st_combine st_geometry st_is_empty st_is_longlat st_is_valid st_make_valid st_polygonize st_transform st_union st_zm sf_use_s2
 #' @importFrom terra buffer vect
-#' @importFrom rmapshaper ms_simplify
+#' @importFrom rmapshaper ms_simplify ms_dissolve ms_erase ms_explode
 #' @keywords internal
-TopoClean <- function(x, xsimplify = FALSE) {
+TopoClean <- function(x, xsimplify = FALSE, intern = FALSE) {
   if(class(x)[1] == "SpatialPolygonsDataFrame" | class(x)[1] == "SpatVector") {
     x <- st_as_sf(x)
   }
@@ -14,13 +15,18 @@ TopoClean <- function(x, xsimplify = FALSE) {
   names(x)[grep("geom|geometry", names(x))] <- "geometry"; st_geometry(x) <- "geometry"
 
   if(any(!st_is_valid(x))){
-    message("Topology errors detected. Makurhini will try to fix them, but it may take time. You can cancel and repair them in a GIS instead.")
     x$idtemp <- 1:nrow(x)
     Nvalidos <- x[!st_is_valid(x),]
     Nvalidos2 <- st_is_valid(Nvalidos, reason = TRUE) %>% sub("\\[.*", "", .)
-    pb <- txtProgressBar(0,length(Nvalidos2), style = 3)
+    if(isTRUE(intern)){
+      message("Topology errors detected. Makurhini will try to fix them, but it may take time. You can cancel and repair them in a GIS instead.")
+      pb <- txtProgressBar(0,length(Nvalidos2), style = 3)
+    }
+
     Nvalidos_list <- lapply(1:nrow(Nvalidos), function(y){
-      setTxtProgressBar(pb, y)
+      if(isTRUE(intern)){
+        setTxtProgressBar(pb, y)
+      }
       if(grepl("nested", Nvalidos2[y])){
         suppressMessages(sf_use_s2(FALSE))
         pg  <- st_cast(st_boundary(Nvalidos[y,]), "MULTILINESTRING") %>%

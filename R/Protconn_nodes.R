@@ -167,7 +167,7 @@ Protconn_nodes <- function(x, y, id = "IdTemp", buff = NULL, method = "nodes", x
         if(a1 >= a2){
           f8 <- unit_convert(a2, "m2", metrunit)
         } else {
-          f1 <- TopoClean(f1); f8 <- as.numeric(st_area(f1)) %>% unit_convert(., "m2", metrunit)
+          f1 <- TopoClean(f1, intern = FALSE); f8 <- as.numeric(st_area(f1)) %>% unit_convert(., "m2", metrunit)
         }
       } else {
         f8 = "NA"
@@ -181,3 +181,4 @@ Protconn_nodes <- function(x, y, id = "IdTemp", buff = NULL, method = "nodes", x
   invisible(gc())
   return(f8)
 }
+

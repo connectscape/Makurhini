@@ -131,7 +131,8 @@ MK_ProtConn <- function(nodes = NULL,
 
   base_param1 <- tryCatch(input_grid(node = nodes, landscape = region, unit = area_unit,
                                      bdist = if(is.null(transboundary)){0} else{transboundary},
-                                     xsimplify = geom_simplify), error = function(err)err)
+                                     xsimplify = geom_simplify,
+                                     intern = intern), error = function(err)err)
 
   if(inherits(base_param1, "error")){
     stop(base_param1)

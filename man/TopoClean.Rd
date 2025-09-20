@@ -4,12 +4,14 @@
 \alias{TopoClean}
 \title{Topological error correction}
 \usage{
-TopoClean(x, xsimplify = FALSE)
+TopoClean(x, xsimplify = FALSE, intern = FALSE)
 }
 \arguments{
 \item{x}{Object of class sf, sfc, sfg or SpatialPolygons}
 
 \item{xsimplify}{logical or numeric.}
+
+\item{intern}{logical}
 }
 \description{
 Topological error correction

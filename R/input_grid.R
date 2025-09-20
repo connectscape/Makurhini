@@ -5,18 +5,20 @@
 #' @param unit character
 #' @param bdist numeric
 #' @param xsimplify logical or numeric
+#' @param intern logical
 #' @importFrom sf st_buffer st_crs
 #' @importFrom rmapshaper ms_simplify
 #' @importFrom methods setClass new
 #' @keywords internal
-input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimplify = FALSE){
+input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL,
+                       xsimplify = FALSE, intern = FALSE){
   class_cache <- new.env(parent = emptyenv())
   setClass("input_grid", slots = list(nodes = "sf", region = "sf",
                                                          area_unit = "character"),
                               where = class_cache)
 
   if(any(class(landscape)[1] == "SpatialPolygonsDataFrame" | class(landscape)[1] == "sf"| class(landscape)[1] == "SpatVector")){
-    landscape <- TopoClean(x = landscape, xsimplify = xsimplify)
+    landscape <- TopoClean(x = landscape, xsimplify = xsimplify, intern = intern)
   } else {
     stop("landscape class should be SpatialPolygonDataframe or sf")
   }
@@ -34,7 +36,7 @@ input_grid <- function(node, landscape = NULL, unit = "ha", bdist = NULL, xsimpl
 
   if (class(node)[1] == "SpatialPolygonsDataFrame" | class(node)[1] == "sf"){
     if(nrow(node)>0){
-      node <- TopoClean(node, xsimplify = xsimplify)
+      node <- TopoClean(node, xsimplify = xsimplify, intern = intern)
       node$IdTemp <- 1:nrow(node); node <- node[,which(names(node) != "geometry")]
       return(new("input_grid", nodes = node, region = landscape, area_unit = unit))
     } else {

@@ -131,7 +131,7 @@ MK_ProtConnMult <- function(nodes, regions,
     regions$ID_Temp <- 1:nrow(regions)
   }
 
-  regions <- TopoClean(regions, xsimplify = geom_simplify)
+  regions <- TopoClean(regions, xsimplify = geom_simplify, intern = FALSE)
   if (isTRUE(intern)){
     message("Step 2. Processing ProtConn metric. Progress estimated:")
     pb <- txtProgressBar(0, nrow(regions), style = 3)
@@ -174,11 +174,9 @@ MK_ProtConnMult <- function(nodes, regions,
     if(length(distance_thresholds)>1){
       Ecoreglist <- tryCatch(lapply(1:length(distance_thresholds), function(x){
         x.1 <- map_df(protconn_result, function(y){
-          y.1 <- y[[x]]
-          y.2 <- y.1[[3]]
+          y.1 <- y[[x]]; y.2 <- y.1[[3]]
           y.3 <- t(y.1[[4]]) %>% as.data.frame()
-          colnames(y.3) <- y.2
-          return(y.3)
+          colnames(y.3) <- y.2; return(y.3)
         })
         return(x.1)
       }), error = function(err)err)
@@ -198,10 +196,8 @@ MK_ProtConnMult <- function(nodes, regions,
       }
     } else {
       Ecoreglist <- tryCatch(map_df(protconn_result, function(x){
-        x.1 <- x[[3]]
-        x.2 <- t(x[[4]]) %>% as.data.frame()
-        colnames(x.2) <- x.1
-        return(x.2)
+        x.1 <- x[[3]]; x.2 <- t(x[[4]]) %>% as.data.frame()
+        colnames(x.2) <- x.1; return(x.2)
       }), error = function(err)err)
 
       ECAlist <- tryCatch(map_df(protconn_result, function(x){
@@ -228,13 +224,14 @@ MK_ProtConnMult <- function(nodes, regions,
     }
     plan(strategy = strat, gc = TRUE, workers = works)
     protconn_result <- tryCatch(future_map(1:nrow(regions), function(x){
-      Ecoreg_sel <- regions[regions$ID_Temp == unique(regions$ID_Temp)[x],]
+      Ecoreg_sel <- regions[x,]
       protconn <- tryCatch(MK_ProtConn(nodes = nodes,
                                        region = Ecoreg_sel,
                                        area_unit = area_unit,
                                        distance = distance,
                                        transboundary = transboundary,
                                        transboundary_type = transboundary_type,
+                                       protconn_bound = protconn_bound,
                                        distance_thresholds = distance_thresholds,
                                        probability = probability,
                                        geom_simplify = geom_simplify,
@@ -246,8 +243,8 @@ MK_ProtConnMult <- function(nodes, regions,
       if (inherits(protconn, "error")){
         stop(protconn)
       }
-
-      return(protconn)}, .progress = intern), error = function(err)err)
+      return(protconn)
+    }, .progress = intern), error = function(err)err)
 
     if(inherits(protconn_result, "error")){
       close_multiprocess(works)
@@ -282,10 +279,8 @@ MK_ProtConnMult <- function(nodes, regions,
       }
     } else {
       Ecoreglist <- tryCatch(future_map_dfr(protconn_result, function(x){
-        x.1 <- x[[3]]
-        x.2 <- t(x[[4]]) %>% as.data.frame()
-        colnames(x.2) <- x.1
-        return(x.2)
+        x.1 <- x[[3]]; x.2 <- t(x[[4]]) %>% as.data.frame()
+        colnames(x.2) <- x.1; return(x.2)
       }), error = function(err)err)
 
       ECAlist <- tryCatch(future_map_dfr(protconn_result, function(x){
@@ -345,7 +340,6 @@ MK_ProtConnMult <- function(nodes, regions,
 
       write_sf(x.0, paste0(write, "ProtConn_", distance_thresholds[x], ".shp"), delete_layer = T)
     }
-
 
     st_geometry(x.3) <- NULL
 

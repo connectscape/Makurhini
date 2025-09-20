@@ -5,7 +5,7 @@
 \alias{Protected_areas_raster}
 \title{Protected areas raster for analysis}
 \format{
-An object of class \code{RasterLayer} of dimension 2536 x 2027 x 1.
+An object of class \code{RasterLayer} of dimension 5072 x 4053 x 1.
 }
 \usage{
 Protected_areas_raster

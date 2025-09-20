@@ -1,6 +1,9 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 
+## ----echo=FALSE---------------------------------------------------------------
+dir <- "C:/Users/oscta/OneDrive/Documents/R/TEST_Folder/"
+
 ## ----message=FALSE, warning=FALSE---------------------------------------------
 library(Makurhini)
 library(sf)
@@ -36,16 +39,16 @@ ggplot() +
         axis.title.y = element_blank())
 
 ## ----eval=FALSE, message=FALSE, warning=FALSE---------------------------------
-#  PC_example_1 <- MK_dPCIIC(nodes = habitat_nodes,
-#                          attribute = NULL,
-#                          distance = list(type = "centroid"),
-#                          parallel = NULL,
-#                          metric = "PC",
-#                          probability = 0.5,
-#                          distance_thresholds = c(250, 1500, 3000, 10000))
+# PC_example_1 <- MK_dPCIIC(nodes = habitat_nodes,
+#                         attribute = NULL,
+#                         distance = list(type = "centroid"),
+#                         parallel = NULL,
+#                         metric = "PC",
+#                         probability = 0.5,
+#                         distance_thresholds = c(250, 1500, 3000, 10000))
 
 ## ----eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE----------------------
-PC_example_1 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/PC_example_1.rds")
+PC_example_1 <- readRDS(paste0(dir, "/PC_example_1.rds"))
 
 ## ----eval=TRUE, message=FALSE, warning=FALSE----------------------------------
 class(PC_example_1)
@@ -58,9 +61,9 @@ head(PC_example_1$d10000)
 interv <- c(0.0000021, 0.0596058, 0.1612625, 0.2943665, 0.4937340, 0.8902072, 1.1303198, 1.7556675, 3.4064392, 80.7958156)
 
 ## ----eval=FALSE, message=FALSE, warning=FALSE, echo=TRUE----------------------
-#  #We can use some package to get intervals for example classInt R Packge:
-#  library(classInt)
-#  interv <- classIntervals(PC_example_1$d10000$dPC, 9, "jenks")[[2]] #9 intervalos
+# #We can use some package to get intervals for example classInt R Packge:
+# library(classInt)
+# interv <- classIntervals(PC_example_1$d10000$dPC, 9, "jenks")[[2]] #9 intervalos
 
 ## ----eval=TRUE, message=FALSE, warning=FALSE, echo=TRUE-----------------------
 ggplot()+
@@ -82,17 +85,17 @@ ggplot()+
 
 
 ## ----eval=FALSE, message=FALSE, warning=FALSE---------------------------------
-#  PC_example_2 <- MK_dPCIIC(nodes = habitat_nodes,
-#                          attribute = NULL,
-#                          distance = list(type = "least-cost",
-#                                          resistance = resistance_matrix),
-#                          parallel = NULL,
-#                          metric = "PC",
-#                          probability = 0.5,
-#                          distance_thresholds = c(250, 1500, 3000, 10000))
+# PC_example_2 <- MK_dPCIIC(nodes = habitat_nodes,
+#                         attribute = NULL,
+#                         distance = list(type = "least-cost",
+#                                         resistance = resistance_matrix),
+#                         parallel = NULL,
+#                         metric = "PC",
+#                         probability = 0.5,
+#                         distance_thresholds = c(250, 1500, 3000, 10000))
 
 ## ----eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE----------------------
-PC_example_2 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/PC_example_2.rds")
+PC_example_2 <- readRDS(paste0(dir, "/PC_example_2.rds"))
 
 ## ----eval=TRUE, message=FALSE, warning=FALSE----------------------------------
 class(PC_example_2)
@@ -102,7 +105,7 @@ names(PC_example_2)
 head(PC_example_2$d10000)
 
 ## ----eval=FALSE, message=FALSE, warning=FALSE---------------------------------
-#  write_sf(PC_example$d10000, “.../dPC_d0000.shp”)
+# write_sf(PC_example$d10000, “.../dPC_d0000.shp”)
 
 ## ----eval=TRUE, message=FALSE, warning=FALSE, echo = TRUE---------------------
 #Keep the same range of values of PC_example_1 for comparison, only the highest range changes.
@@ -126,15 +129,15 @@ ggplot()+
 
 
 ## ----eval=FALSE, message=FALSE, warning=FALSE---------------------------------
-#  PC_example <- MK_dPCIIC(nodes = patches, attribute = NULL, area_unit = "ha",
-#                          distance = list(type = "least-cost",
-#                                          resistance = resistance_matrix,
-#                                          least_cost.java = TRUE,
-#                                          cores.java = 4),
-#                          metric = "PC", overall = TRUE, probability = 0.5,
-#                          distance_thresholds = c(250, 1500, 3000, 10000),
-#                          intern = FALSE)
-#  #155.59 sec elapsed
+# PC_example <- MK_dPCIIC(nodes = patches, attribute = NULL, area_unit = "ha",
+#                         distance = list(type = "least-cost",
+#                                         resistance = resistance_matrix,
+#                                         least_cost.java = TRUE,
+#                                         cores.java = 4),
+#                         metric = "PC", overall = TRUE, probability = 0.5,
+#                         distance_thresholds = c(250, 1500, 3000, 10000),
+#                         intern = FALSE)
+# #155.59 sec elapsed
 
 ## ----eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE----------------------
 PC_example_3 <- MK_dPCIIC(nodes = habitat_nodes,
@@ -148,16 +151,16 @@ PC_example_3 <- MK_dPCIIC(nodes = habitat_nodes,
                         overall = TRUE, intern = FALSE)
 
 ## ----eval=FALSE, message=FALSE, warning=FALSE, echo=TRUE----------------------
-#  PC_example_3 <- MK_dPCIIC(nodes = habitat_nodes,
-#                          attribute = NULL,
-#                          area_unit = "ha",
-#                          distance = list(type = "centroid"),
-#                          parallel = NULL,
-#                          metric = "PC",
-#                          probability = 0.5,
-#                          distance_thresholds = c(250, 1500, 3000, 10000),
-#                          overall = TRUE)
-#  
+# PC_example_3 <- MK_dPCIIC(nodes = habitat_nodes,
+#                         attribute = NULL,
+#                         area_unit = "ha",
+#                         distance = list(type = "centroid"),
+#                         parallel = NULL,
+#                         metric = "PC",
+#                         probability = 0.5,
+#                         distance_thresholds = c(250, 1500, 3000, 10000),
+#                         overall = TRUE)
+# 
 
 ## -----------------------------------------------------------------------------
 class(PC_example_3)
@@ -186,18 +189,18 @@ PC_example_3 <- MK_dPCIIC(nodes = habitat_nodes,
                         onlyoverall = TRUE, intern = FALSE)
 
 ## ----eval=FALSE, message=FALSE, warning=FALSE, echo=TRUE----------------------
-#  #Maximum landcape attribute or LA = total area of the estudy area
-#  Area <- unit_convert( st_area(TMVS), "m2", "ha") #hectares
-#  PC_example_3 <- MK_dPCIIC(nodes = habitat_nodes,
-#                          attribute = NULL,
-#                          area_unit = "ha",
-#                          distance = list(type = "centroid"),
-#                          parallel = NULL,
-#                          metric = "PC",
-#                          probability = 0.5,
-#                          distance_thresholds = c(250, 1500, 3000, 10000),
-#                          LA = Area,
-#                          onlyoverall = TRUE)
+# #Maximum landcape attribute or LA = total area of the estudy area
+# Area <- unit_convert( st_area(TMVS), "m2", "ha") #hectares
+# PC_example_3 <- MK_dPCIIC(nodes = habitat_nodes,
+#                         attribute = NULL,
+#                         area_unit = "ha",
+#                         distance = list(type = "centroid"),
+#                         parallel = NULL,
+#                         metric = "PC",
+#                         probability = 0.5,
+#                         distance_thresholds = c(250, 1500, 3000, 10000),
+#                         LA = Area,
+#                         onlyoverall = TRUE)
 
 ## ----eval=TRUE----------------------------------------------------------------
 class(PC_example_3)
@@ -217,16 +220,16 @@ IIC_example_4 <- MK_dPCIIC(nodes = habitat_nodes,
                         overall = TRUE, intern = FALSE)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  IIC_example_4 <- MK_dPCIIC(nodes = habitat_nodes,
-#                          attribute = NULL,
-#                          area_unit = "ha",
-#                          distance = list(type = "centroid"),
-#                          parallel = NULL,
-#                          metric = "IIC",
-#                          probability = NULL,
-#                          distance_thresholds = c(250, 1500, 3000, 10000),
-#                          LA = Area,
-#                          overall = TRUE)
+# IIC_example_4 <- MK_dPCIIC(nodes = habitat_nodes,
+#                         attribute = NULL,
+#                         area_unit = "ha",
+#                         distance = list(type = "centroid"),
+#                         parallel = NULL,
+#                         metric = "IIC",
+#                         probability = NULL,
+#                         distance_thresholds = c(250, 1500, 3000, 10000),
+#                         LA = Area,
+#                         overall = TRUE)
 
 ## ----eval=TRUE----------------------------------------------------------------
 class(IIC_example_4)

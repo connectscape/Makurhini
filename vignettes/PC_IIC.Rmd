@@ -23,6 +23,11 @@ knitr::opts_chunk$set(echo = TRUE)
 }
 ```
 
+```{r echo=FALSE}
+dir <- "C:/Users/oscta/OneDrive/Documents/R/TEST_Folder/"
+```
+
+
 ## Example 1: Assessing the overall connectivity and the importance of habitat patches for terrestrial mammals in central Mexico.
 
 In this example, the `MK_dPCIIC()` function was applied to estimate the connectivity of 404 remnant habitat patches, which were modeled to 40 non-volant mammal species of the Trans-Mexican Volcanic System (TMVS) by Correa Ayram et al., (2017). The landscape resistance to dispersal was estimated at a 100-meter resolution using a spatial human footprint index, land use intensity, time of human landscape intervention, biophysical vulnerability, fragmentation, and habitat loss (Correa Ayram et al., 2017). The raster was aggregated by a factor of 5 to change its original resolution from 100m to 500m. To represent different dispersal capacities of multiple species we considered the following median (associated to a probability of 0.5) distance thresholds: 250, 1500, 3000, and 10,000 meters. These four distances group the 40 species according to their dispersal distance requirements
@@ -85,7 +90,7 @@ PC_example_1 <- MK_dPCIIC(nodes = habitat_nodes,
 ```
 
 ```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
-PC_example_1 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/PC_example_1.rds")
+PC_example_1 <- readRDS(paste0(dir, "/PC_example_1.rds"))
 ```
 
 We obtain a `list` object where each element is a result for each distance threshold.
@@ -146,7 +151,7 @@ PC_example_2 <- MK_dPCIIC(nodes = habitat_nodes,
 ```
 
 ```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
-PC_example_2 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/PC_example_2.rds")
+PC_example_2 <- readRDS(paste0(dir, "/PC_example_2.rds"))
 ```
 
 We obtain a `list` object where each element is a result for each distance threshold.

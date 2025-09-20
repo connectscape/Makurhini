@@ -8,7 +8,7 @@ MK_ProtConn(
   nodes = NULL,
   region = NULL,
   area_unit = "m2",
-  distance = list(type = "centroid", resistance = NULL),
+  distance = list(type = "edge", resistance = NULL),
   distance_thresholds = NULL,
   probability = 0.5,
   transboundary = NULL,
@@ -29,9 +29,15 @@ MK_ProtConn(
 
 \item{area_unit}{\code{character}. (\emph{optional, default = } \code{"m2"}) \cr. A \code{character} indicating the area units when \code{attribute} is \code{NULL}. Some options are "m2" (the default), "km2", "cm2", or "ha";  See \link[Makurhini]{unit_convert} for details.}
 
-\item{distance}{A \code{list} of parameters to establish the distance between each pair of nodes. Distance between nodes may be Euclidean distances (straight-line distance) or effective distances (cost distances) by considering the landscape resistance to the species movements. \cr
- This list must contain the distance parameters necessary to calculate the distance between nodes. For example, two of the most important parameters: \code{“type”} and \code{“resistance”}. For \code{"type"} choose one  of the distances:  \bold{"centroid" (faster), "edge", "least-cost" or "commute-time"}. If the type is equal to \code{"least-cost"} or \code{"commute-time"}, then you must use the \code{"resistance"} argument. For example: \code{distance(type = "least-cost", resistance = raster_resistance)}. \cr
-To see more arguments see the \link[Makurhini]{distancefile} function.}
+\item{distance}{A list of parameters to calculate distances between node pairs.
+Supported types are \code{"edge"}, \code{"least-cost"}, and \code{"commute-time"}.
+For \code{"least-cost"} and \code{"commute-time"}, the \code{resistance} argument is required.
+Examples:
+\itemize{
+  \item \code{list(type = "edge", keep = 0.5)}  # uses 50% of vertices to simplify shapes and speed up
+  \item \code{list(type = "least-cost", resistance = raster_resistance)}
+}
+See more arguments in \link[Makurhini]{distancefile}.}
 
 \item{distance_thresholds}{A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range. Can be the same length as the \code{distance_thresholds} parameter.}
 
@@ -80,7 +86,7 @@ region <- Ecoregions[1,]
 
 test <- MK_ProtConn(nodes = Protected_areas, region = region,
                     area_unit = "ha",
-                    distance = list(type= "centroid"),
+                    distance = list(type= "edge", keep = 0.5),
                     distance_thresholds = c(50000, 10000),
                     probability = 0.5, transboundary = 50000,
                     plot = TRUE, parallel = NULL,

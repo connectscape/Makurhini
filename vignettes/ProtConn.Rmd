@@ -23,6 +23,10 @@ knitr::opts_chunk$set(echo = TRUE)
 }
 ```
 
+```{r echo=FALSE}
+dir <- "C:/Users/oscta/OneDrive/Documents/R/TEST_Folder/"
+```
+
 ## Example 2: Connectivity of protected areas in Colombia
 
 In this example, we assess the connectivity of Colombia's protected areas network in 33 ecoregions of great importance to the country using the Protected Connected Indicator (ProtConn). Particularly, we have 1,530 polygons of protected areas. The spatial information utilized in this example is derived from the connectivity assessment study of protected areas in the Andean Amazon region, as conducted by Castillo et al., (2020). In order to estimate the ProtConn index, we employ the `MK_ProtConn()` and `MK_ProtConn_mult()` functions. In this example, we will utilize an organism median dispersal distance threshold of 10 km, a connection probability pij = 0.5, and a transboundary PA search radius of 50 km (for further details, please refer to Castillo et al., 2020; Saura et al., 2017). We used Euclidean distances, particularly the distances between edges to establish the connections between nodes (PAs).
@@ -78,7 +82,7 @@ ggplot() +
 This function calculates the Protected Connected indicator (ProtConn) for a region, its fractions and the importance (contribution) of each protected area to maintain connectivity in the region under one or more distance thresholds. In this example, we use the edge Euclidean distance, a more accurate Euclidean method, but it is also more demanding in terms of RAM consumption and processing time, as it considers all the vertices of the polygons in its estimation. One way to speed up the process of estimating the distances between nodes is to use the "keep" option of the "distance" parameter, which is used to simplify the polygons by reducing the number of vertices. The value can range from 0 to 1 and represents the proportion of points to be retained. A higher value results in increased speed but decreased precision
 
 ```{r echo=FALSE}
-ProtConn_1 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/ProtConn_1.rds")
+ProtConn_1 <- readRDS(paste0(dir, "/ProtConn_1.rds"))
 ```
 
 ```{r eval= FALSE, message=FALSE, warning=FALSE}
@@ -110,7 +114,7 @@ ProtConn_1$`ProtConn Plot`
 ```
 
 ```{r echo=FALSE}
-ProtConn_1 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/ProtConn_1a.rds")
+ProtConn_1 <- readRDS(paste0(dir, "/ProtConn_1a.rds"))
 ```
 
 We can obtain the ProtConn value for each ecoregion using a loop such as `lapply, for, map,` etc. In this example we will use the `lapply` function.
@@ -160,7 +164,7 @@ ProtConn_2 <- MK_ProtConnMult(nodes = Protected_areas,
 ```
 
 ```{r echo=FALSE}
-ProtConn_2 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/ProtConn_1b.rds")
+ProtConn_2 <- readRDS(paste0(dir, "/ProtConn_1b.rds"))
 ```
 
 A dynamic table and vector (sf class) are generated, displaying the ProtConn values and their fractions. Additionally, a graph is produced, illustrating the ProtConn values and comparing them with the percentage of protected and connected area recommended for a region in the Aichi and Kumming-Montreal targets.

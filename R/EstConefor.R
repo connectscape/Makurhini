@@ -3,6 +3,7 @@
 #' Use the CONEFOR command line to estimate probabilistic and binary connectivity indexes
 #' @param nodeFile \code{character}. Node file name. If the \code{prefix} parameter is used, then use the prefix name.
 #' @param connectionFile \code{character}. Connection file name. If prefix is true use the prefix name.
+#' @param folder  \code{character}. Path to folder workplace, default NULL.
 #' @param coneforpath \code{character}. Path to \bold{Conefor 2.6 with command line interface}
 #' (for more details and download \url{http://www.conefor.org/coneforsensinode.html}). Example, "C:/Users/coneforWin64.exe".
 #' @param typeconnection \code{character}. Indicate if it is distance (dist), probability (prob), adjacency (adj).
@@ -41,6 +42,7 @@
 EstConefor <- function(nodeFile,
                        coneforpath= NULL,
                        connectionFile,
+                       folder = NULL,
                        typeconnection,
                        typepairs,
                        index,
@@ -55,21 +57,28 @@ EstConefor <- function(nodeFile,
   if(!file.exists(coneforpath)){
     stop("error, Conefor 2.6 with command line interface does not exist")
   }
-  tt <- getwd()
-  temp <- paste0(tempdir(), "\\TempCONEFOR", sample(1:1000, 1, replace = T))
 
-  if(dir.exists(temp)){
-    unlink(temp, recursive = TRUE)
+  if(!file.exists(nodeFile)){
+    stop("error, review nodeFile")
   }
 
-  dir.create(temp, recursive = TRUE)
-  file.copy(coneforpath, temp, overwrite = T)
-  conefor_exe <- dir(temp, pattern = ".exe$", full.names = TRUE)
-  nodefiles <- list.files(pattern = paste0("^", gsub(".txt", "", nodeFile)), full.names = TRUE)
-  file.copy(nodefiles, temp, overwrite = TRUE)
-  confiles <- list.files(pattern = paste0("^", gsub(".txt", "", connectionFile)), full.names = TRUE)
-  file.copy(confiles, temp, overwrite = TRUE)
-  setwd(temp)
+  if(!file.exists(connectionFile)){
+    stop("error, review connectionFile")
+  }
+
+  tt <- getwd()
+  if(is.null(folder)){
+    temp <- paste0(tempdir(), "\\TempCONEFOR", sample(1:1000, 1, replace = T))
+
+    if(dir.exists(temp)){
+      unlink(temp, recursive = TRUE)
+    }
+
+    dir.create(temp, recursive = TRUE)
+    setwd(temp)
+  } else {
+    setwd(folder)
+  }
 
   if (is.null(prefix)){
     p1 <- paste(conefor_exe, "-nodeFile", nodeFile, "-conFile", connectionFile, "-t", typeconnection, typepairs)

@@ -299,7 +299,7 @@ MK_dPCIIC <- function(nodes,
                                  return_graph = TRUE,
                                  min_nodes = 0,
                                  loop = TRUE, G1 = 1000,
-                                 intern = intern), error = function(err)err)
+                                 intern = if(!is.null(parallel)){intern} else {FALSE}), error = function(err)err)
     } else {
       mat1 <- tryCatch(get_sdist(dist_nodes = dist,
                                  attr_nodes = attribute_1[,2],
@@ -311,7 +311,7 @@ MK_dPCIIC <- function(nodes,
                                  return_graph = TRUE,
                                  min_nodes = 0,
                                  loop = TRUE, G1 = 1000,
-                                 intern = intern), error = function(err)err)
+                                 intern = if(!is.null(parallel)){intern} else {FALSE}), error = function(err)err)
     }
 
     if(inherits(mat1, "error")){

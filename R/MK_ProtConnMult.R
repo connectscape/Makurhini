@@ -112,17 +112,21 @@ MK_ProtConnMult <- function(nodes, regions,
 
   if(isFALSE(parallel)){
     parallel <- NULL
+  } else if (isTRUE(parallel)){
+    message(paste0("The number of available cores is ", as.numeric(availableCores()),
+                   ", so ", as.numeric(availableCores()), " cores will be used."))
+    parallel <- as.numeric(availableCores())-2
+  } else if((!is.null(parallel))){
+    if(!is.numeric(parallel)){
+      stop("if you use parallel argument then you need a numeric value")
+    }
+  } else {
+    parallel <- NULL
   }
 
   if(distance$type == "centroid"){
     message("You cannot use centroid distance for this function. Makurhini will use edge type with a keep = 0.5")
     distance$type == "edge"; distance$keep <- 0.5
-  }
-
-  if(isTRUE(parallel)){
-    message(paste0("The number of available cores is ", as.numeric(availableCores()),
-                   ", so ", as.numeric(availableCores()), " cores will be used."))
-    parallel <- as.numeric(availableCores())-2
   }
 
   if(nrow(regions)<=1){

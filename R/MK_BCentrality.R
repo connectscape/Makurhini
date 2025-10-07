@@ -110,12 +110,6 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
     }
   }
 
-  if(!is.null(parallel)){
-    if(!is.numeric(parallel)){
-      stop("if you use parallel argument then you need a numeric value")
-    }
-  }
-
   if(isFALSE(parallel)){
     parallel <- NULL
   }
@@ -124,6 +118,12 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
     message(paste0("The number of available cores is ", as.numeric(availableCores()),
                    ", so ", as.numeric(availableCores()), " cores will be used."))
     parallel <- as.numeric(availableCores())-2
+  }
+
+  if(!is.null(parallel)){
+    if(!is.numeric(parallel)){
+      stop("if you use parallel argument then you need a numeric value")
+    }
   }
 
   if (!is.null(coneforpath)) {

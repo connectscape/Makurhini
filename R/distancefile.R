@@ -110,7 +110,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL,
         message("Parallel will not be used to get the edges of the fragments but it will be used to get the distances that is because we depend on the 'terra' package which until the release of this version of Makurhini cannot be serialized. A sequential loop will be used.")
       }
     } else {
-      if(isTRUE(parallel) | !is.null(parallel)){
+      if(isTRUE(parallel) || (!is.null(parallel) && !identical(parallel, FALSE))) {
         parallel = TRUE; works <- as.numeric(availableCores())-1
 
         if(.Platform$OS.type == "unix") {
@@ -133,7 +133,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL,
         message("Parallel will not be used to get the edges of the fragments but it will be used to get the distances that is because we depend on the 'terra' package which until the release of this version of Makurhini cannot be serialized. A sequential loop will be used.")
       }
     } else {
-      if(isTRUE(parallel) | !is.null(parallel)){
+      if(isTRUE(parallel) || (!is.null(parallel) && !identical(parallel, FALSE))){
         if(type != "edge"){
           if(is.numeric(parallel)){
             works <- parallel
@@ -162,7 +162,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL,
         stop("error, you need more than 2 nodes")
       }
 
-      if(isTRUE(parallel) | !is.null(parallel)){
+      if(isTRUE(parallel) || (!is.null(parallel) && !identical(parallel, FALSE))){
         cr <- crs(nodes); pts <- data.frame(rasterToPoints(nodes)); pts <- pts[pts[[3]] > 0,]
         nodes <- tryCatch(future_map_dfr(split(pts, pts[[3]]), function(x){
           x.1 <- colMeans(x[, c("x", "y")]); x.1 <- data.frame("x" = x.1[[1]], "y" = x.1[[2]], "Id" = unique(x[[3]]))
@@ -193,7 +193,7 @@ distancefile <- function(nodes, id, type =  "centroid", distance_unit = NULL,
         stop("error, you need more than 2 nodes")
       }
 
-      if(isTRUE(parallel) | !is.null(parallel)){
+      if(isTRUE(parallel) || (!is.null(parallel) && !identical(parallel, FALSE))){
         rp <- terra::unique(nodes, na.rm = TRUE)[[1]]; rp2 <- base::split(rp, ceiling(seq_along(rp)/round(sqrt(max(rp)))))
 
         nodes <- tryCatch(map_dfr(rp2, function(x){

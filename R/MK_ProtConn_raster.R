@@ -112,12 +112,6 @@ MK_ProtConn_raster <- function(nodes,
     distance$type == "edge"; distance$keep <- 0.5
   }
 
-  if(!is.null(parallel)){
-    if(!is.numeric(parallel)){
-      stop("if you use parallel argument then you need a numeric value")
-    }
-  }
-
   if(isFALSE(parallel)){
     parallel <- NULL
   }
@@ -126,6 +120,12 @@ MK_ProtConn_raster <- function(nodes,
     message(paste0("The number of available cores is ", as.numeric(availableCores()),
                    ", so ", as.numeric(availableCores()), " cores will be used."))
     parallel <- as.numeric(availableCores())-2
+  }
+
+  if(!is.null(parallel)){
+    if(!is.numeric(parallel)){
+      stop("if you use parallel argument then you need a numeric value")
+    }
   }
 
   if(isTRUE(intern)){

@@ -93,6 +93,16 @@ MK_dECA_grid <- function(nodes,
                          intern = TRUE){
   options(warn = -1)
 
+  if(isFALSE(parallel)){
+    parallel <- NULL
+  }
+
+  if(isTRUE(parallel)){
+    message(paste0("The number of available cores is ", as.numeric(availableCores()),
+                   ", so ", as.numeric(availableCores()), " cores will be used."))
+    parallel <- as.numeric(availableCores())-2
+  }
+
   if(!is.null(parallel)){
     if(!is.numeric(parallel)){
       stop("if you use parallel argument then you need a numeric value")

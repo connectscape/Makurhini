@@ -8,7 +8,6 @@ EstConefor(
   nodeFile,
   coneforpath = NULL,
   connectionFile,
-  folder = NULL,
   typeconnection,
   typepairs,
   index,
@@ -29,8 +28,6 @@ EstConefor(
 (for more details and download \url{http://www.conefor.org/coneforsensinode.html}). Example, "C:/Users/coneforWin64.exe".}
 
 \item{connectionFile}{\code{character}. Connection file name. If prefix is true use the prefix name.}
-
-\item{folder}{\code{character}. Path to folder workplace, default NULL.}
 
 \item{typeconnection}{\code{character}. Indicate if it is distance (dist), probability (prob), adjacency (adj).}
 

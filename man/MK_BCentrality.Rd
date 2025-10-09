@@ -93,7 +93,7 @@ BCIIC <- MK_BCentrality(nodes = habitat_nodes, id = "Id",
 data("habitat_nodes_raster", package = "Makurhini")
 ##Using parallel
 BCPC_parallel <- MK_BCentrality(nodes = habitat_nodes_raster,
-                    coneforpath = "C:/Users//coneforWin64.exe",
+                    coneforpath = "C:/Users/coneforWin64.exe",
                     id = "id", attribute = NULL,
                     distance = list(type = "centroid"),
                     metric = "BCPC", LA = NULL, probability = 0.5,

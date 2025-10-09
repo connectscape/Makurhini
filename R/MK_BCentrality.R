@@ -54,7 +54,7 @@
 #' data("habitat_nodes_raster", package = "Makurhini")
 #' ##Using parallel
 #' BCPC_parallel <- MK_BCentrality(nodes = habitat_nodes_raster,
-#'                     coneforpath = "C:/Users//coneforWin64.exe",
+#'                     coneforpath = "C:/Users/coneforWin64.exe",
 #'                     id = "id", attribute = NULL,
 #'                     distance = list(type = "centroid"),
 #'                     metric = "BCPC", LA = NULL, probability = 0.5,
@@ -186,12 +186,14 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
     if(length(distance_thresholds)>1 & isTRUE(intern)){
       pb <- txtProgressBar(0, length(distance_thresholds), style = 3)
     }
+
     BC_metric <- tryCatch(lapply(1:length(distance_thresholds), function(x){
       x <- distance_thresholds[x]
       if(length(distance_thresholds)>1 & isTRUE(intern)){
         setTxtProgressBar(pb, x)
       }
-        dMetric <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
+        dMetric <- EstConefor(nodeFile = paste0(temp.1, "/nodes.txt"),
+                              connectionFile = paste0(temp.1, "/Dist.txt"),
                               coneforpath = coneforpath,
                               typeconnection = "dist",
                               typepairs = pairs, index = metric,
@@ -278,7 +280,8 @@ MK_BCentrality <- function(nodes, id, attribute  = NULL, area_unit = "ha",
     plan(strategy = strat, gc = TRUE, workers = works)
     BC_metric <- tryCatch(future_map(1:length(distance_thresholds), function(x) {
       x <- distance_thresholds[x]
-      dMetric <- EstConefor(nodeFile = "nodes.txt", connectionFile = "Dist.txt",
+      dMetric <- EstConefor(nodeFile = paste0(temp.1, "/nodes.txt"),
+                            connectionFile = paste0(temp.1, "/Dist.txt"),
                             coneforpath = coneforpath,
                             typeconnection = "dist", typepairs = pairs, index = metric,
                             thdist = x, multdist = NULL, conprob = probability,

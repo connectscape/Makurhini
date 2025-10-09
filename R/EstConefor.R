@@ -3,7 +3,6 @@
 #' Use the CONEFOR command line to estimate probabilistic and binary connectivity indexes
 #' @param nodeFile \code{character}. Node file name. If the \code{prefix} parameter is used, then use the prefix name.
 #' @param connectionFile \code{character}. Connection file name. If prefix is true use the prefix name.
-#' @param folder  \code{character}. Path to folder workplace, default NULL.
 #' @param coneforpath \code{character}. Path to \bold{Conefor 2.6 with command line interface}
 #' (for more details and download \url{http://www.conefor.org/coneforsensinode.html}). Example, "C:/Users/coneforWin64.exe".
 #' @param typeconnection \code{character}. Indicate if it is distance (dist), probability (prob), adjacency (adj).
@@ -40,9 +39,8 @@
 #' @export
 #' @importFrom utils read.table
 EstConefor <- function(nodeFile,
-                       coneforpath= NULL,
+                       coneforpath = NULL,
                        connectionFile,
-                       folder = NULL,
                        typeconnection,
                        typepairs,
                        index,
@@ -67,23 +65,26 @@ EstConefor <- function(nodeFile,
   }
 
   tt <- getwd()
-  if(is.null(folder)){
-    temp <- paste0(tempdir(), "\\TempCONEFOR", sample(1:1000, 1, replace = T))
+  temp <- paste0(tempdir(), "\\TempCONEFOR", sample(1:1000, 1, replace = T))
 
-    if(dir.exists(temp)){
-      unlink(temp, recursive = TRUE)
-    }
-
-    dir.create(temp, recursive = TRUE)
-    setwd(temp)
-  } else {
-    setwd(folder)
+  if(dir.exists(temp)){
+    unlink(temp, recursive = TRUE)
   }
 
+  dir.create(temp, recursive = TRUE)
+  invisible(file.copy(coneforpath, temp, overwrite = TRUE))
+  coneforpath <- dir(temp, pattern = ".exe$", full.names = TRUE)
+
+  invisible(file.copy(nodeFile, temp, overwrite = TRUE))
+  nodeFile <- basename(nodeFile)
+  invisible(file.copy(connectionFile, temp, overwrite = TRUE))
+  connectionFile <- basename(connectionFile)
+  setwd(temp)
+
   if (is.null(prefix)){
-    p1 <- paste(conefor_exe, "-nodeFile", nodeFile, "-conFile", connectionFile, "-t", typeconnection, typepairs)
+    p1 <- paste(coneforpath, "-nodeFile", nodeFile, "-conFile", connectionFile, "-t", typeconnection, typepairs)
   } else {
-    p1 <- paste(conefor_exe, "-nodeFile", nodeFile, "-conFile", connectionFile, "-t", typeconnection, typepairs, "-*")
+    p1 <- paste(coneforpath, "-nodeFile", nodeFile, "-conFile", connectionFile, "-t", typeconnection, typepairs, "-*")
   }
 
   binary <- c("CCP", "LCP", "IIC", "BC", "BCIIC", "NC", "NL", "H")
@@ -158,7 +159,7 @@ EstConefor <- function(nodeFile,
     }
   }
 
-  if (!isFALSE(unique(grepl("Error:", result, fixed = TRUE)))){
+  if(!isFALSE(unique(grepl("Error:", result, fixed = TRUE)))){
     setwd(tt)
     stop("Error. Please check the function parameters and input files")
   }
@@ -205,8 +206,7 @@ EstConefor <- function(nodeFile,
   }
 
   if (!is.null(write)){
-    setwd(tt)
-    file.copy(df, write, overwrite = TRUE)
+    invisible(file.copy(df, write, overwrite = TRUE))
   }
   #Temove temporal files
   unlink(temp, recursive = TRUE)

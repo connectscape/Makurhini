@@ -192,7 +192,8 @@ get_sdist <- function(dist_nodes = NULL,
     }
   }
 
-  smat[is.infinite(smat)] <- 0
+  #smat[is.infinite(smat)] <- 0
+  smat[is.infinite(smat)] <- 1000000000000000000000
   if(metric == "PC"){
     smat <- exp(-smat)
     if(!is.null(attr_nodes)){

@@ -226,6 +226,16 @@ MK_dPCIIC <- function(nodes,
       stop("Distance matrix and nodes have different id")
     }
     rownames(dist) <- 1:nrow(dist); colnames(dist) <- 1:ncol(dist)
+  } else if (class(distance)[1] == "data.frame"){
+    if(dim(distance)[2] != 3){
+      stop("If the distance is pairwise, it must have three columns: From, To, and Distance")
+    }
+  dist <- to_sym_matrix(distance,
+                        from = names(distance)[1],
+                        to = names(distance)[2],
+                        value = names(distance)[3],
+                        diag_value = 0, fill_na = 0)
+  rownames(dist) <- 1:nrow(dist); colnames(dist) <- 1:ncol(dist)
   } else {
     if(isTRUE(intern)){
       if(!is.null(distance$resistance)){

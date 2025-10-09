@@ -22,7 +22,3 @@ pol_dissolve<-function(polygone, attribute){
   }
   return(polygone)
 }
-
-
-
-

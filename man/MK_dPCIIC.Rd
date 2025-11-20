@@ -61,7 +61,7 @@ To see more arguments see the \link[Makurhini]{distancefile} function.}
 
 \item{threshold}{\code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing. Can be the same length as the \code{distance_thresholds} parameter.}
 
-\item{overall}{\code{logical}. If \code{TRUE}, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE}
+\item{overall}{\code{logical}. If \code{TRUE}, then the overall metrics will be added to the result which is transformed into a list. Default equal to FALSE}
 
 \item{onlyoverall}{\code{logical}. If \code{TRUE}, then only overall metrics will be calculated.}
 
@@ -83,6 +83,7 @@ parallelizes on the shortest paths between vertices estimate.}
 \value{
 -   If only \bold{one distance} was used in the parameter \code{distance_thresholds} then return an object of class \code{sf} with the node importance values (delta IIC or PC).\cr
 -   If you add \bold{\code{overall = TRUE}}, then a list containing the \code{sf} class object with the importance values of the nodes and a \code{data.frame} with the overall connectivity values will be returned.\cr
+-   If you add \bold{\code{overall = TRUE}} or \bold{\code{onlyoverall = TRUE}}, a \code{data.frame} with overall connectivity metrics will be returned, including \code{PC} or \code{IIC} (as selected), their corresponding \code{num} and \code{EC} values, and the fractions \code{PC/IIC intra} (intrapatch connectivity), \code{PC/IIC direct} (interpatch connectivity via direct links only), and \code{PC/IIC step} (interpatch connectivity attributable to stepping-stone use).\cr
 -   If you use the \bold{\code{restoration}} parameter then an extra column will be returned to the \code{sf} object with the node importance values, unless you use the \code{onlyrestor} argument (i.e., equal to \code{TRUE}) only the restoration metric is estimated.\cr
 -   If you use \bold{multiple distance thresholds} (e.g, \code{distance_thresholds = c(1000, 5000, 80000)}), the resulting data should be returned in the form of a \code{list}, wherein each \code{list} item contains the resulting objects for each distance threshold.
 }
@@ -109,7 +110,7 @@ IIC <- MK_dPCIIC(nodes = habitat_nodes,
                 overall = TRUE,
                 metric = "IIC",
                 distance_thresholds = c(10000, 20000)) #10,20 km
-IIC
+IIC$d20000$overall_d20000
 plot(IIC$d20000$node_importances_d20000["dIIC"], breaks = "jenks")
 plot(IIC$d20000$node_importances_d20000["dIICintra"], breaks = "jenks")
 plot(IIC$d20000$node_importances_d20000["dIICflux"], breaks = "jenks")
@@ -134,5 +135,6 @@ plot(PC$node_importances_d40000)
 -   Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at \url{www.conefor.org}.\cr
 -   Pascual-Hortal, L. & Saura, S. 2006. Comparison and development of new graph-based landscape connectivity indices: towards the priorization of habitat patches and corridors for conservation. Landscape Ecology 21 (7): 959-967.\cr
 -   Saura, S. & Pascual-Hortal, L. 2007. A new habitat availability index to integrate connectivity in landscape conservation planning: comparison with existing indices and application to a case study. Landscape and Urban Planning 83 (2-3): 91-103.\cr
+-   Saura, S., Bodin, Ö., & Fortin, M.-J. (2014). EDITOR’S CHOICE: Stepping stones are crucial for species’ long-distance dispersal and range expansion through habitat networks. Journal of Applied Ecology, 51(1), 171-182.\cr
 -   Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented landscape. Nature 404: 755–758.
 }

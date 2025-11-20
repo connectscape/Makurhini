@@ -24,7 +24,7 @@
 #' @param probability A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.
 #' @param distance_thresholds A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range.
 #' @param threshold \code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing. Can be the same length as the \code{distance_thresholds} parameter.
-#' @param overall \code{logical}. If \code{TRUE}, then the EC index will be added to the result which is transformed into a list. Default equal to FALSE
+#' @param overall \code{logical}. If \code{TRUE}, then the overall metrics will be added to the result which is transformed into a list. Default equal to FALSE
 #' @param onlyoverall \code{logical}. If \code{TRUE}, then only overall metrics will be calculated.
 #' @param parallel  (\emph{optional, default =} \code{NULL}).
 #' A \code{numeric} specifying the number of cores to parallelize the index estimation of the PC or IIC index and its deltas.Particularly useful when you have more than 1000 nodes. By default the analyses are not parallelized.
@@ -40,6 +40,7 @@
 #' -   Saura, S. & Torné, J. 2012. Conefor 2.6 user manual (May 2012). Universidad Politécnica de Madrid. Available at \url{www.conefor.org}.\cr
 #' -   Pascual-Hortal, L. & Saura, S. 2006. Comparison and development of new graph-based landscape connectivity indices: towards the priorization of habitat patches and corridors for conservation. Landscape Ecology 21 (7): 959-967.\cr
 #' -   Saura, S. & Pascual-Hortal, L. 2007. A new habitat availability index to integrate connectivity in landscape conservation planning: comparison with existing indices and application to a case study. Landscape and Urban Planning 83 (2-3): 91-103.\cr
+#' -   Saura, S., Bodin, Ö., & Fortin, M.-J. (2014). EDITOR’S CHOICE: Stepping stones are crucial for species’ long-distance dispersal and range expansion through habitat networks. Journal of Applied Ecology, 51(1), 171-182.\cr
 #' -   Hanski, I. and Ovaskainen, O. 2000. The metapopulation capacity of a fragmented landscape. Nature 404: 755–758.
 #' @export
 #' @examples
@@ -56,7 +57,7 @@
 #'                 overall = TRUE,
 #'                 metric = "IIC",
 #'                 distance_thresholds = c(10000, 20000)) #10,20 km
-#' IIC
+#' IIC$d20000$overall_d20000
 #' plot(IIC$d20000$node_importances_d20000["dIIC"], breaks = "jenks")
 #' plot(IIC$d20000$node_importances_d20000["dIICintra"], breaks = "jenks")
 #' plot(IIC$d20000$node_importances_d20000["dIICflux"], breaks = "jenks")
@@ -80,6 +81,7 @@
 #' @returns
 #' -   If only \bold{one distance} was used in the parameter \code{distance_thresholds} then return an object of class \code{sf} with the node importance values (delta IIC or PC).\cr
 #' -   If you add \bold{\code{overall = TRUE}}, then a list containing the \code{sf} class object with the importance values of the nodes and a \code{data.frame} with the overall connectivity values will be returned.\cr
+#' -   If you add \bold{\code{overall = TRUE}} or \bold{\code{onlyoverall = TRUE}}, a \code{data.frame} with overall connectivity metrics will be returned, including \code{PC} or \code{IIC} (as selected), their corresponding \code{num} and \code{EC} values, and the fractions \code{PC/IIC intra} (intrapatch connectivity), \code{PC/IIC direct} (interpatch connectivity via direct links only), and \code{PC/IIC step} (interpatch connectivity attributable to stepping-stone use).\cr
 #' -   If you use the \bold{\code{restoration}} parameter then an extra column will be returned to the \code{sf} object with the node importance values, unless you use the \code{onlyrestor} argument (i.e., equal to \code{TRUE}) only the restoration metric is estimated.\cr
 #' -   If you use \bold{multiple distance thresholds} (e.g, \code{distance_thresholds = c(1000, 5000, 80000)}), the resulting data should be returned in the form of a \code{list}, wherein each \code{list} item contains the resulting objects for each distance threshold.
 #' @importFrom utils txtProgressBar setTxtProgressBar write.csv
@@ -309,6 +311,8 @@ MK_dPCIIC <- function(nodes,
                                  return_graph = TRUE,
                                  min_nodes = 0,
                                  loop = TRUE, G1 = 1000,
+                                 pij_min = 0.01,
+                                 return_pij = TRUE,
                                  intern = if(!is.null(parallel)){intern} else {FALSE}), error = function(err)err)
     } else {
       mat1 <- tryCatch(get_sdist(dist_nodes = dist,
@@ -321,6 +325,8 @@ MK_dPCIIC <- function(nodes,
                                  return_graph = TRUE,
                                  min_nodes = 0,
                                  loop = TRUE, G1 = 1000,
+                                 pij_min = 0.01,
+                                 return_pij = TRUE,
                                  intern = if(!is.null(parallel)){intern} else {FALSE}), error = function(err)err)
     }
 
@@ -345,7 +351,6 @@ MK_dPCIIC <- function(nodes,
           if(overall.2$Value[2] > LA){
             overall.2$Value[2] <- LA
           }
-
         } else {
           stop("LA must be greater than the sum of the attributes of the nodes")
         }
@@ -355,6 +360,31 @@ MK_dPCIIC <- function(nodes,
                                 Value = c(num, sqrt(num)))
       }
 
+      matr <- outer(attribute_2, attribute_2)
+      intra <- sum(diag(matr)); diag(matr) <- 0
+
+      if(metric == "PC"){
+        direct <- sum(matr * mat1$pij, na.rm = TRUE)
+        Step <- sum(matr * (mat1$`pij*`- mat1$pij), na.rm = TRUE)
+      } else {
+        matr2 <- mat1$`pij*`
+        matr2[matr2 == 16443701] = 0
+        direct <- sum(matr[which(matr2 == 1)]/2)
+        Step <- sum(matr[which(matr2 >= 2)]/(1+ mat1$`pij*`[which(matr2 >= 2)]))
+      }
+
+      intra <- round((intra/num)*100, 5); direct <- round((direct/num)*100, 5)
+      Step <- round((Step/num)*100, 5); ctrl <- sum(intra, direct, Step)
+
+      if(ctrl < 100){
+        ctrl <- (100 - ctrl)/3; intra <- intra + ctrl
+        direct <- direct + ctrl; Step <- Step + ctrl
+      }
+
+      overall.2 <- rbind(overall.2,
+                         data.frame(Index = paste0(metric, c("intra(%)", "direct(%)",
+                                              "step(%)")),
+                                    Value = c(intra, direct, Step)))
       if (!is.null(write)){
         write.csv(overall.2, file = paste0(write, "_Overall","_", "d", x.1,  ".csv"), row.names = FALSE)
       }
@@ -396,8 +426,8 @@ MK_dPCIIC <- function(nodes,
                               intern = intern)
         }
 
-        dintra <- round((((attribute_2^2)) / num) * 100, 7); dflux <- round(2*(rowSums(mat1[[1]]) - attribute_2^2)/ num * 100, 7)
-        dconnector <- round(map_dbl(delta - ((((attribute_2^2)) / num) * 100) - (2*(rowSums(mat1[[1]]) - attribute_2^2)/ num * 100), function(y){if(y < 0){0} else {y}}), 20)
+        dintra <- round((((attribute_2^2)) / num) * 100, 7); dflux <- round(2*(rowSums(mat1[[1]], na.rm = TRUE) - attribute_2^2)/ num * 100, 7)
+        dconnector <- round(map_dbl(delta - ((((attribute_2^2)) / num) * 100) - (2*(rowSums(mat1[[1]], na.rm = TRUE) - attribute_2^2)/ num * 100), function(y){if(y < 0){0} else {y}}), 20)
 
         metric_conn <- data.frame("IdTemp2" = if(is.null(idT)){id_original} else{attribute_1[,1]},
                                   "delta" = round(delta, 7),

@@ -1,6 +1,7 @@
 #' Estimate all shortest distance between nodes using weights
 #'
 #' @param dist_nodes matrix distance or pairwise data.frame distance
+#' @param pij_mat matrix probability of settlement
 #' @param attr_nodes numeric. Nodes attribute
 #' @param metric character. 'PC' or 'IIC'
 #' @param probability numeric
@@ -10,6 +11,8 @@
 #' @param loop logical
 #' @param min_nodes numeric
 #' @param G1 numeric
+#' @param pij_min numeric
+#' @param return_pij logic
 #' @param intern logical
 #' @importFrom utils txtProgressBar setTxtProgressBar write.csv object.size
 #' @importFrom future multicore multisession plan availableCores
@@ -20,6 +23,7 @@
 #' @importFrom stats as.dist
 #' @keywords internal
 get_sdist <- function(dist_nodes = NULL,
+                      pij_mat = NULL,
                       graph_nodes = NULL,
                       attr_nodes = NULL,
                       metric = NULL,
@@ -31,7 +35,10 @@ get_sdist <- function(dist_nodes = NULL,
                       G1 = 1000,
                       min_nodes = 2000,
                       return_graph = FALSE,
+                      pij_min = 0.01,
+                      return_pij = TRUE,
                       intern = TRUE){
+  #dist_nodes <- dist
   if(isTRUE(igraph_Dijkstra)){
     if(is.null(graph_nodes)){
       Adj_matr <- dist_nodes * 0
@@ -41,15 +48,19 @@ get_sdist <- function(dist_nodes = NULL,
         if(is.null(probability)){
           k = (1 / distance_threshold); Adj_matr <- exp(-k * dist_nodes)
         } else {
-          Adj_matr <- exp((dist_nodes * log(probability))/distance_threshold)
+          Adj_matr <- exp((dist_nodes * log(probability))/distance_threshold)#pij
+          if(!is.null(pij_min)){
+            Adj_matr[Adj_matr < pij_min] <- 0
+          }
         }
       }
       diag(Adj_matr) <- 0; mode(Adj_matr) <- "numeric"; Adj_matr[is.na(dist_nodes)] <- 0
+
       graph_nodes <- igraph::graph_from_adjacency_matrix(Adj_matr, mode = "undirected",
-                                                         weighted = if(metric == "IIC"){NULL}else{TRUE})
+                                                         weighted = if(metric == "IIC"){NULL}else{TRUE},
+                                                         diag = FALSE)
     }
     toV <- as_ids(V(graph_nodes))
-
     if(length(toV) > min_nodes & isTRUE(loop)){
       seq_n <- seq(1,length(toV), G1)
 
@@ -116,15 +127,38 @@ get_sdist <- function(dist_nodes = NULL,
                        error = function(err) err)
     }
 
+    if(isTRUE(return_pij)){
+      pij <- Adj_matr
+    }
   } else {
     if (is.null(graph_nodes)) {
-      if (metric == "IIC") {
-        dist_nodes[dist_nodes >= distance_threshold] <- NA; dist_nodes[!is.na(dist_nodes)] <- 1
-      } else {
-        if(is.null(probability)){
-          dist_nodes <- -log(exp(-((1 / distance_threshold)) * dist_nodes))
+      if(is.null(pij_mat)){
+        if (metric == "IIC") {
+          dist_nodes[dist_nodes >= distance_threshold] <- NA; dist_nodes[!is.na(dist_nodes)] <- 1
         } else {
-          dist_nodes <- -log(exp((dist_nodes * log(probability))/distance_threshold))
+          if(is.null(probability)){
+            dist_nodes <- exp(-((1 / distance_threshold)) * dist_nodes)
+          } else {
+            dist_nodes <- exp((dist_nodes * log(probability))/distance_threshold)#Cost
+          }
+
+          if(!is.null(pij_min)){
+            dist_nodes[dist_nodes < pij_min] <- 0
+          }
+          dist_nodes <- -log(dist_nodes)
+        }
+
+        if(isTRUE(return_pij)){
+          pij <- exp(-dist_nodes)
+        }
+      } else {
+        dist_nodes <- pij_mat
+        if(!is.null(pij_min)){
+          dist_nodes[dist_nodes < pij_min] <- 0
+        }
+        dist_nodes <- -log(dist_nodes)
+        if(isTRUE(return_pij)){
+          pij <- pij_mat; diag(pij) <- 1
         }
       }
 
@@ -132,6 +166,11 @@ get_sdist <- function(dist_nodes = NULL,
       if (is.matrix(dist_nodes)) {
         dist_nodes[lower.tri(dist_nodes, diag = TRUE)] <- NA
         dist_df <- na.omit(as.data.frame(as.table(dist_nodes)))
+        names(dist_df) <- c("From", "To", "Distance")
+        dist_df$From <- as.numeric(as.character(dist_df$From))
+        dist_df$To <- as.numeric(as.character(dist_df$To))
+        graph_nodes <- makegraph(dist_df, directed = FALSE)
+      } else {
         names(dist_df) <- c("From", "To", "Distance")
         dist_df$From <- as.numeric(as.character(dist_df$From))
         dist_df$To <- as.numeric(as.character(dist_df$To))
@@ -192,19 +231,33 @@ get_sdist <- function(dist_nodes = NULL,
     }
   }
 
-  #smat[is.infinite(smat)] <- 0
-  smat[is.infinite(smat)] <- 1000000000000000000000
   if(metric == "PC"){
+    smat[is.infinite(smat)] <- 1000000000000000000000
     smat <- exp(-smat)
+
+    if(isTRUE(return_pij)){
+      pijM <- smat
+    }
+
     if(!is.null(attr_nodes)){
       smat <- outer(attr_nodes, attr_nodes) * smat
     }
   } else {
+    smat[is.infinite(smat)] <- 16443701
+    if(isTRUE(return_pij)){
+        pijM <- smat
+    }
     smat <- outer(attr_nodes, attr_nodes) / (1 + smat);
     #mat2.i[which(mat.i == 1e-07)] <- 0
   }
+
   if(isTRUE(return_graph)){
-    return(list("shortest distances" = smat, "graph" = graph_nodes))
+    if(isTRUE(return_pij)){
+      return(list("shortest distances" = smat, "graph" = graph_nodes,
+                  "pij" = pij, "pij*" = pijM))
+    } else {
+      return(list("shortest distances" = smat, "graph" = graph_nodes))
+    }
   } else {
     return(smat)
   }

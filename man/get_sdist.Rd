@@ -6,6 +6,7 @@
 \usage{
 get_sdist(
   dist_nodes = NULL,
+  pij_mat = NULL,
   graph_nodes = NULL,
   attr_nodes = NULL,
   metric = NULL,
@@ -17,11 +18,15 @@ get_sdist(
   G1 = 1000,
   min_nodes = 2000,
   return_graph = FALSE,
+  pij_min = 0.01,
+  return_pij = TRUE,
   intern = TRUE
 )
 }
 \arguments{
 \item{dist_nodes}{matrix distance or pairwise data.frame distance}
+
+\item{pij_mat}{matrix probability of settlement}
 
 \item{attr_nodes}{numeric. Nodes attribute}
 
@@ -40,6 +45,10 @@ get_sdist(
 \item{G1}{numeric}
 
 \item{min_nodes}{numeric}
+
+\item{pij_min}{numeric}
+
+\item{return_pij}{logic}
 
 \item{intern}{logical}
 }

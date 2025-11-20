@@ -37,11 +37,27 @@ Thank you for using Makurhini. **We have a new version Makurhini 3.0!**
     connectivity.** Research Square.
     <https://doi.org/10.21203/rs.3.rs-6398746/v1>
 
-2.  An update was made in the estimation of short distances between
-    nodes, which can improve the processing of the functions that
-    estimate connectivity indices.
+2.  The **MK_dPCIIC()** function now includes full support for the 
+    three essential PC/IIC fractions, offering a much richer portrayal of
+    landscape connectivity. These fractions capture intra-patch 
+    connectivity (*intra*), direct inter-patch links (*direct*), and 
+    stepwise connectivity through intermediate patches (*step*). 
+    This enhancement provides users with a more nuanced and interpretable
+    breakdown of how different components of the landscape contribute
+    to overall connectivity (for details, see Saura, Bodin & Fortin, 
+    2014; https://doi.org/10.1111/1365-2664.12179).
 
-3.  Two new functions have been added: **MK_dPCIIC_links and
+3.  We also introduced the new **MK_dPC_SAMC()** function, which brings powerful
+    functionality for estimating overall landscape connectivity and the 
+    importance of each habitat patch using the Probability of 
+    Connectivity (PC) index. This function leverages a Spatial Absorbing 
+    Markov Chain (SAMC) framework to model movement and settlement as 
+    a random-walk dispersal process, enabling a realistic, spatially 
+    explicit representation of how species traverse heterogeneous 
+    landscapes (for details, see Fletcher et al., 
+    2023; https://doi.org/10.1111/ele.13333).
+
+4.  Two new functions have been added: **MK_dPCIIC_links and
     MK_Focal_nodes**. The first one is used to estimate the link
     importance for conservation and restoration. The second estimates
     the focal Integral Index of Connectivity (IIC~f~) or the focal
@@ -80,9 +96,7 @@ and monitoring of global conservation targets.
 ### Citing Makurhini package
 
 We will soon publish a paper about this package. Until then, please use
-one of the following preprint:
-
-**Preprint:**
+the following **Preprint**:
 
 Godínez-Gómez, O., Correa-Ayram, C., Goicolea, T., & Saura, S. (2025).
 Makurhini: An R package for comprehensive analysis of landscape
@@ -471,7 +485,7 @@ PC_example <- MK_dPCIIC(nodes = habitat_nodes,
 ```
 
 ```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
-PC_example <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/PC_example_2.rds")
+PC_example <- readRDS("G:/Mi unidad/Makurhini_package/TEST_Folder/PC_example_2.rds")
 ```
 
 We obtain a `list` object where each element is a result for each
@@ -557,7 +571,7 @@ head(focal_example)
 ```
 
 ```{r echo=FALSE, eval=TRUE}
-focal_example <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/PCfocal.rds")
+focal_example <- readRDS("G:/Mi unidad/Makurhini_package/TEST_Folder/PCfocal.rds")
 
 head(focal_example)
 ```
@@ -753,7 +767,7 @@ ProtConn_2 <- MK_ProtConnMult(nodes = Protected_areas,
 ```
 
 ```{r echo=FALSE}
-ProtConn_2 <- readRDS("C:/Users/Usuario/Documents/R/TEST_Folder/ProtConn_1b.rds")
+ProtConn_2 <- readRDS("G:/Mi unidad/Makurhini_package/TEST_Folder/ProtConn_1b.rds")
 ```
 
 A dynamic table and vector (sf class) are generated, displaying the

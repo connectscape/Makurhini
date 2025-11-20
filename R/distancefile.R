@@ -14,7 +14,7 @@
 #' @param distance_unit \code{character}. If \code{"least-cost"} or \code{"commute-time"} is selected or \code{resist.units = TRUE} then you can set a distance unit
 #'  ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m" (see, \link[Makurhini]{unit_convert}).
 #' @param keep \code{numeric}. In case you have selected the \code{"edge"} distance, use this option to simplify the geometry and reduce the
-#'  number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to \code{NULL}). The higher the value,
+#'  number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to \code{NULL}). The lower the value,
 #'   the higher the speed but less precision.
 #' @param resistance \code{raster}. Raster object with \bold{resistance} values. If \bold{\code{least_cost.java = TRUE}}, then
 #'  resistance must bee an \bold{integer raster} (i.e., integer values).

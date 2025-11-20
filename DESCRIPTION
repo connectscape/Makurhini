@@ -60,6 +60,7 @@ Imports:
     ggplot2,
     ggpubr,
     googledrive,
+    samc (>= 4.0.0),
     rappdirs
 Depends: 
     methods,

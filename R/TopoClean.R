@@ -8,6 +8,7 @@
 #' @importFrom rmapshaper ms_simplify ms_dissolve ms_erase ms_explode
 #' @keywords internal
 TopoClean <- function(x, xsimplify = FALSE, intern = FALSE) {
+  . = NULL
   if(class(x)[1] == "SpatialPolygonsDataFrame" | class(x)[1] == "SpatVector") {
     x <- st_as_sf(x)
   }

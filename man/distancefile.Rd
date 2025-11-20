@@ -45,7 +45,7 @@ If the type is equal to \code{"least-cost"} or \code{"commute-time"}, then you h
 ("m", "km", "inch", "foot", "yard", "mile"). Default equal to meters "m" (see, \link[Makurhini]{unit_convert}).}
 
 \item{keep}{\code{numeric}. In case you have selected the \code{"edge"} distance, use this option to simplify the geometry and reduce the
-number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to \code{NULL}). The higher the value,
+number of vertices. The value can range from 0 to 1 and is the proportion of points to retain (default equal to \code{NULL}). The lower the value,
  the higher the speed but less precision.}
 
 \item{resistance}{\code{raster}. Raster object with \bold{resistance} values. If \bold{\code{least_cost.java = TRUE}}, then

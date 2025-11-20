@@ -6,21 +6,21 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Makurhini: Analyzing landscape connectivity • Makurhini</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Makurhini: Analyzing landscape connectivity">
-<meta property="og:description" content="Makurhini (connect in Purépecha language) provides functions designed to estimate 
-    landscape fragmentation and connectivity metrics and includes the ProtConn indicator that is
-    used to report international connectivity targets.">
+<meta property="og:description" content="Makurhini (connect in Purépecha language) provides functions designed to estimate landscape fragmentation and connectivity metrics and includes the ProtConn indicator that is used to report international connectivity targets.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -33,25 +33,19 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">Makurhini</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -59,16 +53,19 @@
       <a href="articles/Fragmentation_statistics.html">Fragmentation statistics</a>
     </li>
     <li>
-      <a href="articles/ProtConnIndicator.html">Protected Connected indicator</a>
+      <a href="articles/PC_IIC.html">PC and IIC indexes</a>
+    </li>
+    <li>
+      <a href="articles/ProtConn.html">ProtConn</a>
     </li>
   </ul>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/connectscape/Makurhini/">
+  <a href="https://github.com/connectscape/Makurhini/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -79,48 +76,107 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="contents col-md-9">
 
-<p><a href="https://ci.appveyor.com/project/OscarGOGO/Makurhini"><img src="https://ci.appveyor.com/api/projects/status/github/OscarGOGO/Makurhini?branch=master&amp;svg=true" alt="AppVeyor build status"></a> <!-- badges: start --> <a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a> <!-- badges: end --></p>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></p>
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-<div id="makurhini-analyzing-landscape-connectivity" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#makurhini-analyzing-landscape-connectivity" class="anchor"></a>Makurhini: Analyzing landscape connectivity.</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="makurhini-an-r-package-for-comprehensive-analysis-of-landscape-fragmentation-and-connectivity">Makurhini: An R package for comprehensive analysis of landscape fragmentation and connectivity.<a class="anchor" aria-label="anchor" href="#makurhini-an-r-package-for-comprehensive-analysis-of-landscape-fragmentation-and-connectivity"></a>
+</h1></div>
 <p><img src="reference/figures/LOGO_MAKHURINI.png"></p>
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor"></a>Overview</h2>
-<p><strong>Makurhini</strong> <em>(Connect in Purépecha language)</em> is an R package for calculating fragmentation and landscape connectivity indices used in conservation planning. Makurhini provides a set of functions to identify connectivity of protected areas networks and the importance of landscape elements for maintaining connectivity. This package allows the evaluation of scenarios under landscape connectivity changes and presents an additional improvement, the inclusion of landscape heterogeneity as a constraining factor for connectivity.</p>
-<p>The network connectivity indices calculated in Makurhini package have been previously published (e.g., Pascual-Hortal &amp; Saura, 2006. <em>Landscape ecology</em>, <a href="https://doi.org/10.1007/s10980-006-0013-z" class="uri">https://doi.org/10.1007/s10980-006-0013-z</a>; Saura &amp; Pascual-Hortal, 2007. <em>Lanscape and urban planning</em>, <a href="https://doi.org/10.1016/j.landurbplan.2007.03.005" class="uri">https://doi.org/10.1016/j.landurbplan.2007.03.005</a>; Saura &amp; Rubio, 2010. <em>Ecography</em>, <a href="https://doi.org/10.1111/j
+<div class="section level2">
+<h2 id="news">NEWS<a class="anchor" aria-label="anchor" href="#news"></a>
+</h2>
+<p>Thank you for using Makurhini. <strong>We have a new version Makurhini 3.0!</strong></p>
+<ol style="list-style-type: decimal">
+<li><p>We have a new preprint: Godínez-Gómez, O., Correa-Ayram, C., Goicolea, T., &amp; Saura, S. (2025). <strong>Makurhini: An R package for comprehensive analysis of landscape fragmentation and connectivity.</strong> Research Square. <a href="https://doi.org/10.21203/rs.3.rs-6398746/v1" class="external-link uri">https://doi.org/10.21203/rs.3.rs-6398746/v1</a></p></li>
+<li><p>The <strong>MK_dPCIIC()</strong> function now includes full support for the three essential PC/IIC fractions, offering a much richer portrayal of landscape connectivity. These fractions capture intra-patch connectivity (<em>intra</em>), direct inter-patch links (<em>direct</em>), and stepwise connectivity through intermediate patches (<em>step</em>). This enhancement provides users with a more nuanced and interpretable breakdown of how different components of the landscape contribute to overall connectivity (for details, see Saura, Bodin &amp; Fortin, 2014; <a href="https://doi.org/10.1111/1365-2664.12179" class="external-link uri">https://doi.org/10.1111/1365-2664.12179</a>).</p></li>
+<li><p>We also introduced the new <strong>MK_dPC_SAMC()</strong> function, which brings powerful functionality for estimating overall landscape connectivity and the importance of each habitat patch using the Probability of Connectivity (PC) index. This function leverages a Spatial Absorbing Markov Chain (SAMC) framework to model movement and settlement as a random-walk dispersal process, enabling a realistic, spatially explicit representation of how species traverse heterogeneous landscapes (for details, see Fletcher et al., 2023; <a href="https://doi.org/10.1111/ele.13333" class="external-link uri">https://doi.org/10.1111/ele.13333</a>).</p></li>
+<li><p>Two new functions have been added: <strong>MK_dPCIIC_links and MK_Focal_nodes</strong>. The first one is used to estimate the link importance for conservation and restoration. The second estimates the focal Integral Index of Connectivity (IIC<sub>f</sub>) or the focal Probability of Connectivity (PC<sub>f</sub>) under one or more distance thresholds. Furthermore, this function estimates the composite connectivity index (CCI<sub>f</sub>; for further details, please see Latorre-Cárdenas et al., 2023. <a href="https://doi.org/10.3390/land12030631" class="external-link uri">https://doi.org/10.3390/land12030631</a>).</p></li>
 </ol>
-<div id="citing-makurhini-package" class="section level3">
-<h3 class="hasAnchor">
-<a href="#citing-makurhini-package" class="anchor"></a>Citing Makurhini package</h3>
-<p>A formal paper detailing this package is forthcoming, but until it is published, please use the something like the following to cite if you use it in your work:</p>
-<p><code> <i> Godínez-Gómez, O. and Correa Ayram C.A. 2020. Makurhini: Analyzing landscape connectivity. <a href="https://doi.org/10.5281/zenodo.3771605"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.3771605.svg" alt="DOI"></a> </i></code> </p>
+</div>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p><strong>Makurhini</strong> <em>(Connect in Purépecha language)</em> is an R package for calculating fragmentation and landscape connectivity indices used in conservation planning. Makurhini provides a set of functions to identify connectivity of protected areas networks and the importance of landscape elements for maintaining connectivity. This package allows the evaluation of scenarios under landscape connectivity changes and presents an additional improvement, the inclusion of landscape heterogeneity as a constraining factor for connectivity.</p>
+<p>The network connectivity indices calculated in Makurhini package have been previously published (e.g., Pascual-Hortal &amp; Saura, 2006. <em>Landscape ecology</em>, <a href="https://doi.org/10.1007/s10980-006-0013-z" class="external-link uri">https://doi.org/10.1007/s10980-006-0013-z</a>; Saura &amp; Pascual-Hortal, 2007. <em>Lanscape and urban planning</em>, <a href="https://doi.org/10.1016/j.landurbplan.2007.03.005" class="external-link uri">https://doi.org/10.1016/j.landurbplan.2007.03.005</a>; Saura &amp; Rubio, 2010. <em>Ecography</em>, <a href="https://doi.org/10.1111/j.1600-0587.2009.05760.x" class="external-link uri">https://doi.org/10.1111/j.1600-0587.2009.05760.x</a>; Saura et al., 2011. <em>Ecological indicators</em>, <a href="https://doi.org/10.1016/j.ecolind.2010.06.011" class="external-link uri">https://doi.org/10.1016/j.ecolind.2010.06.011</a>; Saura et al., 2017. <em>Ecological indicators</em>, <a href="http://dx.doi.org/10.1016/j.ecolind.2016.12.047" class="external-link uri">http://dx.doi.org/10.1016/j.ecolind.2016.12.047</a>; Saura et al., 2018. <em>Biological conservation</em>, <a href="https://doi.org/10.1016/j.biocon.2017.12.020" class="external-link uri">https://doi.org/10.1016/j.biocon.2017.12.020</a>), and it allows the integration of efficient and useful workflow for landscape management and monitoring of global conservation targets.</p>
+<div class="section level3">
+<h3 id="citing-makurhini-package">Citing Makurhini package<a class="anchor" aria-label="anchor" href="#citing-makurhini-package"></a>
+</h3>
+<p>We will soon publish a paper about this package. Until then, please use the following <strong>Preprint</strong>:</p>
+<p>Godínez-Gómez, O., Correa-Ayram, C., Goicolea, T., &amp; Saura, S. (2025). Makurhini: An R package for comprehensive analysis of landscape fragmentation and connectivity. Research Square. <a href="https://doi.org/10.21203/rs.3.rs-6398746/v1" class="external-link uri">https://doi.org/10.21203/rs.3.rs-6398746/v1</a></p>
 </div>
 </div>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
 <ul>
 <li>Depends: R (&gt; 4.0.0), igraph (&gt;= 1.2.6)</li>
-<li>Pre-install <a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a>.</li>
+<li>Pre-install <a href="https://cran.r-project.org/bin/windows/Rtools/" class="external-link">Rtools</a>.</li>
 <li>Pre-install devtools (<code>install.packages(“devtools”)</code>) and remotes (<code>install.packages(“remotes”)</code>) packages.</li>
+<li><strong>It is recommended to install the R igraph package (&gt;= 1.2.6) beforehand.</strong></li>
 </ul>
-<p>You can install the released version of Makurhini from <a href="https://github.com">GitHub</a> with:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/">devtools</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org">remotes</a></span><span class="op">)</span>
-<span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"connectscape/Makurhini"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span>, upgrade <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span></pre></div>
+<p>You can install the released version of Makurhini from <a href="https://github.com" class="external-link">GitHub</a> with:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"connectscape/Makurhini"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span>, upgrade <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span></span></code></pre></div>
 <p>In case it does not appear in the list of packages, close the R session and reopen.</p>
+<p><strong>If the following error occurs during installation</strong>:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>Using github PAT</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>from envvar GITHUB_PAT Error<span class="sc">:</span> Failed to install <span class="st">'unknown package'</span> from</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>GitHub<span class="sc">:</span> HTTP error <span class="fl">401.</span> Bad credentials</span></code></pre></div>
+<p>Then you can <strong>try the following</strong>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GITHUB_PAT"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.unsetenv</a></span><span class="op">(</span><span class="st">"GITHUB_PAT"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="summary-of-main-makurhini-functions" class="section level2">
-<h2 class="hasAnchor">
-<a href="#summary-of-main-makurhini-functions" class="anchor"></a>Summary of main <em>Makurhini</em> functions</h2>
+<div class="section level2">
+<h2 id="makurhini-on-linux">Makurhini on Linux<a class="anchor" aria-label="anchor" href="#makurhini-on-linux"></a>
+</h2>
+<p>To install Makurhini on linux consider the following steps:</p>
+<ol style="list-style-type: decimal">
+<li>
+<p>Use the <strong>Linux command line</strong> to install the <em>unit</em> package:</p>
+<p><code>sudo apt-get install -y libudunits2-dev</code></p>
+</li>
+<li>
+<p>Use the <strong>Linux command line</strong> to install <em>gdal</em>:</p>
+<p><code>sudo apt install libgdal-dev</code></p>
+</li>
+<li>
+<p>Use the <strong>Linux command line</strong> to install <em>libfontconfig</em> and <em>libharfbuzz</em>:</p>
+<p><code>sudo apt install libfontconfig1-dev</code></p>
+<p><code>sudo apt install libharfbuzz-dev libfribidi-dev</code></p>
+</li>
+<li>
+<p>You can now install the <em>devtools</em> and <em>remotes</em> packages, and the <em>terra</em>, <em>raster</em> and <em>sf</em> packages directly in your <strong>R or RStudio</strong>.</p>
+<p><code>install.packages(c('remotes', 'devtools', 'terra', 'raster', 'sf'))</code></p>
+</li>
+<li>
+<p>Use the <strong>Linux command line</strong> to install <em>igraph</em>:</p>
+<p><code>sudo apt-get install libnlopt-dev</code></p>
+<p><code>sudo apt-get install r-cran-igraph</code></p>
+</li>
+<li>
+<p>You can now install the <em>gdistance</em>, <em>graph4lg</em> and <em>ggpubr</em> packages directly in your <strong>R or RStudio.</strong></p>
+<p><code>install.packages(c('gdistance', 'graph4lg', 'ggpubr'))</code></p>
+</li>
+<li><p>Now you can install Makurhini directly in your <strong>R or RStudio.</strong></p></li>
+</ol>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"connectscape/Makurhini"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span>, upgrade <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span></span></code></pre></div>
+<p>Note that the installation of Makurhini on Linux depends on your version of operating system and that you manage to install the packages that Makurhini depends on.</p>
+</div>
+<div class="section level2">
+<h2 id="summary-of-main-makurhini-functions">Summary of main <em>Makurhini</em> functions<a class="anchor" aria-label="anchor" href="#summary-of-main-makurhini-functions"></a>
+</h2>
 <table class="table table table-condensed">
 <thead><tr>
 <th style="text-align:left;">
@@ -157,6 +213,14 @@ Estimate centrality measures under one or several dispersal distances (e.g., bet
 </tr>
 <tr>
 <td style="text-align:left;">
+<span style="font-style: italic">MK_BCentrality </span>
+</td>
+<td style="text-align:left;">
+Calculate the BC, BCIIC and BCPC indexes under one or several distance thresholds using the command line of CONEFOR. It uses the ‘distancefile ()’ to calculate the distances of the nodes so they can be calculated using Euclidean or cost distances that consider the landscape heterogeneity
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <span style="font-style: italic">MK_dPCIIC </span>
 </td>
 <td style="text-align:left;">
@@ -176,7 +240,7 @@ Estimate the Equivalent Connected Area (ECA) and compare the relative change in 
 <span style="font-style: italic">MK_ProtConn </span>
 </td>
 <td style="text-align:left;">
-Estimate the Protected Connected (ProtConn) indicator and fractions for one region using one or several dispersal distances and transboundary buffer areas (e.g., ProtConn, ProtUnconn, RelConn, ProtConn<span class="math display"><em>d</em><em>e</em><em>s</em><em>i</em><em>g</em><em>n</em></span>, ProtConn<span class="math display"><em>b</em><em>o</em><em>u</em><em>n</em><em>d</em></span>, ProtConn<span class="math display"><em>P</em><em>r</em><em>o</em><em>t</em></span>, ProtConn<span class="math display"><em>W</em><em>i</em><em>t</em><em>h</em><em>i</em><em>n</em></span>, ProtConn<span class="math display"><em>C</em><em>o</em><em>n</em><em>t</em><em>i</em><em>g</em></span>, ProtConn<span class="math display"><em>T</em><em>r</em><em>a</em><em>n</em><em>s</em></span>, ProtConn<span class="math display"><em>U</em><em>n</em><em>p</em><em>r</em><em>o</em><em>t</em></span>). It uses the ’distancefile()
+Estimate the Protected Connected (ProtConn) indicator and fractions for one region using one or several dispersal distances and transboundary buffer areas (e.g., ProtConn, ProtUnconn, RelConn, ProtConn[design], ProtConn[bound], ProtConn[Prot], ProtConn[Within], ProtConn[Contig], ProtConn[Trans], ProtConn[Unprot]). It uses the ’distancefile(). This function estimates what we call the ProtConn delta (dProtConn) which estimates the contribution of each protected area to connectivity in the region (ProtConn value)
 </td>
 </tr>
 <tr>
@@ -189,10 +253,34 @@ Estimate the ProtConn indicator and fractions for multiple regions. It uses the 
 </tr>
 <tr>
 <td style="text-align:left;">
+<span style="font-style: italic">MK_ProtConn_raster </span>
+</td>
+<td style="text-align:left;">
+Estimate Protected Connected (ProtConn) indicator and fractions for one region using raster inputs (nodes and region). It uses the ‘distancefile()’.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <span style="font-style: italic">MK_Connect_grid </span>
 </td>
 <td style="text-align:left;">
 Compute the ProtConn indicator and fractions, PC or IIC overall connectivity metrics (ECA) in a regular grid. It uses the ‘distancefile()’.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="font-style: italic">MK_dPCIIC_links </span>
+</td>
+<td style="text-align:left;">
+Estimate the link importance for conservation and restoration. It calculates the contribution of each individual link to maintain (mode: link removal) or improve (mode: link change) the overall connectivity.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="font-style: italic">MK_Focal_nodes </span>
+</td>
+<td style="text-align:left;">
+Estimate the focal Integral Index of Connectivity or the focal Probability of Connectivity and the Composite Connectivity Index under one or more distance thresholds.
 </td>
 </tr>
 <tr>
@@ -206,164 +294,1427 @@ Compare ECA or ProtConn connectivity metrics using one or up to four types of di
 </tbody>
 </table>
 </div>
-<div id="example" class="section level2">
-<h2 class="hasAnchor">
-<a href="#example" class="anchor"></a>Example</h2>
-<p>This is a basic example which shows you how to solve some common problems:</p>
+<div class="section level2">
+<h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
+</h2>
 <ul>
-<li>Protected Connected Land (<i>ProtConn</i>)</li>
-<li>Equivalent Connectivity Area (<i>ECA</i>)</li>
-<li>Integral index of connectivity (<i>IIC</i>) and fractions (<i>dIICintra, dIICflux and dIICconnector</i>)</li>
-<li>Probability of connectivity (<i>PC</i>) and fractions (<i>dPCintra, dPCflux and dPCconnector</i>)</li>
-<li>Centrality measures (e.g., betweenness centrality, node memberships, and modularity)</li>
+<li><p><a href="#fragmentation-statistics">Fragmentation statistics</a></p></li>
+<li><p><a href="#centrality-measures">Centrality measures</a> (e.g., betweenness centrality, node memberships, and modularity)</p></li>
+<li><p><a href="#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector">Probability of connectivity (PC) and fractions (Intra, Flux and Connector)</a></p></li>
+<li><p><a href="#equivalent-connectivity-area-eca">Equivalent Connectivity Area (ECA)</a></p></li>
+<li><p><a href="#protected-connected-land-protconn">Protected Connected Land (ProtConn)</a></p></li>
 </ul>
-<div id="protected-connected-land-protconn" class="section level3">
-<h3 class="hasAnchor">
-<a href="#protected-connected-land-protconn" class="anchor"></a>Protected Connected Land (ProtConn)</h3>
-<p>In the following example, we will calculate the connectivity of the protected areas network in four ecoregions of the Colombian Amazon neighboring countries using the ProtConn indicator and its fractions. We considered a transboundary distance of 50 km.</p>
-<p><img src="reference/figures/Example_PA_Eco.png"></p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="va">test_protconn</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_ProtConnMult.html">MK_ProtConnMult</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">Protected_areas</span>, region <span class="op">=</span> <span class="va">ecoregions</span>,
-                    attribute <span class="op">=</span> <span class="st">"Intersected area"</span>, area_unit <span class="op">=</span> <span class="st">"ha"</span>,
-                    distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>type<span class="op">=</span> <span class="st">"centroid"</span><span class="op">)</span>,
-                    distance_thresholds <span class="op">=</span> <span class="fl">10000</span>,
-                    probability <span class="op">=</span> <span class="fl">0.5</span>, transboundary <span class="op">=</span> <span class="fl">50000</span>,
-                    plot <span class="op">=</span> <span class="cn">TRUE</span>, CI <span class="op">=</span> <span class="cn">NULL</span>, parallel <span class="op">=</span> <span class="cn">TRUE</span>, intern <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-<span class="va">test_protconn</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></pre></div>
-<p><img src="reference/figures/table_protconn.png"></p>
-<p>ProtConn value: <img src="reference/figures/protconn.png"></p>
+<div class="section level3">
+<h3 id="fragmentation-statistics">Fragmentation statistics<a class="anchor" aria-label="anchor" href="#fragmentation-statistics"></a>
+</h3>
+<p><em>‘MK_Fragmentation()’</em> estimates fragmentation statistics at the landscape and patch/node level.</p>
+<p>In this example, the <code><a href="reference/MK_Fragmentation.html">MK_Fragmentation()</a></code> function was applied to estimate fragmentation indices on 404 remaining habitat fragments, which were modeled for 40 species of non-flying mammals of the Trans-Mexican Volcanic System (TMVS) by Correa Ayram et al., (2017).</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"habitat_nodes"</span>, package <span class="op">=</span> <span class="st">"Makurhini"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">habitat_nodes</span><span class="op">)</span> <span class="co"># Number of nodes</span></span>
+<span><span class="co">#&gt; [1] 404</span></span></code></pre></div>
+<p>To define the edge of the nodes we can use, for example, a distance of 500 m from the limit of the nodes.</p>
+<p><img src="reference/figures/Imagen1.png"></p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">Fragmentation_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_Fragmentation.html">MK_Fragmentation</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">habitat_nodes</span>, edge_distance <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>                                       plot <span class="op">=</span> <span class="cn">TRUE</span>, min_node_area <span class="op">=</span> <span class="fl">100</span>, </span>
+<span>                                       landscape_area <span class="op">=</span> <span class="cn">NULL</span>, area_unit <span class="op">=</span> <span class="st">"km2"</span>, </span>
+<span>                                       perimeter_unit <span class="op">=</span> <span class="st">"km"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-9-1.png" width="60%"><img src="reference/figures/README-unnamed-chunk-9-2.png" width="60%"></p>
+<ul>
+<li>The results are presented as a list, the first result is called <em>“Summary landscape metrics (Viewer Panel)”</em> and it has fragmentation statistics at landscape level.</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">Fragmentation_test</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "list"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">Fragmentation_test</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Summary landscape metrics (Viewer Panel)"</span></span>
+<span><span class="co">#&gt; [2] "Patch statistics shapefile"</span></span>
+<span><span class="va">Fragmentation_test</span><span class="op">$</span><span class="va">`Summary landscape metrics (Viewer Panel)`</span></span></code></pre></div>
+<table class="table table table-condensed">
+<thead><tr>
+<th style="text-align:left;">
+Metric
+</th>
+<th style="text-align:center;">
+Value
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Patch area (km2)
+</td>
+<td style="text-align:center;">
+12735.7391
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Number of patches
+</td>
+<td style="text-align:center;">
+404.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Size (mean)
+</td>
+<td style="text-align:center;">
+31.5241
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Patches &lt; minimum patch area
+</td>
+<td style="text-align:center;">
+383.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Patches &lt; minimum patch area (%)
+</td>
+<td style="text-align:center;">
+28.8879
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Total edge
+</td>
+<td style="text-align:center;">
+17920.4740
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Edge density
+</td>
+<td style="text-align:center;">
+1.4071
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Patch density
+</td>
+<td style="text-align:center;">
+3.1722
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Total Core Area (km2)
+</td>
+<td style="text-align:center;">
+6315.9513
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cority
+</td>
+<td style="text-align:center;">
+0.6040
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Shape Index (mean)
+</td>
+<td style="text-align:center;">
+2.2073
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FRAC (mean)
+</td>
+<td style="text-align:center;">
+8.4400
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MESH (km2)
+</td>
+<td style="text-align:center;">
+1443.4320
+</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The second output <em>“Patch statistics shapefile”</em> is a shapefile with patch level fragmentation statistics that can be saved using write_sf() from <em>‘sf’</em> package (<a href="https://cran.r-project.org/web/packages/sf/index.html" class="external-link uri">https://cran.r-project.org/web/packages/sf/index.html</a>).</li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">Fragmentation_test</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Simple feature collection with 6 features and 9 fields</span></span>
+<span><span class="co">#&gt; Geometry type: POLYGON</span></span>
+<span><span class="co">#&gt; Dimension:     XY</span></span>
+<span><span class="co">#&gt; Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668</span></span>
+<span><span class="co">#&gt; Projected CRS: NAD_1927_Albers</span></span>
+<span><span class="co">#&gt;   Id     Area     CA CAPercent Perimeter EdgePercent   PARA ShapeIndex     FRAC</span></span>
+<span><span class="co">#&gt; 1  1   0.8584  0.000    0.0000     5.989    100.0000 0.1433     1.8235 -23.4460</span></span>
+<span><span class="co">#&gt; 2  2   2.2022  0.000    0.0000    11.346    100.0000 0.1941     2.1568   6.1533</span></span>
+<span><span class="co">#&gt; 3  3 110.1997 53.378   48.4375   184.969     51.5625 0.5958     4.9705   2.2203</span></span>
+<span><span class="co">#&gt; 4  4   1.2100  0.000    0.0000     6.974    100.0000 0.1735     1.7885  20.3776</span></span>
+<span><span class="co">#&gt; 5  5   1.8472  0.000    0.0000    14.452    100.0000 0.1278     2.9996   8.7044</span></span>
+<span><span class="co">#&gt; 6  6   0.2631  0.000    0.0000     4.685    100.0000 0.0562     2.5766  -2.3133</span></span>
+<span><span class="co">#&gt;                         geometry</span></span>
+<span><span class="co">#&gt; 1 POLYGON ((54911.05 2035815,...</span></span>
+<span><span class="co">#&gt; 2 POLYGON ((44591.28 2042209,...</span></span>
+<span><span class="co">#&gt; 3 POLYGON ((46491.11 2042467,...</span></span>
+<span><span class="co">#&gt; 4 POLYGON ((54944.49 2048163,...</span></span>
+<span><span class="co">#&gt; 5 POLYGON ((80094.28 2064140,...</span></span>
+<span><span class="co">#&gt; 6 POLYGON ((69205.24 2066394,...</span></span></code></pre></div>
+<p><img src="images/example_fragm.png"></p>
+<p>We can make a loop where we explore different edge depths. In the following example, We will explore 10 edge depths (<em>edge_distance argument</em>): 100, 200, 300, 400, 500, 600, 700, 800, 900 and 1000 meters. We will apply the <em>‘MK_Fragmentation()’</em> function using the previous distances and then, we will extract the core area percentage and edge percentage statistics. Finally, we will plot the average of the patch core area percentage and edge percentage (% core area + % edge = 100%).</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span>
+<span><span class="va">Fragmentation_test.2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_dfr</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">1000</span>, <span class="fl">100</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">x.1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_Fragmentation.html">MK_Fragmentation</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">habitat_nodes</span>, </span>
+<span>                          edge_distance <span class="op">=</span> <span class="va">x</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
+<span>  <span class="va">CA</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x.1</span><span class="op">$</span><span class="va">CAPercent</span><span class="op">)</span></span>
+<span>  <span class="va">Edge</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x.1</span><span class="op">$</span><span class="va">EdgePercent</span><span class="op">)</span></span>
+<span>  <span class="va">x.2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">'Edge distance'</span> <span class="op">=</span> <span class="va">x</span>, Type <span class="op">=</span> <span class="st">"Core Area"</span>, Percentage <span class="op">=</span> <span class="va">CA</span><span class="op">)</span>,</span>
+<span>                     <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">'Edge distance'</span> <span class="op">=</span> <span class="va">x</span>, Type <span class="op">=</span> <span class="st">"Edge"</span>, Percentage <span class="op">=</span> <span class="va">Edge</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">x.2</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-14-1.png" width="60%"></p>
+<p>The mean core area percentage (the mean node/patch area that exhibits the least possible edge effect) for all patches is observed to decline by over 60% when an edge depth distance of 1 km is considered.</p>
+<table class="table">
+<thead><tr>
+<th>Edge depth distance (m)</th>
+<th align="center">Core Area (%)</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>100</td>
+<td align="center">65.76%</td>
+</tr>
+<tr>
+<td>500</td>
+<td align="center">12.86%</td>
+</tr>
+<tr>
+<td>1000</td>
+<td align="center">3.63%</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="equivalent-connectivity-area-eca" class="section level3">
-<h3 class="hasAnchor">
-<a href="#equivalent-connectivity-area-eca" class="anchor"></a>Equivalent Connectivity Area (ECA)</h3>
-<p>Example in the Biosphere Reserve Mariposa Monarca, Mexico, with old-growth vegetation fragments of four times (?list_forest_patches).</p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"list_forest_patches"</span>, package <span class="op">=</span> <span class="st">"Makurhini"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">list_forest_patches</span><span class="op">)</span>
-<span class="co">#[1] "list"</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"study_area"</span>, package <span class="op">=</span> <span class="st">"Makurhini"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">study_area</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
-<span class="co">#[1] "SpatialPolygonsDataFrame"</span>
-
-<span class="va">Max_attribute</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/unit_convert.html">unit_convert</a></span><span class="op">(</span><span class="fu">gArea</span><span class="op">(</span><span class="va">study_area</span><span class="op">)</span>, <span class="st">"m2"</span>, <span class="st">"ha"</span><span class="op">)</span></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="va">dECA_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_dECA.html">MK_dECA</a></span><span class="op">(</span>nodes<span class="op">=</span> <span class="va">list_forest_patches</span>, attribute <span class="op">=</span> <span class="cn">NULL</span>, area_unit <span class="op">=</span> <span class="st">"ha"</span>,
-                  distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>type<span class="op">=</span> <span class="st">"centroid"</span><span class="op">)</span>, metric <span class="op">=</span> <span class="st">"PC"</span>,
-                  probability <span class="op">=</span> <span class="fl">0.05</span>, distance_thresholds <span class="op">=</span> <span class="fl">5000</span>,
-                  LA <span class="op">=</span> <span class="va">Max_attribute</span>, plot<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"1993"</span>, <span class="st">"2003"</span>, <span class="st">"2007"</span>, <span class="st">"2011"</span><span class="op">)</span><span class="op">)</span>
-<span class="va">dECA_test</span></pre></div>
-<p>ECA table:</p>
-<p><img src="reference/figures/table_eca.png"></p>
-
-<p>ECA plot:</p>
-<p><img src="reference/figures/ECAplot.png"></p>
-<p>Another way to analyze the ECA (and ProtConn indicator) is by using the <em>‘MK_Connect_grid()’</em> that estimates the index values on a grid. An example of its application is the following, on the Andean-Amazon Piedmont. The analysis was performed using a grid of hexagons each with an area of 10,000 ha and a forest/non-forest map to measure changes in Andean-Amazon connectivity.</p>
-<p><img src="reference/figures/grid_example.png"></p>
-</div>
-<div id="integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector" class="section level3">
-<h3 class="hasAnchor">
-<a href="#integral-index-of-connectivity-iic-and-fractions-intra-flux-and-connector" class="anchor"></a>Integral index of connectivity (IIC) and fractions (Intra, Flux and Connector)</h3>
-<p>Example with 142 old-growth vegetation fragments in southeast Mexico (?vegetation_patches).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"vegetation_patches"</span>, package <span class="op">=</span> <span class="st">"Makurhini"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">vegetation_patches</span><span class="op">)</span> <span class="co"># Number of patches</span>
-<span class="co">#&gt; [1] 142</span>
-<span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">vegetation_patches</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
-<span class="co">#&gt; [1] "sf"</span>
-<span class="co">#[1] "sf"</span>
-
-<span class="va">IIC</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_dPCIIC.html">MK_dPCIIC</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">vegetation_patches</span>, attribute <span class="op">=</span> <span class="cn">NULL</span>,
-                distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"centroid"</span><span class="op">)</span>,
-                metric <span class="op">=</span> <span class="st">"IIC"</span>, distance_thresholds <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span> <span class="co">#10 km</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">IIC</span><span class="op">)</span>
-<span class="co">#&gt; Simple feature collection with 6 features and 5 fields</span>
-<span class="co">#&gt; Geometry type: POLYGON</span>
-<span class="co">#&gt; Dimension:     XY</span>
-<span class="co">#&gt; Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5</span>
-<span class="co">#&gt; CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs</span>
-<span class="co">#&gt;   id       dIIC    dIICintra    dIICflux dIICconnector</span>
-<span class="co">#&gt; 1  1 88.7690645 88.051222392 0.360469840     0.3573723</span>
-<span class="co">#&gt; 2  2  0.7405588  0.018141557 0.012229087     0.7101882</span>
-<span class="co">#&gt; 3  3  0.7379196  0.011944718 0.014340157     0.7116348</span>
-<span class="co">#&gt; 4  4  0.7235710  0.001153790 0.006505351     0.7159119</span>
-<span class="co">#&gt; 5  5  0.7315123  0.005537345 0.012359182     0.7136157</span>
-<span class="co">#&gt; 6  6  0.7319644  0.014122295 0.006764927     0.7110772</span>
-<span class="co">#&gt;                         geometry</span>
-<span class="co">#&gt; 1 POLYGON ((3676911 589967.3,...</span>
-<span class="co">#&gt; 2 POLYGON ((3558044 696202.5,...</span>
-<span class="co">#&gt; 3 POLYGON ((3569169 687776.4,...</span>
-<span class="co">#&gt; 4 POLYGON ((3547317 685713.2,...</span>
-<span class="co">#&gt; 5 POLYGON ((3567471 684357.4,...</span>
-<span class="co">#&gt; 6 POLYGON ((3590569 672451.7,...</span></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-9-1.png" width="100%"></p>
-</div>
-<div id="probability-of-connectivity-pc-and-fractions-intra-flux-and-connector" class="section level3">
-<h3 class="hasAnchor">
-<a href="#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector" class="anchor"></a>Probability of connectivity (PC) and fractions (Intra, Flux and Connector)</h3>
-<div class="sourceCode" id="cb6"><pre class="downlit">
-<span class="va">PC</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_dPCIIC.html">MK_dPCIIC</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">vegetation_patches</span>, attribute <span class="op">=</span> <span class="cn">NULL</span>,
-                distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"centroid"</span><span class="op">)</span>,
-                metric <span class="op">=</span> <span class="st">"PC"</span>, probability <span class="op">=</span> <span class="fl">0.05</span>,
-                distance_thresholds <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">PC</span><span class="op">)</span>
-<span class="co">#&gt; Simple feature collection with 6 features and 5 fields</span>
-<span class="co">#&gt; Geometry type: POLYGON</span>
-<span class="co">#&gt; Dimension:     XY</span>
-<span class="co">#&gt; Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5</span>
-<span class="co">#&gt; CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs</span>
-<span class="co">#&gt;   id          dPC     dPCintra      dPCflux dPCconnector</span>
-<span class="co">#&gt; 1  1 89.076871365 89.076092740 7.786254e-04 0.000000e+00</span>
-<span class="co">#&gt; 2  2  0.019279012  0.018352716 9.262961e-04 8.369065e-15</span>
-<span class="co">#&gt; 3  3  0.013665190  0.012083748 1.581442e-03 0.000000e+00</span>
-<span class="co">#&gt; 4  4  0.001752818  0.001167219 5.855988e-04 0.000000e+00</span>
-<span class="co">#&gt; 5  5  0.006952601  0.005601797 1.350804e-03 4.227304e-15</span>
-<span class="co">#&gt; 6  6  0.014339722  0.014286671 5.305105e-05 6.214511e-16</span>
-<span class="co">#&gt;                         geometry</span>
-<span class="co">#&gt; 1 POLYGON ((3676911 589967.3,...</span>
-<span class="co">#&gt; 2 POLYGON ((3558044 696202.5,...</span>
-<span class="co">#&gt; 3 POLYGON ((3569169 687776.4,...</span>
-<span class="co">#&gt; 4 POLYGON ((3547317 685713.2,...</span>
-<span class="co">#&gt; 5 POLYGON ((3567471 684357.4,...</span>
-<span class="co">#&gt; 6 POLYGON ((3590569 672451.7,...</span></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-11-1.png" width="100%"></p>
-</div>
-<div id="centrality-measures" class="section level3">
-<h3 class="hasAnchor">
-<a href="#centrality-measures" class="anchor"></a>Centrality measures</h3>
-<div class="sourceCode" id="cb7"><pre class="downlit">
-<span class="va">centrality_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_RMCentrality.html">MK_RMCentrality</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">vegetation_patches</span>,
-                                distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"centroid"</span><span class="op">)</span>,
-                                 distance_thresholds <span class="op">=</span> <span class="fl">10000</span>,
-                                 probability <span class="op">=</span> <span class="fl">0.05</span>,
-                                 write <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">centrality_test</span><span class="op">)</span>
-<span class="co">#&gt; Simple feature collection with 6 features and 7 fields</span>
-<span class="co">#&gt; Geometry type: POLYGON</span>
-<span class="co">#&gt; Dimension:     XY</span>
-<span class="co">#&gt; Bounding box:  xmin: 3542152 ymin: 498183.1 xmax: 3711426 ymax: 696540.5</span>
-<span class="co">#&gt; CRS:           +proj=lcc +lat_1=17.5 +lat_2=29.5 +lat_0=12 +lon_0=-102 +x_0=2500000 +y_0=0 +datum=WGS84 +units=m +no_defs</span>
-<span class="co">#&gt; # A tibble: 6 x 8</span>
-<span class="co">#&gt;      id degree eigen    close   BWC cluster modules                     geometry</span>
-<span class="co">#&gt;   &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;                &lt;POLYGON [m]&gt;</span>
-<span class="co">#&gt; 1     1      0     0  4.99e-5     0       1       1 ((3676911 589967.3, 3676931~</span>
-<span class="co">#&gt; 2     2      1     0  5.03e-5     0       2       2 ((3558044 696202.5, 3557972~</span>
-<span class="co">#&gt; 3     3      1     0  5.03e-5     0       3       3 ((3569169 687776.4, 3569146~</span>
-<span class="co">#&gt; 4     4      1     0  5.03e-5     0       2       2 ((3547317 685713.2, 3547363~</span>
-<span class="co">#&gt; 5     5      1     0  5.03e-5     0       3       3 ((3567471 684357.4, 3567380~</span>
-<span class="co">#&gt; 6     6      0     0  4.99e-5     0       4       4 ((3590569 672451.7, 3590090~</span></pre></div>
+<div class="section level3">
+<h3 id="centrality-measures">Centrality measures<a class="anchor" aria-label="anchor" href="#centrality-measures"></a>
+</h3>
+<p>In this example, we continue to use the 404 remaining habitat fragments to estimate centrality indices using the <code><a href="reference/MK_RMCentrality.html">MK_RMCentrality()</a></code> function.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">centrality_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_RMCentrality.html">MK_RMCentrality</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">habitat_nodes</span>,</span>
+<span>                                 distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"centroid"</span><span class="op">)</span>,</span>
+<span>                                 distance_thresholds <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>                                 probability <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>                                 write <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">centrality_test</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Simple feature collection with 6 features and 8 fields</span></span>
+<span><span class="co">#&gt; Geometry type: POLYGON</span></span>
+<span><span class="co">#&gt; Dimension:     XY</span></span>
+<span><span class="co">#&gt; Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668</span></span>
+<span><span class="co">#&gt; Projected CRS: NAD_1927_Albers</span></span>
+<span><span class="co">#&gt;   Id strength        eigen      close BWC cluster memb.rw memb.louvain</span></span>
+<span><span class="co">#&gt; 1  1 30228524 0.0010435836 0.03840356   0       1       6            1</span></span>
+<span><span class="co">#&gt; 2  2 21600031 0.0006195356 0.03995935   1       1       6            1</span></span>
+<span><span class="co">#&gt; 3  3 29320545 0.0009026418 0.03831019   0       1       6            1</span></span>
+<span><span class="co">#&gt; 4  4 16499522 0.0005867564 0.04187906  23       1       6            1</span></span>
+<span><span class="co">#&gt; 5  5 26068911 0.0011987437 0.04240465   0       1       6            2</span></span>
+<span><span class="co">#&gt; 6  6 12737692 0.0005630043 0.04627714  17       1       6            2</span></span>
+<span><span class="co">#&gt;                         geometry</span></span>
+<span><span class="co">#&gt; 1 POLYGON ((54911.05 2035815,...</span></span>
+<span><span class="co">#&gt; 2 POLYGON ((44591.28 2042209,...</span></span>
+<span><span class="co">#&gt; 3 POLYGON ((46491.11 2042467,...</span></span>
+<span><span class="co">#&gt; 4 POLYGON ((54944.49 2048163,...</span></span>
+<span><span class="co">#&gt; 5 POLYGON ((80094.28 2064140,...</span></span>
+<span><span class="co">#&gt; 6 POLYGON ((69205.24 2066394,...</span></span></code></pre></div>
 <p>Examples:</p>
-<p><img src="reference/figures/README-unnamed-chunk-13-1.png" width="100%"></p>
-<p>Moreover, you can change distance using the distance (<code><a href="reference/distancefile.html">?distancefile</a></code>) argument:</p>
-<p>Euclidean distances:</p>
+<p><img src="images/example_Centrality.png"></p>
+<p><strong>Moreover, you can change distance using the distance (</strong><code><strong>?distancefile</strong></code><strong>) argument:</strong></p>
+<p><strong>Euclidean distances:</strong></p>
 <ul>
 <li>distance = list(type= “centroid”)</li>
 <li>distance = list(type= “edge”)</li>
 </ul>
-<p>Least cost distances:</p>
+<p><strong>Least cost distances:</strong></p>
 <ul>
-<li>distance = list(type= “least-cost”, resistance = “resistance raster”)</li>
-<li>distance = list(type= “commute-time”, resistance = “resistance raster”)</li>
+<li>distance = list(type= “least-cost”, resistance = resistance raster)</li>
+<li>distance = list(type= “commute-time”, resistance = resistance raster)</li>
 </ul>
+</div>
+<div class="section level3">
+<h3 id="probability-of-connectivity-pc-and-fractions-intra-flux-and-connector-probability-of-connectivity-pc-and-fractions-intra-flux-and-connector">Probability of connectivity (PC) and fractions (Intra, Flux and Connector) {#probability of connectivity (PC) and fractions (Intra, Flux and Connector)}<a class="anchor" aria-label="anchor" href="#probability-of-connectivity-pc-and-fractions-intra-flux-and-connector-probability-of-connectivity-pc-and-fractions-intra-flux-and-connector"></a>
+</h3>
+<p>In this example, the <code><a href="reference/MK_dPCIIC.html">MK_dPCIIC()</a></code> function was applied to estimate the connectivity of the 404 habitat fragments. In addition, we used a raster of dispersion resistance in the landscape that was estimated at a 100-meter resolution using a spatial human footprint index, land use intensity, time of human landscape intervention, biophysical vulnerability, fragmentation, and habitat loss (Correa Ayram et al., 2017). The raster was aggregated by a factor of 5 to change its original resolution from 100m to 500m. To represent different dispersal capacities of multiple species we considered the following median (associated to a probability of 0.5) distance thresholds: 250, 1500, 3000, and 10,000 meters. These four distances group the 40 species according to their dispersal distance requirements.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#Habitat nodes</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"habitat_nodes"</span>, package <span class="op">=</span> <span class="st">"Makurhini"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">habitat_nodes</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 404</span></span>
+<span></span>
+<span><span class="co">#Study area</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"TMVS"</span>, package <span class="op">=</span> <span class="st">"Makurhini"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Resistance</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"resistance_matrix"</span>, package <span class="op">=</span> <span class="st">"Makurhini"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">raster_map</span> <span class="op">&lt;-</span> <span class="fu">as</span><span class="op">(</span><span class="va">resistance_matrix</span>, <span class="st">"SpatialPixelsDataFrame"</span><span class="op">)</span></span>
+<span><span class="va">raster_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">raster_map</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">raster_map</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"value"</span>, <span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span></span>
+<span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>  </span>
+<span>  <span class="fu">geom_tile</span><span class="op">(</span>data <span class="op">=</span> <span class="va">raster_map</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">value</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">TMVS</span>, <span class="fu">aes</span><span class="op">(</span>color <span class="op">=</span> <span class="st">"Study area"</span><span class="op">)</span>, fill <span class="op">=</span> <span class="cn">NA</span>, color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">habitat_nodes</span>, <span class="fu">aes</span><span class="op">(</span>color <span class="op">=</span> <span class="st">"Habitat nodes"</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"forestgreen"</span>, linewidth <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_fill_gradientn</span><span class="op">(</span>colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#000004FF"</span>, <span class="st">"#1B0C42FF"</span>, <span class="st">"#4B0C6BFF"</span>, <span class="st">"#781C6DFF"</span>,</span>
+<span>                                  <span class="st">"#A52C60FF"</span>, <span class="st">"#CF4446FF"</span>, <span class="st">"#ED6925FF"</span>, <span class="st">"#FB9A06FF"</span>,</span>
+<span>                                  <span class="st">"#F7D03CFF"</span>, <span class="st">"#FCFFA4FF"</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu">scale_color_manual</span><span class="op">(</span>name <span class="op">=</span> <span class="st">""</span>, values <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>axis.title.x <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>        axis.title.y <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="images/example_patches-02.png"></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">PC_example</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_dPCIIC.html">MK_dPCIIC</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">habitat_nodes</span>,</span>
+<span>                        attribute <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                        distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"least-cost"</span>,</span>
+<span>                                        resistance <span class="op">=</span> <span class="va">resistance_matrix</span><span class="op">)</span>,</span>
+<span>                        parallel <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                        metric <span class="op">=</span> <span class="st">"PC"</span>,</span>
+<span>                        probability <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>                        distance_thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">250</span>, <span class="fl">1500</span>, <span class="fl">3000</span>, <span class="fl">10000</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>We obtain a <code>list</code> object where each element is a result for each distance threshold.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">PC_example</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "list"</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">PC_example</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "d250"   "d1500"  "d3000"  "d10000"</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">PC_example</span><span class="op">$</span><span class="va">d10000</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Simple feature collection with 6 features and 6 fields</span></span>
+<span><span class="co">#&gt; Geometry type: POLYGON</span></span>
+<span><span class="co">#&gt; Dimension:     XY</span></span>
+<span><span class="co">#&gt; Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668</span></span>
+<span><span class="co">#&gt; Projected CRS: NAD_1927_Albers</span></span>
+<span><span class="co">#&gt;   Id core_id       dPC  dPCintra   dPCflux dPCconnector</span></span>
+<span><span class="co">#&gt; 1  0       1 0.0000236 0.0000039 0.0000196            0</span></span>
+<span><span class="co">#&gt; 2  0       2 0.0001155 0.0000259 0.0000896            0</span></span>
+<span><span class="co">#&gt; 3  0       3 0.0674997 0.0648563 0.0026434            0</span></span>
+<span><span class="co">#&gt; 4  0       4 0.0000722 0.0000078 0.0000644            0</span></span>
+<span><span class="co">#&gt; 5  0       5 0.0001142 0.0000182 0.0000959            0</span></span>
+<span><span class="co">#&gt; 6  0       6 0.0000277 0.0000004 0.0000273            0</span></span>
+<span><span class="co">#&gt;                         geometry</span></span>
+<span><span class="co">#&gt; 1 POLYGON ((54911.05 2035815,...</span></span>
+<span><span class="co">#&gt; 2 POLYGON ((44591.28 2042209,...</span></span>
+<span><span class="co">#&gt; 3 POLYGON ((46491.11 2042467,...</span></span>
+<span><span class="co">#&gt; 4 POLYGON ((54944.49 2048163,...</span></span>
+<span><span class="co">#&gt; 5 POLYGON ((80094.28 2064140,...</span></span>
+<span><span class="co">#&gt; 6 POLYGON ((69205.24 2066394,...</span></span></code></pre></div>
+<p>Each element of the list is a vector type object that can be exported using the sf functions and in its vector formats (e.g., shp, gpkg) using the sf package (Pebesma et al., 2024), for example:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">write_sf</span>(PC_example<span class="sc">$</span>d10000, “...<span class="sc">/</span>dPC_d0000.shp”)</span></code></pre></div>
+<p>We can use, for example, ggplot2 to map the results:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/classInt/" class="external-link">classInt</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">PC</span> <span class="op">&lt;-</span> <span class="va">PC_example</span><span class="op">$</span><span class="va">d10000</span> <span class="co">#Result 10 km</span></span>
+<span></span>
+<span><span class="co"># Calcular los intervalos de Jenks para strength</span></span>
+<span><span class="va">breaks</span> <span class="op">&lt;-</span> <span class="fu">classInt</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/classInt/reference/classIntervals.html" class="external-link">classIntervals</a></span><span class="op">(</span><span class="va">PC</span><span class="op">$</span><span class="va">dPC</span>, n <span class="op">=</span> <span class="fl">9</span>, style <span class="op">=</span> <span class="st">"jenks"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Crear una nueva variable categórica con los intervalos</span></span>
+<span><span class="va">PC</span> <span class="op">&lt;-</span> <span class="va">PC</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>dPC_q <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">dPC</span>,</span>
+<span>                          breaks <span class="op">=</span> <span class="va">breaks</span><span class="op">$</span><span class="va">brks</span>,</span>
+<span>                          include.lowest <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                          dig.lab <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span>  </span>
+<span></span>
+<span><span class="co"># Graficar en ggplot2 usando las clases Jenks</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>  </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">TMVS</span>, color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">PC</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">dPC_q</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"black"</span>, size <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"RdYlGn"</span>, direction <span class="op">=</span> <span class="fl">1</span>, name <span class="op">=</span> <span class="st">"dPC (jenks)"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"dPC Least-cost distance"</span>,</span>
+<span>    fill <span class="op">=</span> <span class="st">"dPC"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
+<span>    legend.position <span class="op">=</span> <span class="st">"right"</span>,</span>
+<span>    plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-23-1.png" width="90%"></p>
+</div>
+<div class="section level3">
+<h3 id="focal-probability-of-connectivity-pcf">Focal probability of connectivity (<em>PC<sub>f</sub></em>)<a class="anchor" aria-label="anchor" href="#focal-probability-of-connectivity-pcf"></a>
+</h3>
+<p>The function <code>MK_focal_nodes()</code> enables the calculation of the focal Integral Index of Connectivity (IICf) or the focal Probability of Connectivity (PCf​) under one or more distance thresholds. Furthermore, this function estimates the composite connectivity index (CCIf​; for further details, please see Latorre-Cárdenas et al., 2023). In this example, we apply the <code>MK_focal_nodes()</code> to the 404 habitat patches.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">focal_example</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_Focal_nodes.html">MK_Focal_nodes</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">habitat_nodes</span>,</span>
+<span>                       id <span class="op">=</span> <span class="st">"Id"</span>,</span>
+<span>                       attribute <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                       raster_attribute <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                       fun_attribute <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                       distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"least-cost"</span>,</span>
+<span>                                       resistance <span class="op">=</span> <span class="va">resistance_matrix</span><span class="op">)</span>,</span>
+<span>                       metric <span class="op">=</span> <span class="st">"PC"</span>,</span>
+<span>                       probability <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>                       parallel <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>                       distance_thresholds <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>                       search_buffer <span class="op">=</span> <span class="fl">20000</span>,</span>
+<span>                       intern <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">focal_example</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 6 features and 9 fields</span></span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="co">#&gt; Geometry type: POLYGON</span></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co">#&gt; Bounding box:  xmin: 40856.86 ymin: 2025032 xmax: 80825.67 ymax: 2066668</span></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt; Projected CRS: NAD_1927_Albers</span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt;   Id  indice_val    EC.PC.         PC        dPC   dPCintra dPCflux</span></span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="co">#&gt; 1  1    85.83680  31436.43 0.03140833  0.0007456  0.0007456   0e+00</span></span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="co">#&gt; 2  2   220.21679  34543.75 0.02958872  0.0040641  0.0040641   0e+00</span></span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="co">#&gt; 3  3 11019.96679  34543.75 0.02958872 10.1770431 10.1770431   0e+00</span></span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="co">#&gt; 4  4   121.00179 410905.11 0.04028525  0.0000087  0.0000087   0e+00</span></span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#&gt; 5  5   184.72261 409450.69 0.11498190  0.0000204  0.0000204   0e+00</span></span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="co">#&gt; 6  6    26.30524 410757.69 0.04821207  0.0000005  0.0000004   1e-07</span></span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a><span class="co">#&gt;   dPCconnector        IComp                       geometry</span></span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a><span class="co">#&gt; 1  0.00000e+00 2.341805e-05 POLYGON ((54911.05 2035815,...</span></span>
+<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a><span class="co">#&gt; 2  0.00000e+00 1.202515e-04 POLYGON ((44591.28 2042209,...</span></span>
+<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a><span class="co">#&gt; 3  4.55473e-15 3.011257e-01 POLYGON ((46491.11 2042467,...</span></span>
+<span id="cb18-17"><a href="#cb18-17" tabindex="-1"></a><span class="co">#&gt; 4  2.30330e-16 3.504816e-07 POLYGON ((54944.49 2048163,...</span></span>
+<span id="cb18-18"><a href="#cb18-18" tabindex="-1"></a><span class="co">#&gt; 5  4.38100e-15 2.345631e-06 POLYGON ((80094.28 2064140,...</span></span>
+<span id="cb18-19"><a href="#cb18-19" tabindex="-1"></a><span class="co">#&gt; 6  3.69578e-15 2.410604e-08 POLYGON ((69205.24 2066394,...</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Calcular los intervalos de Jenks para strength</span></span>
+<span><span class="va">breaks</span> <span class="op">&lt;-</span> <span class="fu">classInt</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/classInt/reference/classIntervals.html" class="external-link">classIntervals</a></span><span class="op">(</span><span class="va">focal_example</span><span class="op">$</span><span class="va">IComp</span>, n <span class="op">=</span> <span class="fl">9</span>, style <span class="op">=</span> <span class="st">"jenks"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Crear una nueva variable categórica con los intervalos</span></span>
+<span><span class="va">focal_example</span> <span class="op">&lt;-</span> <span class="va">focal_example</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>IComp_q <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">IComp</span>,</span>
+<span>                     breaks <span class="op">=</span> <span class="va">breaks</span><span class="op">$</span><span class="va">brks</span>,</span>
+<span>                     include.lowest <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                     dig.lab <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span>  </span>
+<span></span>
+<span><span class="co"># Graficar en ggplot2 usando las clases Jenks</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>  </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">TMVS</span>, color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">focal_example</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">IComp_q</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"black"</span>, size <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"RdYlGn"</span>, direction <span class="op">=</span> <span class="fl">1</span>, name <span class="op">=</span> <span class="st">"IComp (jenks)"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"Composite connectivity index (IComp)"</span>,</span>
+<span>    fill <span class="op">=</span> <span class="st">"IComp"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
+<span>    legend.position <span class="op">=</span> <span class="st">"right"</span>,</span>
+<span>    plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-26-1.png" width="90%"></p>
+</div>
+<div class="section level3">
+<h3 id="equivalent-connectivity-area-eca">Equivalent Connectivity Area (ECA)<a class="anchor" aria-label="anchor" href="#equivalent-connectivity-area-eca"></a>
+</h3>
+<p>Example in the Biosphere Reserve Mariposa Monarca, Mexico, with old-growth vegetation fragments of four times (?list_forest_patches).</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"list_forest_patches"</span>, package <span class="op">=</span> <span class="st">"Makurhini"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"study_area"</span>, package <span class="op">=</span> <span class="st">"Makurhini"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">list_forest_patches</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "list"</span></span>
+<span></span>
+<span><span class="va">Max_attribute</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/unit_convert.html">unit_convert</a></span><span class="op">(</span><span class="fu">st_area</span><span class="op">(</span><span class="va">study_area</span><span class="op">)</span>, <span class="st">"m2"</span>, <span class="st">"ha"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dECA_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_dECA.html">MK_dECA</a></span><span class="op">(</span>nodes<span class="op">=</span> <span class="va">list_forest_patches</span>, attribute <span class="op">=</span> <span class="cn">NULL</span>, area_unit <span class="op">=</span> <span class="st">"ha"</span>,</span>
+<span>                  distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type<span class="op">=</span> <span class="st">"centroid"</span><span class="op">)</span>, metric <span class="op">=</span> <span class="st">"PC"</span>,</span>
+<span>                  probability <span class="op">=</span> <span class="fl">0.05</span>, distance_thresholds <span class="op">=</span> <span class="fl">5000</span>,</span>
+<span>                  LA <span class="op">=</span> <span class="va">Max_attribute</span>, plot<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1993"</span>, <span class="st">"2003"</span>, <span class="st">"2007"</span>, <span class="st">"2011"</span><span class="op">)</span>, intern <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-28-1.png" width="60%"></p>
+<p>ECA table:</p>
+<p><img src="reference/figures/table_eca2.PNG" width="504"></p>
+<p>Another way to analyze the ECA (and ProtConn indicator) is by using the <em>‘MK_Connect_grid()’</em> that estimates the index values on a grid. An example of its application is the following, on the Andean-Amazon Piedmont. The analysis was performed using a grid of hexagons each with an area of 10,000 ha and a forest/non-forest map to measure changes in Andean-Amazon connectivity.</p>
+<p><img src="reference/figures/grid_example.png"></p>
+</div>
+<div class="section level3">
+<h3 id="protected-connected-land-protconn">Protected Connected Land (ProtConn)<a class="anchor" aria-label="anchor" href="#protected-connected-land-protconn"></a>
+</h3>
+<p>In this example, we assess the connectivity of Colombia’s protected areas network in 33 ecoregions of great importance to the country using the Protected Connected Indicator (ProtConn). Particularly, we have 1,530 polygons of protected areas. The spatial information utilized in this example is derived from the connectivity assessment study of protected areas in the Andean Amazon region, as conducted by Castillo et al., (2020). In order to estimate the ProtConn index, we employ the <code><a href="reference/MK_ProtConn.html">MK_ProtConn()</a></code> and <code>MK_ProtConn_mult()</code> functions. In this example, we will utilize an organism median dispersal distance threshold of 10 km, a connection probability pij = 0.5, and a transboundary PA search radius of 50 km (for further details, please refer to Castillo et al., 2020; Saura et al., 2017). We used Euclidean distances, particularly the distances between edges to establish the connections between nodes (PAs).</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#Protected areas</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Protected_areas.rda"</span>,</span>
+<span>                 package <span class="op">=</span> <span class="st">"Makurhini"</span>, mustWork <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Protected_areas</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 1530</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#Ecoregions</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"Ecoregions"</span>, package <span class="op">=</span> <span class="st">"Makurhini"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Ecoregions</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 33</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-31-1.png" width="90%"></p>
+<div class="section level4">
+<h4 id="mk_protconn">MK_ProtConn()<a class="anchor" aria-label="anchor" href="#mk_protconn"></a>
+</h4>
+<p>This function calculates the Protected Connected indicator (ProtConn) for a region, its fractions and the importance (contribution) of each protected area to maintain connectivity in the region under one or more distance thresholds.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#Select first ecoregion</span></span>
+<span><span class="va">Ecoregion_1</span> <span class="op">&lt;-</span> <span class="va">Ecoregions</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span></span>
+<span></span>
+<span><span class="co">#keep = 0.6 simplify the geometry and reduce the number of vertices</span></span>
+<span><span class="va">ProtConn_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_ProtConn.html">MK_ProtConn</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">Protected_areas</span>, region <span class="op">=</span> <span class="va">Ecoregion_1</span>, </span>
+<span>                          area_unit <span class="op">=</span> <span class="st">"ha"</span>, </span>
+<span>                          distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type<span class="op">=</span> <span class="st">"edge"</span>, keep <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span>,</span>
+<span>                          distance_thresholds <span class="op">=</span> <span class="fl">10000</span>, probability <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>                          transboundary <span class="op">=</span> <span class="fl">50000</span>, plot <span class="op">=</span> <span class="cn">TRUE</span>, </span>
+<span>                          delta <span class="op">=</span> <span class="cn">TRUE</span>, intern <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>A dynamic table is generated, displaying the ProtConn values and their fractions. Additionally, a graph is produced, illustrating the ProtConn values and comparing them with the percentage of protected and connected area recommended for a region in the Aichi and Kumming-Montreal targets.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">ProtConn_1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "list"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">ProtConn_1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Protected Connected (Viewer Panel)" "ProtConn Plot"                     </span></span>
+<span><span class="co">#&gt; [3] "ProtConn_Delta"</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ProtConn_1</span><span class="op">$</span><span class="va">`Protected Connected (Viewer Panel)`</span></span></code></pre></div>
+<table class="table table table-condensed">
+<thead><tr>
+<th style="text-align:left;">
+Index
+</th>
+<th style="text-align:center;">
+Value
+</th>
+<th style="text-align:left;">
+ProtConn indicator
+</th>
+<th style="text-align:center;">
+Percentage
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">EC(PC) </span>
+</td>
+<td style="text-align:center;">
+4407396.27
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">Prot </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffd17f">36.7627</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">PC </span>
+</td>
+<td style="text-align:center;">
+6.5700e-02
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">Unprotected </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffb93a">63.2373</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">Maximum landscape attribute</span>
+</td>
+<td style="text-align:center;">
+17196418.45
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffdc9b">25.6297</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">Protected surface </span>
+</td>
+<td style="text-align:center;">
+6321860.45
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtUnconn </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffe9c1">11.1329</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">RelConn </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffb329">69.7168</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Prot </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa500">85.7949</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Trans </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff1d9">1.8411</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Unprot </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffe8be">12.3640</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Within </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffa500">85.7256</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Contig </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffe6b9">14.2744</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Within_land</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffdfa5">21.9712</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Contig_land</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff0d4">3.6585</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Unprot_land</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff0d6">3.1688</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold"> </span>
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Trans_land </span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fff3dd">0.4719</span>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ProtConn_1</span><span class="op">$</span><span class="va">`ProtConn Plot`</span></span></code></pre></div>
+<p><img src="images/example_protconnplot2.png"></p>
+<p>ProtConn delta or the higher contribution to ProtConn value in the ecoregion (grey polygon):</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">Ecoregion_1</span>, col <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">ProtConn_1</span><span class="op">$</span><span class="va">ProtConn_Delta</span>, </span>
+<span>          <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">dProtConn</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://r-spatial.github.io/classInt/reference/classIntervals.html" class="external-link">classIntervals</a></span><span class="op">(</span><span class="va">ProtConn_1</span><span class="op">$</span><span class="va">ProtConn_Delta</span><span class="op">$</span><span class="va">dProtConn</span>, <span class="fl">7</span>, <span class="st">"jenks"</span><span class="op">)</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>, color <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_brewer</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"qual"</span>,</span>
+<span>                    palette <span class="op">=</span> <span class="st">"YlOrRd"</span>,</span>
+<span>                    name <span class="op">=</span> <span class="st">"dProtConn PAs"</span>,</span>
+<span>                    na.translate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
+<span>    legend.position.inside <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>,<span class="fl">0.21</span><span class="op">)</span>,</span>
+<span>    legend.key.height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="st">"cm"</span><span class="op">)</span>,</span>
+<span>    legend.key.width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="st">"cm"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-36-1.png" width="90%"></p>
+</div>
+<div class="section level4">
+<h4 id="mk_protconnmult">MK_ProtConnMult()<a class="anchor" aria-label="anchor" href="#mk_protconnmult"></a>
+</h4>
+<p>In order to facilitate the estimation of the ProtConn index for a variety of geographical regions, the MK_ProtConnMult function has been incorporated into Makurhini, which enables the estimation of the ProtConn indicator and fractions for different regions.</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ProtConn_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/MK_ProtConnMult.html">MK_ProtConnMult</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">Protected_areas</span>, </span>
+<span>                              region <span class="op">=</span> <span class="va">Ecoregions</span>,</span>
+<span>                              area_unit <span class="op">=</span> <span class="st">"ha"</span>,</span>
+<span>                              distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type<span class="op">=</span> <span class="st">"edge"</span><span class="op">)</span>,</span>
+<span>                              distance_thresholds <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>                              probability <span class="op">=</span> <span class="fl">0.5</span>, transboundary <span class="op">=</span> <span class="fl">50000</span>,</span>
+<span>                              plot <span class="op">=</span> <span class="cn">TRUE</span>, parallel <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<p>A dynamic table and vector (sf class) are generated, displaying the ProtConn values and their fractions. Additionally, a graph is produced, illustrating the ProtConn values and comparing them with the percentage of protected and connected area recommended for a region in the Aichi and Kumming-Montreal targets.</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">ProtConn_2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "list"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">ProtConn_2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "ProtConn_10000"</span></span></code></pre></div>
+<p>Table:</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ProtConn_2</span><span class="op">$</span><span class="va">ProtConn_10000</span><span class="op">$</span><span class="va">ProtConn_overall10000</span></span></code></pre></div>
+<table class="table table table-condensed">
+<thead><tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+ProtConn indicator
+</th>
+<th style="text-align:right;">
+Values (%)
+</th>
+<th style="text-align:right;">
+SD
+</th>
+<th style="text-align:right;">
+SEM
+</th>
+<th style="text-align:right;">
+normal.lower
+</th>
+<th style="text-align:right;">
+normal.upper
+</th>
+<th style="text-align:right;">
+basic.lower
+</th>
+<th style="text-align:right;">
+basic.upper
+</th>
+<th style="text-align:right;">
+percent.lower
+</th>
+<th style="text-align:right;">
+percent.upper
+</th>
+<th style="text-align:right;">
+bca.lower
+</th>
+<th style="text-align:right;">
+bca.upper
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">Prot </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fde7d0">16.850</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e3a3c6">20.205</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faeff5">3.517</span>
+</td>
+<td style="text-align:right;">
+10.450
+</td>
+<td style="text-align:right;">
+23.565
+</td>
+<td style="text-align:right;">
+10.144
+</td>
+<td style="text-align:right;">
+23.013
+</td>
+<td style="text-align:right;">
+10.687
+</td>
+<td style="text-align:right;">
+23.556
+</td>
+<td style="text-align:right;">
+11.994
+</td>
+<td style="text-align:right;">
+26.502
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+4
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">Unprotected </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f88b13">83.150</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e3a3c6">20.205</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faeff5">3.517</span>
+</td>
+<td style="text-align:right;">
+76.435
+</td>
+<td style="text-align:right;">
+89.550
+</td>
+<td style="text-align:right;">
+76.987
+</td>
+<td style="text-align:right;">
+89.856
+</td>
+<td style="text-align:right;">
+76.444
+</td>
+<td style="text-align:right;">
+89.313
+</td>
+<td style="text-align:right;">
+73.498
+</td>
+<td style="text-align:right;">
+88.006
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdeddb">12.796</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e5a9ca">18.949</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf0f6">3.299</span>
+</td>
+<td style="text-align:right;">
+6.868
+</td>
+<td style="text-align:right;">
+19.068
+</td>
+<td style="text-align:right;">
+6.570
+</td>
+<td style="text-align:right;">
+18.109
+</td>
+<td style="text-align:right;">
+7.482
+</td>
+<td style="text-align:right;">
+19.021
+</td>
+<td style="text-align:right;">
+8.490
+</td>
+<td style="text-align:right;">
+22.404
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtUnconn </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef9f4">4.054</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e2ed">6.338</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdfafc">1.103</span>
+</td>
+<td style="text-align:right;">
+1.911
+</td>
+<td style="text-align:right;">
+6.169
+</td>
+<td style="text-align:right;">
+1.754
+</td>
+<td style="text-align:right;">
+5.938
+</td>
+<td style="text-align:right;">
+2.171
+</td>
+<td style="text-align:right;">
+6.354
+</td>
+<td style="text-align:right;">
+2.425
+</td>
+<td style="text-align:right;">
+6.913
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+7
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">RelConn </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fab060">56.111</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ce5d9b">35.608</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f6e3ee">6.199</span>
+</td>
+<td style="text-align:right;">
+44.054
+</td>
+<td style="text-align:right;">
+68.028
+</td>
+<td style="text-align:right;">
+43.221
+</td>
+<td style="text-align:right;">
+68.126
+</td>
+<td style="text-align:right;">
+44.095
+</td>
+<td style="text-align:right;">
+69.001
+</td>
+<td style="text-align:right;">
+43.661
+</td>
+<td style="text-align:right;">
+68.590
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+8
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Prot </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f8972d">74.027</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #d370a6">31.381</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6f0">5.463</span>
+</td>
+<td style="text-align:right;">
+63.387
+</td>
+<td style="text-align:right;">
+85.165
+</td>
+<td style="text-align:right;">
+63.818
+</td>
+<td style="text-align:right;">
+86.275
+</td>
+<td style="text-align:right;">
+61.778
+</td>
+<td style="text-align:right;">
+84.235
+</td>
+<td style="text-align:right;">
+59.889
+</td>
+<td style="text-align:right;">
+83.739
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+9
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Trans </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef9f3">4.455</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f3d9e7">8.406</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdf9fb">1.463</span>
+</td>
+<td style="text-align:right;">
+1.632
+</td>
+<td style="text-align:right;">
+7.209
+</td>
+<td style="text-align:right;">
+1.412
+</td>
+<td style="text-align:right;">
+6.995
+</td>
+<td style="text-align:right;">
+1.916
+</td>
+<td style="text-align:right;">
+7.499
+</td>
+<td style="text-align:right;">
+2.304
+</td>
+<td style="text-align:right;">
+8.206
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Unprot </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef2e5">9.397</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f1d3e4">9.631</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fcf8fa">1.677</span>
+</td>
+<td style="text-align:right;">
+6.181
+</td>
+<td style="text-align:right;">
+12.529
+</td>
+<td style="text-align:right;">
+6.037
+</td>
+<td style="text-align:right;">
+12.391
+</td>
+<td style="text-align:right;">
+6.403
+</td>
+<td style="text-align:right;">
+12.757
+</td>
+<td style="text-align:right;">
+6.534
+</td>
+<td style="text-align:right;">
+12.830
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+11
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Within </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f99c35">71.013</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #d36ea5">31.782</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f7e6ef">5.533</span>
+</td>
+<td style="text-align:right;">
+60.339
+</td>
+<td style="text-align:right;">
+82.255
+</td>
+<td style="text-align:right;">
+60.864
+</td>
+<td style="text-align:right;">
+83.601
+</td>
+<td style="text-align:right;">
+58.426
+</td>
+<td style="text-align:right;">
+81.163
+</td>
+<td style="text-align:right;">
+57.382
+</td>
+<td style="text-align:right;">
+80.824
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+12
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Contig </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fde7d0">16.865</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e6accb">18.255</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #faf1f6">3.178</span>
+</td>
+<td style="text-align:right;">
+10.604
+</td>
+<td style="text-align:right;">
+22.906
+</td>
+<td style="text-align:right;">
+10.287
+</td>
+<td style="text-align:right;">
+22.692
+</td>
+<td style="text-align:right;">
+11.038
+</td>
+<td style="text-align:right;">
+23.444
+</td>
+<td style="text-align:right;">
+11.009
+</td>
+<td style="text-align:right;">
+23.413
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+13
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Within_land</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fef4e9">7.954</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #f0cee0">10.850</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fcf7fa">1.889</span>
+</td>
+<td style="text-align:right;">
+4.231
+</td>
+<td style="text-align:right;">
+11.549
+</td>
+<td style="text-align:right;">
+3.801
+</td>
+<td style="text-align:right;">
+11.277
+</td>
+<td style="text-align:right;">
+4.630
+</td>
+<td style="text-align:right;">
+12.107
+</td>
+<td style="text-align:right;">
+4.939
+</td>
+<td style="text-align:right;">
+12.968
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+14
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Contig_land</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefdfb">1.620</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fcf5f9">2.264</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.394</span>
+</td>
+<td style="text-align:right;">
+0.864
+</td>
+<td style="text-align:right;">
+2.363
+</td>
+<td style="text-align:right;">
+0.793
+</td>
+<td style="text-align:right;">
+2.343
+</td>
+<td style="text-align:right;">
+0.897
+</td>
+<td style="text-align:right;">
+2.446
+</td>
+<td style="text-align:right;">
+0.986
+</td>
+<td style="text-align:right;">
+2.531
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+15
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Unprot_land</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefd">0.879</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdfafc">1.156</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fefefe">0.201</span>
+</td>
+<td style="text-align:right;">
+0.490
+</td>
+<td style="text-align:right;">
+1.261
+</td>
+<td style="text-align:right;">
+0.492
+</td>
+<td style="text-align:right;">
+1.230
+</td>
+<td style="text-align:right;">
+0.527
+</td>
+<td style="text-align:right;">
+1.265
+</td>
+<td style="text-align:right;">
+0.541
+</td>
+<td style="text-align:right;">
+1.318
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+16
+</td>
+<td style="text-align:left;">
+<span style="color: #636363; font-weight: bold">ProtConn_Trans_land </span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.439</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fdfafc">1.089</span>
+</td>
+<td style="text-align:right;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ffffff">0.190</span>
+</td>
+<td style="text-align:right;">
+0.073
+</td>
+<td style="text-align:right;">
+0.800
+</td>
+<td style="text-align:right;">
+0.013
+</td>
+<td style="text-align:right;">
+0.725
+</td>
+<td style="text-align:right;">
+0.153
+</td>
+<td style="text-align:right;">
+0.866
+</td>
+<td style="text-align:right;">
+0.198
+</td>
+<td style="text-align:right;">
+1.080
+</td>
+</tr>
+</tbody>
+</table>
+<p>Plot showing the mean and standard deviation values:</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ProtConn_2</span><span class="op">$</span><span class="va">ProtConn_10000</span><span class="op">$</span><span class="va">`ProtConn Plot`</span></span></code></pre></div>
+<p><img src="images/example_protconnplot1.png"></p>
+<p>Vector file of class sf:</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ProtConn_2</span><span class="op">$</span><span class="va">ProtConn_10000</span><span class="op">$</span><span class="va">ProtConn_10000</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Simple feature collection with 6 features and 19 fields</span></span>
+<span><span class="co">#&gt; Geometry type: GEOMETRY</span></span>
+<span><span class="co">#&gt; Dimension:     XY</span></span>
+<span><span class="co">#&gt; Bounding box:  xmin: -7873906 ymin: -194383.9 xmax: -6935273 ymax: 1382091</span></span>
+<span><span class="co">#&gt; Projected CRS: World_Mollweide</span></span>
+<span><span class="co">#&gt;   ECO_ID_U ECO_CODE                                ECO_NAME     EC(PC)</span></span>
+<span><span class="co">#&gt; 1    10319   NT0107                   Caqueta Moist Forests 4407499.00</span></span>
+<span><span class="co">#&gt; 2    10320   NT0108                 Catatumbo Moist Forests   68241.03</span></span>
+<span><span class="co">#&gt; 3    10321   NT0109            Cauca Valley Montane Forests  188885.91</span></span>
+<span><span class="co">#&gt; 4    10327   NT0115              Chocó-Darién Moist Forests  220615.52</span></span>
+<span><span class="co">#&gt; 5    10330   NT0118     Cordillera Oriental Montane Forests  634964.37</span></span>
+<span><span class="co">#&gt; 6    10333   NT0121 Eastern Cordillera Real Montane Forests  180919.61</span></span>
+<span><span class="co">#&gt;           PC    Prot Unprotected ProtConn ProtUnconn RelConn ProtConn_Prot</span></span>
+<span><span class="co">#&gt; 1 6.5700e-02 36.7627     63.2373  25.6303    11.1323 69.7184       85.7928</span></span>
+<span><span class="co">#&gt; 2 1.0300e-02 10.1265     89.8735  10.1251     0.0014 99.9865       91.1015</span></span>
+<span><span class="co">#&gt; 3 3.5000e-03 14.0252     85.9748   5.8789     8.1463 41.9167       63.0300</span></span>
+<span><span class="co">#&gt; 4 1.3000e-03  7.0816     92.9184   3.6713     3.4103 51.8430       79.6504</span></span>
+<span><span class="co">#&gt; 5 1.1500e-02 22.8199     77.1801  10.7244    12.0956 46.9956       63.1873</span></span>
+<span><span class="co">#&gt; 6 2.7500e-02 23.1047     76.8953  16.5873     6.5174 71.7919       78.1763</span></span>
+<span><span class="co">#&gt;   ProtConn_Trans ProtConn_Unprot ProtConn_Within ProtConn_Contig</span></span>
+<span><span class="co">#&gt; 1         1.8427         12.3645         85.7235         14.2765</span></span>
+<span><span class="co">#&gt; 2         1.0256          7.8729         90.7351          9.2649</span></span>
+<span><span class="co">#&gt; 3         4.5807         32.3893         42.6304         57.3696</span></span>
+<span><span class="co">#&gt; 4         5.9092         14.4404         64.0252         35.9748</span></span>
+<span><span class="co">#&gt; 5        22.5662         14.2465         61.2057         38.7943</span></span>
+<span><span class="co">#&gt; 6         3.3240         18.4996         61.7719         38.2281</span></span>
+<span><span class="co">#&gt;   ProtConn_Within_land ProtConn_Contig_land ProtConn_Unprot_land</span></span>
+<span><span class="co">#&gt; 1              21.9712               3.6591               3.1691</span></span>
+<span><span class="co">#&gt; 2               9.1870               0.9381               0.7971</span></span>
+<span><span class="co">#&gt; 3               2.5062               3.3727               1.9041</span></span>
+<span><span class="co">#&gt; 4               2.3506               1.3208               0.5302</span></span>
+<span><span class="co">#&gt; 5               6.5639               4.1604               1.5278</span></span>
+<span><span class="co">#&gt; 6              10.2463               6.3410               3.0686</span></span>
+<span><span class="co">#&gt;   ProtConn_Trans_land                       geometry</span></span>
+<span><span class="co">#&gt; 1              0.4723 MULTIPOLYGON (((-7354073 34...</span></span>
+<span><span class="co">#&gt; 2              0.1038 POLYGON ((-7208574 1001585,...</span></span>
+<span><span class="co">#&gt; 3              0.2693 MULTIPOLYGON (((-7480526 88...</span></span>
+<span><span class="co">#&gt; 4              0.2169 MULTIPOLYGON (((-7692447 10...</span></span>
+<span><span class="co">#&gt; 5              2.4201 POLYGON ((-7154131 1377384,...</span></span>
+<span><span class="co">#&gt; 6              0.5514 POLYGON ((-7676692 240705.2...</span></span></code></pre></div>
+<p>Visualize using ggplot2:</p>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#We can use some package to get intervals for example classInt R Packge:</span></span>
+<span><span class="co">#library(classInt)</span></span>
+<span><span class="co">#interv &lt;- classIntervals(ProtConn_2$ProtConn_10000$ProtConn_10000$ProtConn, 9, "jenks")[[2]]</span></span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">Ecoregions</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">ProtConn_2</span><span class="op">$</span><span class="va">ProtConn_10000</span><span class="op">$</span><span class="va">ProtConn_10000</span>, </span>
+<span>          <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">ProtConn</span>, breaks <span class="op">=</span> <span class="va">interv</span><span class="op">)</span><span class="op">)</span>, color <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_brewer</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"qual"</span>,</span>
+<span>                    palette <span class="op">=</span> <span class="st">"RdYlGn"</span>,</span>
+<span>                    name <span class="op">=</span> <span class="st">"ProtConn"</span>,</span>
+<span>                    na.translate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
+<span>    legend.position.inside <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>,<span class="fl">0.21</span><span class="op">)</span>,</span>
+<span>    legend.key.height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="st">"cm"</span><span class="op">)</span>,</span>
+<span>    legend.key.width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="st">"cm"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-45-1.png" width="90%"></p>
+</div>
 </div>
 </div>
 </div>
@@ -372,26 +1723,42 @@ Compare ECA or ProtConn connectivity metrics using one or up to four types of di
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Browse source code at <br><a href="https://github.com/connectscape/Makurhini/">https://​github.com/​connectscape/​Makurhini/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/connectscape/Makurhini/issues">https://​github.com/​connectscape/​Makurhini/​issues</a>
-</li>
+<li><a href="https://github.com/connectscape/Makurhini/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/connectscape/Makurhini/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://www.r-project.org/Licenses/GPL-3">GPL-3</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
+<li><small><a href="https://www.r-project.org/Licenses/GPL-3" class="external-link">GPL-3</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
-<div class="developers">
-<h2>Developers</h2>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li>Oscar Godínez-Gómez <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3016-739X" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li>Camilo A. Correa Ayram <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0001-8619-0295" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li><a href="authors.html#citation">Citing Makurhini</a></li>
+</ul>
+</div>
+
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
+<ul class="list-unstyled">
+<li>Oscar Godínez-Gómez <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3016-739X" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Camilo A. Correa Ayram <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0001-8619-0295" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li><a href="authors.html">More about authors...</a></li>
+</ul>
+</div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://ci.appveyor.com/project/OscarGOGO/Makurhini" class="external-link"><img src="https://ci.appveyor.com/api/projects/status/github/OscarGOGO/Makurhini?branch=master&amp;svg=true" alt="AppVeyor build status"></a></li>
 </ul>
 </div>
 
@@ -399,11 +1766,22 @@ Compare ECA or ProtConn connectivity metrics using one or up to four types of di
 </div>
 
 
+      <footer><div class="copyright">
+  <p></p>
+<p>Developed by Oscar Godínez-Gómez, Camilo A. Correa Ayram.</p>
+</div>
+
+<div class="pkgdown">
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+</div>
 
       </footer>
 </div>
 
-  
+
+
+
 
 
   </body>

@@ -168,7 +168,8 @@ MK_RMCentrality <- function(nodes,
       metric.Membcomponents <- components(graph_nodes)$membership
       community.1 <- cluster_walktrap(graph_nodes)|> membership(communities = _)
       community.2 <- cluster_louvain(graph_nodes)|> membership(communities = _)
-      metric_conn <- cbind(rownames(dist), metric.strength, metric.eigen$vector, metric.close,
+      metric_conn <- cbind(rownames(dist), metric.degree,
+                           metric.eigen$vector, metric.close,
                            metric.between, metric.Membcomponents, community.1, community.2) %>% as.data.frame()
       names(metric_conn) <- c("id", "degree", "eigen", "close", "BWC", "cluster", "memb.rw", "memb.louvain")
     }

@@ -150,19 +150,19 @@ MK_ProtConnMult <- function(nodes, regions,
         setTxtProgressBar(pb, x)
       }
 
-      protconn <- tryCatch(MK_ProtConn(nodes = nodes,
-                                       region = Ecoreg_sel,
-                                       area_unit = area_unit,
-                                       distance = distance,
-                                       transboundary = transboundary,
-                                       transboundary_type = transboundary_type,
-                                       protconn_bound = protconn_bound,
-                                       distance_thresholds = distance_thresholds,
-                                       probability = probability,
-                                       geom_simplify = geom_simplify,
-                                       delta = delta,
-                                       plot = FALSE,
-                                       intern = FALSE),  error = function(err)err)
+      protconn <- suppressMessages(tryCatch(MK_ProtConn(nodes = nodes,
+                                                        region = Ecoreg_sel,
+                                                        area_unit = area_unit,
+                                                        distance = distance,
+                                                        transboundary = transboundary,
+                                                        transboundary_type = transboundary_type,
+                                                        protconn_bound = protconn_bound,
+                                                        distance_thresholds = distance_thresholds,
+                                                        probability = probability,
+                                                        geom_simplify = geom_simplify,
+                                                        delta = delta,
+                                                        plot = FALSE,
+                                                        intern = FALSE),  error = function(err)err))
 
 
       if (inherits(protconn, "error")){
@@ -172,7 +172,7 @@ MK_ProtConnMult <- function(nodes, regions,
     }), error = function(err)err)
 
     if (inherits(protconn_result, "error")){
-      stop("Error, please review your input shapefiles")
+      stop("Error, please review your input files")
     }
 
     if(length(distance_thresholds)>1){
@@ -229,19 +229,19 @@ MK_ProtConnMult <- function(nodes, regions,
     plan(strategy = strat, gc = TRUE, workers = works)
     protconn_result <- tryCatch(future_map(1:nrow(regions), function(x){
       Ecoreg_sel <- regions[x,]
-      protconn <- tryCatch(MK_ProtConn(nodes = nodes,
-                                       region = Ecoreg_sel,
-                                       area_unit = area_unit,
-                                       distance = distance,
-                                       transboundary = transboundary,
-                                       transboundary_type = transboundary_type,
-                                       protconn_bound = protconn_bound,
-                                       distance_thresholds = distance_thresholds,
-                                       probability = probability,
-                                       geom_simplify = geom_simplify,
-                                       delta = delta,
-                                       plot = FALSE,
-                                       intern = FALSE),  error = function(err)err)
+      protconn <- suppressMessages(tryCatch(MK_ProtConn(nodes = nodes,
+                                                        region = Ecoreg_sel,
+                                                        area_unit = area_unit,
+                                                        distance = distance,
+                                                        transboundary = transboundary,
+                                                        transboundary_type = transboundary_type,
+                                                        protconn_bound = protconn_bound,
+                                                        distance_thresholds = distance_thresholds,
+                                                        probability = probability,
+                                                        geom_simplify = geom_simplify,
+                                                        delta = delta,
+                                                        plot = FALSE,
+                                                        intern = FALSE),  error = function(err)err))
 
 
       if (inherits(protconn, "error")){
@@ -252,7 +252,7 @@ MK_ProtConnMult <- function(nodes, regions,
 
     if(inherits(protconn_result, "error")){
       close_multiprocess(works)
-      stop("Error, please review your input shapefiles")
+      stop("Error, please review your input files")
     }
 
     if(length(distance_thresholds)>1){
@@ -307,7 +307,7 @@ MK_ProtConnMult <- function(nodes, regions,
   }
 
   if (isTRUE(intern)){
-    message("Step 2. Estimating statistics")
+    message("Step 3. Estimating statistics")
   }
 
   protconn_result2 <- tryCatch(lapply(1:length(distance_thresholds), function(x){
@@ -417,9 +417,9 @@ MK_ProtConnMult <- function(nodes, regions,
             return(x)})
 
           plot_protconn1 <- ggplot(dacc, aes(x = dacc$name, y = dacc$Values, fill = dacc$name)) +
-            geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, size = 0.2) +
+            geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, linewidth = 0.2) +
             ggplot2::geom_errorbar(position = position_dodge(), width = 0.2, aes(ymin = min, ymax = max)) +
-            labs(title = paste0("ProtConn Indicators: ", distance_thresholds[x]), x = "", y = "Percentage (%)", size = rel(1.2)) +
+            labs(title = paste0("ProtConn Indicators: ", distance_thresholds[x]), x = "", y = "Percentage (%)") +
             theme_bw()  +
             theme(plot.title = element_text(color = "#252525", size = rel(1.4), hjust = 0.5, face = "bold"),
                   axis.title= element_text(color = "#252525", size = rel(1.2)),
@@ -427,10 +427,10 @@ MK_ProtConnMult <- function(nodes, regions,
                   legend.text = element_text(colour = "#252525", size = rel(1.2)),
                   axis.text= element_text(colour = "#525252", size = rel(1)))+
             scale_fill_manual(values = dacc$col) +
-            geom_hline(aes(yintercept = 17, linetype = "Aichi Target (17%)"), colour = 'black', size = 1.2) +
-            geom_hline(aes(yintercept = 30, linetype = "Kunming-Montreal (30%)"), colour = 'red', size = 1.2)+
+            geom_hline(aes(yintercept = 17, linetype = "Aichi Target (17%)"), colour = 'black', linewidth = 1.2) +
+            geom_hline(aes(yintercept = 30, linetype = "Kunming-Montreal (30%)"), colour = 'red', linewidth = 1.2)+
             scale_linetype_manual(name = " Aichi Target", values = c(2, 2),
-                                  guide = guide_legend(override.aes = list(color = c("black", 'red'), size = 0.8)))
+                                  guide = guide_legend(override.aes = list(color = c("black", 'red'), linewidth = 0.8)))
           plots <- list(plot_protconn1)
         }
 
@@ -449,9 +449,9 @@ MK_ProtConnMult <- function(nodes, regions,
             x[which(x <0)]<- 0
             return(x)})
           plot_protconn2 <- ggplot(dacc2, aes(x = dacc2$name, y = dacc2$Values, fill = dacc2$name)) +
-            geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, size = 0.2) +
+            geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, linewidth = 0.2) +
             ggplot2::geom_errorbar(position = position_dodge(), width = 0.2, aes(ymin = min, ymax = max)) +
-            labs(title = "Protected connected fractions", x = "", y = "Percentage (%)", size = rel(1.2)) +
+            labs(title = "Protected connected fractions", x = "", y = "Percentage (%)") +
             theme_bw()  +
             theme(plot.title = element_text(color = "#252525", size = rel(1.4), hjust = 0.45, face = "bold"),
                   axis.title= element_text(color = "#252525", size = rel(1.2)),

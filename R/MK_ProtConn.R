@@ -111,6 +111,13 @@ MK_ProtConn <- function(nodes = NULL,
     distance$type == "edge"; distance$keep <- 0.5
   }
 
+  if(length(transboundary) == 1 & length(distance_thresholds) == 1){
+    parallel <- NULL
+    message("Parallel will be switched off because it's only useful when you have multiple values for distance_thresholds or transboundary parameters.")
+  } else {
+    trans_paral <- ifelse(length(transboundary) > 1, TRUE, FALSE)
+  }
+
   if(isFALSE(parallel)){
     parallel <- NULL
   } else if (isTRUE(parallel)){
@@ -145,6 +152,7 @@ MK_ProtConn <- function(nodes = NULL,
                               distance = distance)
 
   if(nrow(base_param1@nodes) > 0){
+
     nodes.1 <- tryCatch(Protconn_nodes(x = base_param1@region,
                                        y = base_param1@nodes,
                                        buff = max(transboundary),
@@ -206,6 +214,8 @@ MK_ProtConn <- function(nodes = NULL,
   }
 
   if(is.null(parallel)){
+    # x = 1
+    # nodes.delta = NULL
     ProtConn_res <- tryCatch(lapply(1:length(base_param3[[2]]@transboundary), function(x){
       x.1 <- ProtConn_Estimation(base_param3 = base_param3,
                                  base_param1 = base_param1,
@@ -218,6 +228,7 @@ MK_ProtConn <- function(nodes = NULL,
                                  write = write,
                                  LA = LA,
                                  plot = plot,
+                                 parallel = NULL,
                                  intern = intern)
 
       if (isTRUE(intern) & length(base_param3[[2]]@transboundary) > 1) {
@@ -226,29 +237,54 @@ MK_ProtConn <- function(nodes = NULL,
       return(x.1)
     }), error = function(err) err)
   } else {
-    works <- as.numeric(availableCores())-1; works <-  if(parallel > works){works}else{parallel}
-    if(.Platform$OS.type == "unix") {
-      strat <- future::multicore
+    if(isTRUE(trans_paral)){
+      works <- as.numeric(availableCores())-1; works <-  if(parallel > works){works}else{parallel}
+      if(.Platform$OS.type == "unix") {
+        strat <- future::multicore
+      } else {
+        strat <- future::multisession
+      }
+      plan(strategy = strat, gc = TRUE, workers = works)
+      ProtConn_res <- tryCatch(future_map(1:length(base_param3[[2]]@transboundary), function(x){
+        x.1 <- ProtConn_Estimation(base_param3 = base_param3,
+                                   base_param1 = base_param1,
+                                   nodes.delta = nodes.delta,
+                                   n = base_param3[[2]]@transboundary[x],
+                                   delta = delta,
+                                   transboundary_type = transboundary_type,
+                                   transboundary = transboundary,
+                                   protconn_bound = protconn_bound,
+                                   LA = LA,
+                                   plot = plot,
+                                   parallel = NULL,
+                                   intern = intern,
+                                   write = write)
+        return(x.1)
+      }, .progress = intern), error = function(err) err)
+      close_multiprocess(works)
     } else {
-      strat <- future::multisession
+      ProtConn_res <- tryCatch(lapply(1:length(base_param3[[2]]@transboundary), function(x){
+        x.1 <- ProtConn_Estimation(base_param3 = base_param3,
+                                   base_param1 = base_param1,
+                                   nodes.delta = nodes.delta,
+                                   n = base_param3[[2]]@transboundary[x],
+                                   delta = delta,
+                                   transboundary_type = transboundary_type,
+                                   transboundary = transboundary,
+                                   protconn_bound = protconn_bound,
+                                   write = write,
+                                   LA = LA,
+                                   plot = plot,
+                                   parallel = parallel,
+                                   intern = intern)
+
+        if (isTRUE(intern) & length(base_param3[[2]]@transboundary) > 1) {
+          setTxtProgressBar(pb, x)
+        }
+        return(x.1)
+      }), error = function(err) err)
     }
-    plan(strategy = strat, gc = TRUE, workers = works)
-    ProtConn_res <- tryCatch(future_map(1:length(base_param3[[2]]@transboundary), function(x){
-      x.1 <- ProtConn_Estimation(base_param3 = base_param3,
-                                 base_param1 = base_param1,
-                                 nodes.delta = nodes.delta,
-                                 n = base_param3[[2]]@transboundary[x],
-                                 delta = delta,
-                                 transboundary_type = transboundary_type,
-                                 transboundary = transboundary,
-                                 protconn_bound = protconn_bound,
-                                 LA = LA,
-                                 plot = plot,
-                                 intern = intern,
-                                 write = write)
-      return(x.1)
-    }, .progress = intern), error = function(err) err)
-    close_multiprocess(works)
+
   }
 
   if(inherits(ProtConn_res, "error")){
@@ -283,12 +319,15 @@ MK_ProtConn <- function(nodes = NULL,
 #' @param protconn_bound logical
 #' @param LA numeric
 #' @param plot logical
+#' @param parallel numeric
 #' @param write character
 #' @param intern logical
 #' @importFrom purrr compact
 #' @importFrom utils txtProgressBar setTxtProgressBar write.csv
 #' @importFrom grDevices tiff dev.off
 #' @importFrom formattable formattable formatter style color_tile as.htmlwidget
+#' @importFrom future plan multicore multisession availableCores
+#' @importFrom furrr future_map
 #' @keywords internal
 
 ProtConn_Estimation <- function(base_param3 = NULL,
@@ -299,6 +338,7 @@ ProtConn_Estimation <- function(base_param3 = NULL,
                                 transboundary = NULL,
                                 protconn_bound = FALSE,
                                 plot = TRUE,
+                                parallel = NULL,
                                 LA = NULL,
                                 intern = TRUE, write = NULL){
   if(is.list(base_param3[[3]])){
@@ -328,82 +368,160 @@ ProtConn_Estimation <- function(base_param3 = NULL,
       stop("error distance. Check topology errors or resistance raster")
     }
 
-    if(isTRUE(intern) & length(base_param3[[2]]@transboundary) == 1 &
-       length(base_param3[[2]]@distance_threshold ) > 1) {
-      pb <- txtProgressBar(0,length(base_param3[[2]]@distance_threshold), style = 3)
-    }
-    result <- lapply(1:length(base_param3[[2]]@distance_threshold), function(x){
-      d.2 <- base_param3[[2]]@distance_threshold[x]
-      DataProtconn <- get_protconn_grid(x = nodes.2,
-                                        y = distance.1,
-                                        p = base_param3[[2]]@probability,
-                                        pmedian = TRUE,
-                                        d = d.2,
-                                        LA = base_param3[[5]],
-                                        bound = protconn_bound)
-      DataProtconn <- round(DataProtconn, 4)
-
-      if(length(which(DataProtconn[5:ncol(DataProtconn)] > 100)) > 0){
-        DataProtconn[1, which(DataProtconn[5:ncol(DataProtconn)] > 100) + 5] <- 100
+    if(is.null(parallel)){
+      if(isTRUE(intern) & length(base_param3[[2]]@transboundary) == 1 &
+         length(base_param3[[2]]@distance_threshold ) > 1) {
+        pb <- txtProgressBar(0,length(base_param3[[2]]@distance_threshold), style = 3)
       }
+      result <- lapply(1:length(base_param3[[2]]@distance_threshold), function(x){
+        d.2 <- base_param3[[2]]@distance_threshold[x]
+        DataProtconn <- get_protconn_grid(x = nodes.2,
+                                          y = distance.1,
+                                          p = base_param3[[2]]@probability,
+                                          pmedian = TRUE,
+                                          d = d.2,
+                                          LA = base_param3[[5]],
+                                          bound = protconn_bound)
+        DataProtconn <- round(DataProtconn, 4)
 
-      if(length(which(DataProtconn[5:ncol(DataProtconn)] < 0)) > 0){
-        DataProtconn[1, which(DataProtconn[5:ncol(DataProtconn)] < 0) + 5] <- 0
-      }
-
-      ##
-      DataProtconn_2 <- t(DataProtconn) %>% as.data.frame()
-      DataProtconn_2$Indicator <- row.names(DataProtconn_2)
-      DataProtconn_2$Indicator[1] <- "EC(PC)"
-      DataProtconn_2$Indicator[3] <- "Maximum landscape attribute"
-      DataProtconn_2$Indicator[4] <- "Protected surface"
-      DataProtconn_2$Index <- rep(DataProtconn_2[c(1:4),2], 8)[1:nrow(DataProtconn_2)]
-      Value <- DataProtconn_2[c(1:4), 1]
-
-      if(Value[1]%%1 == 0){
-        Value <- c(formatC(as.numeric(Value[1]), format="d"),
-                   formatC(as.numeric(Value[2]), format="e"),
-                   formatC(as.numeric(Value[3]), format="d"),
-                   formatC(as.numeric(Value[4]), format="d"))
-      } else {
-        Value <- c(formatC(as.numeric(Value[1]), format="f", digits = 2),
-                   formatC(as.numeric(Value[2]), format="e"),
-                   formatC(as.numeric(Value[3]), format="f", digits = 2),
-                   formatC(as.numeric(Value[4]), format="f", digits = 2))
-      }
-
-      if (isTRUE(intern) & length(base_param3[[2]]@transboundary) == 1 &
-          length(base_param3[[2]]@distance_threshold ) > 1) {
-        setTxtProgressBar(pb, x)
-      }
-
-      DataProtconn_2$Value <- rep(Value, 8)[1:nrow(DataProtconn_2)]
-      rownames(DataProtconn_2) <- NULL
-      DataProtconn_3 <- DataProtconn_2[5:nrow(DataProtconn_2),c(3:4, 2, 1)]
-      names(DataProtconn_3)[3:4] <- c("ProtConn indicator", "Percentage")
-      DataProtconn_3[5:nrow(DataProtconn_3), 1:2] <- " "
-      rownames(DataProtconn_3) <- NULL
-
-      DataProtconn_4 <- formattable(DataProtconn_3, align = c("l","c"),
-                                    list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
-                                         `ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
-                                         `Percentage` = color_tile("#FFF3DD", "orange")))
-
-      if(isTRUE(plot)){
-        DataProtconn_plot <- tryCatch(plotprotconn(DataProtconn, d = d.2), error = function(err)err)
-
-        if(inherits(DataProtconn_plot, "error")){
-          message("The plot could not be performed, check that the ggplot2 and ggpubr packages are installed or updated")
-          result_lista <- DataProtconn_4; plot = FALSE
-        } else {
-          result_lista <- list( "Protected Connected (Viewer Panel)" = DataProtconn_4,
-                                "ProtConn Plot" = DataProtconn_plot)
+        if(length(which(DataProtconn[5:ncol(DataProtconn)] > 100)) > 0){
+          DataProtconn[1, which(DataProtconn[5:ncol(DataProtconn)] > 100) + 5] <- 100
         }
+
+        if(length(which(DataProtconn[5:ncol(DataProtconn)] < 0)) > 0){
+          DataProtconn[1, which(DataProtconn[5:ncol(DataProtconn)] < 0) + 5] <- 0
+        }
+
+        ##
+        DataProtconn_2 <- t(DataProtconn) %>% as.data.frame()
+        DataProtconn_2$Indicator <- row.names(DataProtconn_2)
+        DataProtconn_2$Indicator[1] <- "EC(PC)"
+        DataProtconn_2$Indicator[3] <- "Maximum landscape attribute"
+        DataProtconn_2$Indicator[4] <- "Protected surface"
+        DataProtconn_2$Index <- rep(DataProtconn_2[c(1:4),2], 8)[1:nrow(DataProtconn_2)]
+        Value <- DataProtconn_2[c(1:4), 1]
+
+        if(Value[1]%%1 == 0){
+          Value <- c(formatC(as.numeric(Value[1]), format="d"),
+                     formatC(as.numeric(Value[2]), format="e"),
+                     formatC(as.numeric(Value[3]), format="d"),
+                     formatC(as.numeric(Value[4]), format="d"))
+        } else {
+          Value <- c(formatC(as.numeric(Value[1]), format="f", digits = 2),
+                     formatC(as.numeric(Value[2]), format="e"),
+                     formatC(as.numeric(Value[3]), format="f", digits = 2),
+                     formatC(as.numeric(Value[4]), format="f", digits = 2))
+        }
+
+        if (isTRUE(intern) & length(base_param3[[2]]@transboundary) == 1 &
+            length(base_param3[[2]]@distance_threshold ) > 1) {
+          setTxtProgressBar(pb, x)
+        }
+
+        DataProtconn_2$Value <- rep(Value, 8)[1:nrow(DataProtconn_2)]
+        rownames(DataProtconn_2) <- NULL
+        DataProtconn_3 <- DataProtconn_2[5:nrow(DataProtconn_2),c(3:4, 2, 1)]
+        names(DataProtconn_3)[3:4] <- c("ProtConn indicator", "Percentage")
+        DataProtconn_3[5:nrow(DataProtconn_3), 1:2] <- " "
+        rownames(DataProtconn_3) <- NULL
+
+        DataProtconn_4 <- formattable(DataProtconn_3, align = c("l","c"),
+                                      list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
+                                           `ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
+                                           `Percentage` = color_tile("#FFF3DD", "orange")))
+
+        if(isTRUE(plot)){
+          DataProtconn_plot <- tryCatch(plotprotconn(DataProtconn, d = d.2), error = function(err)err)
+
+          if(inherits(DataProtconn_plot, "error")){
+            message("The plot could not be performed, check that the ggplot2 and ggpubr packages are installed or updated")
+            result_lista <- DataProtconn_4; plot = FALSE
+          } else {
+            result_lista <- list( "Protected Connected (Viewer Panel)" = DataProtconn_4,
+                                  "ProtConn Plot" = DataProtconn_plot)
+          }
+        } else {
+          result_lista <- DataProtconn_4
+        }
+        return(result_lista)
+      })
+    } else {
+      works <- as.numeric(availableCores())-1; works <-  if(parallel > works){works}else{parallel}
+      if(.Platform$OS.type == "unix") {
+        strat <- future::multicore
       } else {
-        result_lista <- DataProtconn_4
+        strat <- future::multisession
       }
-      return(result_lista)
-    })
+      plan(strategy = strat, gc = TRUE, workers = works)
+      result <- future_map(1:length(base_param3[[2]]@distance_threshold), function(x){
+        d.2 <- base_param3[[2]]@distance_threshold[x]
+        DataProtconn <- get_protconn_grid(x = nodes.2,
+                                          y = distance.1,
+                                          p = base_param3[[2]]@probability,
+                                          pmedian = TRUE,
+                                          d = d.2,
+                                          LA = base_param3[[5]],
+                                          bound = protconn_bound)
+        DataProtconn <- round(DataProtconn, 4)
+
+        if(length(which(DataProtconn[5:ncol(DataProtconn)] > 100)) > 0){
+          DataProtconn[1, which(DataProtconn[5:ncol(DataProtconn)] > 100) + 5] <- 100
+        }
+
+        if(length(which(DataProtconn[5:ncol(DataProtconn)] < 0)) > 0){
+          DataProtconn[1, which(DataProtconn[5:ncol(DataProtconn)] < 0) + 5] <- 0
+        }
+
+        ##
+        DataProtconn_2 <- t(DataProtconn) %>% as.data.frame()
+        DataProtconn_2$Indicator <- row.names(DataProtconn_2)
+        DataProtconn_2$Indicator[1] <- "EC(PC)"
+        DataProtconn_2$Indicator[3] <- "Maximum landscape attribute"
+        DataProtconn_2$Indicator[4] <- "Protected surface"
+        DataProtconn_2$Index <- rep(DataProtconn_2[c(1:4),2], 8)[1:nrow(DataProtconn_2)]
+        Value <- DataProtconn_2[c(1:4), 1]
+
+        if(Value[1]%%1 == 0){
+          Value <- c(formatC(as.numeric(Value[1]), format="d"),
+                     formatC(as.numeric(Value[2]), format="e"),
+                     formatC(as.numeric(Value[3]), format="d"),
+                     formatC(as.numeric(Value[4]), format="d"))
+        } else {
+          Value <- c(formatC(as.numeric(Value[1]), format="f", digits = 2),
+                     formatC(as.numeric(Value[2]), format="e"),
+                     formatC(as.numeric(Value[3]), format="f", digits = 2),
+                     formatC(as.numeric(Value[4]), format="f", digits = 2))
+        }
+
+        DataProtconn_2$Value <- rep(Value, 8)[1:nrow(DataProtconn_2)]
+        rownames(DataProtconn_2) <- NULL
+        DataProtconn_3 <- DataProtconn_2[5:nrow(DataProtconn_2),c(3:4, 2, 1)]
+        names(DataProtconn_3)[3:4] <- c("ProtConn indicator", "Percentage")
+        DataProtconn_3[5:nrow(DataProtconn_3), 1:2] <- " "
+        rownames(DataProtconn_3) <- NULL
+
+        DataProtconn_4 <- formattable(DataProtconn_3, align = c("l","c"),
+                                      list(`Index` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
+                                           `ProtConn indicator` = formatter("span", style = ~ style(color = "#636363", font.weight = "bold")),
+                                           `Percentage` = color_tile("#FFF3DD", "orange")))
+
+        if(isTRUE(plot)){
+          DataProtconn_plot <- tryCatch(plotprotconn(DataProtconn, d = d.2), error = function(err)err)
+
+          if(inherits(DataProtconn_plot, "error")){
+            message("The plot could not be performed, check that the ggplot2 and ggpubr packages are installed or updated")
+            result_lista <- DataProtconn_4; plot = FALSE
+          } else {
+            result_lista <- list( "Protected Connected (Viewer Panel)" = DataProtconn_4,
+                                  "ProtConn Plot" = DataProtconn_plot)
+          }
+        } else {
+          result_lista <- DataProtconn_4
+        }
+        return(result_lista)
+      }, .progress = intern)
+      close_multiprocess(works)
+    }
   } else if(is.numeric(base_param3[[3]])) { #Just exist only one node in the region
     nodes.2 <- base_param3[[3]]
     if (isTRUE(intern) & length(base_param3[[2]]@transboundary) == 1 &

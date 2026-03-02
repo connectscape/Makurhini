@@ -14,6 +14,7 @@ ProtConn_Estimation(
   transboundary = NULL,
   protconn_bound = FALSE,
   plot = TRUE,
+  parallel = NULL,
   LA = NULL,
   intern = TRUE,
   write = NULL
@@ -37,6 +38,8 @@ ProtConn_Estimation(
 \item{protconn_bound}{logical}
 
 \item{plot}{logical}
+
+\item{parallel}{numeric}
 
 \item{LA}{numeric}
 

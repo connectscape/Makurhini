@@ -25,8 +25,8 @@ plotprotconn <- function(DataProtconn, d){
   if(nrow(Data_plot_1) > 1){
     plot_protconn1 <- ggplot(Data_plot_1, aes(x = Data_plot_1$name, y = Data_plot_1$Values,
                                               fill = Data_plot_1$name)) +
-      geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, size = 0.2) +
-      labs(title = paste0("ProtConn Indicators: ", d , " m"), x = "", y = "Percentage (%)", size = rel(1.2)) +
+      geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, linewidth = 0.2) +
+      labs(title = paste0("ProtConn Indicators: ", d , " m"), x = "", y = "Percentage (%)") +
       theme_bw()  +
       theme(plot.title = element_text(color = "#252525", size = rel(1.4), hjust = 0.5, face = "bold"),
             axis.title = element_text(color = "#252525", size = rel(1.2)),
@@ -34,10 +34,10 @@ plotprotconn <- function(DataProtconn, d){
             legend.text = element_text(colour = "#252525", size = rel(1.2)),
             axis.text= element_text(colour = "#525252", size = rel(1)))+
       scale_fill_manual(values = c("#fc8d62", "#66c2a5", "#8da0cb")) +
-      geom_hline(aes(yintercept = 17, linetype = "Aichi Target (17%)"), colour = 'black', size = 1.2) +
-      geom_hline(aes(yintercept = 30, linetype = "Kunming-Montreal (30%)"), colour = 'red', size = 1.2)+
+      geom_hline(aes(yintercept = 17, linetype = "Aichi Target (17%)"), colour = 'black', linewidth = 1.2) +
+      geom_hline(aes(yintercept = 30, linetype = "Kunming-Montreal (30%)"), colour = 'red', linewidth = 1.2)+
       scale_linetype_manual(name = " Aichi Target", values = c(2, 2),
-                            guide = guide_legend(override.aes = list(color = c("black", 'red'), size = 0.8)))
+                            guide = guide_legend(override.aes = list(color = c("black", 'red'), linewidth = 0.8)))
 
     plot_protconn[[1]] <- plot_protconn1
   }
@@ -52,8 +52,8 @@ plotprotconn <- function(DataProtconn, d){
   if(nrow(Data_plot_2) > 1){
     plot_protconn2 <- ggplot(Data_plot_2, aes(x = Data_plot_2$name, y = Data_plot_2$Values,
                                               fill = Data_plot_2$name)) +
-      geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, size = 0.2) +
-      labs(title = "Protected connected fraction", x = "", y = "Percentage (%)", size = rel(1.2)) +
+      geom_bar(position = position_dodge(), colour = "black", stat = "identity", show.legend = FALSE, linewidth = 0.2) +
+      labs(title = "Protected connected fraction", x = "", y = "Percentage (%)") +
       theme_bw()  +
       theme(plot.title = element_text(color = "#252525", size = rel(1.4), hjust = 0.45, face = "bold"),
             axis.title= element_text(color = "#252525", size = rel(1.2)),
@@ -67,8 +67,8 @@ plotprotconn <- function(DataProtconn, d){
   plot_protconn <- compact(plot_protconn)
 
   if(length(plot_protconn) == 2){
-    figure <- ggarrange(plot_protconn[[1]], plot_protconn[[2]],
-                        ncol = 1, nrow = 2)
+    figure <- suppressMessages(ggarrange(plot_protconn[[1]], plot_protconn[[2]],
+                        ncol = 1, nrow = 2))
   } else if (length(plot_protconn) == 1) {
     figure <- plot_protconn[[1]]
   } else {

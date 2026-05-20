@@ -10,6 +10,7 @@ metric_class(
   thintersect = NULL,
   distance_threshold = NULL,
   probability = NULL,
+  pij_min = NULL,
   transboundary = NULL,
   distance = NULL
 )
@@ -24,6 +25,8 @@ metric_class(
 \item{distance_threshold}{numeric}
 
 \item{probability}{numeric}
+
+\item{pij_min}{numeric}
 
 \item{transboundary}{numeric}
 

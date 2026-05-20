@@ -14,7 +14,9 @@
 #' To see more arguments see the \link[Makurhini]{distancefile} function.
 #' @param metric A \code{character} indicating the connectivity metric to use: \code{"PC"} (the default and recommended) to calculate the probability of connectivity index, and \code{"IIC"} to calculate the binary integral index of connectivity.
 #' @param probability A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the "PC" metric. If \code{probability = NULL}, then a probability of 0.5 will be used.
+#' @param pij_min \code{numeric}. Minimum dispersal probability threshold: node pairs with pij < pij_min are excluded from the PC calculation, reducing the number of links evaluated and speeding up processing.
 #' @param distance_thresholds A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range.
+#' @param threshold \code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing. Can be the same length as the \code{distance_thresholds} parameter.
 #' @param search_buffer \code{numeric}. Distance or distances (i.e., it can be a search distance for each dispersion distance of the parameter \code{distance_thresholds}) used to create a buffer around the focal node (also called focal habitat patch), which is used to select neighbouring nodes (transboundary habitat patches) with which it has the highest probability of connectivity.
 #' @param simplify_shape \code{numeric}. It helps to simplify the shape of the focal node by eliminating vertices to buffer and select neighbouring nodes. Its use is recommended when some of the nodes have very complex shapes. See \link[sf]{st_simplify} for details.
 #' @param fragmentation \code{logic}. Estimates fragmentation statistics for the focal nodes using the function \link[Makurhini]{MK_Fragmentation}. It is necessary to use the parameters \bold{edge_distance} and \bold{min_node_area}.
@@ -69,25 +71,27 @@
 #' @importFrom stats median
 
 MK_Focal_nodes <- function(nodes = NULL,
-                            id = NULL,
-                            attribute = NULL,
-                            raster_attribute = NULL,
-                            fun_attribute = NULL,
-                            weighted = FALSE,
-                            area_unit = "ha",
-                            distance = list(type= "centroid", resistance = NULL),
-                            metric = "IIC",
-                            probability = NULL,
-                            distance_thresholds = NULL,
-                            search_buffer = NULL,
-                            simplify_shape = NULL,
-                            fragmentation = FALSE,
-                            edge_distance = 500,
-                            min_node_area = 100,
-                            parallel = NULL,
-                            write = NULL,
-                            save_subfiles = FALSE,
-                            intern = TRUE
+                           id = NULL,
+                           attribute = NULL,
+                           raster_attribute = NULL,
+                           fun_attribute = NULL,
+                           weighted = FALSE,
+                           area_unit = "ha",
+                           distance = list(type= "centroid", resistance = NULL),
+                           metric = "IIC",
+                           probability = NULL,
+                           pij_min = 0.01,
+                           distance_thresholds = NULL,
+                           threshold = NULL,
+                           search_buffer = NULL,
+                           simplify_shape = NULL,
+                           fragmentation = FALSE,
+                           edge_distance = 500,
+                           min_node_area = 100,
+                           parallel = NULL,
+                           write = NULL,
+                           save_subfiles = FALSE,
+                           intern = TRUE
 ){
   . = NULL
   if (missing(nodes)) {
@@ -372,6 +376,8 @@ MK_Focal_nodes <- function(nodes = NULL,
                                      metric = metric,
                                      probability = probability,
                                      distance_thresholds = distance_thresholds[j],
+                                     pij_min = pij_min,
+                                     threshold = threshold,
                                      id_sel = which(j.1[[id]] == nodes[[id]][i]),
                                      intern = FALSE),
                            error = function(err) err)
@@ -404,6 +410,8 @@ MK_Focal_nodes <- function(nodes = NULL,
                                        metric = metric,
                                        probability = probability,
                                        distance_thresholds = distance_thresholds[j],
+                                       pij_min = pij_min,
+                                       threshold = threshold,
                                        id_sel = which(j.1[[id]] == nodes[[id]][i]),
                                        intern = FALSE),
                              error = function(err) err)
@@ -576,6 +584,8 @@ MK_Focal_nodes <- function(nodes = NULL,
                                      metric = metric,
                                      probability = probability,
                                      distance_thresholds = distance_thresholds[j],
+                                     pij_min = pij_min,
+                                     threshold = threshold,
                                      id_sel = which(j.1[[id]] == nodes[[id]][i]),
                                      intern = FALSE),
                            error = function(err) err)
@@ -608,6 +618,8 @@ MK_Focal_nodes <- function(nodes = NULL,
                                        metric = metric,
                                        probability = probability,
                                        distance_thresholds = distance_thresholds[j],
+                                       pij_min = pij_min,
+                                       threshold = threshold,
                                        id_sel = which(j.1[[id]] == nodes[[id]][i]),
                                        intern = FALSE),
                              error = function(err) err)

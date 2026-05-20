@@ -5,6 +5,7 @@
 #' @param thintersect numeric
 #' @param distance_threshold numeric
 #' @param probability numeric
+#' @param pij_min numeric
 #' @param transboundary numeric
 #' @param distance list
 #' @importFrom methods setClass new
@@ -15,6 +16,7 @@ metric_class <- function(metric = NULL,
                          thintersect = NULL,
                          distance_threshold = NULL,
                          probability = NULL,
+                         pij_min = NULL,
                          transboundary = NULL,
                          distance = NULL){
 
@@ -30,11 +32,17 @@ metric_class <- function(metric = NULL,
     if(is.character(thintersect)){
       stop("thintersect must be NULL or numeric")
     }
+
+    if(is.null(pij_min)){
+      pij_min = Inf
+    }
+
     metr <- setClass("MK_Metric", slots = list(metric = "character",
                                                attribute = "character",
                                                thintersect = "numeric",
                                                distance_threshold = "numeric",
                                                probability = "numeric",
+                                               pij_min = "numeric",
                                                transboundary = "numeric",
                                                distance = "list"),
                      where = class_cache)
@@ -46,22 +54,29 @@ metric_class <- function(metric = NULL,
       }
 
     metr <- new("MK_Metric", metric = metric,
-                  attribute = attribute,
-                  thintersect = thintersect,
-                  distance_threshold = distance_threshold,
-                  probability = if(is.null(probability)){2} else {probability},
-                  transboundary = tr,
-                  distance = distance)
+                attribute = attribute,
+                thintersect = thintersect,
+                distance_threshold = distance_threshold,
+                probability = if(is.null(probability)){0.5} else {probability},
+                pij_min = pij_min,
+                transboundary = tr,
+                distance = distance)
     return(metr)
   } else if(metric == "PC"){
+    if(is.null(pij_min)){
+      pij_min = Inf
+    }
+
     metr <- setClass("MK_Metric", slots = list(metric = "character",
                                                distance_threshold = "numeric",
                                                probability = "numeric",
+                                               pij_min = "numeric",
                                                distance = "list"),
                      where = class_cache)
     metr <- new("MK_Metric", metric = metric,
                   distance_threshold = distance_threshold,
-                  probability = if(is.null(probability)){2} else {probability},
+                  probability = if(is.null(probability)){0.5} else {probability},
+                  pij_min = pij_min,
                   distance = distance)
     return(metr)
   } else if(metric == "IIC"){

@@ -12,6 +12,7 @@ MK_dPCIIC_links(
   distance = list(type = "centroid", resistance = NULL),
   metric = c("IIC", "PC"),
   probability = NULL,
+  pij_min = 0.01,
   distance_thresholds = NULL,
   threshold = NULL,
   removal = TRUE,
@@ -45,6 +46,8 @@ To see more arguments see the \link[Makurhini]{distancefile} function.}
 \item{metric}{A \code{character} indicating the connectivity metric to use: \code{"PC"} (the default and recommended) to calculate the probability of connectivity index, and \code{"IIC"} to calculate the binary integral index of connectivity.}
 
 \item{probability}{A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the "PC" metric. If \code{probability = NULL}, then a probability of 0.5 will be used.}
+
+\item{pij_min}{\code{numeric}. Minimum dispersal probability threshold: node pairs with pij < pij_min are excluded from the PC calculation, reducing the number of links evaluated and speeding up processing.}
 
 \item{distance_thresholds}{A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range.}
 

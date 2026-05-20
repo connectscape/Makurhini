@@ -10,7 +10,9 @@ ProtConn_Estimation_raster(
   distance = NULL,
   intern = TRUE,
   distance_thresholds = NULL,
+  threshold = NULL,
   probability = NULL,
+  pij_min = NULL,
   delta = FALSE,
   region = NULL,
   resist = NULL,
@@ -33,7 +35,11 @@ ProtConn_Estimation_raster(
 
 \item{distance_thresholds}{numeric}
 
+\item{threshold}{numeric}
+
 \item{probability}{numeric}
+
+\item{pij_min}{numeric}
 
 \item{delta}{logical}
 

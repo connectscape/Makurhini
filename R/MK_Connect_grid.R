@@ -15,7 +15,9 @@
 #' - If it is a \code{list} of parameters, then it must contain the distance parameters necessary to calculate the distance between nodes. For example, two of the most important parameters: \code{“type”} and \code{“resistance”}. For \code{"type"} choose one  of the distances:  \bold{"centroid" (faster), "edge", "least-cost" or "commute-time"}. If the type is equal to \code{"least-cost"} or \code{"commute-time"}, then you must use the \code{"resistance"} argument. For example: \code{distance(type = "least-cost", resistance = raster_resistance)}. \cr
 #' To see more arguments see the \link[Makurhini]{distancefile} function.
 #' @param distance_threshold A \code{numeric} indicating the dispersal distance (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range.
+#' @param threshold \code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing. Can be the same length as the \code{distance_thresholds} parameter.
 #' @param probability A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.
+#' @param pij_min \code{numeric}. Minimum dispersal probability threshold: node pairs with pij < pij_min are excluded from the PC calculation, reducing the number of links evaluated and speeding up processing.
 #' @param transboundary \code{numeric}. Buffer to select transboundary polygones, see \link[Makurhini]{MK_ProtConn}.
 #' @param intern \code{logical}. Show the progress of the process, \code{default = TRUE}. Sometimes the advance process does not reach 100 percent when operations are carried out very quickly.
 #' @param parallel \code{numeric}. Specify the number of cores to use for parallel processing, \code{default = NULL}. Parallelize the function using furrr package.
@@ -73,7 +75,9 @@ MK_Connect_grid <- function(nodes,
                                         grid_boundary = FALSE, clip = FALSE, tolerance = NULL),
                             protconn = TRUE,
                             distance_threshold = NULL,
+                            threshold = NULL,
                             probability = NULL,
+                            pij_min = NULL,
                             transboundary = NULL,
                             distance = list(type = "centroid"),
                             intern = TRUE, parallel = NULL){
@@ -107,6 +111,7 @@ MK_Connect_grid <- function(nodes,
   base_param2 <- metric_class(metric = if(isTRUE(protconn)){"ProtConn"} else {"PC"},
                               distance_threshold = distance_threshold,
                               probability = probability,
+                              pij_min = pij_min,
                               transboundary = transboundary,
                               distance = distance)
 
@@ -200,11 +205,14 @@ MK_Connect_grid <- function(nodes,
             stop(paste0("error distance. Check", " grid: ", x))
           }
 
+          if(!is.null(threshold)){
+            distance.1[which(distance.1 <= threshold)] <- NA
+          }
           ProtConn_grid <- get_protconn_grid(x = nodes.1,
                                              y = distance.1,
                                              p = base_param4[[2]]@probability,
-                                             pmedian = TRUE,
                                              d = base_param4[[2]]@distance_threshold,
+                                             pij_min = base_param4[[2]]@pij_min,
                                              LA = LA, bound = FALSE)
           ProtConn_grid <- round(ProtConn_grid, 5)
 
@@ -288,11 +296,15 @@ MK_Connect_grid <- function(nodes,
             stop(paste0("error distance. Check", " grid: ", x))
           }
 
+          if(!is.null(threshold)){
+            distance.1[which(distance.1 <= threshold)] <- NA
+          }
+
           ProtConn_grid <- get_protconn_grid(x = nodes.1,
                                              y = distance.1,
                                              p = base_param4[[2]]@probability,
-                                             pmedian = TRUE,
                                              d = base_param4[[2]]@distance_threshold,
+                                             pij_min = base_param4[[2]]@pij_min,
                                              LA = LA, bound = FALSE)
           ProtConn_grid <- round(ProtConn_grid, 5)
 

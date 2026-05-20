@@ -3,40 +3,56 @@
 #' @param x list.
 #' @param y distance matrix
 #' @param p numeric. Probability
-#' @param pmedian logical. median (TRUE) or mean(FALSE) dispersal distance
+#' @param pij_min numeric. Minimum probability
+#' @param th logic. Threshold
 #' @param d numeric. Dispersal distance
 #' @param LA numeric. Max. landscape attribute
 #' @param bound logical. If TRUE then ProtConn bound will be estimated
 #' @importFrom igraph graph.adjacency distances E
 #' @importFrom sf st_sf st_as_sf st_geometry
 #' @keywords internal
-get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FALSE){
+get_protconn_grid <- function(x, y, p, d, pij_min = 0.01, th = FALSE, LA = NULL, bound = FALSE){
   '%!in%' <- function(x,y)!('%in%'(x,y))
   diag(y) <- 0; mode(y) <- "numeric"
   y[lower.tri(y, diag = TRUE)] <- NA; dist_nodes <- as.data.frame(as.table(y))
-  dist_nodes <- na.omit(dist_nodes); dist_nodes[,1] <- as.numeric(as.character(dist_nodes[,1]))
-  dist_nodes[,2] <- as.numeric(as.character(dist_nodes[,2])); names(dist_nodes) <- c("From", "To", "Distance")
+
+  if(isFALSE(th)){
+    dist_nodes <- na.omit(dist_nodes)
+  }
+  dist_nodes[,1] <- as.numeric(as.character(dist_nodes[,1]))
+  dist_nodes[,2] <- as.numeric(as.character(dist_nodes[,2]))
+  names(dist_nodes) <- c("From", "To", "Distance")
 
   if(is.null(p)){
-    k <- (1 / d); dist_nodes$Distance <- -log(exp(-k * dist_nodes$Distance))
+    k <- (1 / d); dist_nodes$Distance <- exp(-k * dist_nodes$Distance)
   } else {
-    dist_nodes$Distance <- -log(exp((dist_nodes$Distance * log(p))/d))
+    dist_nodes$Distance <- exp((dist_nodes$Distance * log(p))/d)
   }
+
+  if(!is.null(pij_min)){
+    dist_nodes$Distance[dist_nodes$Distance < pij_min] <- 0
+  }
+
+  dist_nodes$Distance[is.na(dist_nodes$Distance)] <- 0 #edge continua this is for th
+
+  dist_nodes$Distance <- -log(dist_nodes$Distance)
 
   #Remove "region" x.1
   x.1 <- x[[1]][which(x[[1]]$type != "Region"),]; st_geometry(x.1) <- NULL
 
   #Area non transb.
   area1 <- x.1[["attribute"]][which(x.1[["type"]] == "Non-Transboundary")]
+
+  #Graph all
   graph_nodes <- tryCatch(makegraph(dist_nodes, directed = FALSE), error = function(err) err)
 
   if (inherits(graph_nodes, "error")) {
     stop("graph adjacency error")
   }
-
+  #Non-Transboundary and Transboundary
   graph_nodes.1 <- graph_nodes
-  if(length(which(x[[1]]$type == "Region"))>0){
-    graph_nodes.1$data <- graph_nodes.1$data[-which(graph_nodes.1$data$from %!in% as.character(x.1[[1]]-1)|graph_nodes.1$data$to %!in% as.character(x.1[[1]]-1)),]
+  if(length(which(x[[1]]$type == "Region")) > 0){
+    graph_nodes.1$data <- graph_nodes.1$data[-which(as.character(graph_nodes.1$data$from) %!in% as.character(x.1[[1]]-1)|graph_nodes.1$data$to %!in% as.character(x.1[[1]]-1)),]
     graph_nodes.1$dict <- graph_nodes.1$dict[-which(graph_nodes.1$dict$ref %!in% as.character(x.1[[1]])),]
   }
   #dist_nodes.2 <- dist_nodes[which(dist_nodes$From %in% as.character(x.1[[1]])),]; dist_nodes.2 <- dist_nodes.2[which(dist_nodes.2$To %in% as.character(x.1[[1]])),]
@@ -54,12 +70,12 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
   }
   invisible(gc())
   tr <- which(x.1$type == "Transboundary"); aiaj <- outer(x.1$attribute, x.1$attribute, FUN = "*")
-  aiaj[tr,] <- 1; aiaj[,tr] <- 1; PCmat <- aiaj * pij.mat; PCnum <- sum(PCmat)
+  aiaj[tr,] <- 1; aiaj[,tr] <- 1; PCmat <- aiaj * pij.mat; PCnum <- sum(PCmat, na.rm = TRUE)
 
   #P2
   if(!is.null(LA)){
     DataProtconn <- data.frame(cbind(ECA = sqrt(PCnum), PC = PCnum / (LA^2), LA,
-                                     Protected.surface = sum(area1)))
+                                     Protected.surface = sum(area1, na.rm = TRUE)))
   } else {
     stop("error LA is NULL")
   }
@@ -71,12 +87,14 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
   DataProtconn$Unprotected <- 100 - DataProtconn$Prot
 
   #ProtConn fractions
-  DataProtconn$ProtConn_Prot <- 100 * ((100 * (sqrt(sum(area1^2)) / LA)) / DataProtconn$ProtConn)
+  DataProtconn$ProtConn_Prot <- 100 * ((100 * (sqrt(sum(area1^2, na.rm = TRUE)) / LA)) / DataProtconn$ProtConn)
 
   if(length(tr) == 0){
     ECAn <- DataProtconn$ECA; DataProtconn$ProtConn_Trans <- 0
   } else {
+    #Transboundary
     x.2 <- x.1[-tr,]
+    #test <- graph_nodes.1
     graph_nodes.1$data <- graph_nodes.1$data[-which(graph_nodes.1$data$from %in% (tr-1)|graph_nodes.1$data$to %in% (tr-1)),]
     graph_nodes.1$dict <- graph_nodes.1$dict[-which(graph_nodes.1$dict$ref %in% as.character(tr)),]
     toV <- as.numeric(graph_nodes.1$dict$ref)
@@ -87,7 +105,7 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
     } else {
       pij.mat <- exp(-pij.mat)
     }
-    PCmat <- outer(x.2$attribute, x.2$attribute) * pij.mat; PCnum <- sum(PCmat); ECAn <- sqrt(PCnum)
+    PCmat <- outer(x.2$attribute, x.2$attribute) * pij.mat; PCnum <- sum(PCmat, na.rm = TRUE); ECAn <- sqrt(PCnum)
     DataProtconn$ProtConn_Trans <- 100 * ((100 * ((DataProtconn$ECA - ECAn) / LA)) / DataProtconn$ProtConn)
   }
 
@@ -99,7 +117,7 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
 
   #ProtConn_Prot fractions
   ########ProtConn[Prot] fractions
-  within1 <- ((sqrt(sum(x[[2]]^2))) / LA) * 100; within2 <- sqrt(DataProtconn$Protected.surface / sum(x[[2]]))
+  within1 <- ((sqrt(sum(x[[2]]^2, na.rm = TRUE))) / LA) * 100; within2 <- sqrt(DataProtconn$Protected.surface / sum(x[[2]], na.rm = TRUE))
   within3 <- within1 * within2; DataProtconn$ProtConn_Within <- 100 * (within3/DataProtconn$ProtConn)
 
   if(DataProtconn$ProtConn_Within > 100){
@@ -133,7 +151,7 @@ get_protconn_grid <- function(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FAL
 
       x.3 <- x[[1]]$attribute; tr <- which(x[[1]]$type != "Non-Transboundary")
       aiaj <- outer(x.3, x.3, FUN = "*"); aiaj[tr,] <- 1; aiaj[,tr] <- 1
-      PCmat <- aiaj * pij.mat; PCnum <- sum(PCmat); ECAdesign <- sqrt(PCnum)
+      PCmat <- aiaj * pij.mat; PCnum <- sum(PCmat, na.rm = TRUE); ECAdesign <- sqrt(PCnum)
 
       DataProtconn$ProtUnconn_Design <- (100 * (ECAdesign/LA)) - (100 * (DataProtconn$ECA/LA))
       DataProtconn$ProtConn_Bound <- DataProtconn$Prot - DataProtconn$ProtUnconn_Design

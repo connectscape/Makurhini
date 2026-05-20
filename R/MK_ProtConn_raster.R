@@ -15,7 +15,9 @@
 #'   }
 #'  See more arguments in \link[Makurhini]{distancefile}.
 #' @param distance_thresholds A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range. Can be the same length as the \code{distance_thresholds} parameter.
+#' @param threshold \code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing. Can be the same length as the \code{distance_thresholds} parameter.
 #' @param probability A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.
+#' @param pij_min \code{numeric}. Minimum dispersal probability threshold: node pairs with pij < pij_min are excluded from the PC calculation, reducing the number of links evaluated and speeding up processing.
 #' @param transboundary \code{numeric}. Buffer to select polygons (e.g., PAs) in a second round. The selected polygons will have an attribute value = 0, i.e., their contribution for connectivity would be as stepping stones (Saura et al. 2017). One cross-border value or one for each threshold distance can be set.
 #' @param transboundary_type \code{character}. Two options: \code{"nodes" (methodology from Saura et al. 2017)} or \code{"region"}.\cr
 #' - If it is \code{"nodes"}, the transboundary is built from the limits of the nodes present in the region (default).
@@ -74,7 +76,9 @@ MK_ProtConn_raster <- function(nodes,
                                area_unit = "m2",
                                distance = list(type= "edge", resistance = NULL),
                                distance_thresholds,
+                               threshold = NULL,
                                probability,
+                               pij_min = NULL,
                                transboundary = NULL,
                                transboundary_type = "nodes",
                                protconn_bound = FALSE,
@@ -396,11 +400,13 @@ MK_ProtConn_raster <- function(nodes,
       }
       plan(strategy = strat, gc = TRUE, workers = works)
       ProtConn_res <- tryCatch(future_map( 1:length(transboundary), function(x){
-        x.1 <-ProtConn_Estimation_raster(patches = list(nodes_centroid, nodes.1, nodes),
+        x.1 <- ProtConn_Estimation_raster(patches = list(nodes_centroid, nodes.1, nodes),
                                    n = transboundary[x],
                                    distance = distance,
                                    distance_thresholds = distance_thresholds,
+                                   threshold = threshold,
                                    probability = probability,
+                                   pij_min = pij_min,
                                    delta = delta,
                                    region = region,
                                    resist = resist,
@@ -424,7 +430,9 @@ MK_ProtConn_raster <- function(nodes,
                                    n = transboundary[x],
                                    distance = distance,
                                    distance_thresholds = distance_thresholds,
+                                   threshold = threshold,
                                    probability = probability,
+                                   pij_min = pij_min,
                                    delta = delta,
                                    LA = LA, works = NULL,
                                    region = region,
@@ -463,7 +471,9 @@ MK_ProtConn_raster <- function(nodes,
 #' @param distance list
 #' @param intern logical
 #' @param distance_thresholds numeric
+#' @param threshold numeric
 #' @param probability numeric
+#' @param pij_min numeric
 #' @param delta logical
 #' @param LA numeric
 #' @param works numeric
@@ -477,7 +487,9 @@ MK_ProtConn_raster <- function(nodes,
 ProtConn_Estimation_raster <- function(patches = NULL, n = NULL,
                                        distance = NULL, intern = TRUE,
                                        distance_thresholds = NULL,
+                                       threshold = NULL,
                                        probability = NULL,
+                                       pij_min = NULL,
                                        delta = FALSE,
                                        region = NULL,
                                        resist = NULL,
@@ -506,13 +518,31 @@ ProtConn_Estimation_raster <- function(patches = NULL, n = NULL,
     }
     result <- lapply(1:length(distance_thresholds), function(x){
       x.2 <- distance_thresholds[x]
-      DataProtconn <- get_protconn_grid(x = list(patches[[1]],
+
+      if(!is.null(threshold)){
+        dist.i <- distance.1
+        if(length(threshold) > 1){
+          dist.i[which(dist.i <= threshold[x])] <- NA
+        } else{
+          dist.i[which(dist.i <= threshold)] <- NA
+        }
+        DataProtconn <- get_protconn_grid(x = list(patches[[1]],
                                                  patches[[1]]$attribute),
-                                        y = distance.1,
+                                        y = dist.i,
                                         p = probability,
-                                        pmedian = TRUE,
+                                        pij_min = pij_min,
                                         d = x.2,
                                         LA = LA, bound = protconn_bound)
+      } else {
+        DataProtconn <- get_protconn_grid(x = list(patches[[1]],
+                                                   patches[[1]]$attribute),
+                                          y = distance.1,
+                                          p = probability,
+                                          pij_min = pij_min,
+                                          d = x.2,
+                                          LA = LA, bound = protconn_bound)
+      }
+
       DataProtconn <- round(DataProtconn, 4)
 
       if(length(which(DataProtconn[5:ncol(DataProtconn)] > 100)) > 0){

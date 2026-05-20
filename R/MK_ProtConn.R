@@ -15,7 +15,9 @@
 #'   }
 #'   See more arguments in \link[Makurhini]{distancefile}.
 #' @param distance_thresholds A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range. Can be the same length as the \code{distance_thresholds} parameter.
+#' @param threshold \code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing. Can be the same length as the \code{distance_thresholds} parameter.
 #' @param probability A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.
+#' @param pij_min \code{numeric}. Minimum dispersal probability threshold: node pairs with pij < pij_min are excluded from the PC calculation, reducing the number of links evaluated and speeding up processing.
 #' @param transboundary \code{numeric}. Buffer to select polygons (e.g., PAs) in a second round. The selected polygons will have an attribute value = 0, i.e., their contribution for connectivity would be as stepping stones (Saura et al. 2017). One cross-border value or one for each threshold distance can be set.
 #' @param transboundary_type \code{character}. Two options: \code{"nodes" (methodology from Saura et al. 2017)} or \code{"region"}.\cr
 #' - If it is \code{"nodes"}, the transboundary is built from the limits of the nodes present in the region (default).
@@ -72,8 +74,10 @@ MK_ProtConn <- function(nodes = NULL,
                         region = NULL,
                         area_unit = "m2",
                         distance = list(type= "edge", resistance = NULL),
-                        distance_thresholds = NULL,
                         probability = 0.5,
+                        pij_min = NULL,
+                        distance_thresholds = NULL,
+                        threshold = NULL,
                         transboundary = NULL,
                         transboundary_type = "nodes",
                         protconn_bound = FALSE,
@@ -100,6 +104,15 @@ MK_ProtConn <- function(nodes = NULL,
     }
   }
 
+  if(!is.null(threshold)){
+    if(length(threshold)>1){
+      if(length(threshold) != length(distance_thresholds)){
+        stop("If you use more than one `threshold`,
+             it must be the same length as the `distance_thresholds` argument")
+      }
+    }
+  }
+
   if (!is.null(write)) {
     if (!dir.exists(dirname(write))) {
       stop("error, output folder does not exist")
@@ -112,8 +125,10 @@ MK_ProtConn <- function(nodes = NULL,
   }
 
   if(length(transboundary) == 1 & length(distance_thresholds) == 1){
-    parallel <- NULL
-    message("Parallel will be switched off because it's only useful when you have multiple values for distance_thresholds or transboundary parameters.")
+    if(!is.null(parallel)){
+      parallel <- NULL
+      message("Parallel will be switched off because it's only useful when you have multiple values for distance_thresholds or transboundary parameters.")
+    }
   } else {
     trans_paral <- ifelse(length(transboundary) > 1, TRUE, FALSE)
   }
@@ -148,6 +163,7 @@ MK_ProtConn <- function(nodes = NULL,
   base_param2 <- metric_class(metric = "ProtConn",
                               distance_threshold = distance_thresholds,
                               probability = probability,
+                              pij_min = pij_min,
                               transboundary = transboundary,
                               distance = distance)
 
@@ -168,6 +184,8 @@ MK_ProtConn <- function(nodes = NULL,
 
     if(is.numeric(nodes.1)){
       nodes.delta <- over_poly(x = base_param1@nodes, y = base_param1@region, geometry = TRUE)
+    } else {
+      nodes.delta <- NULL
     }
   } else {
     nodes.1 <- "No nodes"
@@ -317,6 +335,7 @@ MK_ProtConn <- function(nodes = NULL,
 #' @param transboundary_type character
 #' @param transboundary numeric
 #' @param protconn_bound logical
+#' @param threshold numeric
 #' @param LA numeric
 #' @param plot logical
 #' @param parallel numeric
@@ -337,6 +356,7 @@ ProtConn_Estimation <- function(base_param3 = NULL,
                                 transboundary_type = NULL,
                                 transboundary = NULL,
                                 protconn_bound = FALSE,
+                                threshold = NULL,
                                 plot = TRUE,
                                 parallel = NULL,
                                 LA = NULL,
@@ -373,15 +393,37 @@ ProtConn_Estimation <- function(base_param3 = NULL,
          length(base_param3[[2]]@distance_threshold ) > 1) {
         pb <- txtProgressBar(0,length(base_param3[[2]]@distance_threshold), style = 3)
       }
+      #threshold <- 100000
+      #x=1
       result <- lapply(1:length(base_param3[[2]]@distance_threshold), function(x){
         d.2 <- base_param3[[2]]@distance_threshold[x]
-        DataProtconn <- get_protconn_grid(x = nodes.2,
-                                          y = distance.1,
-                                          p = base_param3[[2]]@probability,
-                                          pmedian = TRUE,
-                                          d = d.2,
-                                          LA = base_param3[[5]],
-                                          bound = protconn_bound)
+
+        if(!is.null(threshold)){
+          dist.i <- distance.1
+          if(length(threshold) > 1){
+            dist.i[which(dist.i <= threshold[x])] <- NA
+          } else{
+            dist.i[which(dist.i <= threshold)] <- NA
+          }
+          DataProtconn <- get_protconn_grid(x = nodes.2,
+                                            y = dist.i,
+                                            p = base_param3[[2]]@probability,
+                                            pij_min = if(is.infinite(Inf)){NULL}else{base_param3[[2]]@pij_min},
+                                            d = d.2,
+                                            th = TRUE,
+                                            LA = base_param3[[5]],
+                                            bound = protconn_bound)
+        } else {
+          DataProtconn <- get_protconn_grid(x = nodes.2,
+                                            y = distance.1,
+                                            p = base_param3[[2]]@probability,
+                                            pij_min = if(is.infinite(Inf)){NULL}else{base_param3[[2]]@pij_min},
+                                            th = FALSE,
+                                            d = d.2,
+                                            LA = base_param3[[5]],
+                                            bound = protconn_bound)
+        }
+
         DataProtconn <- round(DataProtconn, 4)
 
         if(length(which(DataProtconn[5:ncol(DataProtconn)] > 100)) > 0){
@@ -455,13 +497,31 @@ ProtConn_Estimation <- function(base_param3 = NULL,
       plan(strategy = strat, gc = TRUE, workers = works)
       result <- future_map(1:length(base_param3[[2]]@distance_threshold), function(x){
         d.2 <- base_param3[[2]]@distance_threshold[x]
-        DataProtconn <- get_protconn_grid(x = nodes.2,
-                                          y = distance.1,
-                                          p = base_param3[[2]]@probability,
-                                          pmedian = TRUE,
-                                          d = d.2,
-                                          LA = base_param3[[5]],
-                                          bound = protconn_bound)
+
+        if(!is.null(threshold)){
+          dist.i <- distance.1
+          if(length(threshold) > 1){
+            dist.i[which(dist.i <= threshold[x])] <- NA
+          } else{
+            dist.i[which(dist.i <= threshold)] <- NA
+          }
+          DataProtconn <- get_protconn_grid(x = nodes.2,
+                                            y = dist.i,
+                                            p = base_param3[[2]]@probability,
+                                            pij_min = base_param3[[2]]@pij_min,
+                                            d = d.2,
+                                            LA = base_param3[[5]],
+                                            bound = protconn_bound)
+        } else {
+          DataProtconn <- get_protconn_grid(x = nodes.2,
+                                            y = distance.1,
+                                            p = base_param3[[2]]@probability,
+                                            pij_min = base_param3[[2]]@pij_min,
+                                            d = d.2,
+                                            LA = base_param3[[5]],
+                                            bound = protconn_bound)
+        }
+
         DataProtconn <- round(DataProtconn, 4)
 
         if(length(which(DataProtconn[5:ncol(DataProtconn)] > 100)) > 0){

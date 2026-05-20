@@ -10,10 +10,11 @@ MK_dECA(
   area_unit = "m2",
   weighted = FALSE,
   distance = list(type = "centroid", resistance = NULL),
-  threshold = NULL,
   metric = "IIC",
   probability = NULL,
+  pij_min = 0.01,
   distance_thresholds = NULL,
+  threshold = NULL,
   LA = NULL,
   plot = FALSE,
   parallel = NULL,
@@ -43,13 +44,15 @@ MK_dECA(
  if nodes has a list of two times then you can use two resistances one for time 1 and one for time 2:
  \code{distance(type = "least-cost", resistance = list(resistanceT1, resistanceT2))}.}
 
-\item{threshold}{\code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing.}
-
 \item{metric}{A \code{character} indicating the connectivity metric to use: \code{"PC"} (the default and recommended) to calculate the probability of connectivity index, and \code{"IIC"} to calculate the binary integral index of connectivity.}
 
 \item{probability}{A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.}
 
+\item{pij_min}{\code{numeric}. Minimum dispersal probability threshold: node pairs with pij < pij_min are excluded from the PC calculation, reducing the number of links evaluated and speeding up processing.}
+
 \item{distance_thresholds}{A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range. Can be the same length as the \code{distance_thresholds} parameter.}
+
+\item{threshold}{\code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing.}
 
 \item{LA}{\code{numeric}. (\emph{optional, default = } \code{NULL}). The maximum landscape attribute, which is the attribute value that would correspond to a hypothetical habitat patch covering all the landscape with the best possible habitat, in which IIC and PC would be equal to 1. For example, if nodes attribute corresponds to the node area, then LA equals total landscape area. If nodes attribute correspond to a quality-weighted area and the quality factor ranges from 0 to 100, LA will be equal to 100 multiplied by total landscape area. The value of LA does not affect at all the importance of the nodes and is only used to calculate the overall landscape connectivity. If no LA value is entered (default) and  \code{overall = TRUE} or \code{onlyoverall = TRUE}, the function will only calculate the numerator of the global connectivity indices and the equivalent connected ECA or EC index.}
 

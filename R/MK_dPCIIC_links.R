@@ -19,6 +19,7 @@
 #' To see more arguments see the \link[Makurhini]{distancefile} function.
 #' @param metric A \code{character} indicating the connectivity metric to use: \code{"PC"} (the default and recommended) to calculate the probability of connectivity index, and \code{"IIC"} to calculate the binary integral index of connectivity.
 #' @param probability A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the "PC" metric. If \code{probability = NULL}, then a probability of 0.5 will be used.
+#' @param pij_min \code{numeric}. Minimum dispersal probability threshold: node pairs with pij < pij_min are excluded from the PC calculation, reducing the number of links evaluated and speeding up processing.
 #' @param distance_thresholds A \code{numeric} indicating the dispersal distance or distances (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range.
 #' @param threshold \code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing.
 #' @param removal \code{logical} indicating whether the link removal mode should be used to calculate link importance (see details). Default is TRUE.
@@ -109,6 +110,7 @@ MK_dPCIIC_links <- function(nodes,
                             distance = list(type = "centroid", resistance = NULL),
                             metric = c("IIC","PC"),
                             probability = NULL,
+                            pij_min = 0.01,
                             distance_thresholds = NULL,
                             threshold = NULL,
                             removal = TRUE,
@@ -139,6 +141,15 @@ MK_dPCIIC_links <- function(nodes,
       instr_dist <- TRUE
     } else {
       stop("Type must be either 'IIC', or 'PC'")
+    }
+  }
+
+  if(!is.null(threshold)){
+    if(length(threshold)>1){
+      if(length(threshold) != length(distance_thresholds)){
+        stop("If you use more than one `threshold`,
+             it must be the same length as the `distance_thresholds` argument")
+      }
     }
   }
 
@@ -276,7 +287,7 @@ MK_dPCIIC_links <- function(nodes,
   result_d <- lapply(1:length(distance_thresholds), function(x) {
     x.1 <- distance_thresholds[x]
 
-    if(isTRUE(threshold)){
+    if(!is.null(threshold)){
       if(length(threshold)>1){
         dist <- dist.i
         dist[which(dist <= threshold[x])] <- NA
@@ -291,6 +302,7 @@ MK_dPCIIC_links <- function(nodes,
                                distance_threshold = x.1,
                                igraph_Dijkstra = instr_dist,
                                parallel = parallel,
+                               pij_min = pij_min,
                                return_graph = TRUE,
                                loop = TRUE, G1 = 1000,
                                intern = intern), error = function(err)err)

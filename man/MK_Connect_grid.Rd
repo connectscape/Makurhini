@@ -12,7 +12,9 @@ MK_Connect_grid(
     tolerance = NULL),
   protconn = TRUE,
   distance_threshold = NULL,
+  threshold = NULL,
   probability = NULL,
+  pij_min = NULL,
   transboundary = NULL,
   distance = list(type = "centroid"),
   intern = TRUE,
@@ -36,7 +38,11 @@ Use this parameter to generate a grid indicating its characteristics in a \code{
 
 \item{distance_threshold}{A \code{numeric} indicating the dispersal distance (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range.}
 
+\item{threshold}{\code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing. Can be the same length as the \code{distance_thresholds} parameter.}
+
 \item{probability}{A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.}
+
+\item{pij_min}{\code{numeric}. Minimum dispersal probability threshold: node pairs with pij < pij_min are excluded from the PC calculation, reducing the number of links evaluated and speeding up processing.}
 
 \item{transboundary}{\code{numeric}. Buffer to select transboundary polygones, see \link[Makurhini]{MK_ProtConn}.}
 

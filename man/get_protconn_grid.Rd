@@ -4,7 +4,16 @@
 \alias{get_protconn_grid}
 \title{Estimates ProtConn metric and fractions for a grid}
 \usage{
-get_protconn_grid(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FALSE)
+get_protconn_grid(
+  x,
+  y,
+  p,
+  d,
+  pij_min = 0.01,
+  th = FALSE,
+  LA = NULL,
+  bound = FALSE
+)
 }
 \arguments{
 \item{x}{list.}
@@ -13,9 +22,11 @@ get_protconn_grid(x, y, p, pmedian = TRUE, d, LA = NULL, bound = FALSE)
 
 \item{p}{numeric. Probability}
 
-\item{pmedian}{logical. median (TRUE) or mean(FALSE) dispersal distance}
-
 \item{d}{numeric. Dispersal distance}
+
+\item{pij_min}{numeric. Minimum probability}
+
+\item{th}{logic. Threshold}
 
 \item{LA}{numeric. Max. landscape attribute}
 

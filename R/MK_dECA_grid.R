@@ -18,6 +18,7 @@
 #'  \code{distance(type = "least-cost", resistance = list(resistanceT1, resistanceT2))}.
 #' @param metric A \code{character} indicating the connectivity metric to use: \code{"PC"} (the default and recommended) to calculate the probability of connectivity index, and \code{"IIC"} to calculate the binary integral index of connectivity.
 #' @param probability A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.
+#' @param pij_min \code{numeric}. Minimum dispersal probability threshold: node pairs with pij < pij_min are excluded from the PC calculation, reducing the number of links evaluated and speeding up processing.
 #' @param distance_threshold A \code{numeric} indicating the dispersal distance (meters) of the considered species. If \code{NULL} then distance is estimated as the median dispersal distance between nodes. Alternatively, the \link[Makurhini]{dispersal_distance} function can be used to estimate the dispersal distance using the species home range. Can be the same length as the \code{distance_thresholds} parameter.
 #' @param threshold \code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing.
 #' @param parallel \code{numeric}. Specify the number of cores to use for parallel processing, \code{default = NULL}. Parallelize the function using furrr package.
@@ -87,8 +88,9 @@ MK_dECA_grid <- function(nodes,
                          distance = list(type = "centroid"),
                          metric = "IIC",
                          distance_threshold = NULL,
-                         threshold,
+                         threshold = NULL,
                          probability = NULL,
+                         pij_min = NULL,
                          parallel = NULL,
                          intern = TRUE){
   options(warn = -1)
@@ -239,7 +241,9 @@ MK_dECA_grid <- function(nodes,
                                 distance = distance2,
                                 metric = metric,
                                 probability = probability,
+                                pij_min = pij_min,
                                 distance_thresholds = distance_threshold,
+                                threshold = threshold,
                                 onlyoverall = TRUE,
                                 LA = LA, intern = FALSE)
               ECAi <- ECAi[2,2]
@@ -255,7 +259,9 @@ MK_dECA_grid <- function(nodes,
                                        distance = distance2,
                                        metric = metric,
                                        probability = probability,
+                                       pij_min = pij_min,
                                        distance_thresholds = distance_threshold,
+                                       threshold = threshold,
                                        LA = LA,
                                        plot = FALSE, parallel = NULL,
                                        write = NULL, intern = FALSE), error = function(err)err)
@@ -343,7 +349,9 @@ MK_dECA_grid <- function(nodes,
                                 distance = distance2,
                                 metric = metric,
                                 probability = probability,
+                                pij_min = pij_min,
                                 distance_thresholds = distance_threshold,
+                                threshold = threshold,
                                 onlyoverall = TRUE,
                                 LA = LA, intern = FALSE)
               ECAi <- ECAi[2,2]
@@ -359,7 +367,9 @@ MK_dECA_grid <- function(nodes,
                                        distance = distance2,
                                        metric = metric,
                                        probability = probability,
+                                       pij_min = pij_min,
                                        distance_thresholds = distance_threshold,
+                                       threshold = threshold,
                                        LA = LA,
                                        plot = FALSE, parallel = NULL,
                                        write = NULL, intern = FALSE), error = function(err)err)

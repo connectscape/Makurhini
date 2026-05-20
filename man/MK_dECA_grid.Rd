@@ -15,8 +15,9 @@ MK_dECA_grid(
   distance = list(type = "centroid"),
   metric = "IIC",
   distance_threshold = NULL,
-  threshold,
+  threshold = NULL,
   probability = NULL,
+  pij_min = NULL,
   parallel = NULL,
   intern = TRUE
 )
@@ -51,6 +52,8 @@ if nodes has a list with two time patches then you can use two resistances one f
 \item{threshold}{\code{numeric}. Pairs of nodes with a distance value greater than this threshold will be discarded in the analysis which can speed up processing.}
 
 \item{probability}{A \code{numeric} value indicating the probability that corresponds to the distance specified in the \code{distance_threshold}. For example, if the \code{distance_threshold} is a median dispersal distance, use a probability of 0.5 (50\%). If the \code{distance_threshold} is a maximum dispersal distance, set a probability of 0.05 (5\%) or 0.01 (1\%). Use in case of selecting the \code{"PC"} metric. If \code{probability = NULL}, then a probability of 0.5 will be used.}
+
+\item{pij_min}{\code{numeric}. Minimum dispersal probability threshold: node pairs with pij < pij_min are excluded from the PC calculation, reducing the number of links evaluated and speeding up processing.}
 
 \item{parallel}{\code{numeric}. Specify the number of cores to use for parallel processing, \code{default = NULL}. Parallelize the function using furrr package.}
 

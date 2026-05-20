@@ -13,6 +13,7 @@ ProtConn_Estimation(
   transboundary_type = NULL,
   transboundary = NULL,
   protconn_bound = FALSE,
+  threshold = NULL,
   plot = TRUE,
   parallel = NULL,
   LA = NULL,
@@ -36,6 +37,8 @@ ProtConn_Estimation(
 \item{transboundary}{numeric}
 
 \item{protconn_bound}{logical}
+
+\item{threshold}{numeric}
 
 \item{plot}{logical}
 

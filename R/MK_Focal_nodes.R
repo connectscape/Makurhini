@@ -695,12 +695,12 @@ MK_Focal_nodes <- function(nodes = NULL,
       })
 
       if(any(isTRUE(save_subfiles) | is.character(save_subfiles))){
-        salida <- paste0(if(is.character(save_subfiles)){basename(ss)} else {basename(write)},
+        save_rds <- paste0(if(is.character(save_subfiles)){basename(ss)} else {basename(write)},
                          "_MK_", i,".Rds") |> gsub("__", "_", x = _)
-        salida <- paste0(ss, "/", salida); saveRDS(resultado.i, file = salida)
+        save_rds <- paste0(ss, "/", save_rds); saveRDS(resultado.i, file = save_rds)
       }
       return(resultado.i)
-    }, .progress = intern), error = function(err)err)
+    }, .progress = intern), error = function(err) err)
     close_multiprocess(works)
   }
 
@@ -710,11 +710,14 @@ MK_Focal_nodes <- function(nodes = NULL,
     if(any(isTRUE(save_subfiles)|is.character(save_subfiles))){
       salida <- paste0(if(is.character(save_subfiles)){basename(ss)} else {basename(write)})
       resu <- list.files(ss, pattern = ".Rds$", full.names = TRUE)
-      resu.2 <- basename(resu); resu.2 <- gsub(paste0(".Rds|", salida, "_MK_"), "", resu.2)
-      resultado <-  lapply(1:length(resu), function(x){
+      #resu.2 <- basename(resu); resu.2 <- gsub(paste0(".Rds|", salida, "_MK_"), "", resu.2)
+      removefl <- paste0(if(is.character(save_subfiles)){basename(ss)} else {basename(write)},
+                         "_MK_") |> gsub("__", "_", x = _)
+      resu.2 <- basename(resu); resu.2 <- gsub("\\.Rds$", "", resu.2)
+      resu.2 <- gsub(removefl, "", resu.2)
+      resultado <- lapply(1:length(resu), function(x){
         x.0 <- resu[which(resu.2 == as.character(x))]
-        x.1 <- readRDS(x.0); return(x.1)
-      })
+        x.1 <- readRDS(x.0); return(x.1)})
     }
 
     if(length(distance_thresholds) > 1){
@@ -731,7 +734,7 @@ MK_Focal_nodes <- function(nodes = NULL,
         x.1 <- x.1[,select_column]; names(x.1)[which(names(x.1) == "indice_val")] <- "Attrib_val"
         if(!is.null(write)){
           salida <- paste0(write, "_d", distance_thresholds[x], ".gpkg") |> gsub("__", "_", x = _)
-          write_sf(IIC_dIIC, salida)
+          write_sf(x.1, salida, delete_layer = TRUE)
         }
         return(x.1)
       })
@@ -757,7 +760,7 @@ MK_Focal_nodes <- function(nodes = NULL,
       IIC_dIIC <- IIC_dIIC[,select_column]; names(IIC_dIIC)[which(names(IIC_dIIC) == "indice_val")] <- "Attrib_val"
       if(!is.null(write)){
         salida <- paste0(write, "_", distance_thresholds, ".gpkg") |> gsub("__", "_", x = _)
-        write_sf(IIC_dIIC, salida)
+        write_sf(IIC_dIIC, salida, delete_layer = TRUE)
       }
     }
   }

@@ -61,7 +61,8 @@ To see more arguments see the \link[Makurhini]{distancefile} function.}
 
 \item{search_buffer}{\code{numeric}. Distance or distances (i.e., it can be a search distance for each dispersion distance of the parameter \code{distance_thresholds}) used to create a buffer around the focal node (also called focal habitat patch), which is used to select neighbouring nodes (transboundary habitat patches) with which it has the highest probability of connectivity.}
 
-\item{simplify_shape}{\code{numeric}. It helps to simplify the shape of the focal node by eliminating vertices to buffer and select neighbouring nodes. Its use is recommended when some of the nodes have very complex shapes. See \link[sf]{st_simplify} for details.}
+\item{simplify_shape}{\code{numeric}. Simplification tolerance in meters used to reduce polygon vertices with the Douglas-Peucker algorithm (\code{\link[sf]{st_simplify}}). Simplified geometries are used only
+to identify focal and neighboring nodes at each iteration, while original geometries are preserved for connectivity calculations. Excessive simplification may affect node selection.}
 
 \item{fragmentation}{\code{logic}. Estimates fragmentation statistics for the focal nodes using the function \link[Makurhini]{MK_Fragmentation}. It is necessary to use the parameters \bold{edge_distance} and \bold{min_node_area}.}
 
